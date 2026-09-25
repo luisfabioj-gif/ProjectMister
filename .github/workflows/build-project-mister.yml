@@ -1,1 +1,595 @@
+name: Build Project Mister APK
 
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Create Project Mister
+        shell: bash
+        run: |
+          mkdir -p app/src/main/java/com/projectmister/game
+          mkdir -p app/src/main/res/values
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+
+          rootProject.name = "ProjectMister"
+          include(":app")
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.7.3' apply false
+          }
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+
+          android {
+              namespace 'com.projectmister.game'
+              compileSdk 35
+
+              defaultConfig {
+                  applicationId "com.projectmister.game"
+                  minSdk 26
+                  targetSdk 35
+                  versionCode 1
+                  versionName "0.1"
+              }
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:statusBarColor">#07151F</item>
+                  <item name="android:navigationBarColor">#07151F</item>
+                  <item name="android:windowLightStatusBar">false</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application
+                  android:theme="@style/AppTheme"
+                  android:label="Project Mister"
+                  android:allowBackup="true">
+                  <activity
+                      android:name=".MainActivity"
+                      android:screenOrientation="portrait"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat > app/src/main/java/com/projectmister/game/MainActivity.java <<'EOF'
+          package com.projectmister.game;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.graphics.Color;
+          import android.graphics.Typeface;
+          import android.view.View;
+          import android.widget.Button;
+          import android.widget.LinearLayout;
+          import android.widget.ScrollView;
+          import android.widget.TextView;
+
+          import java.util.ArrayList;
+          import java.util.Arrays;
+          import java.util.Collections;
+          import java.util.Comparator;
+          import java.util.List;
+          import java.util.Locale;
+          import java.util.Random;
+
+          public class MainActivity extends Activity {
+
+              private final String[] clubs = {
+                      "Lisboa Águias",
+                      "Lisboa Leões",
+                      "Porto Dragões",
+                      "Braga Guerreiros",
+                      "Guimarães Castelo",
+                      "Famal Norte",
+                      "Moreira FC",
+                      "Vila do Conde",
+                      "Barcelos FC",
+                      "Estoril Praia",
+                      "Lisboa Corvos",
+                      "Açores FC",
+                      "Madeira Nacional",
+                      "Alverca Atlético",
+                      "Arouca FC",
+                      "Amadora Estrela",
+                      "Tondela SC",
+                      "Vila das Aves"
+              };
+
+              private final String[] shortNames = {
+                      "LAG", "LLE", "PDR", "BGR", "GCT", "FAM",
+                      "MOR", "VDC", "BAR", "EST", "LCO", "ACO",
+                      "MDN", "ALV", "ARO", "AMA", "TON", "VDA"
+              };
+
+              private final int[] strength = {
+                      88, 87, 86, 81, 78, 75,
+                      72, 71, 70, 72, 68, 71,
+                      69, 67, 70, 67, 66, 65
+              };
+
+              private final int[] budgets = {
+                      42, 38, 36, 20, 12, 10,
+                      8, 9, 7, 10, 6, 8,
+                      7, 6, 8, 6, 5, 5
+              };
+
+              private final int[] played = new int[18];
+              private final int[] won = new int[18];
+              private final int[] drawn = new int[18];
+              private final int[] lost = new int[18];
+              private final int[] goalsFor = new int[18];
+              private final int[] goalsAgainst = new int[18];
+              private final int[] points = new int[18];
+
+              private final Random random = new Random();
+
+              private int selectedClub = -1;
+              private int matchday = 0;
+
+              private final int background = Color.rgb(7, 21, 31);
+              private final int panel = Color.rgb(15, 42, 54);
+              private final int accent = Color.rgb(40, 190, 115);
+              private final int text = Color.WHITE;
+              private final int muted = Color.rgb(180, 196, 205);
+
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  getWindow().setStatusBarColor(background);
+                  getWindow().setNavigationBarColor(background);
+                  showClubSelection();
+              }
+
+              private LinearLayout createPage(String title, String subtitle) {
+                  ScrollView scroll = new ScrollView(this);
+                  scroll.setBackgroundColor(background);
+
+                  LinearLayout page = new LinearLayout(this);
+                  page.setOrientation(LinearLayout.VERTICAL);
+                  page.setPadding(dp(20), dp(24), dp(20), dp(32));
+                  scroll.addView(page);
+
+                  TextView brand = makeText("PROJECT MISTER", 13, accent);
+                  brand.setTypeface(Typeface.DEFAULT_BOLD);
+                  page.addView(brand);
+
+                  TextView heading = makeText(title, 30, text);
+                  heading.setTypeface(Typeface.DEFAULT_BOLD);
+                  heading.setPadding(0, dp(8), 0, dp(4));
+                  page.addView(heading);
+
+                  TextView sub = makeText(subtitle, 15, muted);
+                  sub.setPadding(0, 0, 0, dp(20));
+                  page.addView(sub);
+
+                  setContentView(scroll);
+                  return page;
+              }
+
+              private TextView makeText(String value, int size, int colour) {
+                  TextView tv = new TextView(this);
+                  tv.setText(value);
+                  tv.setTextSize(size);
+                  tv.setTextColor(colour);
+                  tv.setLineSpacing(0, 1.15f);
+                  return tv;
+              }
+
+              private Button makeButton(String label, View.OnClickListener click) {
+                  Button button = new Button(this);
+                  button.setText(label);
+                  button.setTextSize(16);
+                  button.setTextColor(Color.WHITE);
+                  button.setAllCaps(false);
+                  button.setBackgroundColor(panel);
+                  button.setPadding(dp(14), dp(10), dp(14), dp(10));
+
+                  LinearLayout.LayoutParams params =
+                          new LinearLayout.LayoutParams(
+                                  LinearLayout.LayoutParams.MATCH_PARENT,
+                                  LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                  params.setMargins(0, 0, 0, dp(10));
+                  button.setLayoutParams(params);
+                  button.setOnClickListener(click);
+                  return button;
+              }
+
+              private void showClubSelection() {
+                  LinearLayout page = createPage(
+                          "Choose your club",
+                          "Portugal • Season 2026/27\nBuild your reputation. Develop players. Become champion."
+                  );
+
+                  for (int i = 0; i < clubs.length; i++) {
+                      final int club = i;
+
+                      String label =
+                              clubs[i]
+                              + "\nStrength " + strength[i]
+                              + "   •   Budget €" + budgets[i] + "m";
+
+                      page.addView(makeButton(label, v -> {
+                          selectedClub = club;
+                          showDashboard();
+                      }));
+                  }
+              }
+
+              private void showDashboard() {
+                  LinearLayout page = createPage(
+                          clubs[selectedClub],
+                          "Manager Dashboard • Matchday " + (matchday + 1)
+                  );
+
+                  TextView info = makeText(
+                          "CLUB OVERVIEW\n\n"
+                                  + "Strength        " + strength[selectedClub] + "/100\n"
+                                  + "Transfer budget   €" + budgets[selectedClub] + "m\n"
+                                  + "League points     " + points[selectedClub] + "\n"
+                                  + "Matches played    " + played[selectedClub],
+                          17,
+                          text
+                  );
+
+                  info.setBackgroundColor(panel);
+                  info.setPadding(dp(18), dp(18), dp(18), dp(18));
+                  page.addView(info);
+
+                  TextView gap = makeText("", 8, text);
+                  page.addView(gap);
+
+                  Button play = makeButton("⚽  PLAY NEXT MATCHDAY", v -> playMatchday());
+                  play.setBackgroundColor(accent);
+                  page.addView(play);
+
+                  page.addView(makeButton("👥  View Squad", v -> showSquad()));
+                  page.addView(makeButton("🏆  League Table", v -> showLeagueTable()));
+                  page.addView(makeButton("🔄  Change Club", v -> showClubSelection()));
+              }
+
+              private void playMatchday() {
+                  List<Integer> order = new ArrayList<>();
+
+                  for (int i = 0; i < clubs.length; i++) {
+                      order.add(i);
+                  }
+
+                  Collections.shuffle(order, random);
+
+                  int selectedPosition = order.indexOf(selectedClub);
+                  Collections.swap(order, 0, selectedPosition);
+
+                  if (random.nextBoolean()) {
+                      Collections.swap(order, 0, 1);
+                  }
+
+                  StringBuilder results = new StringBuilder();
+                  String selectedResult = "";
+
+                  for (int i = 0; i < order.size(); i += 2) {
+                      int home = order.get(i);
+                      int away = order.get(i + 1);
+
+                      int homeGoals = simulateGoals(home, away, true);
+                      int awayGoals = simulateGoals(away, home, false);
+
+                      updateTable(home, away, homeGoals, awayGoals);
+
+                      results.append(clubs[home])
+                              .append("  ")
+                              .append(homeGoals)
+                              .append(" - ")
+                              .append(awayGoals)
+                              .append("  ")
+                              .append(clubs[away])
+                              .append("\n\n");
+
+                      if (home == selectedClub || away == selectedClub) {
+                          selectedResult =
+                                  clubs[home]
+                                  + "  " + homeGoals
+                                  + " - " + awayGoals
+                                  + "  " + clubs[away];
+                      }
+                  }
+
+                  matchday++;
+
+                  LinearLayout page = createPage(
+                          "Full Time",
+                          "Matchday " + matchday
+                  );
+
+                  TextView mainResult = makeText(selectedResult, 23, accent);
+                  mainResult.setTypeface(Typeface.DEFAULT_BOLD);
+                  mainResult.setPadding(0, 0, 0, dp(22));
+                  page.addView(mainResult);
+
+                  TextView all = makeText("ALL RESULTS\n\n" + results, 15, text);
+                  all.setBackgroundColor(panel);
+                  all.setPadding(dp(16), dp(16), dp(16), dp(16));
+                  page.addView(all);
+
+                  page.addView(makeText("", 8, text));
+                  page.addView(makeButton("Continue", v -> showDashboard()));
+                  page.addView(makeButton("View League Table", v -> showLeagueTable()));
+              }
+
+              private int simulateGoals(int attackingTeam, int defendingTeam, boolean home) {
+                  int goals = random.nextInt(3);
+
+                  int difference = strength[attackingTeam] - strength[defendingTeam];
+
+                  if (difference >= 8 && random.nextDouble() < 0.55) {
+                      goals++;
+                  }
+
+                  if (difference >= 15 && random.nextDouble() < 0.35) {
+                      goals++;
+                  }
+
+                  if (difference <= -10 && goals > 0 && random.nextDouble() < 0.35) {
+                      goals--;
+                  }
+
+                  if (home && random.nextDouble() < 0.18) {
+                      goals++;
+                  }
+
+                  return Math.min(goals, 6);
+              }
+
+              private void updateTable(int home, int away, int homeGoals, int awayGoals) {
+                  played[home]++;
+                  played[away]++;
+
+                  goalsFor[home] += homeGoals;
+                  goalsAgainst[home] += awayGoals;
+
+                  goalsFor[away] += awayGoals;
+                  goalsAgainst[away] += homeGoals;
+
+                  if (homeGoals > awayGoals) {
+                      won[home]++;
+                      lost[away]++;
+                      points[home] += 3;
+                  } else if (awayGoals > homeGoals) {
+                      won[away]++;
+                      lost[home]++;
+                      points[away] += 3;
+                  } else {
+                      drawn[home]++;
+                      drawn[away]++;
+                      points[home]++;
+                      points[away]++;
+                  }
+              }
+
+              private void showLeagueTable() {
+                  LinearLayout page = createPage(
+                          "Liga Portugal",
+                          "Season 2026/27 • Matchday " + matchday
+                  );
+
+                  Integer[] order = new Integer[clubs.length];
+
+                  for (int i = 0; i < clubs.length; i++) {
+                      order[i] = i;
+                  }
+
+                  Arrays.sort(order, new Comparator<Integer>() {
+                      @Override
+                      public int compare(Integer a, Integer b) {
+                          if (points[a] != points[b]) {
+                              return Integer.compare(points[b], points[a]);
+                          }
+
+                          int gdA = goalsFor[a] - goalsAgainst[a];
+                          int gdB = goalsFor[b] - goalsAgainst[b];
+
+                          if (gdA != gdB) {
+                              return Integer.compare(gdB, gdA);
+                          }
+
+                          return Integer.compare(goalsFor[b], goalsFor[a]);
+                      }
+                  });
+
+                  StringBuilder table = new StringBuilder();
+                  table.append(" #  CLUB   P   W  D  L   GD  PTS\n");
+                  table.append("--------------------------------\n");
+
+                  for (int position = 0; position < order.length; position++) {
+                      int club = order[position];
+                      int gd = goalsFor[club] - goalsAgainst[club];
+
+                      table.append(
+                              String.format(
+                                      Locale.UK,
+                                      "%2d  %-4s  %2d  %2d %2d %2d  %+3d  %3d",
+                                      position + 1,
+                                      shortNames[club],
+                                      played[club],
+                                      won[club],
+                                      drawn[club],
+                                      lost[club],
+                                      gd,
+                                      points[club]
+                              )
+                      );
+
+                      if (club == selectedClub) {
+                          table.append("  ◀");
+                      }
+
+                      table.append("\n");
+                  }
+
+                  TextView standings = makeText(table.toString(), 14, text);
+                  standings.setTypeface(Typeface.MONOSPACE);
+                  standings.setBackgroundColor(panel);
+                  standings.setPadding(dp(12), dp(16), dp(12), dp(16));
+                  page.addView(standings);
+
+                  page.addView(makeText("", 8, text));
+                  page.addView(makeButton("Back to Dashboard", v -> showDashboard()));
+              }
+
+              private void showSquad() {
+                  LinearLayout page = createPage(
+                          clubs[selectedClub] + " Squad",
+                          "20-player first team"
+                  );
+
+                  String[] firstNames = {
+                          "João", "Miguel", "Tiago", "Diogo", "Rafael",
+                          "André", "Pedro", "Gonçalo", "Tomás", "Nuno",
+                          "Bruno", "Fábio", "Duarte", "Rodrigo"
+                  };
+
+                  String[] lastNames = {
+                          "Silva", "Costa", "Ferreira", "Santos", "Pereira",
+                          "Oliveira", "Sousa", "Martins", "Almeida", "Rocha",
+                          "Correia", "Mendes", "Carvalho", "Ribeiro"
+                  };
+
+                  String[] positions = {
+                          "GK", "GK",
+                          "RB", "CB", "CB", "CB", "LB", "LB",
+                          "DM", "CM", "CM", "CM", "AM", "RM", "LM",
+                          "RW", "LW", "ST", "ST", "ST"
+                  };
+
+                  Random squadRandom = new Random(5000L + selectedClub);
+
+                  StringBuilder squad = new StringBuilder();
+
+                  for (int i = 0; i < 20; i++) {
+                      String name =
+                              firstNames[squadRandom.nextInt(firstNames.length)]
+                              + " "
+                              + lastNames[squadRandom.nextInt(lastNames.length)];
+
+                      int rating =
+                              Math.max(
+                                      52,
+                                      Math.min(
+                                              92,
+                                              strength[selectedClub]
+                                                      - 8
+                                                      + squadRandom.nextInt(17)
+                                      )
+                              );
+
+                      int age = 17 + squadRandom.nextInt(18);
+
+                      squad.append(
+                              String.format(
+                                      Locale.UK,
+                                      "%-2s  %-18s  %2d   OVR %2d\n",
+                                      positions[i],
+                                      name,
+                                      age,
+                                      rating
+                              )
+                      );
+                  }
+
+                  TextView squadView = makeText(squad.toString(), 14, text);
+                  squadView.setTypeface(Typeface.MONOSPACE);
+                  squadView.setBackgroundColor(panel);
+                  squadView.setPadding(dp(12), dp(16), dp(12), dp(16));
+                  page.addView(squadView);
+
+                  page.addView(makeText("", 8, text));
+                  page.addView(makeButton("Back to Dashboard", v -> showDashboard()));
+              }
+
+              private int dp(int value) {
+                  float density = getResources().getDisplayMetrics().density;
+                  return Math.round(value * density);
+              }
+          }
+          EOF
+
+      - name: Build APK
+        run: gradle :app:assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Project-Mister-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
