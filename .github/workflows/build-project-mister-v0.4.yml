@@ -1,0 +1,2107 @@
+name: Build Project Mister APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Android SDK
+        run: |
+          SDKMANAGER=$(find /usr/local/lib/android/sdk/cmdline-tools -type f -name sdkmanager | head -n 1)
+          echo "Using sdkmanager: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Create Project Mister v0.4
+        shell: bash
+        run: |
+          mkdir -p app/src/main/java/com/projectmister/game
+          mkdir -p app/src/main/res/values
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+
+          rootProject.name = "ProjectMister"
+          include(":app")
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.7.3' apply false
+          }
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+
+          android {
+              namespace 'com.projectmister.game'
+              compileSdk 35
+
+              defaultConfig {
+                  applicationId "com.projectmister.game"
+                  minSdk 26
+                  targetSdk 35
+                  versionCode 4
+                  versionName "0.4"
+              }
+
+              signingConfigs {
+                  dev {
+                      storeFile file("$rootDir/project-mister-dev.keystore")
+                      storePassword "projectmisterdev"
+                      keyAlias "projectmister"
+                      keyPassword "projectmisterdev"
+                  }
+              }
+
+              buildTypes {
+                  debug {
+                      signingConfig signingConfigs.dev
+                  }
+              }
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:statusBarColor">#07151F</item>
+                  <item name="android:navigationBarColor">#07151F</item>
+                  <item name="android:windowLightStatusBar">false</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application
+                  android:theme="@style/AppTheme"
+                  android:label="Project Mister"
+                  android:allowBackup="true">
+                  <activity
+                      android:name=".MainActivity"
+                      android:screenOrientation="portrait"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          echo 'MIIKwgIBAzCCCmwGCSqGSIb3DQEHAaCCCl0EggpZMIIKVTCCBbwGCSqGSIb3DQEHAaCCBa0EggWpMIIFpTCCBaEGCyqGSIb3DQEMCgECoIIFQDCCBTwwZgYJKoZIhvcNAQUNMFkwOAYJKoZIhvcNAQUMMCsEFKMzwdYWCyZ6I03/n+l1DWyicU9rAgInEAIBIDAMBggqhkiG9w0CCQUAMB0GCWCGSAFlAwQBKgQQlTpeWsiXK1cuBacIomPG5ASCBNAI2vE1ZPf4tSc84su9aijOxJ+G/85wxQivuISNPILvqyd2qFm9yux24WD7+CYBvf39MjCQy50YnS+r0pxAb37iU1JIxVnZ1QR2PacTY1lgnN/NYcrPl5D/cpOCZmNxGiq6vN+NRYAcSOP2TeHmWL2ZCaWM7oZdPi+HUdFQcPzFr4W+Ja5ru7hrO5Rn5s/hogkfF7SnwQRszad0aa9LBsM/hJnqsWEjnlPHfYdzFhpog+CX5Xjo2Vv1qNx9rVDssA51qP26djtQJImQoq+17KRnMDw6no4XoM5RadN3l1EVfc/nHlMxaGBEyvw36GVnRudnW+/PN3hMv0Bv974E8HTkzEo91xgBw3n/pyJ0q3n4FRT+4sSD5jJWZE6Hg8wRcPYTUNcH2PEBj6fVYoZRHwCOB/vG26Ttpiz92q/mZtJzJ5PdRrBastdbIUzPTWM6O1H69aJZwnBhCp4aS6n7kz+a+cr5adNNixCDP7wbRyWnpMC8qnmhd21eJflMD4eeXGdP4iImSzkcP0hHLQC2/NFaDGOEdnKt7idUkoLf3opJc4E3CjHpVPIObrpLyQrXRElvQWip9ueQf7/k0vKwz8kGXlTXgS7pSWC654Y+QGrlYuyVNcpr+imcKJxVRm7QBL7zry/TkFofwstInVr7l6JNyZyQd6Oe0/SjV8cL+Qv1vLxBkJczvB2rGB+62F1iprkmTjU4qOPQK9tNHxWmyT2vTMJEr7e3lMNNE0Ny1k/GpqwfjUc049579vCiaMiUHOQEDtvD0CAZ1AzCS6+a57kjV2ojrnmSgKaeWgImhQx/Mq2dkyMaxJhadfoagU3SJDa9SVcbDHHu2Go0fy+5LzoA6keBp8rz8S/tz0qmifjTPaQVR9UPc529CzKyRrlVIj6Ae1oK8HEzH3FsVnn26TEimd4GKnGV7nghOMpcaa/Iyv99oKlFfJhKquXHfzJQCms8oaS/y2xsAkeCkKYeU/UdfaWbq0jOKp1qTjyySiugASNHfeEEEH2BpManGPKNwpjSr0w/1xFZsGgpHcah6SZOcNOXaqcmJKX5Ix2z03fErwMGHCINNtjpncmHjkWc6HiBXwZq1ekCbBT+fNzlSWduNq8dhWnSyULCPvP7hfBtGr80l3bmjexp+Jh3Tp3HljQcFN64EKdESiK+6k4on9vEHTjMAwrB/8EMcE/tpxW+xKDzkRBCxDsv7jkDva6E8ZA2SRnSLYTuip1AWx+1C+E2Pd0+EsxxfvxTHSz6T6EElYKN+N0SAMDMxfbcVTD+aEMGWs5bdZJkjDs9EnCv6CuEb4x2FAz3ij3WI3QtGP7uPXUdBXBY71BeSQDZc/6KHl3QeZj2H4KuVKg6XQ0VNAN2U12Fzoejvr2SRcJocUceYzACEMDccEHRLCX58tsttl8RG4F4utTVwHgkX4ypN+cz/q7HxT5XzFs7b1PI5hi38+IlS1c3jMz/a5olLm0Pv5KdtnPkJsON6YVCV+boE8cJ9ArhCcrxXmnNa9HQtiEwwrG0G4Nxgyu6yiRgeb1wTSN4kJYfAPKbMez8/FF6+bl1pRCVYJ6k5m3O3rWY8kru1Q5ha42LFz1wzJYjttiURkSDAAZl15Gg0My+lO5ca3KH+xK9Hx87pIAH6/e/6yuZhzFOMCkGCSqGSIb3DQEJFDEcHhoAcAByAG8AagBlAGMAdABtAGkAcwB0AGUAcjAhBgkqhkiG9w0BCRUxFAQSVGltZSAxNzkwMzUxMTI3NzY5MIIEkQYJKoZIhvcNAQcGoIIEgjCCBH4CAQAwggR3BgkqhkiG9w0BBwEwZgYJKoZIhvcNAQUNMFkwOAYJKoZIhvcNAQUMMCsEFMHju9h3dELccXjkIgmuAVIky/riAgInEAIBIDAMBggqhkiG9w0CCQUAMB0GCWCGSAFlAwQBKgQQaPzxa3YE/+r0Xq+u86T7foCCBADnZIzS/T18sXyDTNfW/l/nwgygZ0g/yOYU8OR5xgjMxnmZAVCH7mE8yGmb0CcvC+gIOc3IjZ/vWtRbM7zDunL7gVVJWUEOONDkirZKKxsjw2YT1/cEz1+Jtcm+2d/Jbw3rWIZI+Se69RvCGiHQDjnfRjIlMnzU8my4FkQQu4WqJk3Dte6mEHSoTQFlwh6AKg3wCbFRyWiP996BlCvqOuATMyEDD8s2eHMdCqE6M5aRzVfUqqo8GH6pqD5U+4IzDBO+c7E7UfVODWEU4tf1HzIRGnj5AzXzLR+JRG64dbX7ChLQdLRjvWFCR3oiOyi2ttzZ62kjtAizppgoUkn2faeGSNw8NEizMOK49v+lpzCtkQ1xEfrCEws+gD71U3ARvMvW0qqYIi+7YH5lfClRWt9DJZbDNQwDK4Urr3MVWsHwoEsjjFGxRQtA5M/hD0hRtrqzsG/O6xxmUfCSH65r0+TAhOXOAAtad6lT0PY0F35pzSPzEEHDuv6yh3R2y+3r9Hs3RFE5E82/VEDLNjDCNNxR9FvqoWEcKJvLru+PFqmuZFLb/yTug2CDdM/d7sHsDKUvvZXGxqo6N5q6tOl3XCWGGjElxQ8PkmlL655WsBlW0x7zRSlGM0e/+dehUyHew1MX/9tmJsr0XwgpVyuusbgM4+7M7yVOttTNJuS2wzdPq1RvJobTUncf1kWVO12vQDXXLaQMzNFdiOeqKcp2bya4PcX3iOTEq1lqweBTpwBJlGgh5a3vUj72Z6vUunQsOt18v1eRyFzv5ityPfdk/Mf+egDXtHM4wO3s+rv1iqGl4PGoGuEYraJFIJXeKl4uE0J68V5QW8qcGcpBbvQBHHRB8Pcq3exHGU7WP/HTjm1sB2hT/O2EeWknzwugeAxVNT5JlRglE3nbAx2U0tdb4gFPqBJRqHS0LBOD4BNoy6Oz7iyO7JixU8ZC589BLdkaclm47iKfBBIZaCzhs7Y8nuSG1oXDvIz1UousBsdRWspayfb3s4iFAGBP2lkyDK8sNF1K2owZZRxg7xVzp4HoQcU0ZtSEqmgYdzRTORT+m/nqeUzO8OmNP5/aRfVrSpfHTMnW/CtoWuMXKVz2ljjfuvu7HG5UxCpuSbfKQgkT73XR0RVGwHhYttQrwPqKXemVo3UZNDU4WS6+xX2jVhYCTMcgmfreKQiFz0DBIaKh/v3hW/t/Wu9rOVzU36VTpSEl+kVJpoGXFMbPNMQWCjrs4a6ye54iiFlNR1A/R0F6FXInDWWTtxi9oKxdfIrnKhaLjTiFa4XPJDyzLaWxWl5ppAKBtMt551xw3CJTzekVQw0JMQ/FuP016xunOWxHOzv0CLY4bKovIHJXg5MJPo0hIqWwME0wMTANBglghkgBZQMEAgEFAAQgsvTijy4qBlTwvEETloMIkBrPOZHvvOxDeBZxzKRCtxcEFEAbO8Fb8EPN6ZwqBaW80XUsitz0AgInEA==' | base64 -d > project-mister-dev.keystore
+
+          cat > app/src/main/java/com/projectmister/game/MainActivity.java <<'EOF'
+          package com.projectmister.game;
+          
+          import android.app.Activity;
+          import android.app.AlertDialog;
+          import android.content.SharedPreferences;
+          import android.graphics.Color;
+          import android.graphics.Canvas;
+          import android.graphics.Paint;
+          import android.graphics.RectF;
+          import android.graphics.Typeface;
+          import android.graphics.drawable.GradientDrawable;
+          import android.os.Bundle;
+          import android.os.Handler;
+          import android.os.Looper;
+          import android.view.Gravity;
+          import android.view.View;
+          import android.widget.Button;
+          import android.widget.EditText;
+          import android.widget.LinearLayout;
+          import android.widget.ScrollView;
+          import android.widget.TextView;
+          import android.widget.Toast;
+          
+          import java.time.LocalDate;
+          import java.time.format.DateTimeFormatter;
+          import java.util.ArrayList;
+          import java.util.Arrays;
+          import java.util.Collections;
+          import java.util.Comparator;
+          import java.util.List;
+          import java.util.Locale;
+          import java.util.Random;
+          
+          public class MainActivity extends Activity {
+          
+              private static final int SAVE_SLOTS = 3;
+              private static final int PLAYERS_PER_TEAM = 20;
+              private static final int TOTAL_PLAYERS = 18 * PLAYERS_PER_TEAM;
+              private static final LocalDate SEASON_START = LocalDate.of(2026, 8, 9);
+              private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.UK);
+          
+              private final String[] defaultClubNames = {
+                      "Lisboa Águias", "Lisboa Leões", "Porto Dragões", "Braga Guerreiros",
+                      "Guimarães Castelo", "Famal Norte", "Moreira FC", "Vila do Conde",
+                      "Barcelos FC", "Estoril Praia", "Lisboa Corvos", "Açores FC",
+                      "Madeira Nacional", "Alverca Atlético", "Arouca FC", "Amadora Estrela",
+                      "Tondela SC", "Vila das Aves"
+              };
+          
+              private final String[] shortNames = {
+                      "LAG", "LLE", "PDR", "BGR", "GCT", "FAM", "MOR", "VDC", "BAR",
+                      "EST", "LCO", "ACO", "MDN", "ALV", "ARO", "AMA", "TON", "VDA"
+              };
+          
+              private final int[] strength = {
+                      88, 87, 86, 81, 78, 75, 72, 71, 70, 72, 68, 71, 69, 67, 70, 67, 66, 65
+              };
+          
+              private final int[] budgets = {
+                      42, 38, 36, 20, 12, 10, 8, 9, 7, 10, 6, 8, 7, 6, 8, 6, 5, 5
+              };
+          
+              private final int[] defaultPrimary = {
+                      0xFFE53935, 0xFF1B8F4D, 0xFF1565C0, 0xFFD32F2F, 0xFFF5F5F5, 0xFF1565C0,
+                      0xFF2E7D32, 0xFF2E7D32, 0xFFD32F2F, 0xFFFBC02D, 0xFF20252B, 0xFFD32F2F,
+                      0xFF20252B, 0xFFD32F2F, 0xFFFBC02D, 0xFFD32F2F, 0xFF2E7D32, 0xFFD32F2F
+              };
+          
+              private final int[] defaultSecondary = {
+                      0xFFF5F5F5, 0xFFF5F5F5, 0xFFF5F5F5, 0xFFF5F5F5, 0xFF20252B, 0xFFF5F5F5,
+                      0xFFF5F5F5, 0xFFF5F5F5, 0xFF1565C0, 0xFF1565C0, 0xFFF5F5F5, 0xFFF5F5F5,
+                      0xFFF5F5F5, 0xFF1565C0, 0xFF1565C0, 0xFFF5F5F5, 0xFFFBC02D, 0xFFF5F5F5
+              };
+          
+              private final String[] paletteNames = {
+                      "Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Black", "White", "Sky Blue", "Pink"
+              };
+          
+              private final int[] palette = {
+                      0xFFE53935, 0xFF2E7D32, 0xFF1565C0, 0xFFFBC02D, 0xFFF57C00,
+                      0xFF7B1FA2, 0xFF20252B, 0xFFF5F5F5, 0xFF039BE5, 0xFFD81B60
+              };
+          
+              private final String[] clubNames = new String[18];
+              private final int[] primaryColours = new int[18];
+              private final int[] secondaryColours = new int[18];
+          
+              private final int[] played = new int[18];
+              private final int[] won = new int[18];
+              private final int[] drawn = new int[18];
+              private final int[] lost = new int[18];
+              private final int[] goalsFor = new int[18];
+              private final int[] goalsAgainst = new int[18];
+              private final int[] points = new int[18];
+          
+              private final ArrayList<Player> players = new ArrayList<>();
+              private final Random random = new Random();
+          
+              private SharedPreferences prefs;
+              private int selectedClub = -1;
+              private int selectedSlot = -1;
+              private int matchday = 0;
+              private LocalDate currentDate = SEASON_START;
+              private String trainingFocus = "Balanced";
+          
+              // Classic 2D live match engine
+              private final Handler matchHandler = new Handler(Looper.getMainLooper());
+              private Runnable matchRunnable;
+              private boolean liveMatchActive = false;
+              private boolean livePaused = false;
+              private int liveSpeed = 1;
+              private float liveMinuteFloat = 0f;
+              private int liveMinute = 0;
+              private int liveHome = -1;
+              private int liveAway = -1;
+              private int liveHomeGoals = 0;
+              private int liveAwayGoals = 0;
+              private int liveHomeShots = 0;
+              private int liveAwayShots = 0;
+              private int liveHomeOnTarget = 0;
+              private int liveAwayOnTarget = 0;
+              private int liveHomePossession = 50;
+              private int liveAwayPossession = 50;
+              private int liveHomeCorners = 0;
+              private int liveAwayCorners = 0;
+              private String liveCommentary = "The teams are ready.";
+              private String liveMentality = "Balanced";
+              private String liveFormation = "4-3-3";
+              private final ArrayList<int[]> liveOtherFixtures = new ArrayList<>();
+              private MatchPitchView livePitchView;
+              private TextView liveScoreText;
+              private TextView liveClockText;
+              private TextView liveCommentaryText;
+              private TextView liveStatsText;
+          
+              private final int background = Color.rgb(7, 21, 31);
+              private final int panel = Color.rgb(15, 42, 54);
+              private final int panelLight = Color.rgb(22, 55, 69);
+              private final int accent = Color.rgb(40, 190, 115);
+              private final int danger = Color.rgb(185, 55, 62);
+              private final int warning = Color.rgb(230, 150, 35);
+              private final int text = Color.WHITE;
+              private final int muted = Color.rgb(180, 196, 205);
+          
+              private static class Player {
+                  int id;
+                  int team;
+                  String name;
+                  String position;
+                  int age;
+                  int overall;
+                  int pace;
+                  int technique;
+                  int passing;
+                  int finishing;
+                  int defending;
+                  int physical;
+                  int appearances;
+                  int goals;
+                  int assists;
+                  int fitness;
+                  int morale;
+                  int valueMillions;
+                  int contractYears;
+                  boolean transferListed;
+                  boolean loanListed;
+          
+                  Player(int id, int team) {
+                      this.id = id;
+                      this.team = team;
+                  }
+              }
+          
+              private static class CalendarEvent {
+                  LocalDate date;
+                  String competition;
+                  String stage;
+          
+                  CalendarEvent(int year, int month, int day, String competition, String stage) {
+                      this.date = LocalDate.of(year, month, day);
+                      this.competition = competition;
+                      this.stage = stage;
+                  }
+              }
+          
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  getWindow().setStatusBarColor(background);
+                  getWindow().setNavigationBarColor(background);
+                  prefs = getSharedPreferences("project_mister", MODE_PRIVATE);
+                  loadEditorData();
+                  generatePlayers();
+                  showMainMenu();
+              }
+          
+              private LinearLayout createPage(String title, String subtitle, boolean showHome) {
+                  stopLiveMatchTicker();
+                  ScrollView scroll = new ScrollView(this);
+                  scroll.setBackgroundColor(background);
+          
+                  LinearLayout page = new LinearLayout(this);
+                  page.setOrientation(LinearLayout.VERTICAL);
+                  page.setPadding(dp(20), dp(24), dp(20), dp(36));
+                  scroll.addView(page);
+          
+                  TextView brand = makeText("PROJECT MISTER", 13, accent);
+                  brand.setTypeface(Typeface.DEFAULT_BOLD);
+                  page.addView(brand);
+          
+                  TextView heading = makeText(title, 30, text);
+                  heading.setTypeface(Typeface.DEFAULT_BOLD);
+                  heading.setPadding(0, dp(8), 0, dp(4));
+                  page.addView(heading);
+          
+                  TextView sub = makeText(subtitle, 15, muted);
+                  sub.setPadding(0, 0, 0, dp(14));
+                  page.addView(sub);
+          
+                  if (showHome) {
+                      Button home = makeButton("⌂  Career Hub / Saved Games", v -> {
+                          saveCurrentGame();
+                          showMainMenu();
+                      });
+                      home.setBackground(rounded(panel));
+                      page.addView(home);
+                  }
+          
+                  setContentView(scroll);
+                  return page;
+              }
+          
+              private TextView makeText(String value, int size, int colour) {
+                  TextView tv = new TextView(this);
+                  tv.setText(value);
+                  tv.setTextSize(size);
+                  tv.setTextColor(colour);
+                  tv.setLineSpacing(0, 1.12f);
+                  return tv;
+              }
+          
+              private GradientDrawable rounded(int colour) {
+                  GradientDrawable bg = new GradientDrawable();
+                  bg.setColor(colour);
+                  bg.setCornerRadius(dp(14));
+                  return bg;
+              }
+          
+              private Button makeButton(String label, View.OnClickListener click) {
+                  Button button = new Button(this);
+                  button.setText(label);
+                  button.setTextSize(16);
+                  button.setTextColor(Color.WHITE);
+                  button.setAllCaps(false);
+                  button.setBackground(rounded(panelLight));
+                  button.setPadding(dp(14), dp(10), dp(14), dp(10));
+          
+                  LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                  );
+                  params.setMargins(0, 0, 0, dp(10));
+                  button.setLayoutParams(params);
+                  if (click != null) button.setOnClickListener(click);
+                  return button;
+              }
+          
+              private Button makeAccentButton(String label, View.OnClickListener click) {
+                  Button button = makeButton(label, click);
+                  button.setBackground(rounded(accent));
+                  return button;
+              }
+          
+              private LinearLayout makePanel() {
+                  LinearLayout box = new LinearLayout(this);
+                  box.setOrientation(LinearLayout.VERTICAL);
+                  box.setPadding(dp(16), dp(16), dp(16), dp(16));
+                  box.setBackground(rounded(panel));
+          
+                  LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                  );
+                  params.setMargins(0, 0, 0, dp(14));
+                  box.setLayoutParams(params);
+                  return box;
+              }
+          
+              private View makeSwatch(int colour) {
+                  View v = new View(this);
+                  v.setBackground(rounded(colour));
+                  LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(22), dp(22));
+                  lp.setMargins(0, 0, dp(8), 0);
+                  v.setLayoutParams(lp);
+                  return v;
+              }
+          
+              private LinearLayout makeClubIdentityRow(int club) {
+                  LinearLayout row = new LinearLayout(this);
+                  row.setOrientation(LinearLayout.HORIZONTAL);
+                  row.setGravity(Gravity.CENTER_VERTICAL);
+                  row.addView(makeSwatch(primaryColours[club]));
+                  row.addView(makeSwatch(secondaryColours[club]));
+          
+                  TextView name = makeText(clubNames[club], 18, text);
+                  name.setTypeface(Typeface.DEFAULT_BOLD);
+                  name.setPadding(dp(4), 0, 0, 0);
+                  row.addView(name);
+                  return row;
+              }
+          
+              private void showMainMenu() {
+                  LinearLayout page = createPage("Career Hub", "Three career saves • Project Mister v0.4", false);
+          
+                  for (int slot = 0; slot < SAVE_SLOTS; slot++) {
+                      final int s = slot;
+                      LinearLayout box = makePanel();
+          
+                      TextView slotTitle = makeText("SAVE " + (slot + 1), 13, accent);
+                      slotTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                      box.addView(slotTitle);
+          
+                      if (slotExists(slot)) {
+                          int club = prefs.getInt(key(slot, "club"), 0);
+                          int md = prefs.getInt(key(slot, "matchday"), 0);
+                          int pts = getSavedPoints(slot, club);
+                          String date = prefs.getString(key(slot, "date"), SEASON_START.toString());
+          
+                          TextView details = makeText(
+                                  clubNames[club] + "\nMatchday " + md + "  •  " + pts + " pts\n" + date,
+                                  18,
+                                  text
+                          );
+                          details.setTypeface(Typeface.DEFAULT_BOLD);
+                          details.setPadding(0, dp(8), 0, dp(12));
+                          box.addView(details);
+          
+                          box.addView(makeAccentButton("Continue Career", v -> {
+                              loadSave(s);
+                              showDashboard();
+                          }));
+          
+                          Button delete = makeButton("Delete Save", v -> confirmDeleteSave(s));
+                          delete.setBackground(rounded(danger));
+                          box.addView(delete);
+                      } else {
+                          TextView empty = makeText("Empty career slot\nStart a new journey in Portugal.", 17, muted);
+                          empty.setPadding(0, dp(8), 0, dp(12));
+                          box.addView(empty);
+          
+                          box.addView(makeAccentButton("Start New Career", v -> {
+                              selectedSlot = s;
+                              resetCareerState();
+                              generatePlayers();
+                              showClubSelection();
+                          }));
+                      }
+          
+                      page.addView(box);
+                  }
+          
+                  TextView editorTitle = makeText("GAME TOOLS", 13, muted);
+                  editorTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                  editorTitle.setPadding(0, dp(6), 0, dp(8));
+                  page.addView(editorTitle);
+                  page.addView(makeButton("✏  Game Editor — Teams & Colours", v -> showTeamEditor()));
+              }
+          
+              private void showClubSelection() {
+                  LinearLayout page = createPage(
+                          "Choose your club",
+                          "Save " + (selectedSlot + 1) + " • Portugal 2026/27",
+                          true
+                  );
+          
+                  for (int i = 0; i < clubNames.length; i++) {
+                      final int club = i;
+                      LinearLayout box = makePanel();
+                      box.addView(makeClubIdentityRow(club));
+          
+                      TextView info = makeText(
+                              "Strength " + strength[i] + "/100   •   Budget €" + budgets[i] + "m\nEurope: " + europeanCompetitionForClub(i),
+                              14,
+                              muted
+                      );
+                      info.setPadding(0, dp(8), 0, dp(10));
+                      box.addView(info);
+          
+                      box.addView(makeButton("Manage " + clubNames[i], v -> {
+                          selectedClub = club;
+                          resetCareerState();
+                          generatePlayers();
+                          saveCurrentGame();
+                          showDashboard();
+                      }));
+                      page.addView(box);
+                  }
+              }
+          
+              private void showDashboard() {
+                  LinearLayout page = createPage(
+                          clubNames[selectedClub],
+                          "Save " + (selectedSlot + 1) + " • " + currentDate.format(DATE_FORMAT) + " • Matchday " + (matchday + 1),
+                          true
+                  );
+          
+                  LinearLayout identity = makePanel();
+                  identity.addView(makeClubIdentityRow(selectedClub));
+          
+                  TextView info = makeText(
+                          "\nStrength          " + strength[selectedClub] + "/100\n"
+                                  + "Transfer budget   €" + budgets[selectedClub] + "m\n"
+                                  + "League points     " + points[selectedClub] + "\n"
+                                  + "Matches played    " + played[selectedClub] + "\n"
+                                  + "Training focus    " + trainingFocus + "\n"
+                                  + "Transfer window   " + transferWindowStatus(currentDate) + "\n"
+                                  + "Europe            " + europeanCompetitionForClub(selectedClub),
+                          16,
+                          text
+                  );
+                  identity.addView(info);
+                  page.addView(identity);
+          
+                  page.addView(makeAccentButton("⚽  Watch Next Match Live", v -> startLiveMatchday()));
+                  page.addView(makeButton("👥  Squad & Player Profiles", v -> showTeamPlayers(selectedClub)));
+                  page.addView(makeButton("🌍  All Teams / Player Database", v -> showAllTeamsPlayers()));
+                  page.addView(makeButton("🔄  Transfers & Loan Lists", v -> showTransferHub()));
+                  page.addView(makeButton("🏃  Training", v -> showTraining()));
+                  page.addView(makeButton("📅  Competition Calendar", v -> showCompetitionCalendar()));
+                  page.addView(makeButton("🏆  League Table", v -> showLeagueTable()));
+              }
+          
+              private void startLiveMatchday() {
+                  List<Integer> order = new ArrayList<>();
+                  for (int i = 0; i < clubNames.length; i++) order.add(i);
+                  Collections.shuffle(order, random);
+          
+                  int selectedPosition = order.indexOf(selectedClub);
+                  Collections.swap(order, 0, selectedPosition);
+                  if (random.nextBoolean()) Collections.swap(order, 0, 1);
+          
+                  liveHome = order.get(0);
+                  liveAway = order.get(1);
+                  liveOtherFixtures.clear();
+                  for (int i = 2; i < order.size(); i += 2) {
+                      liveOtherFixtures.add(new int[]{order.get(i), order.get(i + 1)});
+                  }
+          
+                  liveHomeGoals = 0;
+                  liveAwayGoals = 0;
+                  liveHomeShots = 0;
+                  liveAwayShots = 0;
+                  liveHomeOnTarget = 0;
+                  liveAwayOnTarget = 0;
+                  liveHomeCorners = 0;
+                  liveAwayCorners = 0;
+                  liveHomePossession = 50;
+                  liveAwayPossession = 50;
+                  liveMinuteFloat = 0f;
+                  liveMinute = 0;
+                  liveSpeed = 1;
+                  livePaused = false;
+                  liveMentality = "Balanced";
+                  liveFormation = "4-3-3";
+                  liveCommentary = "Kick-off is moments away.";
+          
+                  showLiveMatch();
+              }
+          
+              private void showLiveMatch() {
+                  stopLiveMatchTicker();
+          
+                  ScrollView scroll = new ScrollView(this);
+                  scroll.setFillViewport(true);
+                  scroll.setBackgroundColor(background);
+          
+                  LinearLayout page = new LinearLayout(this);
+                  page.setOrientation(LinearLayout.VERTICAL);
+                  page.setPadding(dp(12), dp(12), dp(12), dp(24));
+                  scroll.addView(page);
+          
+                  LinearLayout scoreboard = makePanel();
+                  scoreboard.setPadding(dp(12), dp(10), dp(12), dp(10));
+          
+                  LinearLayout teams = new LinearLayout(this);
+                  teams.setOrientation(LinearLayout.HORIZONTAL);
+                  teams.setGravity(Gravity.CENTER_VERTICAL);
+          
+                  TextView home = makeText(clubNames[liveHome], 16, text);
+                  home.setTypeface(Typeface.DEFAULT_BOLD);
+                  home.setGravity(Gravity.START);
+                  teams.addView(home, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+          
+                  liveScoreText = makeText("0  -  0", 26, text);
+                  liveScoreText.setTypeface(Typeface.DEFAULT_BOLD);
+                  liveScoreText.setGravity(Gravity.CENTER);
+                  teams.addView(liveScoreText, new LinearLayout.LayoutParams(dp(110), LinearLayout.LayoutParams.WRAP_CONTENT));
+          
+                  TextView away = makeText(clubNames[liveAway], 16, text);
+                  away.setTypeface(Typeface.DEFAULT_BOLD);
+                  away.setGravity(Gravity.END);
+                  teams.addView(away, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+          
+                  scoreboard.addView(teams);
+          
+                  liveClockText = makeText("0'  •  1st Half  •  x1", 14, accent);
+                  liveClockText.setGravity(Gravity.CENTER);
+                  liveClockText.setPadding(0, dp(4), 0, 0);
+                  scoreboard.addView(liveClockText);
+                  page.addView(scoreboard);
+          
+                  liveCommentaryText = makeText(liveCommentary, 16, Color.WHITE);
+                  liveCommentaryText.setTypeface(Typeface.DEFAULT_BOLD);
+                  liveCommentaryText.setGravity(Gravity.CENTER);
+                  liveCommentaryText.setPadding(dp(12), dp(12), dp(12), dp(12));
+                  liveCommentaryText.setBackground(rounded(primaryColours[liveAway]));
+                  LinearLayout.LayoutParams commParams = new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                  );
+                  commParams.setMargins(0, 0, 0, dp(10));
+                  liveCommentaryText.setLayoutParams(commParams);
+                  page.addView(liveCommentaryText);
+          
+                  livePitchView = new MatchPitchView();
+                  LinearLayout.LayoutParams pitchParams = new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          dp(440)
+                  );
+                  pitchParams.setMargins(0, 0, 0, dp(10));
+                  livePitchView.setLayoutParams(pitchParams);
+                  page.addView(livePitchView);
+          
+                  LinearLayout speedRow = new LinearLayout(this);
+                  speedRow.setOrientation(LinearLayout.HORIZONTAL);
+                  speedRow.setGravity(Gravity.CENTER);
+          
+                  Button x1 = compactButton("x1", v -> setLiveSpeed(1));
+                  Button x2 = compactButton("x2", v -> setLiveSpeed(2));
+                  Button x3 = compactButton("x3", v -> setLiveSpeed(3));
+                  Button pause = compactButton("Ⅱ / ▶", v -> {
+                      livePaused = !livePaused;
+                      refreshLiveHeader();
+                  });
+          
+                  speedRow.addView(x1, compactParams());
+                  speedRow.addView(x2, compactParams());
+                  speedRow.addView(x3, compactParams());
+                  speedRow.addView(pause, compactParams());
+                  page.addView(speedRow);
+          
+                  LinearLayout tabs = new LinearLayout(this);
+                  tabs.setOrientation(LinearLayout.HORIZONTAL);
+                  tabs.addView(compactButton("Overview", v -> showLiveOverviewDialog()), compactParams());
+                  tabs.addView(compactButton("Match Stats", v -> showLiveStatsDialog()), compactParams());
+                  tabs.addView(compactButton("Ratings", v -> showLiveRatingsDialog()), compactParams());
+                  page.addView(tabs);
+          
+                  liveStatsText = makeText(liveStatsSummary(), 14, text);
+                  liveStatsText.setBackground(rounded(panel));
+                  liveStatsText.setPadding(dp(12), dp(10), dp(12), dp(10));
+                  page.addView(liveStatsText);
+          
+                  TextView tacticsLabel = makeText("MATCH CONTROLS", 12, muted);
+                  tacticsLabel.setTypeface(Typeface.DEFAULT_BOLD);
+                  tacticsLabel.setPadding(0, dp(12), 0, dp(6));
+                  page.addView(tacticsLabel);
+          
+                  page.addView(makeButton("Formation  •  " + liveFormation, v -> showFormationDialog()));
+                  page.addView(makeButton("Instructions  •  " + liveMentality, v -> showInstructionsDialog()));
+                  page.addView(makeButton("Roles  •  Automatic", v -> showRolesDialog()));
+          
+                  Button exit = makeButton("⌂  Save & Return to Career Hub", v -> {
+                      new AlertDialog.Builder(this)
+                              .setTitle("Leave live match?")
+                              .setMessage("The current match will be abandoned and will not count.")
+                              .setNegativeButton("Stay", null)
+                              .setPositiveButton("Leave", (d, w) -> {
+                                  stopLiveMatchTicker();
+                                  saveCurrentGame();
+                                  showMainMenu();
+                              })
+                              .show();
+                  });
+                  exit.setBackground(rounded(danger));
+                  page.addView(exit);
+          
+                  setContentView(scroll);
+          
+                  liveMatchActive = true;
+                  if (liveMinute == 0) {
+                      liveCommentary = "Kick-off! " + clubNames[liveHome] + " get us underway.";
+                  }
+                  refreshLiveHeader();
+                  startLiveMatchTicker();
+              }
+          
+              private LinearLayout.LayoutParams compactParams() {
+                  LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, dp(48), 1f);
+                  p.setMargins(dp(2), dp(2), dp(2), dp(6));
+                  return p;
+              }
+          
+              private Button compactButton(String label, View.OnClickListener click) {
+                  Button b = makeButton(label, click);
+                  b.setTextSize(13);
+                  b.setPadding(dp(4), dp(2), dp(4), dp(2));
+                  return b;
+              }
+          
+              private void setLiveSpeed(int speed) {
+                  liveSpeed = speed;
+                  refreshLiveHeader();
+              }
+          
+              private void startLiveMatchTicker() {
+                  matchRunnable = new Runnable() {
+                      @Override
+                      public void run() {
+                          if (!liveMatchActive) return;
+          
+                          if (!livePaused) {
+                              float oldMinute = liveMinuteFloat;
+                              liveMinuteFloat = Math.min(90f, liveMinuteFloat + (0.25f * liveSpeed));
+                              int newMinute = (int) liveMinuteFloat;
+          
+                              while (liveMinute < newMinute && liveMinute < 90) {
+                                  liveMinute++;
+                                  processLiveMinute(liveMinute);
+                              }
+          
+                              if (livePitchView != null) {
+                                  livePitchView.stepSimulation();
+                                  livePitchView.invalidate();
+                              }
+          
+                              refreshLiveHeader();
+          
+                              if (liveMinuteFloat >= 90f) {
+                                  finishLiveMatch();
+                                  return;
+                              }
+                          }
+          
+                          matchHandler.postDelayed(this, 250);
+                      }
+                  };
+                  matchHandler.post(matchRunnable);
+              }
+          
+              private void stopLiveMatchTicker() {
+                  liveMatchActive = false;
+                  if (matchRunnable != null) matchHandler.removeCallbacks(matchRunnable);
+                  matchRunnable = null;
+              }
+          
+              private void processLiveMinute(int minute) {
+                  int basePossession = 50 + (strength[liveHome] - strength[liveAway]) / 3;
+                  if (liveMentality.equals("Attacking") && selectedClub == liveHome) basePossession += 3;
+                  if (liveMentality.equals("Attacking") && selectedClub == liveAway) basePossession -= 3;
+                  if (liveMentality.equals("Defensive") && selectedClub == liveHome) basePossession -= 2;
+                  if (liveMentality.equals("Defensive") && selectedClub == liveAway) basePossession += 2;
+          
+                  liveHomePossession = Math.max(35, Math.min(65, basePossession + random.nextInt(7) - 3));
+                  liveAwayPossession = 100 - liveHomePossession;
+          
+                  if (minute == 45) {
+                      liveCommentary = "Half-time. The managers have 15 minutes to make adjustments.";
+                      return;
+                  }
+          
+                  double eventChance = 0.13;
+                  if (minute > 75) eventChance += 0.03;
+                  if (random.nextDouble() > eventChance) {
+                      if (random.nextDouble() < 0.22) {
+                          int team = random.nextInt(100) < liveHomePossession ? liveHome : liveAway;
+                          liveCommentary = randomPlayerName(team, false) + " keeps the ball moving.";
+                      }
+                      return;
+                  }
+          
+                  int attacking = random.nextInt(100) < liveHomePossession ? liveHome : liveAway;
+                  int defending = attacking == liveHome ? liveAway : liveHome;
+          
+                  double strengthEdge = (strength[attacking] - strength[defending]) / 100.0;
+                  double mentalityBoost = 0.0;
+                  if (attacking == selectedClub && liveMentality.equals("Attacking")) mentalityBoost = 0.05;
+                  if (attacking == selectedClub && liveMentality.equals("Defensive")) mentalityBoost = -0.03;
+          
+                  if (attacking == liveHome) liveHomeShots++; else liveAwayShots++;
+          
+                  String attacker = randomPlayerName(attacking, true);
+                  double onTargetChance = 0.42 + strengthEdge * 0.25 + mentalityBoost;
+          
+                  if (random.nextDouble() < onTargetChance) {
+                      if (attacking == liveHome) liveHomeOnTarget++; else liveAwayOnTarget++;
+          
+                      double goalChance = 0.20 + strengthEdge * 0.16 + mentalityBoost;
+                      if (random.nextDouble() < goalChance) {
+                          if (attacking == liveHome) liveHomeGoals++; else liveAwayGoals++;
+                          liveCommentary = "GOAL! " + attacker + " finishes the move for " + clubNames[attacking] + "!";
+                          awardLiveGoal(attacking, attacker);
+                      } else {
+                          liveCommentary = attacker + " shoots on target — the goalkeeper makes the save.";
+                      }
+                  } else {
+                      if (random.nextDouble() < 0.22) {
+                          if (attacking == liveHome) liveHomeCorners++; else liveAwayCorners++;
+                          liveCommentary = attacker + " forces a corner for " + clubNames[attacking] + ".";
+                      } else {
+                          String[] misses = {
+                                  "fires just wide.",
+                                  "drives the effort over the bar.",
+                                  "sees the shot blocked.",
+                                  "tries from distance but misses the target."
+                          };
+                          liveCommentary = attacker + " " + misses[random.nextInt(misses.length)];
+                      }
+                  }
+              }
+          
+              private String randomPlayerName(int team, boolean attacking) {
+                  ArrayList<Player> choices = new ArrayList<>();
+                  for (Player p : players) {
+                      if (p.team != team) continue;
+                      if (!attacking || p.position.equals("ST") || p.position.equals("RW")
+                              || p.position.equals("LW") || p.position.equals("AM")
+                              || p.position.equals("CM") || p.position.equals("RM")
+                              || p.position.equals("LM")) {
+                          choices.add(p);
+                      }
+                  }
+                  if (choices.isEmpty()) {
+                      for (Player p : players) if (p.team == team) choices.add(p);
+                  }
+                  if (choices.isEmpty()) return clubNames[team] + " player";
+                  return choices.get(random.nextInt(choices.size())).name;
+              }
+          
+              private void awardLiveGoal(int team, String scorerName) {
+                  for (Player p : players) {
+                      if (p.team == team && p.name.equals(scorerName)) {
+                          p.goals++;
+                          p.morale = Math.min(100, p.morale + 3);
+                          break;
+                      }
+                  }
+              }
+          
+              private void refreshLiveHeader() {
+                  if (liveScoreText != null) liveScoreText.setText(liveHomeGoals + "  -  " + liveAwayGoals);
+          
+                  String half = liveMinute < 45 ? "1st Half" : liveMinute < 90 ? "2nd Half" : "FT";
+                  if (liveClockText != null) {
+                      liveClockText.setText(liveMinute + "'  •  " + half + "  •  x" + liveSpeed
+                              + (livePaused ? "  •  PAUSED" : ""));
+                  }
+          
+                  if (liveCommentaryText != null) liveCommentaryText.setText(liveCommentary);
+                  if (liveStatsText != null) liveStatsText.setText(liveStatsSummary());
+              }
+          
+              private String liveStatsSummary() {
+                  return "Possession     " + liveHomePossession + "%   " + liveAwayPossession + "%\n"
+                          + "Shots          " + liveHomeShots + "       " + liveAwayShots + "\n"
+                          + "On target      " + liveHomeOnTarget + "       " + liveAwayOnTarget + "\n"
+                          + "Corners        " + liveHomeCorners + "       " + liveAwayCorners;
+              }
+          
+              private void showLiveOverviewDialog() {
+                  new AlertDialog.Builder(this)
+                          .setTitle("Live Overview")
+                          .setMessage(clubNames[liveHome] + " " + liveHomeGoals + " - " + liveAwayGoals + " " + clubNames[liveAway]
+                                  + "\n\nMinute: " + liveMinute
+                                  + "\nFormation: " + liveFormation
+                                  + "\nMentality: " + liveMentality
+                                  + "\nSpeed: x" + liveSpeed)
+                          .setPositiveButton("Close", null)
+                          .show();
+              }
+          
+              private void showLiveStatsDialog() {
+                  new AlertDialog.Builder(this)
+                          .setTitle("Match Stats")
+                          .setMessage(clubNames[liveHome] + "                    " + clubNames[liveAway] + "\n\n"
+                                  + "Possession      " + liveHomePossession + "%      " + liveAwayPossession + "%\n"
+                                  + "Shots           " + liveHomeShots + "          " + liveAwayShots + "\n"
+                                  + "On Target       " + liveHomeOnTarget + "          " + liveAwayOnTarget + "\n"
+                                  + "Corners         " + liveHomeCorners + "          " + liveAwayCorners)
+                          .setPositiveButton("Close", null)
+                          .show();
+              }
+          
+              private void showLiveRatingsDialog() {
+                  StringBuilder sb = new StringBuilder();
+                  ArrayList<Player> teamPlayers = new ArrayList<>();
+                  for (Player p : players) if (p.team == selectedClub) teamPlayers.add(p);
+                  Collections.sort(teamPlayers, (a, b) -> Integer.compare(b.overall, a.overall));
+          
+                  int shown = 0;
+                  for (Player p : teamPlayers) {
+                      double rating = 6.2 + (p.overall - 65) / 30.0 + random.nextDouble() * 0.8;
+                      if (p.goals > 0) rating += 0.15;
+                      rating = Math.max(5.5, Math.min(9.5, rating));
+                      sb.append(String.format(Locale.UK, "%-18s  %.1f\n", p.name, rating));
+                      shown++;
+                      if (shown >= 11) break;
+                  }
+          
+                  new AlertDialog.Builder(this)
+                          .setTitle("Live Player Ratings")
+                          .setMessage(sb.toString())
+                          .setPositiveButton("Close", null)
+                          .show();
+              }
+          
+              private void showFormationDialog() {
+                  final String[] options = {"4-3-3", "4-2-3-1", "4-4-2", "3-5-2", "5-3-2"};
+                  new AlertDialog.Builder(this)
+                          .setTitle("Formation")
+                          .setSingleChoiceItems(options, Arrays.asList(options).indexOf(liveFormation), (dialog, which) -> {
+                              liveFormation = options[which];
+                              liveCommentary = "Tactical change: " + clubNames[selectedClub] + " switch to " + liveFormation + ".";
+                              dialog.dismiss();
+                              showLiveMatch();
+                          })
+                          .setNegativeButton("Cancel", null)
+                          .show();
+              }
+          
+              private void showInstructionsDialog() {
+                  final String[] options = {"Defensive", "Balanced", "Attacking"};
+                  int checked = liveMentality.equals("Defensive") ? 0 : liveMentality.equals("Attacking") ? 2 : 1;
+                  new AlertDialog.Builder(this)
+                          .setTitle("Team Instructions")
+                          .setSingleChoiceItems(options, checked, (dialog, which) -> {
+                              liveMentality = options[which];
+                              liveCommentary = "Instruction changed: " + liveMentality + " mentality.";
+                              dialog.dismiss();
+                              refreshLiveHeader();
+                          })
+                          .setNegativeButton("Cancel", null)
+                          .show();
+              }
+          
+              private void showRolesDialog() {
+                  new AlertDialog.Builder(this)
+                          .setTitle("Roles")
+                          .setMessage("Project Mister currently assigns roles automatically from each player's position and attributes.\n\n"
+                                  + "The next tactics update can add individual roles such as Advanced Forward, Playmaker, Ball-Winning Midfielder and Wing-Back.")
+                          .setPositiveButton("OK", null)
+                          .show();
+              }
+          
+              private void finishLiveMatch() {
+                  if (!liveMatchActive) return;
+                  stopLiveMatchTicker();
+                  liveMinute = 90;
+          
+                  updateTable(liveHome, liveAway, liveHomeGoals, liveAwayGoals);
+          
+                  StringBuilder results = new StringBuilder();
+                  results.append(clubNames[liveHome]).append("  ").append(liveHomeGoals)
+                          .append(" - ").append(liveAwayGoals).append("  ").append(clubNames[liveAway]).append("\n\n");
+          
+                  for (int[] fixture : liveOtherFixtures) {
+                      int home = fixture[0];
+                      int away = fixture[1];
+                      int homeGoals = simulateGoals(home, away, true);
+                      int awayGoals = simulateGoals(away, home, false);
+                      updateTable(home, away, homeGoals, awayGoals);
+                      results.append(clubNames[home]).append("  ").append(homeGoals)
+                              .append(" - ").append(awayGoals).append("  ").append(clubNames[away]).append("\n\n");
+                  }
+          
+                  updatePlayerMatchStats();
+                  applyTrainingSession();
+                  matchday++;
+                  LocalDate playedDate = currentDate;
+                  currentDate = currentDate.plusDays(7);
+                  saveCurrentGame();
+          
+                  LinearLayout page = createPage(
+                          "Full Time",
+                          "Matchday " + matchday + " • " + playedDate.format(DATE_FORMAT),
+                          true
+                  );
+          
+                  TextView mainResult = makeText(
+                          clubNames[liveHome] + "  " + liveHomeGoals + " - " + liveAwayGoals + "  " + clubNames[liveAway],
+                          22,
+                          accent
+                  );
+                  mainResult.setTypeface(Typeface.DEFAULT_BOLD);
+                  mainResult.setPadding(0, 0, 0, dp(14));
+                  page.addView(mainResult);
+          
+                  LinearLayout summary = makePanel();
+                  summary.addView(makeText("MATCH SUMMARY", 13, accent));
+                  summary.addView(makeText(
+                          liveStatsSummary() + "\n\nFinal mentality: " + liveMentality
+                                  + "\nFormation: " + liveFormation
+                                  + "\nTraining completed: " + trainingFocus,
+                          15,
+                          text
+                  ));
+                  page.addView(summary);
+          
+                  TextView all = makeText("ALL RESULTS\n\n" + results, 15, text);
+                  all.setBackground(rounded(panel));
+                  all.setPadding(dp(16), dp(16), dp(16), dp(16));
+                  page.addView(all);
+          
+                  page.addView(makeText("", 8, text));
+                  page.addView(makeAccentButton("Continue", v -> showDashboard()));
+                  page.addView(makeButton("League Table", v -> showLeagueTable()));
+                  page.addView(makeButton("Player Database", v -> showAllTeamsPlayers()));
+              }
+          
+              private class MatchPitchView extends View {
+                  private final Paint pitchPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                  private final Paint linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                  private final Paint playerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                  private final Paint outlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                  private final Paint ballPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+          
+                  private final float[] homeX = new float[11];
+                  private final float[] homeY = new float[11];
+                  private final float[] awayX = new float[11];
+                  private final float[] awayY = new float[11];
+                  private float ballX = 0.5f;
+                  private float ballY = 0.5f;
+          
+                  MatchPitchView() {
+                      super(MainActivity.this);
+                      pitchPaint.setColor(Color.rgb(39, 146, 55));
+                      linePaint.setColor(Color.argb(220, 245, 245, 245));
+                      linePaint.setStyle(Paint.Style.STROKE);
+                      linePaint.setStrokeWidth(dp(2));
+                      outlinePaint.setStyle(Paint.Style.STROKE);
+                      outlinePaint.setStrokeWidth(dp(2));
+                      outlinePaint.setColor(Color.WHITE);
+                      ballPaint.setColor(Color.WHITE);
+          
+                      float[][] homeBase = {
+                              {0.08f,0.50f},
+                              {0.22f,0.16f},{0.20f,0.38f},{0.20f,0.62f},{0.22f,0.84f},
+                              {0.42f,0.25f},{0.40f,0.50f},{0.42f,0.75f},
+                              {0.65f,0.18f},{0.69f,0.50f},{0.65f,0.82f}
+                      };
+                      float[][] awayBase = {
+                              {0.92f,0.50f},
+                              {0.78f,0.16f},{0.80f,0.38f},{0.80f,0.62f},{0.78f,0.84f},
+                              {0.58f,0.25f},{0.60f,0.50f},{0.58f,0.75f},
+                              {0.35f,0.18f},{0.31f,0.50f},{0.35f,0.82f}
+                      };
+          
+                      for (int i = 0; i < 11; i++) {
+                          homeX[i] = homeBase[i][0];
+                          homeY[i] = homeBase[i][1];
+                          awayX[i] = awayBase[i][0];
+                          awayY[i] = awayBase[i][1];
+                      }
+                  }
+          
+                  void stepSimulation() {
+                      if (livePaused) return;
+          
+                      boolean homeHasBall = random.nextInt(100) < liveHomePossession;
+                      int carrier = 1 + random.nextInt(10);
+          
+                      for (int i = 1; i < 11; i++) {
+                          float driftX = (random.nextFloat() - 0.5f) * 0.055f;
+                          float driftY = (random.nextFloat() - 0.5f) * 0.055f;
+                          homeX[i] = clamp(homeX[i] + driftX + (homeHasBall ? 0.008f : -0.002f), 0.08f, 0.92f);
+                          homeY[i] = clamp(homeY[i] + driftY, 0.07f, 0.93f);
+          
+                          driftX = (random.nextFloat() - 0.5f) * 0.055f;
+                          driftY = (random.nextFloat() - 0.5f) * 0.055f;
+                          awayX[i] = clamp(awayX[i] + driftX + (!homeHasBall ? -0.008f : 0.002f), 0.08f, 0.92f);
+                          awayY[i] = clamp(awayY[i] + driftY, 0.07f, 0.93f);
+                      }
+          
+                      if (homeHasBall) {
+                          ballX += (homeX[carrier] - ballX) * 0.60f;
+                          ballY += (homeY[carrier] - ballY) * 0.60f;
+                      } else {
+                          ballX += (awayX[carrier] - ballX) * 0.60f;
+                          ballY += (awayY[carrier] - ballY) * 0.60f;
+                      }
+                  }
+          
+                  @Override
+                  protected void onDraw(Canvas canvas) {
+                      super.onDraw(canvas);
+                      int w = getWidth();
+                      int h = getHeight();
+          
+                      canvas.drawRect(0, 0, w, h, pitchPaint);
+          
+                      Paint stripe = new Paint();
+                      stripe.setColor(Color.argb(32, 255, 255, 255));
+                      int stripeW = w / 8;
+                      for (int i = 0; i < 8; i += 2) {
+                          canvas.drawRect(i * stripeW, 0, (i + 1) * stripeW, h, stripe);
+                      }
+          
+                      float m = dp(14);
+                      RectF field = new RectF(m, m, w - m, h - m);
+                      canvas.drawRect(field, linePaint);
+          
+                      float midX = w / 2f;
+                      canvas.drawLine(midX, m, midX, h - m, linePaint);
+                      canvas.drawCircle(midX, h / 2f, Math.min(w, h) * 0.12f, linePaint);
+          
+                      float boxW = w * 0.16f;
+                      float boxH = h * 0.42f;
+                      canvas.drawRect(m, (h - boxH) / 2f, m + boxW, (h + boxH) / 2f, linePaint);
+                      canvas.drawRect(w - m - boxW, (h - boxH) / 2f, w - m, (h + boxH) / 2f, linePaint);
+          
+                      float smallW = w * 0.07f;
+                      float smallH = h * 0.22f;
+                      canvas.drawRect(m, (h - smallH) / 2f, m + smallW, (h + smallH) / 2f, linePaint);
+                      canvas.drawRect(w - m - smallW, (h - smallH) / 2f, w - m, (h + smallH) / 2f, linePaint);
+          
+                      float radius = Math.max(dp(6), Math.min(w, h) * 0.018f);
+          
+                      for (int i = 0; i < 11; i++) {
+                          float x = homeX[i] * w;
+                          float y = homeY[i] * h;
+                          playerPaint.setColor(primaryColours[liveHome]);
+                          canvas.drawCircle(x, y, radius, playerPaint);
+                          canvas.drawCircle(x, y, radius, outlinePaint);
+                      }
+          
+                      for (int i = 0; i < 11; i++) {
+                          float x = awayX[i] * w;
+                          float y = awayY[i] * h;
+                          playerPaint.setColor(primaryColours[liveAway]);
+                          canvas.drawCircle(x, y, radius, playerPaint);
+                          canvas.drawCircle(x, y, radius, outlinePaint);
+                      }
+          
+                      canvas.drawCircle(ballX * w, ballY * h, Math.max(dp(4), radius * 0.55f), ballPaint);
+                      Paint ballOutline = new Paint(Paint.ANTI_ALIAS_FLAG);
+                      ballOutline.setColor(Color.BLACK);
+                      ballOutline.setStyle(Paint.Style.STROKE);
+                      ballOutline.setStrokeWidth(dp(1));
+                      canvas.drawCircle(ballX * w, ballY * h, Math.max(dp(4), radius * 0.55f), ballOutline);
+                  }
+          
+                  private float clamp(float value, float min, float max) {
+                      return Math.max(min, Math.min(max, value));
+                  }
+              }
+          
+              private int simulateGoals(int attackingTeam, int defendingTeam, boolean home) {
+                  int goals = random.nextInt(3);
+                  int difference = strength[attackingTeam] - strength[defendingTeam];
+                  if (difference >= 8 && random.nextDouble() < 0.55) goals++;
+                  if (difference >= 15 && random.nextDouble() < 0.35) goals++;
+                  if (difference <= -10 && goals > 0 && random.nextDouble() < 0.35) goals--;
+                  if (home && random.nextDouble() < 0.18) goals++;
+                  return Math.min(goals, 6);
+              }
+          
+              private void updateTable(int home, int away, int homeGoals, int awayGoals) {
+                  played[home]++;
+                  played[away]++;
+                  goalsFor[home] += homeGoals;
+                  goalsAgainst[home] += awayGoals;
+                  goalsFor[away] += awayGoals;
+                  goalsAgainst[away] += homeGoals;
+          
+                  if (homeGoals > awayGoals) {
+                      won[home]++;
+                      lost[away]++;
+                      points[home] += 3;
+                  } else if (awayGoals > homeGoals) {
+                      won[away]++;
+                      lost[home]++;
+                      points[away] += 3;
+                  } else {
+                      drawn[home]++;
+                      drawn[away]++;
+                      points[home]++;
+                      points[away]++;
+                  }
+              }
+          
+              private void showLeagueTable() {
+                  LinearLayout page = createPage("Liga Portugal", "Season 2026/27 • Matchday " + matchday, true);
+          
+                  Integer[] order = new Integer[clubNames.length];
+                  for (int i = 0; i < clubNames.length; i++) order[i] = i;
+          
+                  Arrays.sort(order, new Comparator<Integer>() {
+                      @Override
+                      public int compare(Integer a, Integer b) {
+                          if (points[a] != points[b]) return Integer.compare(points[b], points[a]);
+                          int gdA = goalsFor[a] - goalsAgainst[a];
+                          int gdB = goalsFor[b] - goalsAgainst[b];
+                          if (gdA != gdB) return Integer.compare(gdB, gdA);
+                          return Integer.compare(goalsFor[b], goalsFor[a]);
+                      }
+                  });
+          
+                  StringBuilder table = new StringBuilder();
+                  table.append(" #  CLUB   P   W  D  L   GD  PTS\n");
+                  table.append("--------------------------------\n");
+          
+                  for (int position = 0; position < order.length; position++) {
+                      int club = order[position];
+                      int gd = goalsFor[club] - goalsAgainst[club];
+                      table.append(String.format(
+                              Locale.UK,
+                              "%2d  %-4s  %2d  %2d %2d %2d  %+3d  %3d",
+                              position + 1, shortNames[club], played[club], won[club], drawn[club], lost[club], gd, points[club]
+                      ));
+                      if (club == selectedClub) table.append("  ◀");
+                      table.append("\n");
+                  }
+          
+                  TextView standings = makeText(table.toString(), 14, text);
+                  standings.setTypeface(Typeface.MONOSPACE);
+                  standings.setBackground(rounded(panel));
+                  standings.setPadding(dp(12), dp(16), dp(12), dp(16));
+                  page.addView(standings);
+                  page.addView(makeText("", 8, text));
+                  page.addView(makeButton("Back to Dashboard", v -> showDashboard()));
+              }
+          
+              private void showAllTeamsPlayers() {
+                  LinearLayout page = createPage("Player Database", "Browse players from every club", true);
+          
+                  ArrayList<Player> leaders = new ArrayList<>(players);
+                  Collections.sort(leaders, (a, b) -> Integer.compare(b.overall, a.overall));
+                  TextView top = makeText(
+                          "TOP RATED\n" + leaders.get(0).name + "  " + leaders.get(0).overall + " • " + clubNames[leaders.get(0).team]
+                                  + "\n" + leaders.get(1).name + "  " + leaders.get(1).overall + " • " + clubNames[leaders.get(1).team]
+                                  + "\n" + leaders.get(2).name + "  " + leaders.get(2).overall + " • " + clubNames[leaders.get(2).team],
+                          15,
+                          text
+                  );
+                  top.setBackground(rounded(panel));
+                  top.setPadding(dp(14), dp(14), dp(14), dp(14));
+                  page.addView(top);
+                  page.addView(makeText("", 8, text));
+          
+                  for (int team = 0; team < clubNames.length; team++) {
+                      final int t = team;
+                      Player best = bestPlayerForTeam(team);
+                      String suffix = best == null ? "" : " • Best OVR " + best.overall;
+                      page.addView(makeButton(clubNames[team] + suffix, v -> showTeamPlayers(t)));
+                  }
+              }
+          
+              private Player bestPlayerForTeam(int team) {
+                  Player best = null;
+                  for (Player p : players) {
+                      if (p.team == team && (best == null || p.overall > best.overall)) best = p;
+                  }
+                  return best;
+              }
+          
+              private void showTeamPlayers(int team) {
+                  LinearLayout page = createPage(
+                          clubNames[team] + " Players",
+                          team == selectedClub ? "Your squad • tap a player for full stats" : "Opposition squad • tap a player for full stats",
+                          true
+                  );
+          
+                  ArrayList<Player> teamPlayers = new ArrayList<>();
+                  for (Player p : players) if (p.team == team) teamPlayers.add(p);
+                  Collections.sort(teamPlayers, (a, b) -> Integer.compare(b.overall, a.overall));
+          
+                  for (Player p : teamPlayers) {
+                      String status = "";
+                      if (p.transferListed) status += "  [T]";
+                      if (p.loanListed) status += "  [L]";
+                      String label = p.position + "  " + p.name + "   OVR " + p.overall + status;
+                      page.addView(makeButton(label, v -> showPlayerProfile(p.id, team)));
+                  }
+          
+                  if (team != selectedClub) page.addView(makeButton("Back to Player Database", v -> showAllTeamsPlayers()));
+                  else page.addView(makeButton("Back to Dashboard", v -> showDashboard()));
+              }
+          
+              private void showPlayerProfile(int playerId, int returnTeam) {
+                  Player p = findPlayer(playerId);
+                  if (p == null) return;
+          
+                  LinearLayout page = createPage(p.name, p.position + " • " + clubNames[p.team] + " • Age " + p.age, true);
+          
+                  LinearLayout summary = makePanel();
+                  TextView headline = makeText("OVR " + p.overall + "   •   Value €" + p.valueMillions + "m", 22, accent);
+                  headline.setTypeface(Typeface.DEFAULT_BOLD);
+                  summary.addView(headline);
+                  summary.addView(makeText(
+                          "Contract: " + p.contractYears + " year(s)\n"
+                                  + "Fitness: " + p.fitness + "%   •   Morale: " + p.morale + "%\n"
+                                  + "Appearances: " + p.appearances + "   Goals: " + p.goals + "   Assists: " + p.assists,
+                          15,
+                          text
+                  ));
+                  page.addView(summary);
+          
+                  LinearLayout attributes = makePanel();
+                  TextView attrTitle = makeText("PLAYER ATTRIBUTES", 13, muted);
+                  attrTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                  attributes.addView(attrTitle);
+                  attributes.addView(makeText(attributeLine("Pace", p.pace), 16, text));
+                  attributes.addView(makeText(attributeLine("Technique", p.technique), 16, text));
+                  attributes.addView(makeText(attributeLine("Passing", p.passing), 16, text));
+                  attributes.addView(makeText(attributeLine("Finishing", p.finishing), 16, text));
+                  attributes.addView(makeText(attributeLine("Defending", p.defending), 16, text));
+                  attributes.addView(makeText(attributeLine("Physical", p.physical), 16, text));
+                  page.addView(attributes);
+          
+                  String marketStatus = "Available: " + (p.transferListed ? "TRANSFER LIST" : p.loanListed ? "LOAN LIST" : "Not listed");
+                  TextView market = makeText(marketStatus, 15, p.transferListed || p.loanListed ? warning : muted);
+                  market.setPadding(0, 0, 0, dp(10));
+                  page.addView(market);
+          
+                  if (p.team == selectedClub) {
+                      page.addView(makeButton(
+                              p.transferListed ? "Remove from Transfer List" : "Add to Transfer List",
+                              v -> {
+                                  p.transferListed = !p.transferListed;
+                                  if (p.transferListed) p.loanListed = false;
+                                  saveCurrentGame();
+                                  showPlayerProfile(p.id, returnTeam);
+                              }
+                      ));
+                      page.addView(makeButton(
+                              p.loanListed ? "Remove from Loan List" : "Add to Loan List",
+                              v -> {
+                                  p.loanListed = !p.loanListed;
+                                  if (p.loanListed) p.transferListed = false;
+                                  saveCurrentGame();
+                                  showPlayerProfile(p.id, returnTeam);
+                              }
+                      ));
+                  } else {
+                      TextView note = makeText(
+                              isTransferWindowOpen(currentDate)
+                                      ? "Transfer registrations are OPEN. Negotiation/signing will be added in the next transfer-system update."
+                                      : "Transfer registrations are currently CLOSED.",
+                              14,
+                              muted
+                      );
+                      note.setPadding(0, 0, 0, dp(12));
+                      page.addView(note);
+                  }
+          
+                  page.addView(makeButton("Back to " + clubNames[returnTeam], v -> showTeamPlayers(returnTeam)));
+              }
+          
+              private String attributeLine(String name, int value) {
+                  return String.format(Locale.UK, "%-11s %2d   %s", name, value, statBar(value));
+              }
+          
+              private String statBar(int value) {
+                  int blocks = Math.max(1, Math.min(10, value / 10));
+                  StringBuilder sb = new StringBuilder();
+                  for (int i = 0; i < 10; i++) sb.append(i < blocks ? "■" : "□");
+                  return sb.toString();
+              }
+          
+              private void showTransferHub() {
+                  LinearLayout page = createPage("Transfers", currentDate.format(DATE_FORMAT) + " • " + transferWindowStatus(currentDate), true);
+          
+                  LinearLayout windows = makePanel();
+                  TextView title = makeText("PORTUGAL 2026/27 REGISTRATION WINDOWS", 13, accent);
+                  title.setTypeface(Typeface.DEFAULT_BOLD);
+                  windows.addView(title);
+                  windows.addView(makeText(
+                          "Summer: 1 Jul 2026 – 4 Sep 2026\nWinter: 4 Jan 2027 – 1 Feb 2027\n\n"
+                                  + (isTransferWindowOpen(currentDate)
+                                  ? "Status: OPEN — registrations permitted"
+                                  : "Status: CLOSED — you can still prepare transfer/loan lists"),
+                          15,
+                          text
+                  ));
+                  page.addView(windows);
+          
+                  ArrayList<Player> transferList = new ArrayList<>();
+                  ArrayList<Player> loanList = new ArrayList<>();
+                  for (Player p : players) {
+                      if (p.team == selectedClub && p.transferListed) transferList.add(p);
+                      if (p.team == selectedClub && p.loanListed) loanList.add(p);
+                  }
+          
+                  TextView transferTitle = makeText("TRANSFER LIST (" + transferList.size() + ")", 13, muted);
+                  transferTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                  page.addView(transferTitle);
+                  if (transferList.isEmpty()) page.addView(makeText("No players currently transfer-listed.", 15, muted));
+                  for (Player p : transferList) page.addView(makeButton(p.name + " • OVR " + p.overall, v -> showPlayerProfile(p.id, selectedClub)));
+          
+                  TextView loanTitle = makeText("\nLOAN LIST (" + loanList.size() + ")", 13, muted);
+                  loanTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                  page.addView(loanTitle);
+                  if (loanList.isEmpty()) page.addView(makeText("No players currently loan-listed.", 15, muted));
+                  for (Player p : loanList) page.addView(makeButton(p.name + " • OVR " + p.overall, v -> showPlayerProfile(p.id, selectedClub)));
+          
+                  page.addView(makeText("", 6, text));
+                  page.addView(makeButton("Browse Your Squad", v -> showTeamPlayers(selectedClub)));
+                  page.addView(makeButton("Browse All Teams", v -> showAllTeamsPlayers()));
+              }
+          
+              private String transferWindowStatus(LocalDate date) {
+                  if (isTransferWindowOpen(date)) return "OPEN";
+                  LocalDate winter = LocalDate.of(2027, 1, 4);
+                  if (date.isBefore(winter) && date.isAfter(LocalDate.of(2026, 9, 4))) {
+                      return "CLOSED • Winter opens 4 Jan 2027";
+                  }
+                  if (date.isBefore(LocalDate.of(2026, 7, 1))) return "CLOSED • Summer opens 1 Jul 2026";
+                  return "CLOSED";
+              }
+          
+              private boolean isTransferWindowOpen(LocalDate date) {
+                  boolean summer = !date.isBefore(LocalDate.of(2026, 7, 1)) && !date.isAfter(LocalDate.of(2026, 9, 4));
+                  boolean winter = !date.isBefore(LocalDate.of(2027, 1, 4)) && !date.isAfter(LocalDate.of(2027, 2, 1));
+                  return summer || winter;
+              }
+          
+              private void showTraining() {
+                  LinearLayout page = createPage("Training", "Current focus: " + trainingFocus, true);
+          
+                  LinearLayout info = makePanel();
+                  info.addView(makeText(
+                          "Your chosen focus is applied after every league matchday.\n"
+                                  + "Players at your club can gain attribute points over time.\n\n"
+                                  + "Balanced: small chance across all attributes\n"
+                                  + "Pace: acceleration & speed development\n"
+                                  + "Technique: ball control & skill\n"
+                                  + "Passing: distribution & vision\n"
+                                  + "Finishing: shooting development\n"
+                                  + "Defending: tackling & positioning\n"
+                                  + "Physical: strength & stamina",
+                          15,
+                          text
+                  ));
+                  page.addView(info);
+          
+                  String[] focuses = {"Balanced", "Pace", "Technique", "Passing", "Finishing", "Defending", "Physical"};
+                  for (String focus : focuses) {
+                      Button b = makeButton((focus.equals(trainingFocus) ? "✓  " : "") + focus, v -> {
+                          trainingFocus = focus;
+                          saveCurrentGame();
+                          Toast.makeText(this, "Training focus set to " + focus, Toast.LENGTH_SHORT).show();
+                          showTraining();
+                      });
+                      if (focus.equals(trainingFocus)) b.setBackground(rounded(accent));
+                      page.addView(b);
+                  }
+          
+                  page.addView(makeButton("View Squad Development", v -> showTeamPlayers(selectedClub)));
+              }
+          
+              private void applyTrainingSession() {
+                  for (Player p : players) {
+                      if (p.team != selectedClub) continue;
+                      double chance = p.age <= 23 ? 0.34 : p.age <= 28 ? 0.20 : 0.10;
+                      if (random.nextDouble() > chance) continue;
+          
+                      switch (trainingFocus) {
+                          case "Pace": p.pace = Math.min(99, p.pace + 1); break;
+                          case "Technique": p.technique = Math.min(99, p.technique + 1); break;
+                          case "Passing": p.passing = Math.min(99, p.passing + 1); break;
+                          case "Finishing": p.finishing = Math.min(99, p.finishing + 1); break;
+                          case "Defending": p.defending = Math.min(99, p.defending + 1); break;
+                          case "Physical": p.physical = Math.min(99, p.physical + 1); break;
+                          default:
+                              int pick = random.nextInt(6);
+                              if (pick == 0) p.pace = Math.min(99, p.pace + 1);
+                              if (pick == 1) p.technique = Math.min(99, p.technique + 1);
+                              if (pick == 2) p.passing = Math.min(99, p.passing + 1);
+                              if (pick == 3) p.finishing = Math.min(99, p.finishing + 1);
+                              if (pick == 4) p.defending = Math.min(99, p.defending + 1);
+                              if (pick == 5) p.physical = Math.min(99, p.physical + 1);
+                              break;
+                      }
+                      recalculateOverall(p);
+                  }
+              }
+          
+              private void recalculateOverall(Player p) {
+                  int roleScore;
+                  if (p.position.equals("GK")) {
+                      roleScore = (p.technique + p.passing + p.physical + p.defending) / 4;
+                  } else if (p.position.equals("CB") || p.position.equals("LB") || p.position.equals("RB") || p.position.equals("DM")) {
+                      roleScore = (p.defending * 2 + p.physical + p.pace + p.passing) / 5;
+                  } else if (p.position.equals("ST") || p.position.equals("RW") || p.position.equals("LW")) {
+                      roleScore = (p.finishing * 2 + p.pace + p.technique + p.physical) / 5;
+                  } else {
+                      roleScore = (p.technique + p.passing * 2 + p.pace + p.physical) / 5;
+                  }
+                  p.overall = Math.max(p.overall, Math.min(99, roleScore));
+                  p.valueMillions = Math.max(1, (p.overall * p.overall) / 360);
+              }
+          
+              private void updatePlayerMatchStats() {
+                  for (Player p : players) {
+                      if (random.nextDouble() < 0.62) {
+                          p.appearances++;
+                          p.fitness = Math.max(55, p.fitness - random.nextInt(7));
+                          p.morale = Math.max(50, Math.min(100, p.morale + random.nextInt(7) - 2));
+          
+                          double goalChance = 0.01;
+                          if (p.position.equals("ST")) goalChance = 0.20;
+                          else if (p.position.equals("RW") || p.position.equals("LW") || p.position.equals("AM")) goalChance = 0.11;
+                          else if (p.position.equals("CM") || p.position.equals("RM") || p.position.equals("LM")) goalChance = 0.06;
+                          if (random.nextDouble() < goalChance) p.goals++;
+          
+                          double assistChance = p.passing / 900.0;
+                          if (random.nextDouble() < assistChance) p.assists++;
+                      } else {
+                          p.fitness = Math.min(100, p.fitness + 3);
+                      }
+                  }
+              }
+          
+              private void showCompetitionCalendar() {
+                  LinearLayout page = createPage(
+                          "Competition Calendar",
+                          "Current date: " + currentDate.format(DATE_FORMAT) + " • Your Europe: " + europeanCompetitionForClub(selectedClub),
+                          true
+                  );
+          
+                  LinearLayout own = makePanel();
+                  own.addView(makeText("YOUR SEASON", 13, accent));
+                  own.addView(makeText(
+                          "Liga Portugal: weekly league programme\n"
+                                  + "European competition: " + europeanCompetitionForClub(selectedClub) + "\n"
+                                  + "Next transfer window status: " + transferWindowStatus(currentDate),
+                          15,
+                          text
+                  ));
+                  page.addView(own);
+          
+                  ArrayList<CalendarEvent> events = buildEuropeanCalendar();
+                  for (CalendarEvent e : events) {
+                      if (e.date.isBefore(currentDate.minusDays(14))) continue;
+                      LinearLayout row = makePanel();
+                      int colour = e.date.isBefore(currentDate) ? muted : text;
+                      TextView date = makeText(e.date.format(DATE_FORMAT) + "  •  " + e.competition, 16, colour);
+                      date.setTypeface(Typeface.DEFAULT_BOLD);
+                      row.addView(date);
+                      row.addView(makeText(e.stage, 14, muted));
+                      page.addView(row);
+                  }
+              }
+          
+              private ArrayList<CalendarEvent> buildEuropeanCalendar() {
+                  ArrayList<CalendarEvent> e = new ArrayList<>();
+          
+                  e.add(new CalendarEvent(2026, 9, 8, "Champions League", "League phase MD1 • 8–10 Sep"));
+                  e.add(new CalendarEvent(2026, 10, 13, "Champions League", "League phase MD2 • 13–14 Oct"));
+                  e.add(new CalendarEvent(2026, 10, 20, "Champions League", "League phase MD3 • 20–21 Oct"));
+                  e.add(new CalendarEvent(2026, 11, 3, "Champions League", "League phase MD4 • 3–4 Nov"));
+                  e.add(new CalendarEvent(2026, 11, 24, "Champions League", "League phase MD5 • 24–25 Nov"));
+                  e.add(new CalendarEvent(2026, 12, 8, "Champions League", "League phase MD6 • 8–9 Dec"));
+                  e.add(new CalendarEvent(2027, 1, 19, "Champions League", "League phase MD7 • 19–20 Jan"));
+                  e.add(new CalendarEvent(2027, 1, 27, "Champions League", "League phase MD8"));
+                  e.add(new CalendarEvent(2027, 2, 16, "Champions League", "Knockout play-offs • 16/17 & 23/24 Feb"));
+                  e.add(new CalendarEvent(2027, 3, 9, "Champions League", "Round of 16 • 9/10 & 16/17 Mar"));
+                  e.add(new CalendarEvent(2027, 4, 6, "Champions League", "Quarter-finals • 6/7 & 13/14 Apr"));
+                  e.add(new CalendarEvent(2027, 4, 27, "Champions League", "Semi-finals • 27/28 Apr & 4/5 May"));
+                  e.add(new CalendarEvent(2027, 6, 5, "Champions League", "Final • Madrid"));
+          
+                  e.add(new CalendarEvent(2026, 9, 16, "Europa League", "League phase MD1 • 16–17 Sep"));
+                  e.add(new CalendarEvent(2026, 10, 15, "Europa League", "League phase MD2"));
+                  e.add(new CalendarEvent(2026, 10, 22, "Europa League", "League phase MD3"));
+                  e.add(new CalendarEvent(2026, 11, 5, "Europa League", "League phase MD4"));
+                  e.add(new CalendarEvent(2026, 11, 26, "Europa League", "League phase MD5"));
+                  e.add(new CalendarEvent(2026, 12, 10, "Europa League", "League phase MD6"));
+                  e.add(new CalendarEvent(2027, 1, 21, "Europa League", "League phase MD7"));
+                  e.add(new CalendarEvent(2027, 1, 28, "Europa League", "League phase MD8"));
+                  e.add(new CalendarEvent(2027, 2, 18, "Europa League", "Knockout play-offs • 18 & 25 Feb"));
+                  e.add(new CalendarEvent(2027, 3, 11, "Europa League", "Round of 16 • 11 & 18 Mar"));
+                  e.add(new CalendarEvent(2027, 4, 8, "Europa League", "Quarter-finals • 8 & 15 Apr"));
+                  e.add(new CalendarEvent(2027, 4, 29, "Europa League", "Semi-finals • 29 Apr & 6 May"));
+                  e.add(new CalendarEvent(2027, 5, 26, "Europa League", "Final • Frankfurt"));
+          
+                  e.add(new CalendarEvent(2026, 10, 15, "Conference League", "League phase MD1"));
+                  e.add(new CalendarEvent(2026, 10, 22, "Conference League", "League phase MD2"));
+                  e.add(new CalendarEvent(2026, 11, 5, "Conference League", "League phase MD3"));
+                  e.add(new CalendarEvent(2026, 11, 26, "Conference League", "League phase MD4"));
+                  e.add(new CalendarEvent(2026, 12, 10, "Conference League", "League phase MD5"));
+                  e.add(new CalendarEvent(2026, 12, 17, "Conference League", "League phase MD6"));
+                  e.add(new CalendarEvent(2027, 2, 18, "Conference League", "Knockout play-offs • 18 & 25 Feb"));
+                  e.add(new CalendarEvent(2027, 3, 11, "Conference League", "Round of 16 • 11 & 18 Mar"));
+                  e.add(new CalendarEvent(2027, 4, 8, "Conference League", "Quarter-finals • 8 & 15 Apr"));
+                  e.add(new CalendarEvent(2027, 4, 29, "Conference League", "Semi-finals • 29 Apr & 6 May"));
+                  e.add(new CalendarEvent(2027, 6, 2, "Conference League", "Final • Istanbul"));
+          
+                  Collections.sort(e, (a, b) -> a.date.compareTo(b.date));
+                  return e;
+              }
+          
+              private String europeanCompetitionForClub(int club) {
+                  if (club == 1 || club == 2) return "Champions League";
+                  if (club == 0) return "Europa League";
+                  if (club == 3) return "Conference League";
+                  return "No European competition";
+              }
+          
+              private void generatePlayers() {
+                  players.clear();
+                  String[] firstNames = {
+                          "João", "Miguel", "Tiago", "Diogo", "Rafael", "André", "Pedro", "Gonçalo", "Tomás", "Nuno",
+                          "Bruno", "Fábio", "Duarte", "Rodrigo", "Martim", "Vasco", "Afonso", "Rui", "Henrique", "Daniel"
+                  };
+                  String[] lastNames = {
+                          "Silva", "Costa", "Ferreira", "Santos", "Pereira", "Oliveira", "Sousa", "Martins", "Almeida", "Rocha",
+                          "Correia", "Mendes", "Carvalho", "Ribeiro", "Fernandes", "Teixeira", "Lopes", "Gomes", "Pinto", "Neves"
+                  };
+                  String[] positions = {
+                          "GK", "GK", "RB", "CB", "CB", "CB", "LB", "LB", "DM", "CM",
+                          "CM", "CM", "AM", "RM", "LM", "RW", "LW", "ST", "ST", "ST"
+                  };
+          
+                  for (int team = 0; team < 18; team++) {
+                      Random r = new Random(71000L + team * 997L);
+                      for (int i = 0; i < PLAYERS_PER_TEAM; i++) {
+                          Player p = new Player(team * PLAYERS_PER_TEAM + i, team);
+                          p.name = firstNames[r.nextInt(firstNames.length)] + " " + lastNames[r.nextInt(lastNames.length)];
+                          p.position = positions[i];
+                          p.age = 17 + r.nextInt(18);
+                          p.overall = Math.max(54, Math.min(91, strength[team] - 10 + r.nextInt(19)));
+                          p.pace = attributeFromOverall(r, p.overall, 16);
+                          p.technique = attributeFromOverall(r, p.overall, 14);
+                          p.passing = attributeFromOverall(r, p.overall, 15);
+                          p.finishing = attributeFromOverall(r, p.overall, 20);
+                          p.defending = attributeFromOverall(r, p.overall, 20);
+                          p.physical = attributeFromOverall(r, p.overall, 15);
+                          tuneAttributesForPosition(p, r);
+                          p.appearances = 0;
+                          p.goals = 0;
+                          p.assists = 0;
+                          p.fitness = 88 + r.nextInt(13);
+                          p.morale = 70 + r.nextInt(26);
+                          p.valueMillions = Math.max(1, (p.overall * p.overall) / 360);
+                          p.contractYears = 1 + r.nextInt(5);
+                          p.transferListed = team != selectedClub && r.nextDouble() < 0.06;
+                          p.loanListed = !p.transferListed && team != selectedClub && p.age <= 22 && r.nextDouble() < 0.08;
+                          players.add(p);
+                      }
+                  }
+              }
+          
+              private int attributeFromOverall(Random r, int overall, int spread) {
+                  return Math.max(35, Math.min(95, overall - spread / 2 + r.nextInt(spread + 1)));
+              }
+          
+              private void tuneAttributesForPosition(Player p, Random r) {
+                  if (p.position.equals("ST")) {
+                      p.finishing = Math.min(97, p.finishing + 8);
+                      p.defending = Math.max(30, p.defending - 12);
+                  } else if (p.position.equals("CB")) {
+                      p.defending = Math.min(97, p.defending + 9);
+                      p.finishing = Math.max(30, p.finishing - 12);
+                  } else if (p.position.equals("RW") || p.position.equals("LW")) {
+                      p.pace = Math.min(97, p.pace + 8);
+                      p.technique = Math.min(97, p.technique + 5);
+                  } else if (p.position.equals("CM") || p.position.equals("AM")) {
+                      p.passing = Math.min(97, p.passing + 7);
+                      p.technique = Math.min(97, p.technique + 5);
+                  } else if (p.position.equals("LB") || p.position.equals("RB")) {
+                      p.pace = Math.min(97, p.pace + 5);
+                      p.defending = Math.min(97, p.defending + 5);
+                  } else if (p.position.equals("GK")) {
+                      p.defending = Math.min(97, p.overall + r.nextInt(8));
+                      p.finishing = 30 + r.nextInt(16);
+                      p.pace = 40 + r.nextInt(26);
+                  }
+              }
+          
+              private Player findPlayer(int id) {
+                  if (id < 0 || id >= players.size()) return null;
+                  return players.get(id);
+              }
+          
+              private void showTeamEditor() {
+                  LinearLayout page = createPage("Game Editor", "Edit fictional club names and primary/secondary colours", true);
+          
+                  TextView note = makeText("Changes apply across all three career saves.", 14, muted);
+                  note.setPadding(0, 0, 0, dp(14));
+                  page.addView(note);
+          
+                  for (int i = 0; i < clubNames.length; i++) {
+                      final int club = i;
+                      LinearLayout box = makePanel();
+                      box.addView(makeClubIdentityRow(club));
+          
+                      TextView colourInfo = makeText(
+                              "Primary: " + colourName(primaryColours[club]) + "  •  Secondary: " + colourName(secondaryColours[club]),
+                              13,
+                              muted
+                      );
+                      colourInfo.setPadding(0, dp(6), 0, dp(8));
+                      box.addView(colourInfo);
+                      box.addView(makeButton("Edit Team", v -> showEditTeam(club)));
+                      page.addView(box);
+                  }
+          
+                  Button resetAll = makeButton("Reset All Teams to Defaults", v -> confirmResetAllTeams());
+                  resetAll.setBackground(rounded(danger));
+                  page.addView(resetAll);
+              }
+          
+              private void showEditTeam(int club) {
+                  LinearLayout page = createPage("Edit Team", clubNames[club], true);
+          
+                  LinearLayout preview = makePanel();
+                  preview.addView(makeClubIdentityRow(club));
+                  page.addView(preview);
+          
+                  TextView nameLabel = makeText("TEAM NAME", 13, muted);
+                  nameLabel.setTypeface(Typeface.DEFAULT_BOLD);
+                  page.addView(nameLabel);
+          
+                  EditText nameInput = new EditText(this);
+                  nameInput.setText(clubNames[club]);
+                  nameInput.setTextColor(text);
+                  nameInput.setHintTextColor(muted);
+                  nameInput.setTextSize(18);
+                  nameInput.setSingleLine(true);
+                  nameInput.setBackground(rounded(panel));
+                  nameInput.setPadding(dp(14), dp(12), dp(14), dp(12));
+          
+                  LinearLayout.LayoutParams inputParams = new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                  );
+                  inputParams.setMargins(0, dp(8), 0, dp(16));
+                  nameInput.setLayoutParams(inputParams);
+                  page.addView(nameInput);
+          
+                  final int[] chosenPrimary = {primaryColours[club]};
+                  final int[] chosenSecondary = {secondaryColours[club]};
+          
+                  Button primaryButton = makeButton("", null);
+                  Button secondaryButton = makeButton("", null);
+                  updateColourButton(primaryButton, "Primary", chosenPrimary[0]);
+                  updateColourButton(secondaryButton, "Secondary", chosenSecondary[0]);
+          
+                  primaryButton.setOnClickListener(v -> {
+                      chosenPrimary[0] = nextPaletteColour(chosenPrimary[0]);
+                      updateColourButton(primaryButton, "Primary", chosenPrimary[0]);
+                  });
+          
+                  secondaryButton.setOnClickListener(v -> {
+                      chosenSecondary[0] = nextPaletteColour(chosenSecondary[0]);
+                      updateColourButton(secondaryButton, "Secondary", chosenSecondary[0]);
+                  });
+          
+                  page.addView(primaryButton);
+                  page.addView(secondaryButton);
+          
+                  TextView hint = makeText("Tap either colour button to cycle through the palette.", 13, muted);
+                  hint.setPadding(0, 0, 0, dp(14));
+                  page.addView(hint);
+          
+                  page.addView(makeAccentButton("Save Changes", v -> {
+                      String newName = nameInput.getText().toString().trim();
+                      if (newName.isEmpty()) {
+                          Toast.makeText(this, "Team name cannot be empty.", Toast.LENGTH_SHORT).show();
+                          return;
+                      }
+                      if (newName.length() > 28) newName = newName.substring(0, 28);
+                      clubNames[club] = newName;
+                      primaryColours[club] = chosenPrimary[0];
+                      secondaryColours[club] = chosenSecondary[0];
+                      saveEditorTeam(club);
+                      Toast.makeText(this, "Team updated.", Toast.LENGTH_SHORT).show();
+                      showTeamEditor();
+                  }));
+          
+                  page.addView(makeButton("Reset This Team", v -> new AlertDialog.Builder(this)
+                          .setTitle("Reset team?")
+                          .setMessage("Restore this club's default name and colours?")
+                          .setNegativeButton("Cancel", null)
+                          .setPositiveButton("Reset", (dialog, which) -> {
+                              resetEditorTeam(club);
+                              showTeamEditor();
+                          })
+                          .show()));
+                  page.addView(makeButton("Cancel", v -> showTeamEditor()));
+              }
+          
+              private void updateColourButton(Button button, String label, int colour) {
+                  button.setText(label + ": " + colourName(colour) + "   •   Tap to change");
+                  GradientDrawable bg = rounded(colour);
+                  int luminance = (Color.red(colour) * 299 + Color.green(colour) * 587 + Color.blue(colour) * 114) / 1000;
+                  button.setTextColor(luminance > 170 ? Color.BLACK : Color.WHITE);
+                  button.setBackground(bg);
+              }
+          
+              private int nextPaletteColour(int current) {
+                  for (int i = 0; i < palette.length; i++) {
+                      if (palette[i] == current) return palette[(i + 1) % palette.length];
+                  }
+                  return palette[0];
+              }
+          
+              private String colourName(int colour) {
+                  for (int i = 0; i < palette.length; i++) {
+                      if (palette[i] == colour) return paletteNames[i];
+                  }
+                  return "Custom";
+              }
+          
+              private void loadEditorData() {
+                  for (int i = 0; i < clubNames.length; i++) {
+                      clubNames[i] = prefs.getString("editor_name_" + i, defaultClubNames[i]);
+                      primaryColours[i] = prefs.getInt("editor_primary_" + i, defaultPrimary[i]);
+                      secondaryColours[i] = prefs.getInt("editor_secondary_" + i, defaultSecondary[i]);
+                  }
+              }
+          
+              private void saveEditorTeam(int club) {
+                  prefs.edit()
+                          .putString("editor_name_" + club, clubNames[club])
+                          .putInt("editor_primary_" + club, primaryColours[club])
+                          .putInt("editor_secondary_" + club, secondaryColours[club])
+                          .apply();
+              }
+          
+              private void resetEditorTeam(int club) {
+                  clubNames[club] = defaultClubNames[club];
+                  primaryColours[club] = defaultPrimary[club];
+                  secondaryColours[club] = defaultSecondary[club];
+                  saveEditorTeam(club);
+              }
+          
+              private void confirmResetAllTeams() {
+                  new AlertDialog.Builder(this)
+                          .setTitle("Reset all teams?")
+                          .setMessage("Every edited team name and colour will return to its Project Mister default.")
+                          .setNegativeButton("Cancel", null)
+                          .setPositiveButton("Reset All", (dialog, which) -> {
+                              for (int i = 0; i < clubNames.length; i++) resetEditorTeam(i);
+                              showTeamEditor();
+                          })
+                          .show();
+              }
+          
+              private boolean slotExists(int slot) {
+                  return prefs.getBoolean(key(slot, "exists"), false);
+              }
+          
+              private String key(int slot, String field) {
+                  return "save_" + slot + "_" + field;
+              }
+          
+              private void saveCurrentGame() {
+                  if (selectedSlot < 0 || selectedClub < 0) return;
+          
+                  prefs.edit()
+                          .putBoolean(key(selectedSlot, "exists"), true)
+                          .putInt(key(selectedSlot, "club"), selectedClub)
+                          .putInt(key(selectedSlot, "matchday"), matchday)
+                          .putString(key(selectedSlot, "date"), currentDate.toString())
+                          .putString(key(selectedSlot, "training"), trainingFocus)
+                          .putString(key(selectedSlot, "played"), encode(played))
+                          .putString(key(selectedSlot, "won"), encode(won))
+                          .putString(key(selectedSlot, "drawn"), encode(drawn))
+                          .putString(key(selectedSlot, "lost"), encode(lost))
+                          .putString(key(selectedSlot, "gf"), encode(goalsFor))
+                          .putString(key(selectedSlot, "ga"), encode(goalsAgainst))
+                          .putString(key(selectedSlot, "points"), encode(points))
+                          .putString(key(selectedSlot, "p_apps"), encodePlayerField("apps"))
+                          .putString(key(selectedSlot, "p_goals"), encodePlayerField("goals"))
+                          .putString(key(selectedSlot, "p_assists"), encodePlayerField("assists"))
+                          .putString(key(selectedSlot, "p_overall"), encodePlayerField("overall"))
+                          .putString(key(selectedSlot, "p_pace"), encodePlayerField("pace"))
+                          .putString(key(selectedSlot, "p_tech"), encodePlayerField("tech"))
+                          .putString(key(selectedSlot, "p_pass"), encodePlayerField("pass"))
+                          .putString(key(selectedSlot, "p_finish"), encodePlayerField("finish"))
+                          .putString(key(selectedSlot, "p_def"), encodePlayerField("def"))
+                          .putString(key(selectedSlot, "p_phys"), encodePlayerField("phys"))
+                          .putString(key(selectedSlot, "p_fit"), encodePlayerField("fit"))
+                          .putString(key(selectedSlot, "p_morale"), encodePlayerField("morale"))
+                          .putString(key(selectedSlot, "p_transfer"), encodePlayerField("transfer"))
+                          .putString(key(selectedSlot, "p_loan"), encodePlayerField("loan"))
+                          .apply();
+              }
+          
+              private void loadSave(int slot) {
+                  selectedSlot = slot;
+                  selectedClub = prefs.getInt(key(slot, "club"), 0);
+                  matchday = prefs.getInt(key(slot, "matchday"), 0);
+                  trainingFocus = prefs.getString(key(slot, "training"), "Balanced");
+          
+                  try {
+                      currentDate = LocalDate.parse(prefs.getString(key(slot, "date"), SEASON_START.toString()));
+                  } catch (Exception ignored) {
+                      currentDate = SEASON_START;
+                  }
+          
+                  decode(prefs.getString(key(slot, "played"), ""), played);
+                  decode(prefs.getString(key(slot, "won"), ""), won);
+                  decode(prefs.getString(key(slot, "drawn"), ""), drawn);
+                  decode(prefs.getString(key(slot, "lost"), ""), lost);
+                  decode(prefs.getString(key(slot, "gf"), ""), goalsFor);
+                  decode(prefs.getString(key(slot, "ga"), ""), goalsAgainst);
+                  decode(prefs.getString(key(slot, "points"), ""), points);
+          
+                  generatePlayers();
+                  decodePlayerField(prefs.getString(key(slot, "p_apps"), ""), "apps");
+                  decodePlayerField(prefs.getString(key(slot, "p_goals"), ""), "goals");
+                  decodePlayerField(prefs.getString(key(slot, "p_assists"), ""), "assists");
+                  decodePlayerField(prefs.getString(key(slot, "p_overall"), ""), "overall");
+                  decodePlayerField(prefs.getString(key(slot, "p_pace"), ""), "pace");
+                  decodePlayerField(prefs.getString(key(slot, "p_tech"), ""), "tech");
+                  decodePlayerField(prefs.getString(key(slot, "p_pass"), ""), "pass");
+                  decodePlayerField(prefs.getString(key(slot, "p_finish"), ""), "finish");
+                  decodePlayerField(prefs.getString(key(slot, "p_def"), ""), "def");
+                  decodePlayerField(prefs.getString(key(slot, "p_phys"), ""), "phys");
+                  decodePlayerField(prefs.getString(key(slot, "p_fit"), ""), "fit");
+                  decodePlayerField(prefs.getString(key(slot, "p_morale"), ""), "morale");
+                  decodePlayerField(prefs.getString(key(slot, "p_transfer"), ""), "transfer");
+                  decodePlayerField(prefs.getString(key(slot, "p_loan"), ""), "loan");
+              }
+          
+              private void confirmDeleteSave(int slot) {
+                  new AlertDialog.Builder(this)
+                          .setTitle("Delete Save " + (slot + 1) + "?")
+                          .setMessage("This career progress will be permanently removed from this device.")
+                          .setNegativeButton("Cancel", null)
+                          .setPositiveButton("Delete", (dialog, which) -> {
+                              clearSave(slot);
+                              showMainMenu();
+                          })
+                          .show();
+              }
+          
+              private void clearSave(int slot) {
+                  SharedPreferences.Editor editor = prefs.edit();
+                  String[] fields = {
+                          "exists", "club", "matchday", "date", "training", "played", "won", "drawn", "lost", "gf", "ga", "points",
+                          "p_apps", "p_goals", "p_assists", "p_overall", "p_pace", "p_tech", "p_pass", "p_finish", "p_def", "p_phys",
+                          "p_fit", "p_morale", "p_transfer", "p_loan"
+                  };
+                  for (String field : fields) editor.remove(key(slot, field));
+                  editor.apply();
+              }
+          
+              private int getSavedPoints(int slot, int club) {
+                  int[] temp = new int[18];
+                  decode(prefs.getString(key(slot, "points"), ""), temp);
+                  return temp[club];
+              }
+          
+              private String encode(int[] values) {
+                  StringBuilder sb = new StringBuilder();
+                  for (int i = 0; i < values.length; i++) {
+                      if (i > 0) sb.append(",");
+                      sb.append(values[i]);
+                  }
+                  return sb.toString();
+              }
+          
+              private void decode(String encoded, int[] target) {
+                  Arrays.fill(target, 0);
+                  if (encoded == null || encoded.trim().isEmpty()) return;
+                  String[] parts = encoded.split(",");
+                  for (int i = 0; i < target.length && i < parts.length; i++) {
+                      try {
+                          target[i] = Integer.parseInt(parts[i]);
+                      } catch (NumberFormatException ignored) {
+                          target[i] = 0;
+                      }
+                  }
+              }
+          
+              private String encodePlayerField(String field) {
+                  StringBuilder sb = new StringBuilder();
+                  for (int i = 0; i < players.size(); i++) {
+                      if (i > 0) sb.append(",");
+                      Player p = players.get(i);
+                      int value;
+                      switch (field) {
+                          case "apps": value = p.appearances; break;
+                          case "goals": value = p.goals; break;
+                          case "assists": value = p.assists; break;
+                          case "overall": value = p.overall; break;
+                          case "pace": value = p.pace; break;
+                          case "tech": value = p.technique; break;
+                          case "pass": value = p.passing; break;
+                          case "finish": value = p.finishing; break;
+                          case "def": value = p.defending; break;
+                          case "phys": value = p.physical; break;
+                          case "fit": value = p.fitness; break;
+                          case "morale": value = p.morale; break;
+                          case "transfer": value = p.transferListed ? 1 : 0; break;
+                          case "loan": value = p.loanListed ? 1 : 0; break;
+                          default: value = 0;
+                      }
+                      sb.append(value);
+                  }
+                  return sb.toString();
+              }
+          
+              private void decodePlayerField(String encoded, String field) {
+                  if (encoded == null || encoded.trim().isEmpty()) return;
+                  String[] parts = encoded.split(",");
+                  for (int i = 0; i < players.size() && i < parts.length; i++) {
+                      int value;
+                      try {
+                          value = Integer.parseInt(parts[i]);
+                      } catch (NumberFormatException ignored) {
+                          continue;
+                      }
+                      Player p = players.get(i);
+                      switch (field) {
+                          case "apps": p.appearances = value; break;
+                          case "goals": p.goals = value; break;
+                          case "assists": p.assists = value; break;
+                          case "overall": p.overall = value; break;
+                          case "pace": p.pace = value; break;
+                          case "tech": p.technique = value; break;
+                          case "pass": p.passing = value; break;
+                          case "finish": p.finishing = value; break;
+                          case "def": p.defending = value; break;
+                          case "phys": p.physical = value; break;
+                          case "fit": p.fitness = value; break;
+                          case "morale": p.morale = value; break;
+                          case "transfer": p.transferListed = value == 1; break;
+                          case "loan": p.loanListed = value == 1; break;
+                      }
+                  }
+              }
+          
+              private void resetCareerState() {
+                  matchday = 0;
+                  currentDate = SEASON_START;
+                  trainingFocus = "Balanced";
+                  Arrays.fill(played, 0);
+                  Arrays.fill(won, 0);
+                  Arrays.fill(drawn, 0);
+                  Arrays.fill(lost, 0);
+                  Arrays.fill(goalsFor, 0);
+                  Arrays.fill(goalsAgainst, 0);
+                  Arrays.fill(points, 0);
+              }
+          
+              private int dp(int value) {
+                  float density = getResources().getDisplayMetrics().density;
+                  return Math.round(value * density);
+              }
+          }
+          EOF
+
+      - name: Build APK
+        run: gradle :app:assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Project-Mister-v0.4-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
