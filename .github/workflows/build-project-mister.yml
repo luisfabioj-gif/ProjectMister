@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -35,7 +35,7 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Create Project Mister
+      - name: Create Project Mister v0.2
         shell: bash
         run: |
           mkdir -p app/src/main/java/com/projectmister/game
@@ -81,8 +81,23 @@ jobs:
                   applicationId "com.projectmister.game"
                   minSdk 26
                   targetSdk 35
-                  versionCode 1
-                  versionName "0.1"
+                  versionCode 2
+                  versionName "0.2"
+              }
+
+              signingConfigs {
+                  dev {
+                      storeFile file("$rootDir/project-mister-dev.keystore")
+                      storePassword "projectmisterdev"
+                      keyAlias "projectmister"
+                      keyPassword "projectmisterdev"
+                  }
+              }
+
+              buildTypes {
+                  debug {
+                      signingConfig signingConfigs.dev
+                  }
               }
 
               compileOptions {
@@ -122,19 +137,27 @@ jobs:
           </manifest>
           EOF
 
+          echo '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' | base64 -d > project-mister-dev.keystore
+
           cat > app/src/main/java/com/projectmister/game/MainActivity.java <<'EOF'
           package com.projectmister.game;
-
+          
           import android.app.Activity;
-          import android.os.Bundle;
+          import android.app.AlertDialog;
+          import android.content.SharedPreferences;
           import android.graphics.Color;
           import android.graphics.Typeface;
+          import android.graphics.drawable.GradientDrawable;
+          import android.os.Bundle;
+          import android.view.Gravity;
           import android.view.View;
           import android.widget.Button;
+          import android.widget.EditText;
           import android.widget.LinearLayout;
           import android.widget.ScrollView;
           import android.widget.TextView;
-
+          import android.widget.Toast;
+          
           import java.util.ArrayList;
           import java.util.Arrays;
           import java.util.Collections;
@@ -142,48 +165,57 @@ jobs:
           import java.util.List;
           import java.util.Locale;
           import java.util.Random;
-
+          
           public class MainActivity extends Activity {
-
-              private final String[] clubs = {
-                      "Lisboa Águias",
-                      "Lisboa Leões",
-                      "Porto Dragões",
-                      "Braga Guerreiros",
-                      "Guimarães Castelo",
-                      "Famal Norte",
-                      "Moreira FC",
-                      "Vila do Conde",
-                      "Barcelos FC",
-                      "Estoril Praia",
-                      "Lisboa Corvos",
-                      "Açores FC",
-                      "Madeira Nacional",
-                      "Alverca Atlético",
-                      "Arouca FC",
-                      "Amadora Estrela",
-                      "Tondela SC",
-                      "Vila das Aves"
+          
+              private static final int SAVE_SLOTS = 3;
+          
+              private final String[] defaultClubNames = {
+                      "Lisboa Águias", "Lisboa Leões", "Porto Dragões", "Braga Guerreiros",
+                      "Guimarães Castelo", "Famal Norte", "Moreira FC", "Vila do Conde",
+                      "Barcelos FC", "Estoril Praia", "Lisboa Corvos", "Açores FC",
+                      "Madeira Nacional", "Alverca Atlético", "Arouca FC", "Amadora Estrela",
+                      "Tondela SC", "Vila das Aves"
               };
-
+          
               private final String[] shortNames = {
-                      "LAG", "LLE", "PDR", "BGR", "GCT", "FAM",
-                      "MOR", "VDC", "BAR", "EST", "LCO", "ACO",
-                      "MDN", "ALV", "ARO", "AMA", "TON", "VDA"
+                      "LAG", "LLE", "PDR", "BGR", "GCT", "FAM", "MOR", "VDC", "BAR",
+                      "EST", "LCO", "ACO", "MDN", "ALV", "ARO", "AMA", "TON", "VDA"
               };
-
+          
               private final int[] strength = {
-                      88, 87, 86, 81, 78, 75,
-                      72, 71, 70, 72, 68, 71,
-                      69, 67, 70, 67, 66, 65
+                      88, 87, 86, 81, 78, 75, 72, 71, 70, 72, 68, 71, 69, 67, 70, 67, 66, 65
               };
-
+          
               private final int[] budgets = {
-                      42, 38, 36, 20, 12, 10,
-                      8, 9, 7, 10, 6, 8,
-                      7, 6, 8, 6, 5, 5
+                      42, 38, 36, 20, 12, 10, 8, 9, 7, 10, 6, 8, 7, 6, 8, 6, 5, 5
               };
-
+          
+              private final int[] defaultPrimary = {
+                      0xFFE53935, 0xFF1B8F4D, 0xFF1565C0, 0xFFD32F2F, 0xFFF5F5F5, 0xFF1565C0,
+                      0xFF2E7D32, 0xFF2E7D32, 0xFFD32F2F, 0xFFFBC02D, 0xFF20252B, 0xFFD32F2F,
+                      0xFF20252B, 0xFFD32F2F, 0xFFFBC02D, 0xFFD32F2F, 0xFF2E7D32, 0xFFD32F2F
+              };
+          
+              private final int[] defaultSecondary = {
+                      0xFFF5F5F5, 0xFFF5F5F5, 0xFFF5F5F5, 0xFFF5F5F5, 0xFF20252B, 0xFFF5F5F5,
+                      0xFFF5F5F5, 0xFFF5F5F5, 0xFF1565C0, 0xFF1565C0, 0xFFF5F5F5, 0xFFF5F5F5,
+                      0xFFF5F5F5, 0xFF1565C0, 0xFF1565C0, 0xFFF5F5F5, 0xFFFBC02D, 0xFFF5F5F5
+              };
+          
+              private final String[] paletteNames = {
+                      "Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Black", "White", "Sky Blue", "Pink"
+              };
+          
+              private final int[] palette = {
+                      0xFFE53935, 0xFF2E7D32, 0xFF1565C0, 0xFFFBC02D, 0xFFF57C00,
+                      0xFF7B1FA2, 0xFF20252B, 0xFFF5F5F5, 0xFF039BE5, 0xFFD81B60
+              };
+          
+              private final String[] clubNames = new String[18];
+              private final int[] primaryColours = new int[18];
+              private final int[] secondaryColours = new int[18];
+          
               private final int[] played = new int[18];
               private final int[] won = new int[18];
               private final int[] drawn = new int[18];
@@ -191,236 +223,334 @@ jobs:
               private final int[] goalsFor = new int[18];
               private final int[] goalsAgainst = new int[18];
               private final int[] points = new int[18];
-
+          
               private final Random random = new Random();
-
+          
+              private SharedPreferences prefs;
               private int selectedClub = -1;
+              private int selectedSlot = -1;
               private int matchday = 0;
-
+          
               private final int background = Color.rgb(7, 21, 31);
               private final int panel = Color.rgb(15, 42, 54);
+              private final int panelLight = Color.rgb(22, 55, 69);
               private final int accent = Color.rgb(40, 190, 115);
+              private final int danger = Color.rgb(185, 55, 62);
               private final int text = Color.WHITE;
               private final int muted = Color.rgb(180, 196, 205);
-
+          
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
                   getWindow().setStatusBarColor(background);
                   getWindow().setNavigationBarColor(background);
-                  showClubSelection();
+                  prefs = getSharedPreferences("project_mister", MODE_PRIVATE);
+                  loadEditorData();
+                  showMainMenu();
               }
-
+          
               private LinearLayout createPage(String title, String subtitle) {
                   ScrollView scroll = new ScrollView(this);
                   scroll.setBackgroundColor(background);
-
+          
                   LinearLayout page = new LinearLayout(this);
                   page.setOrientation(LinearLayout.VERTICAL);
-                  page.setPadding(dp(20), dp(24), dp(20), dp(32));
+                  page.setPadding(dp(20), dp(24), dp(20), dp(36));
                   scroll.addView(page);
-
+          
                   TextView brand = makeText("PROJECT MISTER", 13, accent);
                   brand.setTypeface(Typeface.DEFAULT_BOLD);
                   page.addView(brand);
-
+          
                   TextView heading = makeText(title, 30, text);
                   heading.setTypeface(Typeface.DEFAULT_BOLD);
                   heading.setPadding(0, dp(8), 0, dp(4));
                   page.addView(heading);
-
+          
                   TextView sub = makeText(subtitle, 15, muted);
                   sub.setPadding(0, 0, 0, dp(20));
                   page.addView(sub);
-
+          
                   setContentView(scroll);
                   return page;
               }
-
+          
               private TextView makeText(String value, int size, int colour) {
                   TextView tv = new TextView(this);
                   tv.setText(value);
                   tv.setTextSize(size);
                   tv.setTextColor(colour);
-                  tv.setLineSpacing(0, 1.15f);
+                  tv.setLineSpacing(0, 1.12f);
                   return tv;
               }
-
+          
+              private GradientDrawable rounded(int colour) {
+                  GradientDrawable bg = new GradientDrawable();
+                  bg.setColor(colour);
+                  bg.setCornerRadius(dp(14));
+                  return bg;
+              }
+          
               private Button makeButton(String label, View.OnClickListener click) {
                   Button button = new Button(this);
                   button.setText(label);
                   button.setTextSize(16);
                   button.setTextColor(Color.WHITE);
                   button.setAllCaps(false);
-                  button.setBackgroundColor(panel);
+                  button.setBackground(rounded(panelLight));
                   button.setPadding(dp(14), dp(10), dp(14), dp(10));
-
-                  LinearLayout.LayoutParams params =
-                          new LinearLayout.LayoutParams(
-                                  LinearLayout.LayoutParams.MATCH_PARENT,
-                                  LinearLayout.LayoutParams.WRAP_CONTENT);
-
+          
+                  LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                  );
                   params.setMargins(0, 0, 0, dp(10));
                   button.setLayoutParams(params);
                   button.setOnClickListener(click);
                   return button;
               }
-
+          
+              private Button makeAccentButton(String label, View.OnClickListener click) {
+                  Button button = makeButton(label, click);
+                  button.setBackground(rounded(accent));
+                  return button;
+              }
+          
+              private LinearLayout makePanel() {
+                  LinearLayout box = new LinearLayout(this);
+                  box.setOrientation(LinearLayout.VERTICAL);
+                  box.setPadding(dp(16), dp(16), dp(16), dp(16));
+                  box.setBackground(rounded(panel));
+          
+                  LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                  );
+                  params.setMargins(0, 0, 0, dp(14));
+                  box.setLayoutParams(params);
+                  return box;
+              }
+          
+              private View makeSwatch(int colour) {
+                  View v = new View(this);
+                  v.setBackground(rounded(colour));
+                  LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(22), dp(22));
+                  lp.setMargins(0, 0, dp(8), 0);
+                  v.setLayoutParams(lp);
+                  return v;
+              }
+          
+              private LinearLayout makeClubIdentityRow(int club) {
+                  LinearLayout row = new LinearLayout(this);
+                  row.setOrientation(LinearLayout.HORIZONTAL);
+                  row.setGravity(Gravity.CENTER_VERTICAL);
+                  row.addView(makeSwatch(primaryColours[club]));
+                  row.addView(makeSwatch(secondaryColours[club]));
+          
+                  TextView name = makeText(clubNames[club], 18, text);
+                  name.setTypeface(Typeface.DEFAULT_BOLD);
+                  name.setPadding(dp(4), 0, 0, 0);
+                  row.addView(name);
+                  return row;
+              }
+          
+              private void showMainMenu() {
+                  LinearLayout page = createPage(
+                          "Career Hub",
+                          "Three career saves • Portugal 2026/27"
+                  );
+          
+                  for (int slot = 0; slot < SAVE_SLOTS; slot++) {
+                      final int s = slot;
+                      LinearLayout box = makePanel();
+          
+                      TextView slotTitle = makeText("SAVE " + (slot + 1), 13, accent);
+                      slotTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                      box.addView(slotTitle);
+          
+                      if (slotExists(slot)) {
+                          int club = prefs.getInt(key(slot, "club"), 0);
+                          int md = prefs.getInt(key(slot, "matchday"), 0);
+                          int pts = getSavedPoints(slot, club);
+          
+                          TextView details = makeText(
+                                  clubNames[club] + "\nMatchday " + md + "  •  " + pts + " pts",
+                                  19,
+                                  text
+                          );
+                          details.setTypeface(Typeface.DEFAULT_BOLD);
+                          details.setPadding(0, dp(8), 0, dp(12));
+                          box.addView(details);
+          
+                          box.addView(makeAccentButton("Continue Career", v -> {
+                              loadSave(s);
+                              showDashboard();
+                          }));
+          
+                          Button delete = makeButton("Delete Save", v -> confirmDeleteSave(s));
+                          delete.setBackground(rounded(danger));
+                          box.addView(delete);
+                      } else {
+                          TextView empty = makeText(
+                                  "Empty career slot\nStart a new journey in Portugal.",
+                                  17,
+                                  muted
+                          );
+                          empty.setPadding(0, dp(8), 0, dp(12));
+                          box.addView(empty);
+          
+                          box.addView(makeAccentButton("Start New Career", v -> {
+                              selectedSlot = s;
+                              resetCareerState();
+                              showClubSelection();
+                          }));
+                      }
+          
+                      page.addView(box);
+                  }
+          
+                  TextView editorTitle = makeText("GAME TOOLS", 13, muted);
+                  editorTitle.setTypeface(Typeface.DEFAULT_BOLD);
+                  editorTitle.setPadding(0, dp(6), 0, dp(8));
+                  page.addView(editorTitle);
+          
+                  page.addView(makeButton("✏  Game Editor — Teams & Colours", v -> showTeamEditor()));
+              }
+          
               private void showClubSelection() {
                   LinearLayout page = createPage(
                           "Choose your club",
-                          "Portugal • Season 2026/27\nBuild your reputation. Develop players. Become champion."
+                          "Save " + (selectedSlot + 1) + " • Pick the club you want to manage"
                   );
-
-                  for (int i = 0; i < clubs.length; i++) {
+          
+                  for (int i = 0; i < clubNames.length; i++) {
                       final int club = i;
-
-                      String label =
-                              clubs[i]
-                              + "\nStrength " + strength[i]
-                              + "   •   Budget €" + budgets[i] + "m";
-
-                      page.addView(makeButton(label, v -> {
+                      LinearLayout box = makePanel();
+                      box.addView(makeClubIdentityRow(club));
+          
+                      TextView info = makeText(
+                              "Strength " + strength[i] + "/100   •   Budget €" + budgets[i] + "m",
+                              14,
+                              muted
+                      );
+                      info.setPadding(0, dp(8), 0, dp(10));
+                      box.addView(info);
+          
+                      box.addView(makeButton("Manage " + clubNames[i], v -> {
                           selectedClub = club;
+                          resetCareerState();
+                          saveCurrentGame();
                           showDashboard();
                       }));
+                      page.addView(box);
                   }
+          
+                  page.addView(makeButton("Back to Career Hub", v -> showMainMenu()));
               }
-
+          
               private void showDashboard() {
                   LinearLayout page = createPage(
-                          clubs[selectedClub],
-                          "Manager Dashboard • Matchday " + (matchday + 1)
+                          clubNames[selectedClub],
+                          "Save " + (selectedSlot + 1) + " • Manager Dashboard • Matchday " + (matchday + 1)
                   );
-
+          
+                  LinearLayout identity = makePanel();
+                  identity.addView(makeClubIdentityRow(selectedClub));
+          
                   TextView info = makeText(
-                          "CLUB OVERVIEW\n\n"
-                                  + "Strength        " + strength[selectedClub] + "/100\n"
+                          "\nStrength          " + strength[selectedClub] + "/100\n"
                                   + "Transfer budget   €" + budgets[selectedClub] + "m\n"
                                   + "League points     " + points[selectedClub] + "\n"
                                   + "Matches played    " + played[selectedClub],
                           17,
                           text
                   );
-
-                  info.setBackgroundColor(panel);
-                  info.setPadding(dp(18), dp(18), dp(18), dp(18));
-                  page.addView(info);
-
-                  TextView gap = makeText("", 8, text);
-                  page.addView(gap);
-
-                  Button play = makeButton("⚽  PLAY NEXT MATCHDAY", v -> playMatchday());
-                  play.setBackgroundColor(accent);
-                  page.addView(play);
-
+                  identity.addView(info);
+                  page.addView(identity);
+          
+                  page.addView(makeAccentButton("⚽  Play Next Matchday", v -> playMatchday()));
                   page.addView(makeButton("👥  View Squad", v -> showSquad()));
                   page.addView(makeButton("🏆  League Table", v -> showLeagueTable()));
-                  page.addView(makeButton("🔄  Change Club", v -> showClubSelection()));
+                  page.addView(makeButton("💾  Save & Return to Career Hub", v -> {
+                      saveCurrentGame();
+                      showMainMenu();
+                  }));
               }
-
+          
               private void playMatchday() {
                   List<Integer> order = new ArrayList<>();
-
-                  for (int i = 0; i < clubs.length; i++) {
-                      order.add(i);
-                  }
-
+                  for (int i = 0; i < clubNames.length; i++) order.add(i);
+          
                   Collections.shuffle(order, random);
-
+          
                   int selectedPosition = order.indexOf(selectedClub);
                   Collections.swap(order, 0, selectedPosition);
-
-                  if (random.nextBoolean()) {
-                      Collections.swap(order, 0, 1);
-                  }
-
+                  if (random.nextBoolean()) Collections.swap(order, 0, 1);
+          
                   StringBuilder results = new StringBuilder();
                   String selectedResult = "";
-
+          
                   for (int i = 0; i < order.size(); i += 2) {
                       int home = order.get(i);
                       int away = order.get(i + 1);
-
+          
                       int homeGoals = simulateGoals(home, away, true);
                       int awayGoals = simulateGoals(away, home, false);
-
+          
                       updateTable(home, away, homeGoals, awayGoals);
-
-                      results.append(clubs[home])
-                              .append("  ")
-                              .append(homeGoals)
-                              .append(" - ")
-                              .append(awayGoals)
-                              .append("  ")
-                              .append(clubs[away])
+          
+                      results.append(clubNames[home])
+                              .append("  ").append(homeGoals)
+                              .append(" - ").append(awayGoals)
+                              .append("  ").append(clubNames[away])
                               .append("\n\n");
-
+          
                       if (home == selectedClub || away == selectedClub) {
-                          selectedResult =
-                                  clubs[home]
-                                  + "  " + homeGoals
-                                  + " - " + awayGoals
-                                  + "  " + clubs[away];
+                          selectedResult = clubNames[home] + "  " + homeGoals + " - "
+                                  + awayGoals + "  " + clubNames[away];
                       }
                   }
-
+          
                   matchday++;
-
-                  LinearLayout page = createPage(
-                          "Full Time",
-                          "Matchday " + matchday
-                  );
-
+                  saveCurrentGame();
+          
+                  LinearLayout page = createPage("Full Time", "Matchday " + matchday);
+          
                   TextView mainResult = makeText(selectedResult, 23, accent);
                   mainResult.setTypeface(Typeface.DEFAULT_BOLD);
                   mainResult.setPadding(0, 0, 0, dp(22));
                   page.addView(mainResult);
-
+          
                   TextView all = makeText("ALL RESULTS\n\n" + results, 15, text);
-                  all.setBackgroundColor(panel);
+                  all.setBackground(rounded(panel));
                   all.setPadding(dp(16), dp(16), dp(16), dp(16));
                   page.addView(all);
-
+          
                   page.addView(makeText("", 8, text));
                   page.addView(makeButton("Continue", v -> showDashboard()));
                   page.addView(makeButton("View League Table", v -> showLeagueTable()));
               }
-
+          
               private int simulateGoals(int attackingTeam, int defendingTeam, boolean home) {
                   int goals = random.nextInt(3);
-
                   int difference = strength[attackingTeam] - strength[defendingTeam];
-
-                  if (difference >= 8 && random.nextDouble() < 0.55) {
-                      goals++;
-                  }
-
-                  if (difference >= 15 && random.nextDouble() < 0.35) {
-                      goals++;
-                  }
-
-                  if (difference <= -10 && goals > 0 && random.nextDouble() < 0.35) {
-                      goals--;
-                  }
-
-                  if (home && random.nextDouble() < 0.18) {
-                      goals++;
-                  }
-
+          
+                  if (difference >= 8 && random.nextDouble() < 0.55) goals++;
+                  if (difference >= 15 && random.nextDouble() < 0.35) goals++;
+                  if (difference <= -10 && goals > 0 && random.nextDouble() < 0.35) goals--;
+                  if (home && random.nextDouble() < 0.18) goals++;
+          
                   return Math.min(goals, 6);
               }
-
+          
               private void updateTable(int home, int away, int homeGoals, int awayGoals) {
                   played[home]++;
                   played[away]++;
-
                   goalsFor[home] += homeGoals;
                   goalsAgainst[home] += awayGoals;
-
                   goalsFor[away] += awayGoals;
                   goalsAgainst[away] += homeGoals;
-
+          
                   if (homeGoals > awayGoals) {
                       won[home]++;
                       lost[away]++;
@@ -436,147 +566,411 @@ jobs:
                       points[away]++;
                   }
               }
-
+          
               private void showLeagueTable() {
                   LinearLayout page = createPage(
                           "Liga Portugal",
                           "Season 2026/27 • Matchday " + matchday
                   );
-
-                  Integer[] order = new Integer[clubs.length];
-
-                  for (int i = 0; i < clubs.length; i++) {
-                      order[i] = i;
-                  }
-
+          
+                  Integer[] order = new Integer[clubNames.length];
+                  for (int i = 0; i < clubNames.length; i++) order[i] = i;
+          
                   Arrays.sort(order, new Comparator<Integer>() {
                       @Override
                       public int compare(Integer a, Integer b) {
-                          if (points[a] != points[b]) {
-                              return Integer.compare(points[b], points[a]);
-                          }
-
+                          if (points[a] != points[b]) return Integer.compare(points[b], points[a]);
+          
                           int gdA = goalsFor[a] - goalsAgainst[a];
                           int gdB = goalsFor[b] - goalsAgainst[b];
-
-                          if (gdA != gdB) {
-                              return Integer.compare(gdB, gdA);
-                          }
-
+                          if (gdA != gdB) return Integer.compare(gdB, gdA);
+          
                           return Integer.compare(goalsFor[b], goalsFor[a]);
                       }
                   });
-
+          
                   StringBuilder table = new StringBuilder();
                   table.append(" #  CLUB   P   W  D  L   GD  PTS\n");
                   table.append("--------------------------------\n");
-
+          
                   for (int position = 0; position < order.length; position++) {
                       int club = order[position];
                       int gd = goalsFor[club] - goalsAgainst[club];
-
-                      table.append(
-                              String.format(
-                                      Locale.UK,
-                                      "%2d  %-4s  %2d  %2d %2d %2d  %+3d  %3d",
-                                      position + 1,
-                                      shortNames[club],
-                                      played[club],
-                                      won[club],
-                                      drawn[club],
-                                      lost[club],
-                                      gd,
-                                      points[club]
-                              )
-                      );
-
-                      if (club == selectedClub) {
-                          table.append("  ◀");
-                      }
-
+          
+                      table.append(String.format(
+                              Locale.UK,
+                              "%2d  %-4s  %2d  %2d %2d %2d  %+3d  %3d",
+                              position + 1,
+                              shortNames[club],
+                              played[club],
+                              won[club],
+                              drawn[club],
+                              lost[club],
+                              gd,
+                              points[club]
+                      ));
+          
+                      if (club == selectedClub) table.append("  ◀");
                       table.append("\n");
                   }
-
+          
                   TextView standings = makeText(table.toString(), 14, text);
                   standings.setTypeface(Typeface.MONOSPACE);
-                  standings.setBackgroundColor(panel);
+                  standings.setBackground(rounded(panel));
                   standings.setPadding(dp(12), dp(16), dp(12), dp(16));
                   page.addView(standings);
-
+          
                   page.addView(makeText("", 8, text));
                   page.addView(makeButton("Back to Dashboard", v -> showDashboard()));
               }
-
+          
               private void showSquad() {
                   LinearLayout page = createPage(
-                          clubs[selectedClub] + " Squad",
+                          clubNames[selectedClub] + " Squad",
                           "20-player first team"
                   );
-
+          
                   String[] firstNames = {
-                          "João", "Miguel", "Tiago", "Diogo", "Rafael",
-                          "André", "Pedro", "Gonçalo", "Tomás", "Nuno",
-                          "Bruno", "Fábio", "Duarte", "Rodrigo"
+                          "João", "Miguel", "Tiago", "Diogo", "Rafael", "André", "Pedro",
+                          "Gonçalo", "Tomás", "Nuno", "Bruno", "Fábio", "Duarte", "Rodrigo"
                   };
-
+          
                   String[] lastNames = {
-                          "Silva", "Costa", "Ferreira", "Santos", "Pereira",
-                          "Oliveira", "Sousa", "Martins", "Almeida", "Rocha",
-                          "Correia", "Mendes", "Carvalho", "Ribeiro"
+                          "Silva", "Costa", "Ferreira", "Santos", "Pereira", "Oliveira",
+                          "Sousa", "Martins", "Almeida", "Rocha", "Correia", "Mendes",
+                          "Carvalho", "Ribeiro"
                   };
-
+          
                   String[] positions = {
-                          "GK", "GK",
-                          "RB", "CB", "CB", "CB", "LB", "LB",
-                          "DM", "CM", "CM", "CM", "AM", "RM", "LM",
-                          "RW", "LW", "ST", "ST", "ST"
+                          "GK", "GK", "RB", "CB", "CB", "CB", "LB", "LB", "DM", "CM",
+                          "CM", "CM", "AM", "RM", "LM", "RW", "LW", "ST", "ST", "ST"
                   };
-
+          
                   Random squadRandom = new Random(5000L + selectedClub);
-
                   StringBuilder squad = new StringBuilder();
-
+          
                   for (int i = 0; i < 20; i++) {
-                      String name =
-                              firstNames[squadRandom.nextInt(firstNames.length)]
-                              + " "
-                              + lastNames[squadRandom.nextInt(lastNames.length)];
-
-                      int rating =
-                              Math.max(
-                                      52,
-                                      Math.min(
-                                              92,
-                                              strength[selectedClub]
-                                                      - 8
-                                                      + squadRandom.nextInt(17)
-                                      )
-                              );
-
-                      int age = 17 + squadRandom.nextInt(18);
-
-                      squad.append(
-                              String.format(
-                                      Locale.UK,
-                                      "%-2s  %-18s  %2d   OVR %2d\n",
-                                      positions[i],
-                                      name,
-                                      age,
-                                      rating
-                              )
+                      String name = firstNames[squadRandom.nextInt(firstNames.length)]
+                              + " " + lastNames[squadRandom.nextInt(lastNames.length)];
+          
+                      int rating = Math.max(
+                              52,
+                              Math.min(92, strength[selectedClub] - 8 + squadRandom.nextInt(17))
                       );
+          
+                      int age = 17 + squadRandom.nextInt(18);
+          
+                      squad.append(String.format(
+                              Locale.UK,
+                              "%-2s  %-18s  %2d   OVR %2d\n",
+                              positions[i], name, age, rating
+                      ));
                   }
-
+          
                   TextView squadView = makeText(squad.toString(), 14, text);
                   squadView.setTypeface(Typeface.MONOSPACE);
-                  squadView.setBackgroundColor(panel);
+                  squadView.setBackground(rounded(panel));
                   squadView.setPadding(dp(12), dp(16), dp(12), dp(16));
                   page.addView(squadView);
-
+          
                   page.addView(makeText("", 8, text));
                   page.addView(makeButton("Back to Dashboard", v -> showDashboard()));
               }
-
+          
+              private void showTeamEditor() {
+                  LinearLayout page = createPage(
+                          "Game Editor",
+                          "Edit fictional club names and primary/secondary colours"
+                  );
+          
+                  TextView note = makeText(
+                          "Changes apply across all three career saves.",
+                          14,
+                          muted
+                  );
+                  note.setPadding(0, 0, 0, dp(14));
+                  page.addView(note);
+          
+                  for (int i = 0; i < clubNames.length; i++) {
+                      final int club = i;
+                      LinearLayout box = makePanel();
+                      box.addView(makeClubIdentityRow(club));
+          
+                      TextView colourInfo = makeText(
+                              "Primary: " + colourName(primaryColours[club])
+                                      + "  •  Secondary: " + colourName(secondaryColours[club]),
+                              13,
+                              muted
+                      );
+                      colourInfo.setPadding(0, dp(6), 0, dp(8));
+                      box.addView(colourInfo);
+          
+                      box.addView(makeButton("Edit Team", v -> showEditTeam(club)));
+                      page.addView(box);
+                  }
+          
+                  Button resetAll = makeButton("Reset All Teams to Defaults", v -> confirmResetAllTeams());
+                  resetAll.setBackground(rounded(danger));
+                  page.addView(resetAll);
+                  page.addView(makeButton("Back to Career Hub", v -> showMainMenu()));
+              }
+          
+              private void showEditTeam(int club) {
+                  LinearLayout page = createPage(
+                          "Edit Team",
+                          clubNames[club]
+                  );
+          
+                  LinearLayout preview = makePanel();
+                  preview.addView(makeClubIdentityRow(club));
+                  page.addView(preview);
+          
+                  TextView nameLabel = makeText("TEAM NAME", 13, muted);
+                  nameLabel.setTypeface(Typeface.DEFAULT_BOLD);
+                  page.addView(nameLabel);
+          
+                  EditText nameInput = new EditText(this);
+                  nameInput.setText(clubNames[club]);
+                  nameInput.setTextColor(text);
+                  nameInput.setHintTextColor(muted);
+                  nameInput.setTextSize(18);
+                  nameInput.setSingleLine(true);
+                  nameInput.setBackground(rounded(panel));
+                  nameInput.setPadding(dp(14), dp(12), dp(14), dp(12));
+          
+                  LinearLayout.LayoutParams inputParams = new LinearLayout.LayoutParams(
+                          LinearLayout.LayoutParams.MATCH_PARENT,
+                          LinearLayout.LayoutParams.WRAP_CONTENT
+                  );
+                  inputParams.setMargins(0, dp(8), 0, dp(16));
+                  nameInput.setLayoutParams(inputParams);
+                  page.addView(nameInput);
+          
+                  final int[] chosenPrimary = {primaryColours[club]};
+                  final int[] chosenSecondary = {secondaryColours[club]};
+          
+                  Button primaryButton = makeButton("", null);
+                  Button secondaryButton = makeButton("", null);
+          
+                  updateColourButton(primaryButton, "Primary", chosenPrimary[0]);
+                  updateColourButton(secondaryButton, "Secondary", chosenSecondary[0]);
+          
+                  primaryButton.setOnClickListener(v -> {
+                      chosenPrimary[0] = nextPaletteColour(chosenPrimary[0]);
+                      updateColourButton(primaryButton, "Primary", chosenPrimary[0]);
+                  });
+          
+                  secondaryButton.setOnClickListener(v -> {
+                      chosenSecondary[0] = nextPaletteColour(chosenSecondary[0]);
+                      updateColourButton(secondaryButton, "Secondary", chosenSecondary[0]);
+                  });
+          
+                  page.addView(primaryButton);
+                  page.addView(secondaryButton);
+          
+                  TextView hint = makeText(
+                          "Tap either colour button to cycle through the palette.",
+                          13,
+                          muted
+                  );
+                  hint.setPadding(0, 0, 0, dp(14));
+                  page.addView(hint);
+          
+                  page.addView(makeAccentButton("Save Changes", v -> {
+                      String newName = nameInput.getText().toString().trim();
+                      if (newName.isEmpty()) {
+                          Toast.makeText(this, "Team name cannot be empty.", Toast.LENGTH_SHORT).show();
+                          return;
+                      }
+          
+                      if (newName.length() > 28) newName = newName.substring(0, 28);
+          
+                      clubNames[club] = newName;
+                      primaryColours[club] = chosenPrimary[0];
+                      secondaryColours[club] = chosenSecondary[0];
+                      saveEditorTeam(club);
+          
+                      Toast.makeText(this, "Team updated.", Toast.LENGTH_SHORT).show();
+                      showTeamEditor();
+                  }));
+          
+                  page.addView(makeButton("Reset This Team", v -> new AlertDialog.Builder(this)
+                          .setTitle("Reset team?")
+                          .setMessage("Restore this club's default name and colours?")
+                          .setNegativeButton("Cancel", null)
+                          .setPositiveButton("Reset", (dialog, which) -> {
+                              resetEditorTeam(club);
+                              showTeamEditor();
+                          })
+                          .show()));
+          
+                  page.addView(makeButton("Cancel", v -> showTeamEditor()));
+              }
+          
+              private void updateColourButton(Button button, String label, int colour) {
+                  button.setText(label + ": " + colourName(colour) + "   •   Tap to change");
+                  GradientDrawable bg = rounded(colour);
+          
+                  int luminance = (Color.red(colour) * 299 + Color.green(colour) * 587 + Color.blue(colour) * 114) / 1000;
+                  button.setTextColor(luminance > 170 ? Color.BLACK : Color.WHITE);
+                  button.setBackground(bg);
+              }
+          
+              private int nextPaletteColour(int current) {
+                  for (int i = 0; i < palette.length; i++) {
+                      if (palette[i] == current) return palette[(i + 1) % palette.length];
+                  }
+                  return palette[0];
+              }
+          
+              private String colourName(int colour) {
+                  for (int i = 0; i < palette.length; i++) {
+                      if (palette[i] == colour) return paletteNames[i];
+                  }
+                  return "Custom";
+              }
+          
+              private void loadEditorData() {
+                  for (int i = 0; i < clubNames.length; i++) {
+                      clubNames[i] = prefs.getString("editor_name_" + i, defaultClubNames[i]);
+                      primaryColours[i] = prefs.getInt("editor_primary_" + i, defaultPrimary[i]);
+                      secondaryColours[i] = prefs.getInt("editor_secondary_" + i, defaultSecondary[i]);
+                  }
+              }
+          
+              private void saveEditorTeam(int club) {
+                  prefs.edit()
+                          .putString("editor_name_" + club, clubNames[club])
+                          .putInt("editor_primary_" + club, primaryColours[club])
+                          .putInt("editor_secondary_" + club, secondaryColours[club])
+                          .apply();
+              }
+          
+              private void resetEditorTeam(int club) {
+                  clubNames[club] = defaultClubNames[club];
+                  primaryColours[club] = defaultPrimary[club];
+                  secondaryColours[club] = defaultSecondary[club];
+                  saveEditorTeam(club);
+              }
+          
+              private void confirmResetAllTeams() {
+                  new AlertDialog.Builder(this)
+                          .setTitle("Reset all teams?")
+                          .setMessage("Every edited team name and colour will return to its Project Mister default.")
+                          .setNegativeButton("Cancel", null)
+                          .setPositiveButton("Reset All", (dialog, which) -> {
+                              for (int i = 0; i < clubNames.length; i++) resetEditorTeam(i);
+                              showTeamEditor();
+                          })
+                          .show();
+              }
+          
+              private boolean slotExists(int slot) {
+                  return prefs.getBoolean(key(slot, "exists"), false);
+              }
+          
+              private String key(int slot, String field) {
+                  return "save_" + slot + "_" + field;
+              }
+          
+              private void saveCurrentGame() {
+                  if (selectedSlot < 0 || selectedClub < 0) return;
+          
+                  prefs.edit()
+                          .putBoolean(key(selectedSlot, "exists"), true)
+                          .putInt(key(selectedSlot, "club"), selectedClub)
+                          .putInt(key(selectedSlot, "matchday"), matchday)
+                          .putString(key(selectedSlot, "played"), encode(played))
+                          .putString(key(selectedSlot, "won"), encode(won))
+                          .putString(key(selectedSlot, "drawn"), encode(drawn))
+                          .putString(key(selectedSlot, "lost"), encode(lost))
+                          .putString(key(selectedSlot, "gf"), encode(goalsFor))
+                          .putString(key(selectedSlot, "ga"), encode(goalsAgainst))
+                          .putString(key(selectedSlot, "points"), encode(points))
+                          .apply();
+              }
+          
+              private void loadSave(int slot) {
+                  selectedSlot = slot;
+                  selectedClub = prefs.getInt(key(slot, "club"), 0);
+                  matchday = prefs.getInt(key(slot, "matchday"), 0);
+          
+                  decode(prefs.getString(key(slot, "played"), ""), played);
+                  decode(prefs.getString(key(slot, "won"), ""), won);
+                  decode(prefs.getString(key(slot, "drawn"), ""), drawn);
+                  decode(prefs.getString(key(slot, "lost"), ""), lost);
+                  decode(prefs.getString(key(slot, "gf"), ""), goalsFor);
+                  decode(prefs.getString(key(slot, "ga"), ""), goalsAgainst);
+                  decode(prefs.getString(key(slot, "points"), ""), points);
+              }
+          
+              private void confirmDeleteSave(int slot) {
+                  new AlertDialog.Builder(this)
+                          .setTitle("Delete Save " + (slot + 1) + "?")
+                          .setMessage("This career progress will be permanently removed from this device.")
+                          .setNegativeButton("Cancel", null)
+                          .setPositiveButton("Delete", (dialog, which) -> {
+                              clearSave(slot);
+                              showMainMenu();
+                          })
+                          .show();
+              }
+          
+              private void clearSave(int slot) {
+                  SharedPreferences.Editor editor = prefs.edit();
+                  editor.remove(key(slot, "exists"));
+                  editor.remove(key(slot, "club"));
+                  editor.remove(key(slot, "matchday"));
+                  editor.remove(key(slot, "played"));
+                  editor.remove(key(slot, "won"));
+                  editor.remove(key(slot, "drawn"));
+                  editor.remove(key(slot, "lost"));
+                  editor.remove(key(slot, "gf"));
+                  editor.remove(key(slot, "ga"));
+                  editor.remove(key(slot, "points"));
+                  editor.apply();
+              }
+          
+              private int getSavedPoints(int slot, int club) {
+                  int[] temp = new int[18];
+                  decode(prefs.getString(key(slot, "points"), ""), temp);
+                  return temp[club];
+              }
+          
+              private String encode(int[] values) {
+                  StringBuilder sb = new StringBuilder();
+                  for (int i = 0; i < values.length; i++) {
+                      if (i > 0) sb.append(",");
+                      sb.append(values[i]);
+                  }
+                  return sb.toString();
+              }
+          
+              private void decode(String encoded, int[] target) {
+                  Arrays.fill(target, 0);
+                  if (encoded == null || encoded.trim().isEmpty()) return;
+          
+                  String[] parts = encoded.split(",");
+                  for (int i = 0; i < target.length && i < parts.length; i++) {
+                      try {
+                          target[i] = Integer.parseInt(parts[i]);
+                      } catch (NumberFormatException ignored) {
+                          target[i] = 0;
+                      }
+                  }
+              }
+          
+              private void resetCareerState() {
+                  matchday = 0;
+                  Arrays.fill(played, 0);
+                  Arrays.fill(won, 0);
+                  Arrays.fill(drawn, 0);
+                  Arrays.fill(lost, 0);
+                  Arrays.fill(goalsFor, 0);
+                  Arrays.fill(goalsAgainst, 0);
+                  Arrays.fill(points, 0);
+              }
+          
               private int dp(int value) {
                   float density = getResources().getDisplayMetrics().density;
                   return Math.round(value * density);
@@ -590,6 +984,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Project-Mister-debug-apk
+          name: Project-Mister-v0.2-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
