@@ -1,4 +1,4 @@
-name: Build BOSS XI APK v2.2.1 Profile Overhaul (Hotfix 2)
+name: Build BOSS XI APK v2.2.1 Profile Overhaul (Hotfix 3)
 
 on:
   workflow_dispatch:
@@ -307,26 +307,22 @@ jobs:
                   print("Patched:", label, "(exact)")
                   return
 
-              # Fallback for generated Java: match the same source lines while
-              # ignoring YAML/heredoc indentation and whitespace-only blank lines.
-              # This makes the feature patch resilient to the indentation removed
-              # when the historical workflow's run block is reconstructed.
-              old_lines = old.splitlines()
-              regex_lines = []
-              for line in old_lines:
-                  content = line.strip()
-                  if content:
-                      regex_lines.append(r"^[ \t]*" + re.escape(content) + r"[ \t]*$")
-                  else:
-                      regex_lines.append(r"^[ \t]*$")
-
-              pattern = re.compile(r"\n".join(regex_lines), re.MULTILINE)
-              match = pattern.search(s)
+              # Robust fallback: keep every non-whitespace token exactly the same,
+              # but allow any amount/form of whitespace between tokens. This also
+              # supports targets that intentionally stop part-way through a Java
+              # line, such as "private int dp(int value)" before the opening brace.
+              tokens = re.split(r"(\s+)", old.strip())
+              pattern_text = "".join(
+                  r"\s+" if token.isspace() else re.escape(token)
+                  for token in tokens
+                  if token != ""
+              )
+              match = re.search(pattern_text, s, re.MULTILINE)
               if match is None:
                   raise SystemExit("Patch target not found: " + label)
 
               s = s[:match.start()] + new + s[match.end():]
-              print("Patched:", label, "(whitespace-tolerant)")
+              print("Patched:", label, "(whitespace-flexible)")
 
           # Finance + stadium state and dashboard access.
           fields_marker = "              // v0.8 event-driven presentation: commentary, runs, defensive reactions and ball physics share one state."
@@ -725,6 +721,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BOSS-XI-v2.2.1-profile-overhaul-hotfix2-apk
+          name: BOSS-XI-v2.2.1-profile-overhaul-hotfix3-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
