@@ -1,4 +1,4 @@
-name: Build BOSS XI APK v2.1.1 Startup Fix (Hotfix 2)
+name: Build BOSS XI APK v2.1.1 Startup Fix (Hotfix 3)
 
 on:
   workflow_dispatch:
@@ -38,38 +38,28 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Recreate v2.1 source from Git history
+      - name: Recreate original BOSS XI v2.1 source
         shell: bash
         run: |
-          # The original v2.1 workflow was deleted from main, but its complete
-          # source generator is preserved in commit eb11125.
           git fetch --no-tags --depth=1 origin eb11125cf791299ec35342cf8cca1ad383fb7f54
-          git show eb11125cf791299ec35342cf8cca1ad383fb7f54:.github/workflows/build-boss-xi-v2.1.yml > /tmp/build-boss-xi-v2.1.yml
+          git show eb11125cf791299ec35342cf8cca1ad383fb7f54:.github/workflows/build-boss-xi-v2.1.yml > /tmp/original-v2.1.yml
 
           python3 <<'PY'
           from pathlib import Path
 
-          workflow_path = Path("/tmp/build-boss-xi-v2.1.yml")
-          lines = workflow_path.read_text(encoding="utf-8").splitlines()
+          source = Path("/tmp/original-v2.1.yml").read_text(encoding="utf-8").splitlines()
 
-          try:
-              step_index = next(
-                  i for i, line in enumerate(lines)
-                  if line.strip() == "- name: Create BOSS XI v2.1"
-              )
-          except StopIteration:
-              raise SystemExit("Could not find the 'Create BOSS XI v2.1' source step in Git history.")
-
-          try:
-              run_index = next(
-                  i for i in range(step_index + 1, len(lines))
-                  if lines[i].strip() == "run: |"
-              )
-          except StopIteration:
-              raise SystemExit("Could not find the v2.1 source-generation script.")
+          start = next(
+              i for i, line in enumerate(source)
+              if line.strip() == "- name: Create BOSS XI v2.1"
+          )
+          run_line = next(
+              i for i in range(start + 1, len(source))
+              if source[i].strip() == "run: |"
+          )
 
           script = []
-          for line in lines[run_index + 1:]:
+          for line in source[run_line + 1:]:
               if line.startswith("      - name:"):
                   break
               if line.startswith("          "):
@@ -78,213 +68,81 @@ jobs:
                   script.append("")
               else:
                   raise SystemExit(
-                      "Unexpected indentation while extracting v2.1 source: "
-                      + repr(line[:80])
+                      "Unexpected indentation in original v2.1 workflow: "
+                      + repr(line[:100])
                   )
 
           if not script:
-              raise SystemExit("The v2.1 source-generation script was empty.")
+              raise SystemExit("Could not recover the v2.1 source generator.")
 
-          out = Path("/tmp/create-boss-xi-v2.1.sh")
-          out.write_text("\n".join(script) + "\n", encoding="utf-8")
+          Path("/tmp/create-v2.1.sh").write_text(
+              "\n".join(script) + "\n",
+              encoding="utf-8"
+          )
           print(f"Recovered {len(script)} lines from BOSS XI v2.1.")
           PY
 
-          bash /tmp/create-boss-xi-v2.1.sh
+          bash /tmp/create-v2.1.sh
 
-      - name: Apply v2.1.1 startup fix
+      - name: Apply minimal v2.1.1 startup hotfix
         shell: bash
         run: |
           python3 <<'PY'
           from pathlib import Path
-          import re
 
-          java_path = Path("app/src/main/java/com/projectmister/game/MainActivity.java")
-          gradle_path = Path("app/build.gradle")
+          java_file = Path("app/src/main/java/com/projectmister/game/MainActivity.java")
+          gradle_file = Path("app/build.gradle")
 
-          if not java_path.exists():
-              raise SystemExit(f"Generated Java source not found: {java_path}")
-          if not gradle_path.exists():
-              raise SystemExit(f"Generated Gradle file not found: {gradle_path}")
+          java = java_file.read_text(encoding="utf-8")
 
-          s = java_path.read_text(encoding="utf-8")
+          early_call = """                  enableImmersiveNavigation();
+                  prefs = getSharedPreferences("project_mister", MODE_PRIVATE);"""
 
-          # Remove the v2.1 immersive-navigation call that happens before the
-          # first screen is attached. This is the main startup regression.
-          startup_pattern = re.compile(
-              r'(getWindow\(\)\.setNavigationBarColor\(background\);\s*)'
-              r'enableImmersiveNavigation\(\);\s*'
-              r'(prefs\s*=\s*getSharedPreferences\("project_mister",\s*MODE_PRIVATE\);)',
-              re.MULTILINE
-          )
-          s, count = startup_pattern.subn(r'\1\2', s, count=1)
-          if count != 1:
-              raise SystemExit(
-                  f"Expected to remove one early immersive-navigation call, removed {count}."
-              )
+          early_fixed = """                  prefs = getSharedPreferences("project_mister", MODE_PRIVATE);"""
 
-          # Replace the Android-R WindowInsets implementation with a safer
-          # decor-view implementation wrapped in a catch-all.
-          immersive_pattern = re.compile(
-              r'(?ms)^(\s*)private void enableImmersiveNavigation\(\)\s*\{.*?'
-              r'^\1\}\s*\n\s*@Override\s*\n\s*public void onWindowFocusChanged'
-          )
+          if early_call not in java:
+              raise SystemExit("Could not find the v2.1 early immersive-navigation startup call.")
 
-          def immersive_replacement(match):
-              ind = match.group(1)
-              return f'''{ind}private void enableImmersiveNavigation() {{
-{ind}    try {{
-{ind}        getWindow().getDecorView().setSystemUiVisibility(
-{ind}                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-{ind}                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-{ind}                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-{ind}                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-{ind}        );
-{ind}    }} catch (Throwable error) {{
-{ind}        android.util.Log.w("BOSSXI", "Navigation-bar hiding skipped", error);
-{ind}    }}
-{ind}}}
+          java = java.replace(early_call, early_fixed, 1)
 
-{ind}@Override
-{ind}public void onWindowFocusChanged'''
+          focus_call = """              @Override
+              public void onWindowFocusChanged(boolean hasFocus) {
+                  super.onWindowFocusChanged(hasFocus);
+                  if (hasFocus) enableImmersiveNavigation();
+              }"""
 
-          s, count = immersive_pattern.subn(immersive_replacement, s, count=1)
-          if count != 1:
-              raise SystemExit(
-                  f"Expected to replace one immersive-navigation method, replaced {count}."
-              )
+          focus_fixed = """              @Override
+              public void onWindowFocusChanged(boolean hasFocus) {
+                  super.onWindowFocusChanged(hasFocus);
+                  // v2.1.1 startup hotfix:
+                  // leave Android system navigation unchanged until the
+                  // device-specific crash is fully isolated.
+              }"""
 
-          # Protect the full startup path so any future startup exception is
-          # shown inside BOSS XI instead of Android's generic crash dialog.
-          oncreate_pattern = re.compile(
-              r'(?ms)^(\s*)@Override\s*\n'
-              r'\1protected void onCreate\(Bundle savedInstanceState\)\s*\{\s*'
-              r'super\.onCreate\(savedInstanceState\);\s*'
-              r'getWindow\(\)\.setStatusBarColor\(background\);\s*'
-              r'getWindow\(\)\.setNavigationBarColor\(background\);\s*'
-              r'prefs\s*=\s*getSharedPreferences\("project_mister",\s*MODE_PRIVATE\);\s*'
-              r'loadEditorData\(\);\s*'
-              r'generatePlayers\(\);\s*'
-              r'showMainMenu\(\);\s*'
-              r'^\1\}'
-          )
+          if focus_call not in java:
+              raise SystemExit("Could not find the v2.1 window-focus immersive-navigation call.")
 
-          def oncreate_replacement(match):
-              ind = match.group(1)
-              return f'''{ind}@Override
-{ind}protected void onCreate(Bundle savedInstanceState) {{
-{ind}    super.onCreate(savedInstanceState);
-{ind}    try {{
-{ind}        getWindow().setStatusBarColor(background);
-{ind}        getWindow().setNavigationBarColor(background);
-{ind}        prefs = getSharedPreferences("project_mister", MODE_PRIVATE);
-{ind}        loadEditorData();
-{ind}        generatePlayers();
-{ind}        showMainMenu();
-{ind}    }} catch (Throwable error) {{
-{ind}        android.util.Log.e("BOSSXI", "Startup failure", error);
-{ind}        showStartupRecovery(error);
-{ind}    }}
-{ind}}}'''
+          java = java.replace(focus_call, focus_fixed, 1)
 
-          s, count = oncreate_pattern.subn(oncreate_replacement, s, count=1)
-          if count != 1:
-              raise SystemExit(f"Expected to protect one onCreate method, protected {count}.")
-
-          # Add an in-app startup recovery screen.
-          marker = re.search(
-              r'(?m)^(\s*)private void enableImmersiveNavigation\(\)',
-              s
-          )
-          if not marker:
-              raise SystemExit("Could not find immersive navigation insertion point.")
-
-          ind = marker.group(1)
-          recovery = f'''{ind}private void showStartupRecovery(Throwable error) {{
-{ind}    try {{
-{ind}        LinearLayout page = new LinearLayout(this);
-{ind}        page.setOrientation(LinearLayout.VERTICAL);
-{ind}        page.setPadding(dp(24), dp(36), dp(24), dp(24));
-{ind}        page.setBackgroundColor(background);
-
-{ind}        TextView title = new TextView(this);
-{ind}        title.setText("BOSS XI startup recovery");
-{ind}        title.setTextColor(Color.WHITE);
-{ind}        title.setTextSize(24);
-{ind}        title.setTypeface(Typeface.DEFAULT_BOLD);
-{ind}        page.addView(title);
-
-{ind}        TextView message = new TextView(this);
-{ind}        String reason = error == null
-{ind}                ? "Unknown startup error"
-{ind}                : error.getClass().getSimpleName()
-{ind}                        + (error.getMessage() == null ? "" : ": " + error.getMessage());
-{ind}        message.setText("\\nThe game prevented a startup crash.\\n\\n"
-{ind}                + reason
-{ind}                + "\\n\\nTake a screenshot of this screen and send it to me.");
-{ind}        message.setTextColor(Color.WHITE);
-{ind}        message.setTextSize(16);
-{ind}        message.setPadding(0, dp(12), 0, dp(24));
-{ind}        page.addView(message);
-
-{ind}        Button reset = new Button(this);
-{ind}        reset.setText("Clear local BOSS XI data and retry");
-{ind}        reset.setOnClickListener(v -> {{
-{ind}            try {{
-{ind}                if (prefs != null) prefs.edit().clear().commit();
-{ind}            }} catch (Throwable ignored) {{
-{ind}            }}
-{ind}            recreate();
-{ind}        }});
-{ind}        page.addView(reset);
-
-{ind}        setContentView(page);
-{ind}    }} catch (Throwable fallback) {{
-{ind}        android.util.Log.e("BOSSXI", "Recovery screen failure", fallback);
-{ind}        TextView emergency = new TextView(this);
-{ind}        emergency.setText("BOSS XI startup error: "
-{ind}                + (error == null ? "unknown" : error.getClass().getSimpleName()));
-{ind}        emergency.setTextColor(Color.WHITE);
-{ind}        emergency.setBackgroundColor(Color.BLACK);
-{ind}        emergency.setPadding(24, 24, 24, 24);
-{ind}        setContentView(emergency);
-{ind}    }}
-{ind}}}
-
-'''
-          insert_at = marker.start()
-          s = s[:insert_at] + recovery + s[insert_at:]
-
-          # Protect the first portrait-orientation request as well.
-          s, count = re.subn(
-              r'(?m)^(\s*)setRequestedOrientation\(ActivityInfo\.SCREEN_ORIENTATION_PORTRAIT\);\s*$',
-              r'''\1try {
-\1    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-\1} catch (Throwable error) {
-\1    android.util.Log.w("BOSSXI", "Portrait request ignored", error);
-\1}''',
-              s,
-              count=1
-          )
-          if count != 1:
-              raise SystemExit(f"Expected to protect one portrait request, protected {count}.")
-
-          s = s.replace(
+          java = java.replace(
               "Three career saves • BOSS XI v1.7 • Live Engine Fix",
               "Three career saves • BOSS XI v2.1.1 • Startup Fix",
               1
           )
 
-          java_path.write_text(s, encoding="utf-8")
+          java_file.write_text(java, encoding="utf-8")
 
-          g = gradle_path.read_text(encoding="utf-8")
-          if "versionCode 21" not in g or 'versionName "2.1"' not in g:
-              raise SystemExit("Could not locate v2.1 version fields in app/build.gradle.")
-          g = g.replace("versionCode 21", "versionCode 22", 1)
-          g = g.replace('versionName "2.1"', 'versionName "2.1.1"', 1)
-          gradle_path.write_text(g, encoding="utf-8")
+          gradle = gradle_file.read_text(encoding="utf-8")
+          if "versionCode 21" not in gradle:
+              raise SystemExit("versionCode 21 was not found.")
+          if 'versionName "2.1"' not in gradle:
+              raise SystemExit('versionName "2.1" was not found.')
 
-          print("Applied BOSS XI v2.1.1 startup hotfix.")
+          gradle = gradle.replace("versionCode 21", "versionCode 22", 1)
+          gradle = gradle.replace('versionName "2.1"', 'versionName "2.1.1"', 1)
+          gradle_file.write_text(gradle, encoding="utf-8")
+
+          print("Minimal v2.1.1 startup hotfix applied successfully.")
           PY
 
       - name: Build APK
@@ -302,22 +160,23 @@ jobs:
             adb logcat -c
             adb shell am force-stop com.projectmister.game
             adb shell am start -W -n com.projectmister.game/.MainActivity
-            sleep 6
+            sleep 8
 
             PID=$(adb shell pidof com.projectmister.game | tr -d '\r')
+
             if [ -z "$PID" ]; then
               echo "BOSS XI process died during startup."
-              adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime|BOSSXI" | tail -n 200 || true
+              adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime|BOSSXI|com.projectmister.game" | tail -n 250 || true
               exit 1
             fi
 
-            if adb logcat -d | grep -A 40 "FATAL EXCEPTION" | grep -q "com.projectmister.game"; then
-              echo "BOSS XI logged a fatal exception during startup."
-              adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime|BOSSXI" | tail -n 200 || true
+            if adb logcat -d | grep -A 60 "FATAL EXCEPTION" | grep -q "com.projectmister.game"; then
+              echo "BOSS XI logged a fatal startup exception."
+              adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime|BOSSXI|com.projectmister.game" | tail -n 250 || true
               exit 1
             fi
 
-            echo "BOSS XI stayed alive after launch. PID=$PID"
+            echo "BOSS XI startup smoke test passed. PID=$PID"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
