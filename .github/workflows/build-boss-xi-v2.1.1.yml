@@ -1,4 +1,4 @@
-name: Build BOSS XI APK v2.1.1 Startup Fix (Hotfix 4)
+name: Build BOSS XI APK v2.1.1 Startup Fix (Hotfix 5)
 
 on:
   workflow_dispatch:
@@ -182,28 +182,16 @@ jobs:
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb logcat -c
             adb shell am force-stop com.projectmister.game
-            adb shell am start -W -n com.projectmister.game/.MainActivity
-            sleep 8
-
-            PID=$(adb shell pidof com.projectmister.game | tr -d '\r')
-
-            if [ -z "$PID" ]; then
-              echo "BOSS XI process died during startup."
-              adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime|BOSSXI|com.projectmister.game" | tail -n 250 || true
-              exit 1
-            fi
-
-            if adb logcat -d | grep -A 60 "FATAL EXCEPTION" | grep -q "com.projectmister.game"; then
-              echo "BOSS XI logged a fatal startup exception."
-              adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime|BOSSXI|com.projectmister.game" | tail -n 250 || true
-              exit 1
-            fi
-
-            echo "BOSS XI startup smoke test passed. PID=$PID"
+            adb shell am start -n com.projectmister.game/.MainActivity
+            sleep 15
+            adb shell pidof com.projectmister.game | grep -Eq '[0-9]+' || (echo "BOSS XI process died during startup."; adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime|BOSSXI|com.projectmister.game" | tail -n 250 || true; exit 1)
+            ! (adb logcat -d | grep -A 80 "FATAL EXCEPTION" | grep -q "com.projectmister.game") || (echo "BOSS XI logged a fatal startup exception."; adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime|BOSSXI|com.projectmister.game" | tail -n 250 || true; exit 1)
+            adb shell dumpsys activity activities | grep -q "com.projectmister.game/.MainActivity" || (echo "BOSS XI process is alive but MainActivity is not present."; adb shell dumpsys activity activities | grep -E "mResumedActivity|topResumedActivity|com.projectmister.game" | head -n 80 || true; exit 1)
+            echo "BOSS XI startup smoke test passed."
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BOSS-XI-v2.1.1-hotfix4-apk
+          name: BOSS-XI-v2.1.1-hotfix5-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
