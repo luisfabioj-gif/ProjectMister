@@ -1,4 +1,4 @@
-name: Build BOSS XI APK v2.2.1 Profile Overhaul (Hotfix 1)
+name: Build BOSS XI APK v2.2.1 Profile Overhaul (Hotfix 2)
 
 on:
   workflow_dispatch:
@@ -302,10 +302,31 @@ jobs:
 
           def replace_once(old, new, label):
               global s
-              count = s.count(old)
-              if count < 1:
+              if old in s:
+                  s = s.replace(old, new, 1)
+                  print("Patched:", label, "(exact)")
+                  return
+
+              # Fallback for generated Java: match the same source lines while
+              # ignoring YAML/heredoc indentation and whitespace-only blank lines.
+              # This makes the feature patch resilient to the indentation removed
+              # when the historical workflow's run block is reconstructed.
+              old_lines = old.splitlines()
+              regex_lines = []
+              for line in old_lines:
+                  content = line.strip()
+                  if content:
+                      regex_lines.append(r"^[ \t]*" + re.escape(content) + r"[ \t]*$")
+                  else:
+                      regex_lines.append(r"^[ \t]*$")
+
+              pattern = re.compile(r"\n".join(regex_lines), re.MULTILINE)
+              match = pattern.search(s)
+              if match is None:
                   raise SystemExit("Patch target not found: " + label)
-              s = s.replace(old, new, 1)
+
+              s = s[:match.start()] + new + s[match.end():]
+              print("Patched:", label, "(whitespace-tolerant)")
 
           # Finance + stadium state and dashboard access.
           fields_marker = "              // v0.8 event-driven presentation: commentary, runs, defensive reactions and ball physics share one state."
@@ -704,6 +725,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BOSS-XI-v2.2.1-profile-overhaul-hotfix1-apk
+          name: BOSS-XI-v2.2.1-profile-overhaul-hotfix2-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
