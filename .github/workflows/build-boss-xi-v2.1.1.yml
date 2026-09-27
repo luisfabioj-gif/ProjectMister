@@ -1,4 +1,4 @@
-name: Build BOSS XI APK v2.1.1 Startup Fix (Hotfix 3)
+name: Build BOSS XI APK v2.1.1 Startup Fix (Hotfix 4)
 
 on:
   workflow_dispatch:
@@ -84,7 +84,7 @@ jobs:
 
           bash /tmp/create-v2.1.sh
 
-      - name: Apply minimal v2.1.1 startup hotfix
+      - name: Apply Hotfix 4
         shell: bash
         run: |
           python3 <<'PY'
@@ -93,36 +93,48 @@ jobs:
           java_file = Path("app/src/main/java/com/projectmister/game/MainActivity.java")
           gradle_file = Path("app/build.gradle")
 
+          if not java_file.exists():
+              raise SystemExit("MainActivity.java was not generated.")
+          if not gradle_file.exists():
+              raise SystemExit("app/build.gradle was not generated.")
+
           java = java_file.read_text(encoding="utf-8")
 
-          early_call = """                  enableImmersiveNavigation();
-                  prefs = getSharedPreferences("project_mister", MODE_PRIVATE);"""
+          call = "enableImmersiveNavigation();"
+          call_count = java.count(call)
 
-          early_fixed = """                  prefs = getSharedPreferences("project_mister", MODE_PRIVATE);"""
+          print(f"Found {call_count} immersive-navigation call(s).")
 
-          if early_call not in java:
-              raise SystemExit("Could not find the v2.1 early immersive-navigation startup call.")
+          if call_count < 1:
+              raise SystemExit(
+                  "No enableImmersiveNavigation() calls were found in generated v2.1."
+              )
 
-          java = java.replace(early_call, early_fixed, 1)
+          # Redirect every invocation to a deliberately safe no-op method.
+          # This works regardless of indentation or whether the call is inside
+          # onCreate, onWindowFocusChanged, or another block.
+          java = java.replace(call, "safeEnableImmersiveNavigation();")
 
-          focus_call = """              @Override
-              public void onWindowFocusChanged(boolean hasFocus) {
-                  super.onWindowFocusChanged(hasFocus);
-                  if (hasFocus) enableImmersiveNavigation();
-              }"""
+          method_marker = "private void enableImmersiveNavigation()"
+          if method_marker not in java:
+              raise SystemExit(
+                  "The original enableImmersiveNavigation method was not found."
+              )
 
-          focus_fixed = """              @Override
-              public void onWindowFocusChanged(boolean hasFocus) {
-                  super.onWindowFocusChanged(hasFocus);
-                  // v2.1.1 startup hotfix:
-                  // leave Android system navigation unchanged until the
-                  // device-specific crash is fully isolated.
-              }"""
+          safe_method = """private void safeEnableImmersiveNavigation() {
+                  // v2.1.1 Hotfix 4:
+                  // Temporarily leave Android system navigation unchanged.
+                  // The original v2.1 immersive navigation method remains
+                  // below for later reintroduction after device testing.
+              }
 
-          if focus_call not in java:
-              raise SystemExit("Could not find the v2.1 window-focus immersive-navigation call.")
+              """
 
-          java = java.replace(focus_call, focus_fixed, 1)
+          java = java.replace(
+              method_marker,
+              safe_method + method_marker,
+              1
+          )
 
           java = java.replace(
               "Three career saves • BOSS XI v1.7 • Live Engine Fix",
@@ -142,7 +154,18 @@ jobs:
           gradle = gradle.replace('versionName "2.1"', 'versionName "2.1.1"', 1)
           gradle_file.write_text(gradle, encoding="utf-8")
 
-          print("Minimal v2.1.1 startup hotfix applied successfully.")
+          remaining = java.count("enableImmersiveNavigation();")
+          redirected = java.count("safeEnableImmersiveNavigation();")
+
+          print(f"Original risky calls remaining: {remaining}")
+          print(f"Safe redirected calls: {redirected}")
+
+          if remaining != 0:
+              raise SystemExit("One or more risky immersive-navigation calls remain.")
+          if redirected < call_count:
+              raise SystemExit("Not all immersive-navigation calls were redirected.")
+
+          print("Hotfix 4 applied successfully.")
           PY
 
       - name: Build APK
@@ -181,6 +204,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BOSS-XI-v2.1.1-startup-fix-apk
+          name: BOSS-XI-v2.1.1-hotfix4-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
