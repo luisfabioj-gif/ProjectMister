@@ -1,4 +1,4 @@
-name: Build BOSS XI APK v2.1.1 Startup Fix (Corrected)
+name: Build BOSS XI APK v2.1.1 Startup Fix (Hotfix 2)
 
 on:
   workflow_dispatch:
@@ -97,6 +97,7 @@ jobs:
         run: |
           python3 <<'PY'
           from pathlib import Path
+          import re
 
           java_path = Path("app/src/main/java/com/projectmister/game/MainActivity.java")
           gradle_path = Path("app/build.gradle")
@@ -108,266 +109,169 @@ jobs:
 
           s = java_path.read_text(encoding="utf-8")
 
-          def replace_once(text, old, new, label):
-              if old not in text:
-                  raise SystemExit(f"Patch target not found: {label}")
-              return text.replace(old, new, 1)
-
-          # Make SharedPreferences tolerant of values left by older builds.
-          s = s.replace("prefs.getString(", "safePrefString(")
-          s = s.replace("prefs.getInt(", "safePrefInt(")
-          s = s.replace("prefs.getBoolean(", "safePrefBoolean(")
-
-          old_key = '''    private String key(int slot, String field) {
-              return "save_" + slot + "_" + field;
-          }
-          '''
-
-          new_key = '''    private String key(int slot, String field) {
-              return "save_" + slot + "_" + field;
-          }
-
-          // v2.1.1: tolerate preferences written by older BOSS XI builds.
-          private Object rawPref(String prefKey) {
-              try {
-                  return prefs == null ? null : prefs.getAll().get(prefKey);
-              } catch (Throwable ignored) {
-                  return null;
-              }
-          }
-
-          private String safePrefString(String prefKey, String fallback) {
-              Object value = rawPref(prefKey);
-              if (value == null) return fallback;
-              return value instanceof String ? (String) value : String.valueOf(value);
-          }
-
-          private int safePrefInt(String prefKey, int fallback) {
-              Object value = rawPref(prefKey);
-              if (value instanceof Number) return ((Number) value).intValue();
-              if (value instanceof Boolean) return ((Boolean) value) ? 1 : 0;
-              if (value != null) {
-                  try {
-                      return Integer.parseInt(String.valueOf(value).trim());
-                  } catch (NumberFormatException ignored) {
-                  }
-              }
-              return fallback;
-          }
-
-          private boolean safePrefBoolean(String prefKey, boolean fallback) {
-              Object value = rawPref(prefKey);
-              if (value instanceof Boolean) return (Boolean) value;
-              if (value instanceof Number) return ((Number) value).intValue() != 0;
-              if (value != null) {
-                  String stringValue = String.valueOf(value).trim();
-                  if ("1".equals(stringValue) || "true".equalsIgnoreCase(stringValue)) return true;
-                  if ("0".equals(stringValue) || "false".equalsIgnoreCase(stringValue)) return false;
-              }
-              return fallback;
-          }
-          '''
-
-          s = replace_once(s, old_key, new_key, "safe preference helpers")
-
-          old_startup = '''    @Override
-          protected void onCreate(Bundle savedInstanceState) {
-              super.onCreate(savedInstanceState);
-              getWindow().setStatusBarColor(background);
-              getWindow().setNavigationBarColor(background);
-              enableImmersiveNavigation();
-              prefs = getSharedPreferences("project_mister", MODE_PRIVATE);
-              loadEditorData();
-              generatePlayers();
-              showMainMenu();
-          }
-
-          private void enableImmersiveNavigation() {
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                  WindowInsetsController controller = getWindow().getInsetsController();
-                  if (controller != null) {
-                      controller.hide(WindowInsets.Type.navigationBars());
-                      controller.setSystemBarsBehavior(WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-                  }
-              } else {
-                  getWindow().getDecorView().setSystemUiVisibility(
-                          View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                                  | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                  | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                  | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-              }
-          }
-          '''
-
-          new_startup = '''    @Override
-          protected void onCreate(Bundle savedInstanceState) {
-              super.onCreate(savedInstanceState);
-              try {
-                  getWindow().setStatusBarColor(background);
-                  getWindow().setNavigationBarColor(background);
-                  prefs = getSharedPreferences("project_mister", MODE_PRIVATE);
-                  loadEditorData();
-                  generatePlayers();
-                  showMainMenu();
-
-                  // Apply immersive navigation only after the first screen exists.
-                  enableImmersiveNavigation();
-              } catch (Throwable error) {
-                  android.util.Log.e("BOSSXI", "Startup failure", error);
-                  showStartupRecovery(error);
-              }
-          }
-
-          private void showStartupRecovery(Throwable error) {
-              try {
-                  LinearLayout page = new LinearLayout(this);
-                  page.setOrientation(LinearLayout.VERTICAL);
-                  page.setPadding(dp(24), dp(36), dp(24), dp(24));
-                  page.setBackgroundColor(background);
-
-                  TextView title = new TextView(this);
-                  title.setText("BOSS XI startup recovery");
-                  title.setTextColor(Color.WHITE);
-                  title.setTextSize(24);
-                  title.setTypeface(Typeface.DEFAULT_BOLD);
-                  page.addView(title);
-
-                  TextView message = new TextView(this);
-                  String reason = error == null
-                          ? "Unknown startup error"
-                          : error.getClass().getSimpleName()
-                                  + (error.getMessage() == null ? "" : ": " + error.getMessage());
-
-                  message.setText(
-                          "\\nThe game prevented a startup crash.\\n\\n"
-                                  + reason
-                                  + "\\n\\nTry Retry first. If the problem remains, "
-                                  + "clear only BOSS XI local data and retry. "
-                                  + "Take a screenshot of this screen if it appears again."
-                  );
-                  message.setTextColor(Color.WHITE);
-                  message.setTextSize(16);
-                  message.setPadding(0, dp(12), 0, dp(24));
-                  page.addView(message);
-
-                  Button retry = new Button(this);
-                  retry.setText("Retry");
-                  retry.setOnClickListener(v -> recreate());
-                  page.addView(retry);
-
-                  Button reset = new Button(this);
-                  reset.setText("Clear local BOSS XI data and retry");
-                  reset.setOnClickListener(v -> {
-                      try {
-                          if (prefs != null) prefs.edit().clear().commit();
-                      } catch (Throwable ignored) {
-                      }
-                      recreate();
-                  });
-                  page.addView(reset);
-
-                  setContentView(page);
-              } catch (Throwable fallback) {
-                  android.util.Log.e("BOSSXI", "Recovery screen failure", fallback);
-
-                  TextView emergency = new TextView(this);
-                  emergency.setText(
-                          "BOSS XI could not start. Error: "
-                                  + (error == null ? "unknown" : error.getClass().getSimpleName())
-                  );
-                  emergency.setTextColor(Color.WHITE);
-                  emergency.setBackgroundColor(Color.BLACK);
-                  emergency.setPadding(24, 24, 24, 24);
-                  setContentView(emergency);
-              }
-          }
-
-          private void enableImmersiveNavigation() {
-              try {
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                      WindowInsetsController controller = getWindow().getInsetsController();
-                      if (controller != null) {
-                          controller.hide(WindowInsets.Type.navigationBars());
-                          controller.setSystemBarsBehavior(
-                                  WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                          );
-                      }
-                  } else {
-                      getWindow().getDecorView().setSystemUiVisibility(
-                              View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                                      | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                      | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                      | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                      );
-                  }
-              } catch (Throwable error) {
-                  android.util.Log.w("BOSSXI", "Immersive navigation unavailable", error);
-              }
-          }
-          '''
-
-          s = replace_once(s, old_startup, new_startup, "startup protection")
-
-          old_orientation = '''        stopLiveMatchTicker();
-              setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-              ScrollView scroll = new ScrollView(this);'''
-
-          new_orientation = '''        stopLiveMatchTicker();
-              try {
-                  setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-              } catch (Throwable error) {
-                  android.util.Log.w("BOSSXI", "Portrait request ignored", error);
-              }
-              ScrollView scroll = new ScrollView(this);'''
-
-          s = replace_once(s, old_orientation, new_orientation, "portrait protection")
-
-          old_preview = '''            int club = safePrefInt(key(slot, "club"), 0);
-                  int md = safePrefInt(key(slot, "matchday"), 0);'''
-
-          new_preview = '''            int club = safePrefInt(key(slot, "club"), 0);
-                  if (club < 0 || club >= clubNames.length) club = 0;
-                  int md = Math.max(0, Math.min(34, safePrefInt(key(slot, "matchday"), 0)));'''
-
-          s = replace_once(s, old_preview, new_preview, "career preview bounds")
-
-          old_load_start = '''    private void loadSave(int slot) {
-              selectedSlot = slot;
-              selectedClub = safePrefInt(key(slot, "club"), 0);
-              managerFirstName = safePrefString(key(slot, "manager_first"), "");'''
-
-          new_load_start = '''    private void loadSave(int slot) {
-              selectedSlot = Math.max(0, Math.min(SAVE_SLOTS - 1, slot));
-              selectedClub = safePrefInt(key(selectedSlot, "club"), 0);
-              if (selectedClub < 0 || selectedClub >= clubNames.length) selectedClub = 0;
-              managerFirstName = safePrefString(key(selectedSlot, "manager_first"), "");'''
-
-          s = replace_once(s, old_load_start, new_load_start, "loadSave bounds")
-
-          load_start = s.index("    private void loadSave(int slot) {")
-          load_end = s.index("    private void confirmDeleteSave", load_start)
-          load_block = s[load_start:load_end].replace("key(slot,", "key(selectedSlot,")
-
-          load_block = load_block.replace(
-              'managerCountryIndex = safePrefInt(key(selectedSlot, "manager_country_index"), 0);',
-              'managerCountryIndex = safePrefInt(key(selectedSlot, "manager_country_index"), 0);\\n'
-              '        if (managerCountryIndex < 0 || managerCountryIndex >= COUNTRY_OPTIONS.length) managerCountryIndex = 0;'
+          # Remove the v2.1 immersive-navigation call that happens before the
+          # first screen is attached. This is the main startup regression.
+          startup_pattern = re.compile(
+              r'(getWindow\(\)\.setNavigationBarColor\(background\);\s*)'
+              r'enableImmersiveNavigation\(\);\s*'
+              r'(prefs\s*=\s*getSharedPreferences\("project_mister",\s*MODE_PRIVATE\);)',
+              re.MULTILINE
           )
-          load_block = load_block.replace(
-              'managerLeagueIndex = safePrefInt(key(selectedSlot, "manager_league_index"), 0);',
-              'managerLeagueIndex = safePrefInt(key(selectedSlot, "manager_league_index"), 0);\\n'
-              '        if (managerLeagueIndex < 0 || managerLeagueIndex >= LEAGUE_OPTIONS.length) managerLeagueIndex = 0;'
-          )
-          load_block = load_block.replace(
-              'matchday = safePrefInt(key(selectedSlot, "matchday"), 0);',
-              'matchday = Math.max(0, Math.min(34, safePrefInt(key(selectedSlot, "matchday"), 0)));'
+          s, count = startup_pattern.subn(r'\1\2', s, count=1)
+          if count != 1:
+              raise SystemExit(
+                  f"Expected to remove one early immersive-navigation call, removed {count}."
+              )
+
+          # Replace the Android-R WindowInsets implementation with a safer
+          # decor-view implementation wrapped in a catch-all.
+          immersive_pattern = re.compile(
+              r'(?ms)^(\s*)private void enableImmersiveNavigation\(\)\s*\{.*?'
+              r'^\1\}\s*\n\s*@Override\s*\n\s*public void onWindowFocusChanged'
           )
 
-          s = s[:load_start] + load_block + s[load_end:]
+          def immersive_replacement(match):
+              ind = match.group(1)
+              return f'''{ind}private void enableImmersiveNavigation() {{
+{ind}    try {{
+{ind}        getWindow().getDecorView().setSystemUiVisibility(
+{ind}                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+{ind}                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+{ind}                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+{ind}                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+{ind}        );
+{ind}    }} catch (Throwable error) {{
+{ind}        android.util.Log.w("BOSSXI", "Navigation-bar hiding skipped", error);
+{ind}    }}
+{ind}}}
+
+{ind}@Override
+{ind}public void onWindowFocusChanged'''
+
+          s, count = immersive_pattern.subn(immersive_replacement, s, count=1)
+          if count != 1:
+              raise SystemExit(
+                  f"Expected to replace one immersive-navigation method, replaced {count}."
+              )
+
+          # Protect the full startup path so any future startup exception is
+          # shown inside BOSS XI instead of Android's generic crash dialog.
+          oncreate_pattern = re.compile(
+              r'(?ms)^(\s*)@Override\s*\n'
+              r'\1protected void onCreate\(Bundle savedInstanceState\)\s*\{\s*'
+              r'super\.onCreate\(savedInstanceState\);\s*'
+              r'getWindow\(\)\.setStatusBarColor\(background\);\s*'
+              r'getWindow\(\)\.setNavigationBarColor\(background\);\s*'
+              r'prefs\s*=\s*getSharedPreferences\("project_mister",\s*MODE_PRIVATE\);\s*'
+              r'loadEditorData\(\);\s*'
+              r'generatePlayers\(\);\s*'
+              r'showMainMenu\(\);\s*'
+              r'^\1\}'
+          )
+
+          def oncreate_replacement(match):
+              ind = match.group(1)
+              return f'''{ind}@Override
+{ind}protected void onCreate(Bundle savedInstanceState) {{
+{ind}    super.onCreate(savedInstanceState);
+{ind}    try {{
+{ind}        getWindow().setStatusBarColor(background);
+{ind}        getWindow().setNavigationBarColor(background);
+{ind}        prefs = getSharedPreferences("project_mister", MODE_PRIVATE);
+{ind}        loadEditorData();
+{ind}        generatePlayers();
+{ind}        showMainMenu();
+{ind}    }} catch (Throwable error) {{
+{ind}        android.util.Log.e("BOSSXI", "Startup failure", error);
+{ind}        showStartupRecovery(error);
+{ind}    }}
+{ind}}}'''
+
+          s, count = oncreate_pattern.subn(oncreate_replacement, s, count=1)
+          if count != 1:
+              raise SystemExit(f"Expected to protect one onCreate method, protected {count}.")
+
+          # Add an in-app startup recovery screen.
+          marker = re.search(
+              r'(?m)^(\s*)private void enableImmersiveNavigation\(\)',
+              s
+          )
+          if not marker:
+              raise SystemExit("Could not find immersive navigation insertion point.")
+
+          ind = marker.group(1)
+          recovery = f'''{ind}private void showStartupRecovery(Throwable error) {{
+{ind}    try {{
+{ind}        LinearLayout page = new LinearLayout(this);
+{ind}        page.setOrientation(LinearLayout.VERTICAL);
+{ind}        page.setPadding(dp(24), dp(36), dp(24), dp(24));
+{ind}        page.setBackgroundColor(background);
+
+{ind}        TextView title = new TextView(this);
+{ind}        title.setText("BOSS XI startup recovery");
+{ind}        title.setTextColor(Color.WHITE);
+{ind}        title.setTextSize(24);
+{ind}        title.setTypeface(Typeface.DEFAULT_BOLD);
+{ind}        page.addView(title);
+
+{ind}        TextView message = new TextView(this);
+{ind}        String reason = error == null
+{ind}                ? "Unknown startup error"
+{ind}                : error.getClass().getSimpleName()
+{ind}                        + (error.getMessage() == null ? "" : ": " + error.getMessage());
+{ind}        message.setText("\\nThe game prevented a startup crash.\\n\\n"
+{ind}                + reason
+{ind}                + "\\n\\nTake a screenshot of this screen and send it to me.");
+{ind}        message.setTextColor(Color.WHITE);
+{ind}        message.setTextSize(16);
+{ind}        message.setPadding(0, dp(12), 0, dp(24));
+{ind}        page.addView(message);
+
+{ind}        Button reset = new Button(this);
+{ind}        reset.setText("Clear local BOSS XI data and retry");
+{ind}        reset.setOnClickListener(v -> {{
+{ind}            try {{
+{ind}                if (prefs != null) prefs.edit().clear().commit();
+{ind}            }} catch (Throwable ignored) {{
+{ind}            }}
+{ind}            recreate();
+{ind}        }});
+{ind}        page.addView(reset);
+
+{ind}        setContentView(page);
+{ind}    }} catch (Throwable fallback) {{
+{ind}        android.util.Log.e("BOSSXI", "Recovery screen failure", fallback);
+{ind}        TextView emergency = new TextView(this);
+{ind}        emergency.setText("BOSS XI startup error: "
+{ind}                + (error == null ? "unknown" : error.getClass().getSimpleName()));
+{ind}        emergency.setTextColor(Color.WHITE);
+{ind}        emergency.setBackgroundColor(Color.BLACK);
+{ind}        emergency.setPadding(24, 24, 24, 24);
+{ind}        setContentView(emergency);
+{ind}    }}
+{ind}}}
+
+'''
+          insert_at = marker.start()
+          s = s[:insert_at] + recovery + s[insert_at:]
+
+          # Protect the first portrait-orientation request as well.
+          s, count = re.subn(
+              r'(?m)^(\s*)setRequestedOrientation\(ActivityInfo\.SCREEN_ORIENTATION_PORTRAIT\);\s*$',
+              r'''\1try {
+\1    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+\1} catch (Throwable error) {
+\1    android.util.Log.w("BOSSXI", "Portrait request ignored", error);
+\1}''',
+              s,
+              count=1
+          )
+          if count != 1:
+              raise SystemExit(f"Expected to protect one portrait request, protected {count}.")
 
           s = s.replace(
               "Three career saves • BOSS XI v1.7 • Live Engine Fix",
-              "Three career saves • BOSS XI v2.1.1 • Startup Stability Fix",
+              "Three career saves • BOSS XI v2.1.1 • Startup Fix",
               1
           )
 
@@ -375,12 +279,12 @@ jobs:
 
           g = gradle_path.read_text(encoding="utf-8")
           if "versionCode 21" not in g or 'versionName "2.1"' not in g:
-              raise SystemExit("Could not locate the v2.1 version fields in app/build.gradle.")
+              raise SystemExit("Could not locate v2.1 version fields in app/build.gradle.")
           g = g.replace("versionCode 21", "versionCode 22", 1)
           g = g.replace('versionName "2.1"', 'versionName "2.1.1"', 1)
           gradle_path.write_text(g, encoding="utf-8")
 
-          print("Applied BOSS XI v2.1.1 startup-stability patch.")
+          print("Applied BOSS XI v2.1.1 startup hotfix.")
           PY
 
       - name: Build APK
