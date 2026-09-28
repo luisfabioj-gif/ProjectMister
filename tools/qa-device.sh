@@ -5,13 +5,20 @@ trap 'adb logcat -d > qa-output/logcat.txt; adb pull /sdcard/Android/data/com.pr
 adb install -r /tmp/boss-baseline/app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/test-manual/qa.apk
 adb logcat -c
-adb shell am instrument -w -e mode seed com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/baseline.txt
+timeout 180s adb shell am instrument -w -e mode seed com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/baseline.txt
 grep -q 'PASS baseline career seeded' qa-output/baseline.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/baseline.txt
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-adb shell am instrument -w -e mode full com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/candidate.txt
+timeout 180s adb shell am instrument -w -e mode full com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/candidate.txt
 grep -q 'PASS completed match survives reload' qa-output/candidate.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/candidate.txt
+adb shell wm size 720x1280
+adb shell wm density 320
+timeout 120s adb shell am instrument -w -e mode compact com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/compact.txt
+grep -q 'PASS compact landscape formations usable' qa-output/compact.txt
+! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/compact.txt
+adb shell wm size reset
+adb shell wm density reset
 adb shell am force-stop com.projectmister.game
 adb shell am start -W -n com.projectmister.game/.MainActivity
 adb shell pidof com.projectmister.game | grep -Eq '[0-9]+'

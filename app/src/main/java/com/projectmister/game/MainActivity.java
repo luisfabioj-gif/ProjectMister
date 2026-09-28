@@ -1752,7 +1752,7 @@ public class MainActivity extends Activity {
         int fw = frame.getWidth();
         int fh = frame.getHeight();
         int tokenSize=dp(48);
-        int tokenWidth=dp(72);
+        int tokenWidth=Math.max(dp(48),Math.min(dp(72),(fw-dp(32))/5));
         int padX = tokenWidth/2+dp(10);
         int padY = tokenSize/2+dp(4);
         int innerW = Math.max(dp(100), fw - padX * 2);
@@ -1860,10 +1860,10 @@ public class MainActivity extends Activity {
         else if ("3-5-2".equals(formation)) lines = new int[]{3, 5, 2};
         else if ("5-3-2".equals(formation)) lines = new int[]{5, 3, 2};
         else lines = new int[]{4, 3, 3};
-        xs[0] = home ? 0.03f : 0.97f;
+        xs[0] = home ? 0f : 1f;
         ys[0] = 0.50f;
         int slot = 1;
-        float[] lineX = lines.length == 4 ? new float[]{0.21f, 0.39f, 0.58f, 0.76f} : new float[]{0.21f, 0.49f, 0.76f};
+        float[] lineX = lines.length == 4 ? new float[]{0.25f, 0.50f, 0.75f, 1f} : new float[]{0.30f, 0.65f, 1f};
         for (int li = 0; li < lines.length; li++) {
             int count = lines[li];
             float x = lineX[Math.min(li, lineX.length - 1)];

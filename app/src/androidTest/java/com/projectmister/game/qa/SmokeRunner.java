@@ -32,7 +32,7 @@ public final class SmokeRunner extends Instrumentation {
         check(!activity.isFinishing(),name+" navigates");
     }
     private void awaitBoolean(String field)throws Exception {
-        long end=SystemClock.uptimeMillis()+20000;
+        long end=SystemClock.uptimeMillis()+40000;
         final boolean[] value={false};
         while(SystemClock.uptimeMillis()<end) {
             ui(()->value[0]=(Boolean)get(field));if(value[0])return;SystemClock.sleep(150);
@@ -40,7 +40,7 @@ public final class SmokeRunner extends Instrumentation {
         throw new AssertionError("Timed out waiting for "+field);
     }
     private void awaitRound(int target)throws Exception {
-        long end=SystemClock.uptimeMillis()+20000;
+        long end=SystemClock.uptimeMillis()+40000;
         final int[] round={0};
         while(SystemClock.uptimeMillis()<end) {
             ui(()->round[0]=(Integer)get("matchday"));if(round[0]>=target)return;SystemClock.sleep(150);
@@ -94,6 +94,14 @@ public final class SmokeRunner extends Instrumentation {
                 ui(()->{set("managerFirstName","");call("loadSave",new Class[]{int.class},0);});
                 check("Upgrade".equals(get("managerFirstName")),"baseline save reloads");
                 check(true,"baseline career seeded");
+            } else if(mode.equals("compact")) {
+                ui(()->{call("loadSave",new Class[]{int.class},0);call("startLiveMatchday",new Class[0]);set("livePaused",true);});
+                capture("23-compact-match");
+                for(String formation:new String[]{"4-3-3","4-2-3-1","4-4-2","3-5-2","5-3-2"}) {
+                    ui(()->{set("liveFormation",formation);call("showLiveTacticsScreen",new Class[0]);});
+                    capture("24-compact-"+formation);verifyTacticsMarkers();
+                }
+                check(true,"compact landscape formations usable");
             } else {
                 ui(()->call("loadSave",new Class[]{int.class},0));
                 check("Upgrade".equals(get("managerFirstName")),"old save manager preserved");
@@ -147,6 +155,23 @@ public final class SmokeRunner extends Instrumentation {
                 ui(()->call("loadSave",new Class[]{int.class},0));
                 check((Integer)get("matchday")==1,"completed match survives reload");
                 capture("20-reloaded");
+                // Exercise complete event chains and AI reviews, not only time-boundary jumps.
+                ui(()->{call("startLiveMatchday",new Class[0]);set("liveSpeed",4);});
+                awaitBoolean("liveHalfTimeTacticsActive");capture("21-natural-halftime");
+                ui(()->call("returnFromLiveTactics",new Class[0]));
+                awaitRound(2);capture("22-natural-fulltime");
+                int shots=(Integer)get("liveHomeShots")+(Integer)get("liveAwayShots");
+                int target=(Integer)get("liveHomeOnTarget")+(Integer)get("liveAwayOnTarget");
+                int goals=(Integer)get("liveHomeGoals")+(Integer)get("liveAwayGoals");
+                int recorded=0;for(int n:((Map<Integer,Integer>)get("matchGoals")).values())recorded+=n;
+                check(shots>0,"complete match creates attacking events");
+                check(goals<=target&&target<=shots,"complete match shot totals are consistent");
+                check(recorded==goals,"scorer events match final score");
+                int aiSubs=(Integer)get("aiSubsUsed");
+                check(aiSubs>=0&&aiSubs<=5,"opposition respects substitution limit");
+                report.append("MATCH shots=").append(shots).append(" target=").append(target).append(" goals=").append(goals).append(" AI subs=").append(aiSubs).append('\n');
+                ui(()->call("loadSave",new Class[]{int.class},0));
+                check((Integer)get("matchday")==2,"complete simulation survives reload");
             }
             try(FileOutputStream f=new FileOutputStream(new File(output,"report.txt"))){f.write(report.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
             result.putString("stream",report.toString());finish(Activity.RESULT_OK,result);
