@@ -48,9 +48,27 @@ public final class SmokeRunner extends Instrumentation {
         throw new AssertionError("Timed out waiting for full-time");
     }
     private void capture(String name)throws Exception {
+        // Wait through asynchronous layout, portrait decoding and orientation changes.
+        SystemClock.sleep(700);waitForIdleSync();
         Bitmap b=getUiAutomation().takeScreenshot();
         if(b==null)throw new AssertionError("Screenshot missing: "+name);
         try(FileOutputStream f=new FileOutputStream(new File(output,name+".png"))){b.compress(Bitmap.CompressFormat.PNG,100,f);} b.recycle();
+    }
+    private void verifyTacticsMarkers()throws Exception {
+        ui(()->{
+            ViewGroup pitch=activity.getWindow().getDecorView().findViewWithTag("live-tactics-pitch");
+            check(pitch!=null&&pitch.getChildCount()==12,"tactics pitch renders all eleven players");
+            for(int i=1;i<pitch.getChildCount();i++) {
+                View a=pitch.getChildAt(i);
+                android.graphics.RectF ar=new android.graphics.RectF(a.getX(),a.getY(),a.getX()+a.getWidth(),a.getY()+a.getHeight());
+                check(ar.left>=0&&ar.top>=0&&ar.right<=pitch.getWidth()&&ar.bottom<=pitch.getHeight(),"tactics marker in bounds "+i);
+                for(int j=i+1;j<pitch.getChildCount();j++) {
+                    View b=pitch.getChildAt(j);
+                    android.graphics.RectF br=new android.graphics.RectF(b.getX(),b.getY(),b.getX()+b.getWidth(),b.getY()+b.getHeight());
+                    check(!android.graphics.RectF.intersects(ar,br),"tactics markers separate "+i+"/"+j);
+                }
+            }
+        });
     }
     @SuppressWarnings("unchecked") public void onStart(){
         Bundle result=new Bundle();
@@ -99,6 +117,12 @@ public final class SmokeRunner extends Instrumentation {
                 ui(()->set("livePaused",true));capture("16-match");
                 check((Boolean)get("liveMatchActive"),"live match running");
                 page("17-live-tactics","showLiveTacticsScreen",new Class[0]);
+                verifyTacticsMarkers();
+                for(String formation:new String[]{"4-2-3-1","4-4-2","3-5-2","5-3-2"}) {
+                    ui(()->{set("liveFormation",formation);call("showLiveTacticsScreen",new Class[0]);});
+                    capture("17-formation-"+formation);verifyTacticsMarkers();
+                }
+                ui(()->{set("liveFormation","4-3-3");call("showLiveTacticsScreen",new Class[0]);});
                 List<Integer> xi=(List<Integer>)get("liveXIIds"),bench=(List<Integer>)get("liveBenchIds");
                 int off=xi.get(5),on=bench.get(0);
                 ui(()->call("performLiveSubstitution",new Class[]{int.class,int.class},off,on));
@@ -114,7 +138,7 @@ public final class SmokeRunner extends Instrumentation {
                 ui(()->call("performLiveSubstitution",new Class[]{int.class,int.class},on,off));
                 check(!((List<Integer>)get("liveXIIds")).contains(off),"committed substitute cannot return");
                 ui(()->{call("returnFromLiveTactics",new Class[0]);set("liveMinute",44);set("liveMinuteFloat",44.98f);set("livePaused",false);});
-                awaitBoolean("liveHalfTimeTacticsActive");waitForIdleSync();capture("18-halftime");
+                awaitBoolean("liveHalfTimeTacticsActive");waitForIdleSync();capture("18-halftime");verifyTacticsMarkers();
                 check((Boolean)get("liveHalfTimeTacticsActive"),"half-time automatically opens tactics");
                 ui(()->call("returnFromLiveTactics",new Class[0]));SystemClock.sleep(200);
                 check((Boolean)get("liveHalfTimeBreakTaken"),"second half resumes");

@@ -1574,10 +1574,13 @@ public class MainActivity extends Activity {
 
         Button backBtn = makeButton("← Return to Match", v -> returnFromLiveTactics());
         backBtn.setBackground(buttonBackground(panelLight));
-        left.addView(backBtn);
+        LinearLayout leftPanel=new LinearLayout(this);
+        leftPanel.setOrientation(LinearLayout.VERTICAL);
 
         ScrollView instructionsScroll=new ScrollView(this);instructionsScroll.addView(left);
-        root.addView(instructionsScroll, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1.15f));
+        leftPanel.addView(instructionsScroll,new LinearLayout.LayoutParams(-1,0,1));
+        leftPanel.addView(backBtn,new LinearLayout.LayoutParams(-1,dp(48)));
+        root.addView(leftPanel, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1.15f));
 
         LinearLayout right = new LinearLayout(this);
         right.setOrientation(LinearLayout.VERTICAL);
@@ -1596,8 +1599,17 @@ public class MainActivity extends Activity {
         FrameLayout pitchFrame = new FrameLayout(this);
         pitchFrame.setBackground(rounded(panel));
         LinearLayout.LayoutParams pitchLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
-        right.addView(pitchFrame, pitchLp);
-        pitchFrame.post(() -> populateLiveTacticsPitch(pitchFrame));
+        pitchFrame.setTag("live-tactics-pitch");
+        int widestLine=("3-5-2".equals(liveFormation)||"5-3-2".equals(liveFormation))?5:4;
+        pitchFrame.setMinimumHeight(dp(widestLine*52+16));
+        ScrollView pitchScroll=new ScrollView(this);
+        pitchScroll.setFillViewport(true);
+        pitchScroll.addView(pitchFrame,new ScrollView.LayoutParams(-1,-2));
+        right.addView(pitchScroll, pitchLp);
+        pitchFrame.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{
+            if(r>l&&b>t&&(r-l!=or-ol||b-t!=ob-ot||pitchFrame.getChildCount()==0))
+                populateLiveTacticsPitch(pitchFrame);
+        });
 
         TextView benchTitle = makeText("SUBSTITUTES • used " + liveSubsUsed + "/5", 13, accent);
         benchTitle.setTypeface(Typeface.DEFAULT_BOLD);
@@ -1724,9 +1736,10 @@ public class MainActivity extends Activity {
 
     private void populateLiveTacticsPitch(FrameLayout frame) {
         frame.removeAllViews();
-        ImageView bg = new ImageView(this);
-        bg.setImageResource(R.drawable.boss_pitch);
-        bg.setScaleType(ImageView.ScaleType.FIT_XY);
+        View bg = new View(this) {
+            private final PitchArt art=new PitchArt();
+            @Override protected void onDraw(Canvas c){art.draw(c,getWidth(),getHeight());}
+        };
         frame.addView(bg, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         ArrayList<Integer> lineup = selectedClub == liveHome ? liveHomeLineupIds : liveAwayLineupIds;
@@ -1738,8 +1751,9 @@ public class MainActivity extends Activity {
 
         int fw = frame.getWidth();
         int fh = frame.getHeight();
-        int tokenSize=Math.max(dp(44),Math.min(dp(66),fh/4));
-        int padX = tokenSize/2+dp(10);
+        int tokenSize=dp(48);
+        int tokenWidth=dp(72);
+        int padX = tokenWidth/2+dp(10);
         int padY = tokenSize/2+dp(4);
         int innerW = Math.max(dp(100), fw - padX * 2);
         int innerH = Math.max(1, fh - padY * 2);
@@ -1752,12 +1766,12 @@ public class MainActivity extends Activity {
             Button chip = new Button(this);
             chip.setAllCaps(false);
             chip.setGravity(Gravity.CENTER);
-            chip.setText(liveRole + "\n" + shortPlayerName(p) + "\n" + p.fitness + "%");
-            chip.setTextSize(8.5f);
-            chip.setTextColor(idealButtonTextColour(roleColour));
+            chip.setText(liveRole + " · " + p.fitness + "%\n" + shortPlayerName(p));
+            chip.setTextSize(10f);
+            chip.setTextColor(text);
             chip.setBackground(livePlayerTokenBackground(roleColour));
             chip.setPadding(dp(3), dp(3), dp(3), dp(3));
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(tokenSize, tokenSize);
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(tokenWidth, tokenSize);
             chip.setLayoutParams(lp);
             final int offId = p.id;
             chip.setOnClickListener(v -> {
@@ -1782,7 +1796,7 @@ public class MainActivity extends Activity {
                         .show();
             });
             frame.addView(chip);
-            int x = padX + (int)(xs[i] * innerW) - tokenSize/2;
+            int x = padX + (int)(xs[i] * innerW) - tokenWidth/2;
             int y = padY + (int)(ys[i] * innerH) - tokenSize/2;
             chip.setX(x);
             chip.setY(y);
@@ -1819,9 +1833,10 @@ public class MainActivity extends Activity {
 
     private GradientDrawable livePlayerTokenBackground(int colour) {
         GradientDrawable d = new GradientDrawable();
-        d.setShape(GradientDrawable.OVAL);
-        d.setColor(colour);
-        d.setStroke(dp(2), Color.WHITE);
+        d.setShape(GradientDrawable.RECTANGLE);
+        d.setCornerRadius(dp(9));
+        d.setColor(panelLight);
+        d.setStroke(dp(2), colour);
         return d;
     }
 
@@ -1855,7 +1870,7 @@ public class MainActivity extends Activity {
             if (!home) x = 1f - x;
             for (int j = 0; j < count && slot < 11; j++) {
                 xs[slot] = x;
-                ys[slot] = (j + 1f) / (count + 1f);
+                ys[slot] = count == 1 ? .5f : j / (float)(count - 1);
                 slot++;
             }
         }
@@ -2891,8 +2906,10 @@ public class MainActivity extends Activity {
             liveCommentaryText.setText(liveCommentary);
             int colour = liveCommentaryTeam >= 0 && liveCommentaryTeam < primaryColours.length
                     ? primaryColours[liveCommentaryTeam] : panelLight;
-            liveCommentaryText.setBackground(rounded(colour));
-            liveCommentaryText.setTextColor(contrastText(colour));
+            GradientDrawable commentaryBg=rounded(panelLight);
+            commentaryBg.setStroke(dp(1),colour);
+            liveCommentaryText.setBackground(commentaryBg);
+            liveCommentaryText.setTextColor(text);
         }
         if (liveStatsText != null) liveStatsText.setText(liveStatsCompactSummary());
         if (liveFormationButton != null) liveFormationButton.setText("Formation • " + liveFormation);
@@ -3223,7 +3240,7 @@ public class MainActivity extends Activity {
         private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint bitmapPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
-        private final Bitmap pitchBitmap;
+        private final PitchArt pitchArt=new PitchArt();
 
         private final float[] homeX = new float[11];
         private final float[] homeY = new float[11];
@@ -3291,7 +3308,6 @@ public class MainActivity extends Activity {
             labelPaint.setTextAlign(Paint.Align.CENTER);
             labelPaint.setShadowLayer(dp(2), 0, dp(1), Color.BLACK);
             shadowPaint.setColor(Color.argb(80, 0, 0, 0));
-            pitchBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.boss_pitch);
             offsidePaint.setColor(Color.argb(220, 255, 214, 64));
             offsidePaint.setStrokeWidth(dp(2));
             refreshFormationAnchors();
@@ -3680,15 +3696,7 @@ public class MainActivity extends Activity {
             super.onDraw(canvas);
             int w = getWidth();
             int h = getHeight();
-            if (pitchBitmap != null) {
-                canvas.drawBitmap(pitchBitmap, null, new RectF(0, 0, w, h), bitmapPaint);
-            } else {
-                canvas.drawRect(0, 0, w, h, pitchPaint);
-
-                int stripes = 10;
-                float stripeW = w / (float)stripes;
-                for (int i = 0; i < stripes; i += 2) canvas.drawRect(i * stripeW, 0, (i + 1) * stripeW, h, stripePaint);
-            }
+            pitchArt.draw(canvas,w,h);
 
             float m = Math.max(dp(8), Math.min(w, h) * 0.025f);
 
@@ -3697,7 +3705,7 @@ public class MainActivity extends Activity {
                 canvas.drawLine(ox, m, ox, h - m, offsidePaint);
             }
 
-            float radius = Math.max(dp(5), Math.min(w, h) * 0.017f);
+            float radius = Math.max(dp(7), Math.min(w, h) * 0.022f);
             drawTeam(canvas, liveHome, homeX, homeY, radius, w, h);
             drawTeam(canvas, liveAway, awayX, awayY, radius, w, h);
 
