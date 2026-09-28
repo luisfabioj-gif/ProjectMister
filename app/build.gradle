@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.projectmister.game'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.projectmister.game"
+        minSdk 26
+        targetSdk 35
+        versionCode 24
+        versionName "2.2.1"
+    }
+
+    signingConfigs {
+        dev {
+            storeFile file("$rootDir/project-mister-dev.keystore")
+            storePassword "projectmisterdev"
+            keyAlias "projectmister"
+            keyPassword "projectmisterdev"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.dev
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
