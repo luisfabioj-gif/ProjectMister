@@ -68,6 +68,13 @@ public final class SmokeRunner extends Instrumentation {
                     call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
                     call("saveCurrentGame",new Class[0]);
                 });
+                // Instrumentation.finish ends the process without a normal Activity stop.
+                // Flush pending apply() writes before installing the candidate over it.
+                SharedPreferences saved=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+                check(saved.edit().commit(),"baseline save flushed to disk");
+                check("Upgrade".equals(saved.getString("save_0_manager_first","")),"baseline persisted manager");
+                ui(()->{set("managerFirstName","");call("loadSave",new Class[]{int.class},0);});
+                check("Upgrade".equals(get("managerFirstName")),"baseline save reloads");
                 check(true,"baseline career seeded");
             } else {
                 ui(()->call("loadSave",new Class[]{int.class},0));

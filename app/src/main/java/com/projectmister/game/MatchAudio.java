@@ -15,7 +15,7 @@ final class MatchAudio {
     private final AudioManager manager;
     private final AudioFocusRequest focus;
     private int bedStream,pressureStream;
-    private boolean active,closed,crowd=true,effects=true,focused;
+    private boolean active,closed,crowd=true,effects=true,focused,wantsPlayback;
     private float pressure=.2f,level=.15f,peak,duck;
     private long lastKick;
     private final Runnable tick=new Runnable(){ public void run(){
@@ -31,8 +31,13 @@ final class MatchAudio {
         AudioAttributes attrs=new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
         manager=(AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
         focus=new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK).setAudioAttributes(attrs).setOnAudioFocusChangeListener(change->{
-            if(change==AudioManager.AUDIOFOCUS_LOSS || change==AudioManager.AUDIOFOCUS_LOSS_TRANSIENT){focused=false;pause();}
-            else if(change==AudioManager.AUDIOFOCUS_GAIN){focused=true;}
+            if(closed)return;
+            if(change==AudioManager.AUDIOFOCUS_LOSS || change==AudioManager.AUDIOFOCUS_LOSS_TRANSIENT){
+                focused=false;
+                if(change==AudioManager.AUDIOFOCUS_LOSS)wantsPlayback=false;
+                suspendPlayback();
+            }
+            else if(change==AudioManager.AUDIOFOCUS_GAIN){focused=true;if(wantsPlayback)resumePlayback();}
             else if(change==AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK)duck=.3f;
         }).build();
         pool=new SoundPool.Builder().setMaxStreams(10).setAudioAttributes(attrs).build();
@@ -47,15 +52,22 @@ final class MatchAudio {
     private void load(Context c,String name,int res){try{sounds.put(name,pool.load(c,res,1));}catch(RuntimeException e){android.util.Log.w("BOSSXI","Optional sound unavailable",e);}}
     void settings(boolean crowd,boolean effects){this.crowd=crowd;this.effects=effects;}
     void start(){
-        if(closed||active)return;
+        if(closed)return;
+        wantsPlayback=true;
+        if(active)return;
         focused=manager.requestAudioFocus(focus)==AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
         if(!focused)return;
+        resumePlayback();
+    }
+    private void resumePlayback(){
+        if(closed||active||!wantsPlayback||!focused)return;
         active=true;pool.autoResume();startLoops();handler.removeCallbacks(tick);handler.post(tick);
     }
     private void startLoops(){
         Integer bed=sounds.get("bed"), swell=sounds.get("pressure");
-        if(bedStream==0&&bed!=null&&loaded.contains(bed))bedStream=pool.play(bed,0,0,1,-1,1);
-        if(pressureStream==0&&swell!=null&&loaded.contains(swell))pressureStream=pool.play(swell,0,0,1,-1,1);
+        // Keep the two loops alive when several short event sounds overlap.
+        if(bedStream==0&&bed!=null&&loaded.contains(bed))bedStream=pool.play(bed,0,0,3,-1,1);
+        if(pressureStream==0&&swell!=null&&loaded.contains(swell))pressureStream=pool.play(swell,0,0,3,-1,1);
     }
     void pressure(float value,boolean late){pressure=MatchMath.clamp(value+(late?.1f:0),0,1);}
     void cue(String cue){
@@ -72,6 +84,7 @@ final class MatchAudio {
         float pan=.85f+random.nextFloat()*.15f;
         pool.play(id,volume,volume*pan,2,0,cue.equals("whistle")?1:.96f+random.nextFloat()*.08f);
     }
-    void pause(){if(closed)return;active=false;handler.removeCallbacks(tick);pool.autoPause();}
+    private void suspendPlayback(){if(closed)return;active=false;handler.removeCallbacks(tick);pool.autoPause();}
+    void pause(){wantsPlayback=false;suspendPlayback();}
     void close(){if(closed)return;pause();closed=true;handler.removeCallbacksAndMessages(null);pool.release();manager.abandonAudioFocusRequest(focus);loaded.clear();}
 }
