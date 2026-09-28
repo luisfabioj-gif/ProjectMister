@@ -1411,25 +1411,25 @@ public class MainActivity extends Activity {
         controls.setOrientation(LinearLayout.VERTICAL);
         controls.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
-        liveSpeedButton = (Button) liveGridButton("Speed • x" + liveSpeed, v -> showLiveSpeedDialog());
-        liveTacticsButton = (Button) liveGridButton("Tactics", v -> showLiveTacticsScreen());
-        controls.addView(liveControlRow(liveSpeedButton, liveTacticsButton));
-        controls.addView(liveControlRow(
-                liveGridButton("Overview", v -> showLiveOverviewDialog()),
-                liveGridButton("Stats", v -> showLiveStatsDialog())
-        ));
-        controls.addView(liveControlRow(
-                liveGridButton("Ratings", v -> showLiveRatingsDialog()),
-                liveGridButton("Commentary", v -> showLiveCommentaryDialog())
-        ));
         livePauseButton = (Button) liveGridButton(livePaused ? "▶ Resume" : "Ⅱ Pause", v -> {
             livePaused = !livePaused;
             liveLastFrameNanos = 0L;
             liveSimulationAccumulator = 0f;
             refreshLiveHeader();
         });
+        liveSpeedButton = (Button) liveGridButton("Speed • x" + liveSpeed, v -> showLiveSpeedDialog());
+        liveTacticsButton = (Button) liveGridButton("Tactics", v -> showLiveTacticsScreen());
+        controls.addView(liveControlRow(livePauseButton, liveTacticsButton));
         controls.addView(liveControlRow(
-                livePauseButton,
+                liveSpeedButton,
+                liveGridButton("Stats", v -> showLiveStatsDialog())
+        ));
+        controls.addView(liveControlRow(
+                liveGridButton("Ratings", v -> showLiveRatingsDialog()),
+                liveGridButton("Commentary", v -> showLiveCommentaryDialog())
+        ));
+        controls.addView(liveControlRow(
+                liveGridButton("Overview", v -> showLiveOverviewDialog()),
                 liveGridButton("← Exit", v -> confirmLeaveLiveMatch())
         ));
         ScrollView controlScroll=new ScrollView(this);
@@ -1608,7 +1608,7 @@ public class MainActivity extends Activity {
         right.addView(pitchScroll, pitchLp);
         pitchFrame.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{
             if(r>l&&b>t&&(r-l!=or-ol||b-t!=ob-ot||pitchFrame.getChildCount()==0))
-                populateLiveTacticsPitch(pitchFrame);
+                pitchFrame.post(() -> { if(pitchFrame.isAttachedToWindow())populateLiveTacticsPitch(pitchFrame); });
         });
 
         TextView benchTitle = makeText("SUBSTITUTES • used " + liveSubsUsed + "/5", 13, accent);

@@ -60,6 +60,7 @@ public final class SmokeRunner extends Instrumentation {
             check(pitch!=null&&pitch.getChildCount()==12,"tactics pitch renders all eleven players");
             for(int i=1;i<pitch.getChildCount();i++) {
                 View a=pitch.getChildAt(i);
+                check(a.getWidth()>0&&a.getHeight()>0&&a.isShown(),"tactics marker has visible layout "+i);
                 android.graphics.RectF ar=new android.graphics.RectF(a.getX(),a.getY(),a.getX()+a.getWidth(),a.getY()+a.getHeight());
                 check(ar.left>=0&&ar.top>=0&&ar.right<=pitch.getWidth()&&ar.bottom<=pitch.getHeight(),"tactics marker in bounds "+i);
                 for(int j=i+1;j<pitch.getChildCount();j++) {
