@@ -7,3 +7,5 @@ Prompt set: (1) precise 6×6 grid of 36 fictional male football professionals, f
 New audio: original deterministic synthesis in tools/generate_audio.py, NumPy/SciPy plus ffmpeg Vorbis encoding. No third-party recordings or game samples. Peak target -2.2dBFS; 32kHz; loops six/five seconds within Android SoundPool decoded-size limits. Synthesized vocal/formant ambience, not a real stadium recording. Hardware listening QA remains necessary.
 
 Existing pitch/logo and legacy WAV files are inherited from the user's Hotfix 4 baseline. This document makes no new provenance assertion for historical assets.
+
+New pitch presentation: original Java Canvas drawing in PitchArt.java, shared by live match and tactics. It uses geometric field markings and restrained green mowing stripes, with no third-party pitch artwork.

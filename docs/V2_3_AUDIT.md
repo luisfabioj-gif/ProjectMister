@@ -1,6 +1,6 @@
 # BOSS XI v2.3 — source audit and implementation plan
 
-Baseline: successful run 36338934062, commit c52c5c905f279059c0d1cd0e53f9665950060e5f. Exact reconstructed source preserved in commit 45218f9 and tag baseline/v2.2.1-hotfix4-source. Original source regeneration and all Hotfix 4 patch checks passed locally. Baseline CI confirms compilation, APK assembly and startup; this is not evidence of full gameplay quality.
+Baseline: successful run 36338934062, commit c52c5c905f279059c0d1cd0e53f9665950060e5f. Exact reconstructed source preserved locally in commit 45218f9 and remotely in commit 73275b274b02c3273e72d9710f0639a54f29d590. Original source regeneration and all Hotfix 4 patch checks passed locally. Baseline CI confirms compilation, APK assembly and startup; this is not evidence of full gameplay quality.
 
 ## Findings
 - Architecture: 7,888-line MainActivity reconstructed from historical workflow eb11125, then modified by embedded Python string patches. Only three workflow files existed in the repository. Extremely fragile edit surface; no source-level regression tests.
@@ -39,4 +39,4 @@ Highest risk: startup insets, old saves, signing continuity, partial match mutat
 
 ## Candidate checkpoint
 
-See VALIDATION.md for the current evidence and remaining release gates. The implementation is a v2.3 candidate, not an assertion that the entire 50-section brief has passed. Portrait library now includes 42 faces, including female managers. Runtime and app-screenshot verification remain required.
+See VALIDATION.md for the current evidence and remaining release gates. The implementation is a v2.3 candidate, not an assertion that the entire 50-section brief has passed. Portrait library now includes 42 faces, including female managers. Runtime and app-screenshot verification have now been exercised; see VALIDATION.md for exact evidence and remaining hardware and long-career limitations.

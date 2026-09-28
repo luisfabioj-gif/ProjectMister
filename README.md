@@ -4,7 +4,7 @@ Android football-management game, package `com.projectmister.game`.
 
 ## Status
 
-Implementation candidate, not a verified final release. See [audit and scope](docs/V2_3_AUDIT.md) and [validation status](docs/VALIDATION.md).
+Development candidate with successful Gradle, emulator startup, save-upgrade and feature regression runs. Hardware audio/performance review remains open. See [audit and scope](docs/V2_3_AUDIT.md) and [validation status](docs/VALIDATION.md).
 
 ## Normal build
 
@@ -23,7 +23,7 @@ For a dependency-free SDK build of this Java app, set `JAVA_HOME` and `ANDROID_H
 
 `tests/RegressionTests.java` covers transactional substitutions, eligibility, limits, pace/fatigue, bounded ball flight and tactical intent.
 
-`app/src/androidTest` contains an independent instrumentation runner, built with `bash tools/build-test-sdk.sh`. The CI workflow installs preserved Hotfix 4, seeds a career, installs the candidate without uninstalling, navigates core screens, checks substitutions before/after resumed play, crosses half-time/full-time and checks saved round progression. It uploads screenshots and logs for review.
+`app/src/androidTest` contains an independent instrumentation runner, built with `bash tools/build-test-sdk.sh`. The CI workflow installs preserved Hotfix 4, seeds a career, installs the candidate without uninstalling, navigates core screens, checks substitutions before/after resumed play, crosses half-time/full-time, runs a complete match, verifies goal/shot consistency and saved round progression, and checks marker layout across all five formations on normal and compact landscape screens. It uploads screenshots and logs for review.
 
 Startup's safe immersive-navigation no-op, existing preference names and development signing identity are preserved. The bundled certificate is the historical development certificate; this is not a new production signing setup.
 
