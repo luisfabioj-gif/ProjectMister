@@ -1740,7 +1740,9 @@ public class MainActivity extends Activity {
             private final PitchArt art=new PitchArt();
             @Override protected void onDraw(Canvas c){art.draw(c,getWidth(),getHeight());}
         };
-        frame.addView(bg, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        // Explicit dimensions avoid a MATCH_PARENT child measuring to zero in a
+        // wrap-content FrameLayout inside the tactics ScrollView.
+        frame.addView(bg, new FrameLayout.LayoutParams(frame.getWidth(), frame.getHeight()));
 
         ArrayList<Integer> lineup = selectedClub == liveHome ? liveHomeLineupIds : liveAwayLineupIds;
         boolean homeSide = selectedClub == liveHome;

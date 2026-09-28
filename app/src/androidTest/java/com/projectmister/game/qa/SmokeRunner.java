@@ -58,6 +58,7 @@ public final class SmokeRunner extends Instrumentation {
         ui(()->{
             ViewGroup pitch=activity.getWindow().getDecorView().findViewWithTag("live-tactics-pitch");
             check(pitch!=null&&pitch.getChildCount()==12,"tactics pitch renders all eleven players");
+            check(pitch.getChildAt(0).getWidth()==pitch.getWidth()&&pitch.getChildAt(0).getHeight()==pitch.getHeight(),"tactics pitch background fills measured area");
             for(int i=1;i<pitch.getChildCount();i++) {
                 View a=pitch.getChildAt(i);
                 check(a.getWidth()>0&&a.getHeight()>0&&a.isShown(),"tactics marker has visible layout "+i);
