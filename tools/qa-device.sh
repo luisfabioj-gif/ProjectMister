@@ -9,7 +9,7 @@ timeout 180s adb shell am instrument -w -e mode seed com.projectmister.game.test
 grep -q 'PASS baseline career seeded' qa-output/baseline.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/baseline.txt
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-timeout 180s adb shell am instrument -w -e mode full com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/candidate.txt
+timeout 300s adb shell am instrument -w -e mode full com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/candidate.txt
 grep -q 'PASS completed match survives reload' qa-output/candidate.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/candidate.txt
 adb shell wm size 720x1280

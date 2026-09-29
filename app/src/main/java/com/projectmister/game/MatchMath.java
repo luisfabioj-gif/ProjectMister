@@ -2,6 +2,7 @@ package com.projectmister.game;
 
 /** Platform-independent match tuning, shared by both teams. */
 final class MatchMath {
+    static float playbackRate(int speed) { return speed<=0?.45f:speed==1?.70f:1.05f; }
     static float clamp(float n, float lo, float hi) { return Math.max(lo, Math.min(hi, n)); }
     static float mobility(int pace, int fitness) {
         return (.68f + clamp(pace, 1, 100) * .006f) * (.60f + clamp(fitness, 0, 100) * .004f);

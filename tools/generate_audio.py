@@ -38,10 +38,7 @@ def crowd(seconds,energy):
  fade=int(.4*SR);blend=np.linspace(0,1,fade)[:,None]
  mix[:fade]=mix[-fade:]*(1-blend)+mix[:fade]*blend
  return mix[:-fade]
-write('crowd_bed',crowd(6.4,.25),True)
-write('crowd_pressure',crowd(5.4,.75),True)
-x=crowd(3.4,1.2);env=np.minimum(1,np.arange(len(x))/(SR*.14))*np.exp(-np.arange(len(x))/(SR*2.8));write('crowd_goal',x*env[:,None])
-x=crowd(1.8,.8);write('crowd_gasp',x*np.sin(np.linspace(0,np.pi,len(x)))[:,None]**2)
+# Crowd resources are prepared separately by prepare_recorded_crowd.py.
 for name,freq,duration,power in [('ball_pass',105,.15,1),('ball_shot',76,.24,1.4),('ball_header',160,.10,.6),('ball_tackle',55,.28,.7),('ball_catch',130,.16,.7),('ball_post',880,.65,.5)]:
  t=np.arange(int(SR*duration))/SR
  x=np.sin(2*np.pi*(freq*t+freq*.009*(1-np.exp(-t*100))))*np.exp(-t*(10 if name=='ball_post' else 35))

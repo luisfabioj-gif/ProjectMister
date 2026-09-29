@@ -32,7 +32,7 @@ public final class SmokeRunner extends Instrumentation {
         check(!activity.isFinishing(),name+" navigates");
     }
     private void awaitBoolean(String field)throws Exception {
-        long end=SystemClock.uptimeMillis()+40000;
+        long end=SystemClock.uptimeMillis()+75000;
         final boolean[] value={false};
         while(SystemClock.uptimeMillis()<end) {
             ui(()->value[0]=(Boolean)get(field));if(value[0])return;SystemClock.sleep(150);
@@ -40,7 +40,7 @@ public final class SmokeRunner extends Instrumentation {
         throw new AssertionError("Timed out waiting for "+field);
     }
     private void awaitRound(int target)throws Exception {
-        long end=SystemClock.uptimeMillis()+40000;
+        long end=SystemClock.uptimeMillis()+75000;
         final int[] round={0};
         while(SystemClock.uptimeMillis()<end) {
             ui(()->round[0]=(Integer)get("matchday"));if(round[0]>=target)return;SystemClock.sleep(150);
@@ -71,6 +71,41 @@ public final class SmokeRunner extends Instrumentation {
                 }
             }
         });
+    }
+    private android.view.accessibility.AccessibilityNodeInfo node(String text)throws Exception {
+        long until=SystemClock.uptimeMillis()+5000;
+        do {
+            android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+            if(root!=null)for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText(text))if(n.isVisibleToUser())return n;
+            SystemClock.sleep(100);
+        }while(SystemClock.uptimeMillis()<until);
+        throw new AssertionError("Visible control missing: "+text);
+    }
+    private void tap(String text)throws Exception {
+        android.view.accessibility.AccessibilityNodeInfo n=node(text);
+        while(n!=null&&!n.isClickable())n=n.getParent();
+        check(n!=null&&n.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK),"tap "+text);
+        SystemClock.sleep(350);waitForIdleSync();
+    }
+    private int playerInt(Object p,String field)throws Exception {Field f=p.getClass().getDeclaredField(field);f.setAccessible(true);return f.getInt(p);}
+    private void verifyOfferControls()throws Exception {
+        final Object[] target={null};final int[] fee={0},before={0};
+        ui(()->{target[0]=call("findPlayer",new Class[]{int.class},60);set("currentTransferBudget",500);before[0]=500;
+            int value=playerInt(target[0],"valueMillions");fee[0]=Math.max(value+2,(int)Math.round(value*1.5));
+            call("showPlayerProfile",new Class[]{int.class,int.class},60,3);
+            call("showTransferOfferDialog",new Class[]{target[0].getClass(),boolean.class},target[0],false);
+        });
+        check(node("opening offer")!=null&&node("market value")!=null&&node("strong offer")!=null&&node("premium offer")!=null,"all transfer offers visible alongside budget");
+        capture("25-transfer-offers");
+        ui(()->((Random)get("random")).setSeed(4096));tap("premium offer");
+        check(node("Rotation")!=null&&node("Star Player")!=null,"contract packages visible alongside fee");capture("26-contract-packages");
+        ui(()->((Random)get("random")).setSeed(4096));tap("Star Player");
+        check(node("Signing complete")!=null,"offer and contract actions complete signing");
+        check(playerInt(target[0],"team")==0,"signed player changes club");
+        check((Integer)get("currentTransferBudget")==before[0]-fee[0],"transfer charged exactly once");tap("View player");
+        ui(()->call("loadSave",new Class[]{int.class},0));
+        ui(()->target[0]=call("findPlayer",new Class[]{int.class},60));
+        check(playerInt(target[0],"team")==0,"signing survives save reload");
     }
     @SuppressWarnings("unchecked") public void onStart(){
         Bundle result=new Bundle();
@@ -123,8 +158,13 @@ public final class SmokeRunner extends Instrumentation {
                 page("13-fixtures","showCompetitionCalendar",new Class[0]);
                 page("14-board","showClubOffice",new Class[0]);
                 page("15-inbox","showInbox",new Class[0]);
+                verifyOfferControls();
                 ui(()->call("startLiveMatchday",new Class[0]));SystemClock.sleep(1200);
                 ui(()->set("livePaused",true));capture("16-match");
+                ui(()->call("showLiveSpeedDialog",new Class[0]));
+                check(node("Slow")!=null&&node("Medium")!=null&&node("Fast")!=null,"three named speed choices visible");capture("27-speed-menu");
+                tap("Slow");check((Integer)get("liveSpeed")==0,"slow selected through menu");
+                ui(()->call("showLiveSpeedDialog",new Class[0]));tap("Medium");check((Integer)get("liveSpeed")==1,"medium selected through menu");
                 check((Boolean)get("liveMatchActive"),"live match running");
                 page("17-live-tactics","showLiveTacticsScreen",new Class[0]);
                 verifyTacticsMarkers();
@@ -158,7 +198,7 @@ public final class SmokeRunner extends Instrumentation {
                 check((Integer)get("matchday")==1,"completed match survives reload");
                 capture("20-reloaded");
                 // Exercise complete event chains and AI reviews, not only time-boundary jumps.
-                ui(()->{call("startLiveMatchday",new Class[0]);set("liveSpeed",4);});
+                ui(()->{call("startLiveMatchday",new Class[0]);call("setLiveSpeed",new Class[]{int.class},2);});
                 awaitBoolean("liveHalfTimeTacticsActive");capture("21-natural-halftime");
                 ui(()->call("returnFromLiveTactics",new Class[0]));
                 awaitRound(2);capture("22-natural-fulltime");

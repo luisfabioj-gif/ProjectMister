@@ -22,6 +22,16 @@ public final class RegressionTests {
         check(!s.canChange(2,1), "departed player cannot return via different pair");
         check(MatchMath.mobility(90,100)>MatchMath.mobility(45,100), "pace matters");
         check(MatchMath.mobility(80,95)>MatchMath.mobility(80,55), "fitness matters");
+        check(MatchMath.playbackRate(0)<MatchMath.playbackRate(1)&&MatchMath.playbackRate(1)<MatchMath.playbackRate(2),"three ordered playback rates");
+        float[] x={.2f},y={.3f},vx={0},vy={0};
+        float previous=0;
+        for(int i=0;i<1200;i++){
+            MatchMotion.arrive(x,y,vx,vy,0,.7f,.6f,.14f,.32f,1f/120f);
+            float speed=(float)Math.hypot(vx[0],vy[0]*68f/105f);
+            check(speed<=.14001f,"movement speed bounded");
+            check(Math.abs(speed-previous)<=.32f/120f+.0001f,"movement acceleration bounded");previous=speed;
+        }
+        check(Math.abs(x[0]-.7f)<.003&&Math.abs(y[0]-.6f)<.003,"arrival converges without oscillation");
         float last=0;
         for(int i=0;i<=100;i++) { float v=MatchMath.flightProgress(i/100f); check(v>=last && v<=1,"monotonic bounded ball travel"); last=v; }
         check(MatchMath.arc(0,.1f)==0 && MatchMath.arc(1,.1f)==0, "ball lands");

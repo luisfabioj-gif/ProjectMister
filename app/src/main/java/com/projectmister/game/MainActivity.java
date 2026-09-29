@@ -1,7 +1,6 @@
 package com.projectmister.game;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -515,7 +514,7 @@ public class MainActivity extends Activity {
     }
 
     private void confirmLeaveLiveMatch() {
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Leave live match?")
                 .setMessage("The current match will be abandoned and will not count.")
                 .setNegativeButton("Stay", null)
@@ -547,7 +546,7 @@ public class MainActivity extends Activity {
         TextView brand = makeText("BOSS XI  /  FOOTBALL MANAGEMENT", 11, accent);
         brand.setLetterSpacing(.09f);
         brand.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-        page.addView(brand);
+        LinearLayout brandRow=new LinearLayout(this);brandRow.setGravity(Gravity.CENTER_VERTICAL);brandRow.addView(BrandMark.view(this,40));brand.setPadding(dp(12),0,0,0);brandRow.addView(brand);page.addView(brandRow);
         TextView heading = makeText(title, 26, text);
         heading.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         heading.setPadding(0, dp(8), 0, dp(4));
@@ -847,7 +846,7 @@ public class MainActivity extends Activity {
         final Button genderButton = makeButton("Gender: " + managerGender, null);
         genderButton.setOnClickListener(v -> {
             final String[] options = {"Male", "Female"};
-            new AlertDialog.Builder(this)
+            new BossDialog.Builder(this)
                     .setTitle("Select gender")
                     .setItems(options, (d, which) -> {
                         managerGender = options[which];
@@ -858,7 +857,7 @@ public class MainActivity extends Activity {
         page.addView(genderButton);
 
         final Button countryButton = makeButton("Country of origin: " + COUNTRY_OPTIONS[managerCountryIndex], null);
-        countryButton.setOnClickListener(v -> new AlertDialog.Builder(this)
+        countryButton.setOnClickListener(v -> new BossDialog.Builder(this)
                 .setTitle("Country of origin")
                 .setItems(COUNTRY_OPTIONS, (d, which) -> {
                     managerCountryIndex = which;
@@ -868,7 +867,7 @@ public class MainActivity extends Activity {
         page.addView(countryButton);
 
         final Button leagueButton = makeButton("Starting league: " + LEAGUE_OPTIONS[managerLeagueIndex], null);
-        leagueButton.setOnClickListener(v -> new AlertDialog.Builder(this)
+        leagueButton.setOnClickListener(v -> new BossDialog.Builder(this)
                 .setTitle("Starting league")
                 .setItems(LEAGUE_OPTIONS, (d, which) -> {
                     managerLeagueIndex = which;
@@ -1009,7 +1008,7 @@ public class MainActivity extends Activity {
     private void showSoundSettings() {
         String[] labels={"Stadium crowd", "Match effects"};
         boolean[] enabled={prefs.getBoolean("audio_crowd",true),prefs.getBoolean("audio_effects",true)};
-        new AlertDialog.Builder(this).setTitle("Match audio").setMultiChoiceItems(labels,enabled,(d,i,checked)->{
+        new BossDialog.Builder(this).setTitle("Match audio").setMultiChoiceItems(labels,enabled,(d,i,checked)->{
             prefs.edit().putBoolean(i==0?"audio_crowd":"audio_effects",checked).apply();
             if(audio!=null) audio.settings(prefs.getBoolean("audio_crowd",true),prefs.getBoolean("audio_effects",true));
         }).setPositiveButton("Done",null).show();
@@ -1395,6 +1394,7 @@ public class MainActivity extends Activity {
         side.setOrientation(LinearLayout.VERTICAL);
         side.setPadding(dp(6), dp(3), dp(6), dp(3));
         side.setBackground(rounded(panel));
+        LinearLayout matchBrand=new LinearLayout(this);matchBrand.setGravity(Gravity.CENTER_VERTICAL);matchBrand.addView(BrandMark.view(this,22));TextView matchBrandText=makeText(" BOSS XI • LIVE",10,accent);matchBrand.addView(matchBrandText);side.addView(matchBrand);
 
         TextView details = makeText("MATCH STATS", 10, accent);
         details.setTypeface(Typeface.DEFAULT_BOLD);
@@ -1417,7 +1417,7 @@ public class MainActivity extends Activity {
             liveSimulationAccumulator = 0f;
             refreshLiveHeader();
         });
-        liveSpeedButton = (Button) liveGridButton("Speed • x" + liveSpeed, v -> showLiveSpeedDialog());
+        liveSpeedButton = (Button) liveGridButton("Speed • " + liveSpeedLabel(), v -> showLiveSpeedDialog());
         liveTacticsButton = (Button) liveGridButton("Tactics", v -> showLiveTacticsScreen());
         controls.addView(liveControlRow(livePauseButton, liveTacticsButton));
         controls.addView(liveControlRow(
@@ -1471,14 +1471,14 @@ public class MainActivity extends Activity {
     }
 
     private void showLiveSpeedDialog() {
-        final String[] speeds = {"x1", "x2", "x3", "x5", "x8"};
-        final int[] values = {1, 2, 3, 5, 8};
-        new AlertDialog.Builder(this)
+        final String[] speeds = {"Slow", "Medium", "Fast"};
+        final int[] values = {0, 1, 2};
+        new BossDialog.Builder(this)
                 .setTitle("Set match speed")
                 .setItems(speeds, (dialog, which) -> {
                     setLiveSpeed(values[which]);
                     liveSimulationAccumulator = 0f;
-                    if (liveSpeedButton != null) liveSpeedButton.setText("Speed • x" + liveSpeed);
+                    if (liveSpeedButton != null) liveSpeedButton.setText("Speed • " + liveSpeedLabel());
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -1705,7 +1705,7 @@ public class MainActivity extends Activity {
 
     private void showLiveTacticsFormationDialog() {
         final String[] options = {"4-3-3", "4-2-3-1", "4-4-2", "3-5-2", "5-3-2"};
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Formation")
                 .setSingleChoiceItems(options, Arrays.asList(options).indexOf(liveFormation), (dialog, which) -> {
                     liveFormation = options[which];
@@ -1722,7 +1722,7 @@ public class MainActivity extends Activity {
     private void showLiveMentalityDialog() {
         final String[] options = {"Defensive", "Balanced", "Attacking"};
         int checked = liveMentality.equals("Defensive") ? 0 : liveMentality.equals("Attacking") ? 2 : 1;
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Mentality")
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     liveMentality = options[which];
@@ -1786,7 +1786,7 @@ public class MainActivity extends Activity {
                     return;
                 }
                 Player on = findPlayer(livePendingSubOnId);
-                new AlertDialog.Builder(this)
+                new BossDialog.Builder(this)
                         .setTitle("Make substitution?")
                         .setMessage((on == null ? "Selected player" : on.name) + " IN for " + p.name + "?")
                         .setNegativeButton("Cancel", null)
@@ -1993,8 +1993,10 @@ public class MainActivity extends Activity {
         return b;
     }
 
+    private String liveSpeedLabel() { return liveSpeed==0?"Slow":liveSpeed==1?"Medium":"Fast"; }
+
     private void setLiveSpeed(int speed) {
-        liveSpeed = speed;
+        liveSpeed = Math.max(0,Math.min(2,speed));
         liveSimulationAccumulator = 0f;
         refreshLiveHeader();
     }
@@ -2015,7 +2017,7 @@ public class MainActivity extends Activity {
                 if (!livePaused) {
                     // Decouple presentation FPS from simulation speed. At high match speeds we run
                     // many tiny 120 Hz simulation steps instead of one large jump per screen frame.
-                    liveSimulationAccumulator += realDt * liveSpeed;
+                    liveSimulationAccumulator += realDt * MatchMath.playbackRate(liveSpeed);
                     int subSteps = 0;
                     final int maxSubSteps = 48;
                     while (liveSimulationAccumulator >= LIVE_FIXED_STEP && subSteps < maxSubSteps && liveMatchActive && !liveHalfTimePending) {
@@ -2915,7 +2917,7 @@ public class MainActivity extends Activity {
         }
         if (liveStatsText != null) liveStatsText.setText(liveStatsCompactSummary());
         if (liveFormationButton != null) liveFormationButton.setText("Formation • " + liveFormation);
-        if (liveSpeedButton != null) liveSpeedButton.setText("Speed • x" + liveSpeed);
+        if (liveSpeedButton != null) liveSpeedButton.setText("Speed • " + liveSpeedLabel());
         if (livePauseButton != null) livePauseButton.setText(livePaused ? "▶ Resume" : "Ⅱ Pause");
         if (liveTacticsButton != null) liveTacticsButton.setText("Tactics");
         if (liveInstructionsButton != null) liveInstructionsButton.setText("Instructions • " + liveMentality);
@@ -2954,7 +2956,7 @@ public class MainActivity extends Activity {
     private void showLiveOverviewDialog() {
         StringBuilder recent = new StringBuilder();
         for (String line : liveCommentaryHistory) recent.append(line).append("\n");
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Live Overview")
                 .setMessage(
                         clubNames[liveHome] + " " + liveHomeGoals + " - " + liveAwayGoals + " " + clubNames[liveAway]
@@ -2973,7 +2975,7 @@ public class MainActivity extends Activity {
         StringBuilder sb = new StringBuilder();
         if (liveCommentaryHistory.isEmpty()) sb.append("No commentary yet.");
         else for (String line : liveCommentaryHistory) sb.append(line).append("\n\n");
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Match Commentary")
                 .setMessage(sb.toString())
                 .setPositiveButton("Close", null)
@@ -2981,7 +2983,7 @@ public class MainActivity extends Activity {
     }
 
     private void showLiveStatsDialog() {
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Match Stats")
                 .setMessage(clubNames[liveHome] + "        " + liveHomeGoals + " - " + liveAwayGoals + "        " + clubNames[liveAway]
                         + "\n\n" + liveStatsSummary())
@@ -3011,7 +3013,7 @@ public class MainActivity extends Activity {
             sb.append(String.format(Locale.UK,"%s  •  %s  •  %.1f\nCondition %d%%  •  Goals %d  •  Cards %d\n\n",p.name,p.position,rating,p.fitness,matchGoals.getOrDefault(p.id,0),matchYellows.getOrDefault(p.id,0)));
         }
 
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Match contribution • event-based")
                 .setMessage(sb.toString())
                 .setPositiveButton("Close", null)
@@ -3052,7 +3054,7 @@ public class MainActivity extends Activity {
             labels[i] = "OUT  •  " + p.position + "  " + p.name + "  OVR " + p.overall;
         }
 
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Substitution " + (liveSubsUsed + 1) + " of 5")
                 .setItems(labels, (dialog, which) -> showSubOnDialog(starters.get(which).id))
                 .setNegativeButton("Cancel", null)
@@ -3073,7 +3075,7 @@ public class MainActivity extends Activity {
             labels[i] = "IN  •  " + p.position + "  " + p.name + "  OVR " + p.overall;
         }
 
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Choose substitute")
                 .setItems(labels, (dialog, which) -> {
                     performLiveSubstitution(offId,bench.get(which).id);
@@ -3099,7 +3101,7 @@ public class MainActivity extends Activity {
 
     private void showFormationDialog() {
         final String[] options = {"4-3-3", "4-2-3-1", "4-4-2", "3-5-2", "5-3-2"};
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Formation")
                 .setSingleChoiceItems(options, Arrays.asList(options).indexOf(liveFormation), (dialog, which) -> {
                     liveFormation = options[which];
@@ -3117,7 +3119,7 @@ public class MainActivity extends Activity {
     private void showInstructionsDialog() {
         final String[] options = {"Defensive", "Balanced", "Attacking"};
         int checked = liveMentality.equals("Defensive") ? 0 : liveMentality.equals("Attacking") ? 2 : 1;
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Team Instructions")
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     liveMentality = options[which];
@@ -3132,7 +3134,7 @@ public class MainActivity extends Activity {
     }
 
     private void showRolesDialog() {
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Roles")
                 .setMessage("BOSS XI currently assigns roles automatically from each player's position and attributes.\n\n"
                         + "The next tactics update can add individual roles such as Advanced Forward, Playmaker, Ball-Winning Midfielder and Wing-Back.")
@@ -3403,8 +3405,13 @@ public class MainActivity extends Activity {
             ballTargetY = getPlayerY(toTeam, toSlot);
             float[] rx=toTeam==liveHome?homeRunX:awayRunX, ry=toTeam==liveHome?homeRunY:awayRunY;
             float[] rt=toTeam==liveHome?homeRunTime:awayRunTime;
-            if(rt[toSlot]>0) {ballTargetX=ballTargetX*.22f+rx[toSlot]*.78f;ballTargetY=ballTargetY*.22f+ry[toSlot]*.78f;}
-            startRun(toTeam,toSlot,ballTargetX,ballTargetY,duration+.2f);
+            if(rt[toSlot]>0) {
+                float dx=rx[toSlot]-ballTargetX,dy=ry[toSlot]-ballTargetY;
+                float distance=(float)Math.hypot(dx,dy*.648f);
+                float lead=Math.min(1,Math.max(.015f,duration*.07f)/Math.max(.001f,distance));
+                ballTargetX+=dx*lead;ballTargetY+=dy*lead;
+            }
+            startRun(toTeam,toSlot,ballTargetX,ballTargetY,duration+.6f);
             ballTravel = 0f;
             ballTravelDuration = Math.max(0.20f, duration);
             float travelDistance = (float)Math.hypot(ballTargetX - ballStartX, ballTargetY - ballStartY);
@@ -3556,9 +3563,6 @@ public class MainActivity extends Activity {
             if (dribbleTeam >= 0 && dribbleSlot >= 0 && ballTravel < 1f) {
                 float[] xs = dribbleTeam == liveHome ? homeX : awayX;
                 float[] ys = dribbleTeam == liveHome ? homeY : awayY;
-                float move = 1f - (float)Math.exp(-7.5f * dt);
-                xs[dribbleSlot] += (dribbleTargetX - xs[dribbleSlot]) * move;
-                ys[dribbleSlot] += (dribbleTargetY - ys[dribbleSlot]) * move;
                 ballTargetX = xs[dribbleSlot];
                 ballTargetY = ys[dribbleSlot];
             }
@@ -3570,8 +3574,9 @@ public class MainActivity extends Activity {
                 ballY = ballStartY + (ballTargetY - ballStartY) * eased;
                 ballHeight = MatchMath.arc(ballTravel, ballPeakHeight);
             } else if (trackTarget && ballTargetTeam >= 0 && ballTargetSlot >= 0) {
-                ballX = getPlayerX(ballTargetTeam, ballTargetSlot);
-                ballY = getPlayerY(ballTargetTeam, ballTargetSlot);
+                float follow=1f-(float)Math.exp(-14f*dt);
+                ballX += (getPlayerX(ballTargetTeam, ballTargetSlot)-ballX)*follow;
+                ballY += (getPlayerY(ballTargetTeam, ballTargetSlot)-ballY)*follow;
                 ballHeight = 0f;
             } else {
                 ballHeight = 0f;
@@ -3618,7 +3623,7 @@ public class MainActivity extends Activity {
                     ty += verticalBallPull * (hasBall ? 0.65f : 0.46f);
 
                     // Back four move as a line rather than independently drifting.
-                    if (!hasBall && i >= 1 && i <= 4) {
+                    if (!hasBall && i >= 1 && (team==liveHome?baseX[i]<.30f:baseX[i]>.70f)) {
                         tx = baseX[i] + horizontalBallShift * 0.46f + selectedShapeShift;
                         if (team == selectedClub && offsideTrapInstruction) tx += attackDir * 0.028f;
                         ty += (ballY - ty) * 0.08f;
@@ -3635,6 +3640,14 @@ public class MainActivity extends Activity {
                         float dx = ballX - xs[i], dy = ballY - ys[i];
                         float d = dx * dx + dy * dy;
                         if (d < 0.055f) { tx += dx * 0.28f; ty += dy * 0.28f; }
+                    }
+                    if(hasBall && i!=liveCarrierSlot && i>0 && runTime[i]<=0) {
+                        float carrierX=getPlayerX(team,liveCarrierSlot),carrierY=getPlayerY(team,liveCarrierSlot);
+                        if(Math.abs(xs[i]-carrierX)<.25f) {
+                            float supportX=carrierX+attackDir*(i%2==0?.07f:-.10f);
+                            float supportY=carrierY+(baseY[i]<carrierY?-.14f:.14f);
+                            tx=tx*.72f+supportX*.28f;ty=ty*.75f+supportY*.25f;
+                        }
                     }
                     if (!hasBall) ty += (0.5f - ty) * 0.045f;
                     if (team == selectedClub && "Central Overload".equals(wibWobShape)) ty += (0.5f - ty) * 0.18f;
@@ -3661,35 +3674,19 @@ public class MainActivity extends Activity {
                 float[] vx = team == liveHome ? homeVX : awayVX;
                 float[] vy = team == liveHome ? homeVY : awayVY;
                 boolean celebrating = goalCelebrationTime > 0f && team == goalCelebrationTeam && i > 0;
-                float stiffness = i == 0 ? 16f : celebrating ? 27f : runTime[i] > 0f ? 29f : 20f;
-                float damping = i == 0 ? 8.8f : celebrating ? 8.2f : runTime[i] > 0f ? 9.6f : 8.7f;
                 Player athlete=playerForPitchSlot(team,i);
                 float mobility=athlete==null?1:MatchMath.mobility(athlete.pace,athlete.fitness);
-                float maxSpeed = (i == 0 ? .20f : celebrating ? .46f : runTime[i] > 0 ? .42f : .29f) * mobility;
-                stiffness*=mobility;
-                // Local separation keeps support lanes legible without moving the whole shape.
-                if(!celebrating && i>0) for(int j=1;j<11;j++) if(j!=i) {
-                    float dx=xs[i]-xs[j],dy=ys[i]-ys[j],dist2=dx*dx+dy*dy;
-                    if(dist2>.00001f && dist2<.0025f) {tx+=dx*.35f;ty+=dy*.35f;}
+                float maxSpeed=(i==0?.085f:celebrating?.14f:runTime[i]>0?.145f:.105f)*mobility;
+                // Keep separate support lanes, including small clearance from opponents.
+                if(!celebrating && i>0) {
+                    for(int j=1;j<11;j++) if(j!=i) {
+                        float dx=xs[i]-xs[j],dy=(ys[i]-ys[j])*.648f;
+                        float dist=(float)Math.hypot(dx,dy);
+                        if(dist<.045f){if(dist<.0001f){dx=(i<j?-.001f:.001f);dist=.001f;}
+                            float push=(.045f-dist)*.75f;tx+=dx/dist*push;ty+=dy/dist*push/.648f;}
+                    }
                 }
-
-                vx[i] += (tx - xs[i]) * stiffness * dt;
-                vy[i] += (ty - ys[i]) * stiffness * dt;
-                float dampingFactor = (float)Math.exp(-damping * dt);
-                vx[i] *= dampingFactor;
-                vy[i] *= dampingFactor;
-
-                float speed = (float)Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i]);
-                if (speed > maxSpeed && speed > 0.0001f) {
-                    float scale = maxSpeed / speed;
-                    vx[i] *= scale;
-                    vy[i] *= scale;
-                }
-
-                xs[i] += vx[i] * dt;
-                ys[i] += vy[i] * dt;
-                xs[i] = clamp(xs[i], 0.035f, 0.965f);
-                ys[i] = clamp(ys[i], 0.035f, 0.965f);
+                MatchMotion.arrive(xs,ys,vx,vy,i,clamp(tx,.035f,.965f),clamp(ty,.035f,.965f),maxSpeed,.32f*mobility,dt);
             }
         }
 
@@ -4449,7 +4446,7 @@ public class MainActivity extends Activity {
                         + String.format(Locale.UK, "%-13s %8d %8d\n", "Defending", to20(a.defending), to20(b.defending))
                         + String.format(Locale.UK, "%-13s %8d %8d\n", "Physical", to20(a.physical), to20(b.physical))
                         + String.format(Locale.UK, "%-13s %8s %8s", "Potential", classicAbilityBand(a.potentialAbility), classicAbilityBand(b.potentialAbility));
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Player Comparison")
                 .setMessage(message)
                 .setPositiveButton("Close", null)
@@ -4466,7 +4463,7 @@ public class MainActivity extends Activity {
         EditText input = new EditText(this);
         input.setText(managerNotes[p.id] == null ? "" : managerNotes[p.id]);
         input.setHint("Example: Scout again in January");
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Manager note — " + p.name)
                 .setView(input)
                 .setNegativeButton("Cancel", null)
@@ -4485,7 +4482,7 @@ public class MainActivity extends Activity {
                 (p.runWithBall ? "✓ " : "") + "Run With Ball",
                 (p.longShots ? "✓ " : "") + "Long Shots"
         };
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Individual Instructions — " + p.name)
                 .setItems(labels, (d, which) -> {
                     if (which == 0) p.freeRole = !p.freeRole;
@@ -4508,7 +4505,7 @@ public class MainActivity extends Activity {
         if (loan) {
             final int[] fees = {0, 1, 2};
             String[] labels = {"No loan fee", "€1m loan fee", "€2m loan fee"};
-            new AlertDialog.Builder(this)
+            new BossDialog.Builder(this)
                     .setTitle("Loan offer for " + p.name)
                     .setItems(labels, (dialog, which) -> resolveLoanOffer(p, fees[which]))
                     .setNegativeButton("Cancel", null)
@@ -4527,7 +4524,7 @@ public class MainActivity extends Activity {
                     "€" + offers[2] + "m  •  strong offer",
                     "€" + offers[3] + "m  •  premium offer"
             };
-            new AlertDialog.Builder(this)
+            new BossDialog.Builder(this)
                     .setTitle("Transfer offer for " + p.name)
                     .setMessage("Club: " + clubNames[p.team] + "\nValue: €" + p.valueMillions + "m\nYour budget: €" + currentTransferBudget + "m")
                     .setItems(labels, (dialog, which) -> resolveTransferOffer(p, offers[which]))
@@ -4556,7 +4553,7 @@ public class MainActivity extends Activity {
             showContractOfferDialog(p, offer, oldTeam);
         } else {
             addNews("TRANSFER", "Offer rejected for " + p.name, clubNames[p.team] + " rejected €" + offer + "m.");
-            new AlertDialog.Builder(this)
+            new BossDialog.Builder(this)
                     .setTitle("Offer rejected")
                     .setMessage(clubNames[p.team] + " rejected the €" + offer + "m offer for " + p.name + ".")
                     .setPositiveButton("OK", null)
@@ -4577,7 +4574,7 @@ public class MainActivity extends Activity {
         String[] labels = new String[4];
         for (int i = 0; i < 4; i++) labels[i] = roles[i] + " • €" + wages[i] + "k/w • " + years[i] + " years";
 
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Contract talks — " + p.name)
                 .setMessage("Transfer fee agreed: €" + fee + "m\nEstimated wage demand: €" + demand + "k/w\nChoose a contract package.")
                 .setItems(labels, (d, which) -> resolveContractOffer(p, fee, oldTeam, wages[which], years[which], roles[which]))
@@ -4610,14 +4607,14 @@ public class MainActivity extends Activity {
             scoutKnowledge[p.id] = 4;
             addNews("TRANSFER", p.name + " signs for " + clubNames[selectedClub], "Fee €" + fee + "m • " + role + " • €" + wageK + "k/w");
             saveCurrentGame();
-            new AlertDialog.Builder(this)
+            new BossDialog.Builder(this)
                     .setTitle("Signing complete")
                     .setMessage(p.name + " has agreed a " + years + "-year contract and joins from " + clubNames[oldTeam] + ".")
                     .setPositiveButton("View player", (d, w) -> showPlayerProfile(p.id, selectedClub))
                     .show();
         } else {
             addNews("CONTRACT", p.name + " rejects contract", "The transfer fee was agreed but personal terms could not be reached.");
-            new AlertDialog.Builder(this)
+            new BossDialog.Builder(this)
                     .setTitle("Contract rejected")
                     .setMessage(p.name + " rejected the proposed personal terms. The transfer has collapsed.")
                     .setPositiveButton("OK", null)
@@ -4646,13 +4643,13 @@ public class MainActivity extends Activity {
             p.onLoan = true;
             playerRoleStatus[p.id] = 0;
             saveCurrentGame();
-            new AlertDialog.Builder(this)
+            new BossDialog.Builder(this)
                     .setTitle("Loan accepted")
                     .setMessage(clubNames[oldTeam] + " accepted your loan proposal for " + p.name + ".")
                     .setPositiveButton("View player", (d, w) -> showPlayerProfile(p.id, selectedClub))
                     .show();
         } else {
-            new AlertDialog.Builder(this)
+            new BossDialog.Builder(this)
                     .setTitle("Loan rejected")
                     .setMessage(clubNames[p.team] + " rejected your loan offer for " + p.name + ".")
                     .setPositiveButton("OK", null)
@@ -4936,7 +4933,7 @@ public class MainActivity extends Activity {
         }
         String[] labels = new String[candidates.length];
         for (int i = 0; i < candidates.length; i++) labels[i] = candidates[i] + "  •  Rating " + ratings[i];
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Hire " + role)
                 .setItems(labels, (dialog, which) -> {
                     if ("Assistant Manager".equals(role)) {
@@ -5015,7 +5012,7 @@ public class MainActivity extends Activity {
         autoPick.setTextColor(idealButtonTextColour(accent));
         autoPick.setBackground(buttonBackground(accent));
 
-        Button clear = makeCompactTacticsButton("CLEAR TEAM", v -> new AlertDialog.Builder(this)
+        Button clear = makeCompactTacticsButton("CLEAR TEAM", v -> new BossDialog.Builder(this)
                 .setTitle("Clear team selection?")
                 .setMessage("This will remove every player from the Starting XI and substitutes so you can rebuild the team from scratch.")
                 .setNegativeButton("Cancel", null)
@@ -5200,7 +5197,7 @@ public class MainActivity extends Activity {
         options.add("Reserve / Unselected");
         options.add("Substitute Bench");
         for (String slot : formationSlots()) options.add("Starting XI • " + slot);
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle(p.name + " • choose role")
                 .setItems(options.toArray(new String[0]), (dialog, which) -> {
                     if (which == 0) {
@@ -5259,7 +5256,7 @@ public class MainActivity extends Activity {
 
     private void showTacticsFormationDialog() {
         String[] options = {"4-3-3", "4-2-3-1", "4-4-2", "3-5-2", "5-3-2"};
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Formation")
                 .setSingleChoiceItems(options, Arrays.asList(options).indexOf(tacticFormation), (dialog, which) -> {
                     tacticFormation = options[which];
@@ -5274,7 +5271,7 @@ public class MainActivity extends Activity {
     private void showPlayStyleDialog() {
         String[] options = {"Balanced", "Possession", "High Press", "Counter Attack", "Direct", "Attacking", "Defensive"};
         int checked = Arrays.asList(options).indexOf(playStyle);
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Style of Play")
                 .setSingleChoiceItems(options, Math.max(0, checked), (dialog, which) -> {
                     playStyle = options[which];
@@ -5295,7 +5292,7 @@ public class MainActivity extends Activity {
                 "Counter Attack: " + (counterAttackInstruction ? "ON" : "OFF"),
                 "Men Behind Ball: " + (menBehindBallInstruction ? "ON" : "OFF")
         };
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Classic Team Instructions")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) passingInstruction = nextPassing(passingInstruction);
@@ -5333,7 +5330,7 @@ public class MainActivity extends Activity {
     private void showWibWobShapeDialog() {
         String[] shapes = {"Balanced", "Central Overload", "Wide", "High Line", "Deep Block"};
         int checked = Math.max(0, Arrays.asList(shapes).indexOf(wibWobShape));
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("With Ball / Without Ball Shape")
                 .setMessage("A mobile-friendly version of classic zone-based positioning. The shape changes how the team behaves in possession and out of possession.")
                 .setSingleChoiceItems(shapes, checked, (dialog, which) -> {
@@ -6018,7 +6015,7 @@ public class MainActivity extends Activity {
             showTeamEditor();
         }));
 
-        page.addView(makeButton("Reset This Team", v -> new AlertDialog.Builder(this)
+        page.addView(makeButton("Reset This Team", v -> new BossDialog.Builder(this)
                 .setTitle("Reset team?")
                 .setMessage("Restore this club's default name and colours?")
                 .setNegativeButton("Cancel", null)
@@ -6076,7 +6073,7 @@ public class MainActivity extends Activity {
     }
 
     private void confirmResetAllTeams() {
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Reset all teams?")
                 .setMessage("Every edited team name and colour will return to its BOSS XI default.")
                 .setNegativeButton("Cancel", null)
@@ -6236,7 +6233,7 @@ public class MainActivity extends Activity {
     }
 
     private void confirmDeleteSave(int slot) {
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Delete Save " + (slot + 1) + "?")
                 .setMessage("This career progress will be permanently removed from this device.")
                 .setNegativeButton("Cancel", null)
@@ -7277,7 +7274,7 @@ public class MainActivity extends Activity {
             return;
         }
 
-        new AlertDialog.Builder(this)
+        new BossDialog.Builder(this)
                 .setTitle("Approve project?")
                 .setMessage(type + "\n\nCost: " + moneyK(costK)
                         + "\nBuild time: " + weeks + " week(s)"
