@@ -1,4 +1,4 @@
-# BOSS XI v2.3 candidate
+# BOSS XI v2.3.1 candidate
 
 Android football-management game, package `com.projectmister.game`.
 
@@ -29,4 +29,6 @@ Startup's safe immersive-navigation no-op, existing preference names and develop
 
 ## Assets
 
-See [asset provenance](docs/ASSET_PROVENANCE.md). Forty-two reusable fictional photographic portraits load asynchronously from the APK. The crowd and effects are original synthesized audio; quality needs hardware listening review.
+See [asset provenance](docs/ASSET_PROVENANCE.md). Forty-two reusable fictional photographic portraits load asynchronously from the APK. Crowd ambience and goal reactions now use CC0 field recordings; see [audio sources](docs/AUDIO_SOURCES.md). Original short effects remain. Quality needs hardware listening review.
+
+See [v2.3.1 changes](docs/V2_3_1_CHANGES.md) for the offer fix, shared branded menus, three speed settings, recorded crowd and movement changes.

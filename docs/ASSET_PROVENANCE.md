@@ -9,3 +9,7 @@ New audio: original deterministic synthesis in tools/generate_audio.py, NumPy/Sc
 Existing pitch/logo and legacy WAV files are inherited from the user's Hotfix 4 baseline. This document makes no new provenance assertion for historical assets.
 
 New pitch presentation: original Java Canvas drawing in PitchArt.java, shared by live match and tactics. It uses geometric field markings and restrained green mowing stripes, with no third-party pitch artwork.
+
+## v2.3.1 audio replacement
+
+The synthesized crowd described above is historical v2.3 content and has been replaced by CC0 field recordings. Current sources, licences, processing and provenance are listed in [AUDIO_SOURCES.md](AUDIO_SOURCES.md). Original synthesized short ball and whistle effects remain.

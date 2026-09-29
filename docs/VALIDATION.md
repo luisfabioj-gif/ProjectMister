@@ -59,3 +59,7 @@ User explicitly authorised branch publication and validation. Installing ChatGPT
 - Final screenshots inspected: half-time tactics, compact 4-2-3-1 and 5-3-2, and compact live match. The green pitch background now renders correctly. Tall formations deliberately scroll; Return to Match remains outside that scroll. A transient substitution toast is visible in the half-time capture.
 
 This closes the current implementation and automated verification milestone. The limitations above remain release-readiness work, especially hardware audio review, sustained performance and long-career validation.
+
+## v2.3.1 follow-up
+
+See [V2_3_1_CHANGES.md](V2_3_1_CHANGES.md) for final successful run 36594832195, new offer/action tests, recorded audio validation, screenshot findings and APK hash. Earlier synthesized-crowd notes above describe v2.3; current audio provenance is in AUDIO_SOURCES.md.
