@@ -2,6 +2,7 @@
     <application
         android:theme="@style/AppTheme"
         android:label="BOSS XI"
+        android:appCategory="game"
         android:icon="@drawable/boss_xi_logo"
         android:roundIcon="@drawable/boss_xi_logo"
         android:allowBackup="true"

@@ -158,6 +158,10 @@ public final class SmokeRunner extends Instrumentation {
                 page("13-fixtures","showCompetitionCalendar",new Class[0]);
                 page("14-board","showClubOffice",new Class[0]);
                 page("15-inbox","showInbox",new Class[0]);
+                page("28-league-table","showLeagueTable",new Class[0]);
+                tap("Qualification & relegation rules");
+                check(node("2026/27 finish")!=null,"next-season European qualification context");
+                capture("29-qualification-guide");
                 verifyOfferControls();
                 ui(()->call("startLiveMatchday",new Class[0]));SystemClock.sleep(1200);
                 ui(()->set("livePaused",true));capture("16-match");

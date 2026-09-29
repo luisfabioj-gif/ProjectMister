@@ -10,6 +10,10 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [35, 36]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,13 +28,13 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          gradle-version: '8.11.1'
       - name: Required SDK
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+        run: sdkmanager 'platforms;android-35' 'platforms;android-36' 'build-tools;35.0.0'
       - name: Core regression tests
         run: bash tools/test-core.sh
       - name: Build committed source directly
-        run: gradle :app:assembleDebug --no-daemon
+        run: gradle :app:assembleDebug :app:bundleRelease --no-daemon
       - name: Build independent QA runner
         run: bash tools/build-test-sdk.sh
       - name: Build preserved baseline for upgrade test
@@ -46,7 +50,7 @@ jobs:
       - name: Emulator startup, upgrade, navigation and match regressions
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: ${{ matrix.api }}
           arch: x86_64
           profile: pixel_6
           disable-animations: true
@@ -55,12 +59,18 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: BOSS-XI-v2.3-QA
+          name: BOSS-XI-v2.3-QA-api${{ matrix.api }}
           path: qa-output/
+          retention-days: 30
+      - name: Upload unsigned release bundle for packaging review
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOSS-XI-unsigned-release-bundle-api${{ matrix.api }}-NOT-FOR-UPLOAD
+          path: app/build/outputs/bundle/release/app-release.aab
           retention-days: 30
       - name: Upload verified candidate
         uses: actions/upload-artifact@v4
         with:
-          name: BOSS-XI-v2.3-candidate-apk
+          name: BOSS-XI-v2.3-candidate-apk-api${{ matrix.api }}
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30

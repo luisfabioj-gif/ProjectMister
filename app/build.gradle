@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace 'com.projectmister.game'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.projectmister.game"
         minSdk 26
-        targetSdk 35
-        versionCode 26
-        versionName "2.3.1"
+        targetSdk 36
+        versionCode 27
+        versionName "2.3.2-dev"
     }
 
     signingConfigs {
@@ -26,6 +26,11 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.dev
+        }
+        release {
+            // Deliberately unsigned: the checked-in development key is NOT a production key.
+            debuggable false
+            minifyEnabled false
         }
     }
 

@@ -4,7 +4,7 @@ set -euo pipefail
 : "${ANDROID_HOME:?Set ANDROID_HOME to Android SDK}"
 : "${JAVA_HOME:?Set JAVA_HOME to JDK 17}"
 bt="$ANDROID_HOME/build-tools/35.0.0"
-jar="$ANDROID_HOME/platforms/android-35/android.jar"
+jar="$ANDROID_HOME/platforms/android-36/android.jar"
 out=app/build/manual
 mkdir -p "$out/generated" "$out/classes" "$out/dex"
 python3 - <<'PY'
@@ -19,7 +19,7 @@ PY
 "$bt/aapt2" compile --dir app/src/main/res -o "$out/resources.zip"
 assets=()
 if [ -d app/src/main/assets ]; then assets=(-A app/src/main/assets); fi
-"$bt/aapt2" link -o "$out/resources.apk" -I "$jar" --manifest "$out/AndroidManifest.xml" --java "$out/generated" --min-sdk-version 26 --target-sdk-version 35 --version-code "$(cat "$out/version-code")" --version-name "$(cat "$out/version-name")" "${assets[@]}" "$out/resources.zip"
+"$bt/aapt2" link -o "$out/resources.apk" -I "$jar" --manifest "$out/AndroidManifest.xml" --java "$out/generated" --min-sdk-version 26 --target-sdk-version 36 --version-code "$(cat "$out/version-code")" --version-name "$(cat "$out/version-name")" "${assets[@]}" "$out/resources.zip"
 "$JAVA_HOME/bin/javac" -source 17 -target 17 -cp "$jar" -d "$out/classes" "$out/generated/com/projectmister/game/R.java" app/src/main/java/com/projectmister/game/*.java
 "$JAVA_HOME/bin/jar" cf "$out/classes.jar" -C "$out/classes" .
 JAVA_HOME="$JAVA_HOME" "$bt/d8" --lib "$jar" --min-api 26 --output "$out/dex" "$out/classes.jar"

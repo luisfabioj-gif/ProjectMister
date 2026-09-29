@@ -3795,6 +3795,7 @@ public class MainActivity extends Activity {
     private void showLeagueTable() {
         backAction = () -> showDashboard();
         LinearLayout page = createPage("Liga Portugal", "Season 2026/27 • Matchday " + matchday, true);
+        page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
 
         Integer[] order = new Integer[clubNames.length];
         for (int i = 0; i < clubNames.length; i++) order[i] = i;
@@ -3845,6 +3846,35 @@ public class MainActivity extends Activity {
             row.addView(makeLeagueCell(String.valueOf(points[club]), 0.8f, Color.WHITE, true));
             page.addView(row);
         }
+    }
+
+    private void showQualificationGuide() {
+        backAction = () -> showLeagueTable();
+        LinearLayout page = createPage("Qualification guide", "2026/27 finish → 2027/28 European entry", true);
+        LinearLayout intro = makePanel();
+        intro.addView(profileSectionTitle("PROVISIONAL ACCESS"));
+        intro.addView(makeText("League places are a projection. Cup winners, UEFA titleholders, performance places and licensing can change the final admissions. This guide does not award places in an existing career.", 14, text));
+        page.addView(intro);
+        String[] countries = {"ENG", "ES", "IT", "DE", "FR", "PT", "NL", "BE", "SCO", "TR"};
+        String[] names = {"England", "Spain", "Italy", "Germany", "France", "Portugal", "Netherlands", "Belgium", "Scotland", "Türkiye"};
+        for (int i = 0; i < countries.length; i++) {
+            EuropeanAccess.Profile access = EuropeanAccess.profile(countries[i]);
+            LinearLayout card = makePanel();
+            card.addView(profileSectionTitle(names[i].toUpperCase(Locale.UK)));
+            for (int rank = 1; rank <= access.league.size(); rank++) {
+                card.addView(makeText(rank + "  •  " + access.league.get(rank - 1).label(), 13, text));
+            }
+            card.addView(makeText("Domestic cup winner  •  " + access.cup.label(), 13, accent));
+            if (access.conferenceFromLeagueCup) card.addView(makeText("League Cup winner  •  Conference League play-off", 13, accent));
+            if (countries[i].equals("NL")) card.addView(makeText("The Conference berth is decided by domestic European play-offs, not awarded automatically to fourth place.", 12, muted));
+            page.addView(card);
+        }
+        LinearLayout notes = makePanel();
+        notes.addView(profileSectionTitle("HOW TO READ THE GUIDE"));
+        notes.addView(makeText("Q1 / Q2 / Q3 = qualifying rounds. Play-off = final qualifying round. League phase = entry to the main competition. Cup runners-up do not inherit the winner's European place. Two European performance places depend on the current season's association results.", 13, text));
+        notes.addView(makeText("Portugal: 17th and 18th go down; 16th enters the promotion/relegation play-off against the eligible third-placed second-division club. A second division and end-of-season admission system are still required to enact this in the career.", 13, muted));
+        notes.addView(makeText("Source: UEFA circular 54/2026, 9 September 2026. Provisional 2027/28 access list; checked 29 September 2026.", 12, muted));
+        page.addView(notes);
     }
 
     private TextView makeTableHeadCell(String value, float weight) {
@@ -4724,19 +4754,17 @@ public class MainActivity extends Activity {
     }
 
     private String transferWindowStatus(LocalDate date) {
-        if (isTransferWindowOpen(date)) return "OPEN";
-        LocalDate winter = LocalDate.of(2027, 1, 4);
-        if (date.isBefore(winter) && date.isAfter(LocalDate.of(2026, 9, 4))) {
-            return "CLOSED • Winter opens 4 Jan 2027";
+        for (RegistrationWindow window : RegistrationWindow.forCountry("PT")) {
+            if (window.includes(date)) return "OPEN • Closes " + window.closes.format(DATE_FORMAT);
+            if (date.isBefore(window.opens)) return "CLOSED • Opens " + window.opens.format(DATE_FORMAT);
         }
-        if (date.isBefore(LocalDate.of(2026, 7, 1))) return "CLOSED • Summer opens 1 Jul 2026";
-        return "CLOSED";
+        return "CLOSED • Next season's dates not yet confirmed";
     }
 
     private boolean isTransferWindowOpen(LocalDate date) {
-        boolean summer = !date.isBefore(LocalDate.of(2026, 7, 1)) && !date.isAfter(LocalDate.of(2026, 9, 4));
-        boolean winter = !date.isBefore(LocalDate.of(2027, 1, 4)) && !date.isAfter(LocalDate.of(2027, 2, 1));
-        return summer || winter;
+        for (RegistrationWindow window : RegistrationWindow.forCountry("PT"))
+            if (window.includes(date)) return true;
+        return false;
     }
 
     private void showStaffHub() {
