@@ -166,6 +166,10 @@ public final class SmokeRunner extends Instrumentation {
                 tap("Slow");check((Integer)get("liveSpeed")==0,"slow selected through menu");
                 ui(()->call("showLiveSpeedDialog",new Class[0]));tap("Medium");check((Integer)get("liveSpeed")==1,"medium selected through menu");
                 check((Boolean)get("liveMatchActive"),"live match running");
+                ui(()->{Object a=get("audio");check(a!=null,"audio manager available");Field f=a.getClass().getDeclaredField("prepared");f.setAccessible(true);boolean[] ready=(boolean[])f.get(a);check(ready[0]&&ready[1],"both recorded crowd streams prepared");});
+                ui(()->call("showSoundSettings",new Class[0]));tap("Stadium crowd");
+                check(!getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE).getBoolean("audio_crowd",true),"crowd checkbox persists mute");
+                tap("Stadium crowd");tap("Done");
                 page("17-live-tactics","showLiveTacticsScreen",new Class[0]);
                 verifyTacticsMarkers();
                 for(String formation:new String[]{"4-2-3-1","4-4-2","3-5-2","5-3-2"}) {

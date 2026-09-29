@@ -311,6 +311,8 @@ public class MainActivity extends Activity {
     // v0.8 event-driven presentation: commentary, runs, defensive reactions and ball physics share one state.
     private long liveLastFrameNanos = 0L;
     private float liveActionTimer = 0f;
+    private String pendingContactCue=null;
+    private float pendingContactDelay;
     private float liveActionDuration = 0.70f;
     private int livePossessionTeam = -1;
     private int liveCarrierSlot = 9;
@@ -1211,6 +1213,8 @@ public class MainActivity extends Activity {
 
     private void startLiveCrowdAudio() { initLiveAudio(); if(audio!=null)audio.start(); }
 
+    private void queueContactSound(String cue) { pendingContactCue=cue;pendingContactDelay=liveActionDuration; }
+
     private void playLiveSound(String cue) { if(audio!=null) audio.cue(cue); }
 
     private void stopLiveMatchAudio() { if(audio!=null) { audio.close(); audio=null; } }
@@ -1223,7 +1227,7 @@ public class MainActivity extends Activity {
         }
 
         saveCurrentGame();
-        matchInProgress=true;
+        matchInProgress=true;pendingContactCue=null;
         matchGoals.clear();matchAssists.clear();pendingGoalTeam=-1;
         int opponent = leagueOpponentForRound(matchday);
         boolean selectedHome = selectedHomeForRound(matchday);
@@ -2078,6 +2082,11 @@ public class MainActivity extends Activity {
             pendingGoalDelay-=dt;
             if(pendingGoalDelay<=0) completePendingGoal();
         }
+        if(pendingContactCue!=null){pendingContactDelay-=dt;if(pendingContactDelay<=0){
+            playLiveSound(pendingContactCue);
+            if("catch".equals(pendingContactCue))playLiveSound("save");
+            pendingContactCue=null;
+        }}
         liveActionTimer -= dt;
         if (liveActionTimer <= 0f && liveMinuteFloat < 90f) beginNextLiveAction();
         if (livePitchView != null) livePitchView.stepSimulation(dt);
@@ -2630,7 +2639,7 @@ public class MainActivity extends Activity {
                     livePitchView.animateBallToSlot(team, slot, defending, 0, liveActionDuration);
                     livePendingPossessionTeam = defending;
                     livePendingCarrierSlot = 0;
-                    playLiveSound("save");
+                    queueContactSound("catch");
                     recordCommentary(defending, (keeper == null ? "The goalkeeper" : keeper.name) + " gets both hands behind " + shooter.name + "'s effort and holds it.");
                 } else {
                     float reboundX = team == liveHome ? 0.83f + random.nextFloat() * 0.08f : 0.17f - random.nextFloat() * 0.08f;
@@ -2639,7 +2648,7 @@ public class MainActivity extends Activity {
                     liveLooseBall = true;
                     liveLooseBallX = reboundX;
                     liveLooseBallY = reboundY;
-                    playLiveSound("save");
+                    queueContactSound("save");
                     recordCommentary(-1, (keeper == null ? "The goalkeeper" : keeper.name) + " can only parry it — the ball is loose in the area!");
                 }
             }
@@ -2654,7 +2663,7 @@ public class MainActivity extends Activity {
                 float missY = random.nextBoolean() ? 0.28f : 0.72f;
                 livePitchView.animateBallToPoint(team, slot, goalX, missY, liveActionDuration);
                 scheduleSetPiece("GOAL_KICK", defending, defending == liveHome ? 0.08f : 0.92f, 0.50f);
-                playLiveSound("miss");
+                queueContactSound("miss");
                 String[] miss = {"drags the shot wide.", "fires over the bar.", "pulls the effort past the post.", "cannot keep the shot down."};
                 recordCommentary(team, shooter.name + " " + miss[random.nextInt(miss.length)] + " Goal kick.");
             }
