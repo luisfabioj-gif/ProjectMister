@@ -47,6 +47,16 @@ public final class RegistrationWindow {
     }
     private static final List<RegistrationWindow> VERIFIED_2026 = new ArrayList<>();
     static {
+        add("BE", "2026-06-17", "2026-09-03", "2027-01-02", "2027-02-03", null, "Europe/Brussels",
+                "https://inside.fifa.com/associations/BEL/snapshot");
+        add("SCO", "2026-06-15", "2026-09-03", "2027-01-05", "2027-02-04", null, "Europe/London",
+                "https://inside.fifa.com/associations/SCO/snapshot");
+        add("ES", "2026-07-01", "2026-09-01", "2027-01-02", "2027-02-01", null, "Europe/Madrid",
+                "https://inside.fifa.com/associations/ESP/snapshot");
+        add("DE", "2026-07-01", "2026-09-01", "2027-01-01", "2027-02-01", null, "Europe/Berlin",
+                "https://inside.fifa.com/associations/GER/snapshot");
+        add("NL", "2026-06-22", "2026-09-02", "2027-01-04", "2027-02-02", "23:59", "Europe/Amsterdam",
+                "https://inside.fifa.com/associations/NED/snapshot");
         add("PT", "2026-07-01", "2026-09-04", "2027-01-04", "2027-02-01", "23:59", "Europe/Lisbon",
                 "https://www.ligaportugal.pt/noticias/28145/prazos-de-inscricoes-na-epoca-2026-27");
         add("ENG", "2026-06-15", "2026-09-01", "2027-01-01", "2027-02-01", "23:00", "Europe/London",

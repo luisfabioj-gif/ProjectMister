@@ -3884,6 +3884,11 @@ public class MainActivity extends Activity {
             EuropeanAccess.Profile access = EuropeanAccess.profile(countries[i]);
             LinearLayout card = makePanel();
             card.addView(profileSectionTitle(names[i].toUpperCase(Locale.UK)));
+            for (RegistrationWindow window : RegistrationWindow.forDivision(countries[i], 1)) {
+                card.addView(makeText(window.label + " registration  •  " + window.opens.format(DATE_FORMAT)
+                        + " – " + window.closes.format(DATE_FORMAT), 12, muted));
+            }
+            if (countries[i].equals("IT")) card.addView(makeText("Serie B summer registration opens 1 July; Serie A opens 29 June.", 12, muted));
             for (int rank = 1; rank <= access.league.size(); rank++) {
                 card.addView(makeText(rank + "  •  " + access.league.get(rank - 1).label(), 13, text));
             }

@@ -153,3 +153,21 @@ first half-season. Corrected with alternating fixed-pair venues and stable
 rotating-pair orientation. Tests now check first-half balance and a maximum
 three consecutive home/away fixtures. Version 2 uses the correction; version 1
 development saves retain their recorded venue order until a season migration.
+
+## Transfer date verification completed for all twenty divisions
+
+FIFA's public association pages embed the men's registration calendar under
+`pageProps.association.pageData.transferRegistrationCalendar.men`. Reading that
+page data resolved missing Belgian, Scottish, Spanish, German and Dutch dates.
+The extracted date-only records and URLs are in TRANSFER_WINDOW_REFERENCE_2026-27.json.
+FIFA's 00:00 timestamps are calendar placeholders, NOT verified midnight deadlines.
+RegistrationWindow keeps unknown exact times null and rejects exact-instant queries
+for them. Dutch 23:59 is additionally supported by KNVB's international-registration
+page. Spain's FIFA winter close is 1 February, resolving the inconsistent 2 February
+copy previously found on another page. Men's and women's calendars were not mixed.
+
+All ten countries now have summer/winter dates available through forDivision,
+with Italy's separate tier opening. The qualification guide displays these dates.
+National exemptions (free agents, emergency keepers, youth and special loans),
+UEFA squad registration deadlines, and future-season dates still require dedicated
+eligibility handling; verified ordinary windows are not a claim to all regulations.

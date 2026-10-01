@@ -1,0 +1,82 @@
+[
+  {
+    "country": "BEL",
+    "source": "https://inside.fifa.com/associations/BEL/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-06-17",
+        "closes": "2026-09-03"
+      },
+      {
+        "opens": "2027-01-02",
+        "closes": "2027-02-03"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
+  },
+  {
+    "country": "SCO",
+    "source": "https://inside.fifa.com/associations/SCO/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-06-15",
+        "closes": "2026-09-03"
+      },
+      {
+        "opens": "2027-01-05",
+        "closes": "2027-02-04"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
+  },
+  {
+    "country": "ESP",
+    "source": "https://inside.fifa.com/associations/ESP/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-07-01",
+        "closes": "2026-09-01"
+      },
+      {
+        "opens": "2027-01-02",
+        "closes": "2027-02-01"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
+  },
+  {
+    "country": "GER",
+    "source": "https://inside.fifa.com/associations/GER/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-07-01",
+        "closes": "2026-09-01"
+      },
+      {
+        "opens": "2027-01-01",
+        "closes": "2027-02-01"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
+  },
+  {
+    "country": "NED",
+    "source": "https://inside.fifa.com/associations/NED/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-06-22",
+        "closes": "2026-09-02"
+      },
+      {
+        "opens": "2027-01-04",
+        "closes": "2027-02-02"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
+  }
+]

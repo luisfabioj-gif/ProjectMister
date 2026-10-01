@@ -44,6 +44,23 @@ public final class CompetitionTests {
         check(!RegistrationWindow.forDivision("IT",2).get(0).includes(LocalDate.of(2026,6,29)),"Serie B must not inherit Serie A opening");
         check(RegistrationWindow.forDivision("IT",2).get(1).includes(LocalDate.of(2027,1,2)),"Italy winter opening");
         check(!RegistrationWindow.forDivision("IT",1).get(1).includes(ZonedDateTime.parse("2027-02-01T19:00:01Z")),"Italy local deadline");
+        for(String country:new String[]{"ENG","ES","DE","IT","FR","PT","NL","BE","SCO","TR"}) {
+            for(int tier=1;tier<=2;tier++) {
+                java.util.List<RegistrationWindow> windows=RegistrationWindow.forDivision(country,tier);
+                check(windows.size()==2,"missing division registration dates "+country+":"+tier);
+                for(RegistrationWindow w:windows) {
+                    check(w.includes(w.opens)&&w.includes(w.closes),"excluded registration day");
+                    check(!w.includes(w.opens.minusDays(1))&&!w.includes(w.closes.plusDays(1)),"window spills outside dates");
+                    check(!w.includes(w.opens.plusYears(1)),"future season uses stale dates");
+                }
+            }
+        }
+        check(RegistrationWindow.forCountry("SCO").get(1).opens.equals(LocalDate.of(2027,1,5)),"Scottish winter opening");
+        check(RegistrationWindow.forCountry("ES").get(1).closes.equals(LocalDate.of(2027,2,1)),"Spanish winter close verified against FIFA");
+        boolean unknownRejected=false;
+        try { RegistrationWindow.forCountry("BE").get(0).includes(ZonedDateTime.parse("2026-09-03T12:00:00Z")); }
+        catch(IllegalStateException expected){unknownRejected=true;}
+        check(unknownRejected,"unknown deadline must not become midnight");
         RegistrationWindow eng = RegistrationWindow.forCountry("ENG").get(0);
         check(eng.includes(ZonedDateTime.parse("2026-09-01T22:00:00Z")),"BST closing instant");
         check(!eng.includes(ZonedDateTime.parse("2026-09-01T22:00:01Z")),"late registration");
