@@ -148,6 +148,9 @@ public class MainActivity extends Activity {
     private final int[] playerSelectedSlot = new int[TOTAL_PLAYERS]; // starter slot index if selected in XI
     private final String[] playerSelectedPosition = new String[TOTAL_PLAYERS];
     private final int[] clubMatchGF = new int[34];
+    // Version 0 preserves already-played legacy careers; new careers share a whole-league schedule.
+    private int fixtureVersion = 1;
+    private LeagueSchedule careerSchedule;
     private final int[] clubMatchGA = new int[34];
     private Runnable backAction = null;
     private String managerFirstName = "";
@@ -1234,14 +1237,21 @@ public class MainActivity extends Activity {
         liveHome = selectedHome ? selectedClub : opponent;
         liveAway = selectedHome ? opponent : selectedClub;
 
-        ArrayList<Integer> remaining = new ArrayList<>();
-        for (int i = 0; i < clubNames.length; i++) {
-            if (i != liveHome && i != liveAway) remaining.add(i);
-        }
-        Collections.shuffle(remaining, new Random(9000L + matchday));
         liveOtherFixtures.clear();
-        for (int i = 0; i + 1 < remaining.size(); i += 2) {
-            liveOtherFixtures.add(new int[]{remaining.get(i), remaining.get(i + 1)});
+        if (fixtureVersion >= 1) {
+            for (LeagueSchedule.Pairing pairing : leagueSchedule().round(Math.floorMod(matchday, leagueSchedule().roundCount()))) {
+                if (!pairing.contains(selectedClub)) liveOtherFixtures.add(new int[]{pairing.home, pairing.away});
+            }
+        } else {
+            // Do not rewrite fixture history in an existing save.
+            ArrayList<Integer> remaining = new ArrayList<>();
+            for (int i = 0; i < clubNames.length; i++) {
+                if (i != liveHome && i != liveAway) remaining.add(i);
+            }
+            Collections.shuffle(remaining, new Random(9000L + matchday));
+            for (int i = 0; i + 1 < remaining.size(); i += 2) {
+                liveOtherFixtures.add(new int[]{remaining.get(i), remaining.get(i + 1)});
+            }
         }
 
         liveHomeGoals = 0;
@@ -5764,7 +5774,18 @@ public class MainActivity extends Activity {
         return list;
     }
 
+    private LeagueSchedule leagueSchedule() {
+        if (careerSchedule == null) {
+            int[] ids = new int[clubNames.length];
+            for (int i = 0; i < ids.length; i++) ids[i] = i;
+            careerSchedule = new LeagueSchedule(ids, 2);
+        }
+        return careerSchedule;
+    }
+
     private int leagueOpponentForRound(int round) {
+        if (fixtureVersion >= 1) return leagueSchedule().fixture(
+                Math.floorMod(round, leagueSchedule().roundCount()), selectedClub).opponent(selectedClub);
         int halfRound = Math.floorMod(round, 17);
         int opponent = (selectedClub + halfRound + 1) % 18;
         if (opponent == selectedClub) opponent = (opponent + 1) % 18;
@@ -5772,6 +5793,8 @@ public class MainActivity extends Activity {
     }
 
     private boolean selectedHomeForRound(int round) {
+        if (fixtureVersion >= 1) return leagueSchedule().fixture(
+                Math.floorMod(round, leagueSchedule().roundCount()), selectedClub).home == selectedClub;
         boolean firstHalfHome = ((round + selectedClub) % 2 == 0);
         return round < 17 ? firstHalfHome : !firstHalfHome;
     }
@@ -6153,6 +6176,7 @@ public class MainActivity extends Activity {
                 .putInt(key(selectedSlot, "manager_youth"), managerYouth)
                 .putInt(key(selectedSlot, "manager_negotiating"), managerNegotiating)
                 .putInt(key(selectedSlot, "matchday"), matchday)
+                .putInt(key(selectedSlot, "fixture_version"), fixtureVersion)
                 .putString(key(selectedSlot, "date"), currentDate.toString())
                 .putString(key(selectedSlot, "training"), trainingFocus)
                 .putString(key(selectedSlot, "formation"), tacticFormation)
@@ -6199,6 +6223,8 @@ public class MainActivity extends Activity {
 
     private void loadSave(int slot) {
         selectedSlot = slot;
+        fixtureVersion = prefs.getInt(key(slot, "fixture_version"), 0);
+        careerSchedule = null;
         selectedClub = prefs.getInt(key(slot, "club"), 0);
         managerFirstName = prefs.getString(key(slot, "manager_first"), "");
         managerLastName = prefs.getString(key(slot, "manager_last"), "");
@@ -7699,6 +7725,8 @@ public class MainActivity extends Activity {
     }
 
     private void resetCareerState() {
+        fixtureVersion = 1;
+        careerSchedule = null;
         matchday = 0;
         currentDate = SEASON_START;
         trainingFocus = "Balanced";

@@ -47,9 +47,26 @@ public final class SmokeRunner extends Instrumentation {
         }
         throw new AssertionError("Timed out waiting for full-time");
     }
+    private void dismissEmulatorLauncherAnr() throws Exception {
+        android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
+        if(root==null || !"android".contentEquals(root.getPackageName())) return;
+        // Only the observed AOSP emulator launcher failure. Never dismiss BOSS XI ANRs.
+        boolean launcher=false;
+        for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText("Quickstep isn't responding"))
+            if(n.isVisibleToUser() && "Quickstep isn't responding".contentEquals(n.getText())) launcher=true;
+        if(!launcher)return;
+        for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText("Close app")) {
+            if(n.isVisibleToUser() && n.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)) {
+                report.append("ENVIRONMENT dismissed emulator Quickstep ANR; game checks remain enabled\n");
+                SystemClock.sleep(500);waitForIdleSync();return;
+            }
+        }
+        throw new AssertionError("Emulator launcher ANR could not be dismissed");
+    }
     private void capture(String name)throws Exception {
         // Wait through asynchronous layout, portrait decoding and orientation changes.
         SystemClock.sleep(700);waitForIdleSync();
+        dismissEmulatorLauncherAnr();
         Bitmap b=getUiAutomation().takeScreenshot();
         if(b==null)throw new AssertionError("Screenshot missing: "+name);
         try(FileOutputStream f=new FileOutputStream(new File(output,name+".png"))){b.compress(Bitmap.CompressFormat.PNG,100,f);} b.recycle();
@@ -75,6 +92,7 @@ public final class SmokeRunner extends Instrumentation {
     private android.view.accessibility.AccessibilityNodeInfo node(String text)throws Exception {
         long until=SystemClock.uptimeMillis()+5000;
         do {
+            dismissEmulatorLauncherAnr();
             android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
             if(root!=null)for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText(text))if(n.isVisibleToUser())return n;
             SystemClock.sleep(100);
@@ -143,6 +161,7 @@ public final class SmokeRunner extends Instrumentation {
                 ui(()->call("loadSave",new Class[]{int.class},0));
                 check("Upgrade".equals(get("managerFirstName")),"old save manager preserved");
                 check((Integer)get("selectedClub")==0,"old save club preserved");
+                check((Integer)get("fixtureVersion")==0,"old save fixture order preserved");
                 page("01-dashboard","showDashboard",new Class[0]);
                 page("02-squad","showTeamPlayers",new Class[]{int.class},0);
                 page("03-player-profile","showPlayerProfile",new Class[]{int.class,int.class},0,0);
@@ -222,6 +241,24 @@ public final class SmokeRunner extends Instrumentation {
                 report.append("MATCH shots=").append(shots).append(" target=").append(target).append(" goals=").append(goals).append(" AI subs=").append(aiSubs).append('\n');
                 ui(()->call("loadSave",new Class[]{int.class},0));
                 check((Integer)get("matchday")==2,"complete simulation survives reload");
+                ui(()->{
+                    set("selectedSlot",2);call("resetCareerState",new Class[0]);
+                    check((Integer)get("fixtureVersion")==1,"new career uses shared schedule");
+                    Object schedule=call("leagueSchedule",new Class[0]);
+                    Method fixture=schedule.getClass().getMethod("fixture",int.class,int.class);
+                    for(int round=0;round<34;round++) {
+                        Object pairing=fixture.invoke(schedule,round,0);
+                        int home=pairing.getClass().getField("home").getInt(pairing);
+                        int away=pairing.getClass().getField("away").getInt(pairing);
+                        check((Integer)call("leagueOpponentForRound",new Class[]{int.class},round)==(home==0?away:home),"calendar shares opponent round "+round);
+                        check((Boolean)call("selectedHomeForRound",new Class[]{int.class},round)==(home==0),"calendar shares venue round "+round);
+                    }
+                    call("saveCurrentGame",new Class[0]);set("fixtureVersion",0);
+                    call("loadSave",new Class[]{int.class},2);
+                    check((Integer)get("fixtureVersion")==1,"fixture version survives reload");
+                    call("loadSave",new Class[]{int.class},0);
+                    check((Integer)get("fixtureVersion")==0,"switching slots restores legacy schedule");
+                });
             }
             try(FileOutputStream f=new FileOutputStream(new File(output,"report.txt"))){f.write(report.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
             result.putString("stream",report.toString());finish(Activity.RESULT_OK,result);
