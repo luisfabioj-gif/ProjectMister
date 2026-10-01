@@ -78,5 +78,87 @@
       }
     ],
     "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
+  },
+  {
+    "country": "ENG",
+    "source": "https://inside.fifa.com/associations/ENG/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-06-15",
+        "closes": "2026-09-01"
+      },
+      {
+        "opens": "2027-01-01",
+        "closes": "2027-02-01"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
+  },
+  {
+    "country": "FRA",
+    "source": "https://inside.fifa.com/associations/FRA/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-06-15",
+        "closes": "2026-09-01"
+      },
+      {
+        "opens": "2027-01-01",
+        "closes": "2027-02-01"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
+  },
+  {
+    "country": "ITA",
+    "source": "https://inside.fifa.com/associations/ITA/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-06-29",
+        "closes": "2026-09-01"
+      },
+      {
+        "opens": "2027-01-02",
+        "closes": "2027-02-01"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines",
+    "scopeNote": "FIFA summer opening matches Serie A. FIGC explicitly gives Serie B a later 1 July opening; game uses division-specific dates."
+  },
+  {
+    "country": "POR",
+    "source": "https://inside.fifa.com/associations/POR/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-07-01",
+        "closes": "2026-09-15"
+      },
+      {
+        "opens": "2027-01-04",
+        "closes": "2027-02-06"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines",
+    "scopeNote": "Association-wide FIFA dates differ from Liga Portugal professional competition deadlines. Game deliberately uses the league-specific 4 September / 1 February deadlines from Liga Portugal, not these broader dates."
+  },
+  {
+    "country": "TUR",
+    "source": "https://inside.fifa.com/associations/TUR/snapshot",
+    "checkedOn": "2026-10-01",
+    "windows": [
+      {
+        "opens": "2026-06-22",
+        "closes": "2026-09-04"
+      },
+      {
+        "opens": "2027-01-01",
+        "closes": "2027-02-05"
+      }
+    ],
+    "timePrecision": "date-only; midnight timestamps are display dates, not verified deadlines"
   }
 ]

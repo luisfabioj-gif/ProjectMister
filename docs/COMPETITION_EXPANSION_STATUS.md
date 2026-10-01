@@ -171,3 +171,27 @@ with Italy's separate tier opening. The qualification guide displays these dates
 National exemptions (free agents, emergency keepers, youth and special loans),
 UEFA squad registration deadlines, and future-season dates still require dedicated
 eligibility handling; verified ordinary windows are not a claim to all regulations.
+
+Cross-check against all ten FIFA men's association calendars found an important
+scope difference: Portugal's FIFA association page gives 15 September / 6 February,
+whereas Liga Portugal explicitly gives 4 September / 1 February for its professional
+competitions. Keep the more specific league deadlines already implemented; do not
+replace them from a blanket association import. Italy's FIFA opening is Serie A's,
+not Serie B's. Both differences are retained in the reference JSON.
+
+Additional rule research for the next integration milestone:
+- EFL's 5 March statement confirms six Championship playoff participants and seven
+  fixtures, with two-legged semifinals for third/fourth, but says final details were
+  to be agreed later in 2026. Recheck the current playoff regulations rather than
+  relying on the old evergreen four-team explainer.
+  https://www.efl.com/news/2026/march/05/efl-statement--sky-bet-championship-play-off-format/
+  https://www.efl.com/documents/play-off-rules/
+- Belgian 15-club second tier: champion promoted, positions 2–5 play two-legged
+  promotion rounds, better-ranked club home second, bottom two relegated. Reserve
+  promotion eligibility must also respect parent-club rules; the newer removal of
+  protected relegation quotas must not be confused with unrestricted top-tier entry.
+  https://www.proleague.be/nieuws/challenger-pro-league-heeft-nieuw-format-zonder-quota-voor-u23
+- SPFL confirms split rounds on 24/25 April, 1/2 May, 8/9 May, 11/12 May and
+  15/16 May 2027; no Premiership fixtures on 26 September or 3 October. The
+  third round-robin and split need a dedicated schedule, not a generic 34-game one.
+  https://spfl.co.uk/news/fixtures-qa-51267
