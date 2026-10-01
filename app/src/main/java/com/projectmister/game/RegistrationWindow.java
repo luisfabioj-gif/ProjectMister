@@ -33,6 +33,18 @@ public final class RegistrationWindow {
         for (RegistrationWindow w : VERIFIED_2026) if (w.country.equals(country)) result.add(w);
         return Collections.unmodifiableList(result);
     }
+    /** Some associations have different opening dates by division (Italy, 2026/27). */
+    public static List<RegistrationWindow> forDivision(String country, int tier) {
+        if(tier < 1 || tier > 2) throw new IllegalArgumentException("Unsupported division tier");
+        if(!"IT".equals(country)) return forCountry(country);
+        String source="https://www.figc.it/it/federazione/news/approvati-i-criteri-per-le-riammissioni-le-sostituzioni-e-i-ripescaggi-nei-campionati-professionistici-szuz8fvh";
+        List<RegistrationWindow> result=new ArrayList<>();
+        result.add(new RegistrationWindow("IT", "Summer", tier==1?"2026-06-29":"2026-07-01",
+                "2026-09-01", "20:00", "Europe/Rome", source));
+        result.add(new RegistrationWindow("IT", "Winter", "2027-01-02", "2027-02-01",
+                "20:00", "Europe/Rome", source));
+        return Collections.unmodifiableList(result);
+    }
     private static final List<RegistrationWindow> VERIFIED_2026 = new ArrayList<>();
     static {
         add("PT", "2026-07-01", "2026-09-04", "2027-01-04", "2027-02-01", "23:59", "Europe/Lisbon",

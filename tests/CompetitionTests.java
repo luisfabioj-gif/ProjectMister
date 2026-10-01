@@ -19,6 +19,16 @@ public final class CompetitionTests {
                 }
                 for(int i=0;i<n;i++) if(!seen.contains(ids[i])) {byes[i]++;check(s.fixture(r,ids[i])==null,"invented bye opponent");}
             }
+            if(n%2==0) for(int club:ids) {
+                int halfHomes=0,streak=0; Boolean previous=null;
+                for(int r=0;r<s.roundCount();r++) {
+                    boolean home=s.fixture(r,club).home==club;
+                    if(r<n-1 && home)halfHomes++;
+                    streak=previous!=null && previous==home?streak+1:1;
+                    check(streak<=3,"excessive consecutive home/away fixtures");previous=home;
+                }
+                check(Math.abs(halfHomes*2-(n-1))<=1,"unbalanced first half-season venues");
+            }
             for(int i=0;i<n;i++) {
                 check(homes[i]==(n-1)*legs/2 && homes[i]==aways[i],"unbalanced home/away games");
                 check(byes[i]==(n%2==1?legs:0),"incorrect byes");
@@ -30,6 +40,10 @@ public final class CompetitionTests {
             check(w.includes(w.closes) && !w.includes(w.closes.plusDays(1)),"closing boundary");
             check(!w.includes(w.opens.plusYears(1)),"old dates reused in future season");
         }
+        check(RegistrationWindow.forDivision("IT",1).get(0).includes(LocalDate.of(2026,6,29)),"Serie A early summer opening");
+        check(!RegistrationWindow.forDivision("IT",2).get(0).includes(LocalDate.of(2026,6,29)),"Serie B must not inherit Serie A opening");
+        check(RegistrationWindow.forDivision("IT",2).get(1).includes(LocalDate.of(2027,1,2)),"Italy winter opening");
+        check(!RegistrationWindow.forDivision("IT",1).get(1).includes(ZonedDateTime.parse("2027-02-01T19:00:01Z")),"Italy local deadline");
         RegistrationWindow eng = RegistrationWindow.forCountry("ENG").get(0);
         check(eng.includes(ZonedDateTime.parse("2026-09-01T22:00:00Z")),"BST closing instant");
         check(!eng.includes(ZonedDateTime.parse("2026-09-01T22:00:01Z")),"late registration");

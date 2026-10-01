@@ -251,7 +251,7 @@ public final class SmokeRunner extends Instrumentation {
                 check((Integer)get("matchday")==2,"complete simulation survives reload");
                 ui(()->{
                     set("selectedSlot",2);call("resetCareerState",new Class[0]);
-                    check((Integer)get("fixtureVersion")==1,"new career uses shared schedule");
+                    check((Integer)get("fixtureVersion")==2,"new career uses shared schedule");
                     Object schedule=call("leagueSchedule",new Class[0]);
                     Method fixture=schedule.getClass().getMethod("fixture",int.class,int.class);
                     for(int round=0;round<34;round++) {
@@ -263,7 +263,7 @@ public final class SmokeRunner extends Instrumentation {
                     }
                     call("saveCurrentGame",new Class[0]);set("fixtureVersion",0);
                     call("loadSave",new Class[]{int.class},2);
-                    check((Integer)get("fixtureVersion")==1,"fixture version survives reload");
+                    check((Integer)get("fixtureVersion")==2,"fixture version survives reload");
                     call("loadSave",new Class[]{int.class},0);
                     check((Integer)get("fixtureVersion")==0,"switching slots restores legacy schedule");
                 });

@@ -149,7 +149,7 @@ public class MainActivity extends Activity {
     private final String[] playerSelectedPosition = new String[TOTAL_PLAYERS];
     private final int[] clubMatchGF = new int[34];
     // Version 0 preserves already-played legacy careers; new careers share a whole-league schedule.
-    private int fixtureVersion = 1;
+    private int fixtureVersion = 2;
     private LeagueSchedule careerSchedule;
     private final int[] clubMatchGA = new int[34];
     private Runnable backAction = null;
@@ -5791,7 +5791,7 @@ public class MainActivity extends Activity {
         if (careerSchedule == null) {
             int[] ids = new int[clubNames.length];
             for (int i = 0; i < ids.length; i++) ids[i] = i;
-            careerSchedule = new LeagueSchedule(ids, 2);
+            careerSchedule = new LeagueSchedule(ids, 2, fixtureVersion >= 2);
         }
         return careerSchedule;
     }
@@ -7738,7 +7738,7 @@ public class MainActivity extends Activity {
     }
 
     private void resetCareerState() {
-        fixtureVersion = 1;
+        fixtureVersion = 2;
         careerSchedule = null;
         matchday = 0;
         currentDate = SEASON_START;

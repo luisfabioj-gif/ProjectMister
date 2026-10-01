@@ -13,7 +13,7 @@ promotion/relegation and qualification for the following European season.
 ## Implemented in this checkpoint
 
 - Connected `LeagueSchedule` to watched opponents, venues, background fixtures
-  and the calendar for new careers. `fixture_version=1` is persisted; absent
+  and the calendar for new careers. `fixture_version=2` is persisted; absent
   keys load version 0 and preserve legacy fixture order. Property tests cover
   10, 12, 15, 18, 20, 22 and 24 clubs. Android tests cover slot switching and
   calendar consistency across all 34 rounds.
@@ -139,3 +139,17 @@ Portugal top-flight membership completed from official opening fixtures:
 https://www.ligaportugal.pt/news/28234/estoril-praia-fc-famalicao-abre-liga-betclic-202627
 All other membership source URLs are preserved alongside each catalog division.
 Names are factual identifiers; no club crests, kits or real player assets were imported.
+
+Italian ordinary windows now support division-specific opening: Serie A
+29 June, Serie B 1 July; both close 1 September 2026 at 20:00 Europe/Rome.
+Winter 2 January–1 February 2027 at 20:00. `forDivision` prevents applying
+Serie A's early opening to Serie B. Source: FIGC council statement, 27 April
+2026 (URL embedded in RegistrationWindow). Other remaining dates stay
+unverified rather than silently borrowing another country's window.
+
+Additional fixture QA caught an imbalance hidden by full-season totals: the
+initial circle rotation could allocate a rotating club all away games in the
+first half-season. Corrected with alternating fixed-pair venues and stable
+rotating-pair orientation. Tests now check first-half balance and a maximum
+three consecutive home/away fixtures. Version 2 uses the correction; version 1
+development saves retain their recorded venue order until a season migration.

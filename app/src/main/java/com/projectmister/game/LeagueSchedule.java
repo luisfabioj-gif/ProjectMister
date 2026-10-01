@@ -18,7 +18,10 @@ public final class LeagueSchedule {
     private final Pairing[][] rounds;
 
     /** Circle rotation supports odd leagues (bye omitted) and two/four meetings per pair. */
-    public LeagueSchedule(int[] clubIds, int meetings) {
+    public LeagueSchedule(int[] clubIds, int meetings) { this(clubIds, meetings, true); }
+
+    /** Legacy venue order is retained only for development saves already using fixture version 1. */
+    public LeagueSchedule(int[] clubIds, int meetings, boolean balancedVenues) {
         if (clubIds.length < 2 || (meetings != 2 && meetings != 4))
             throw new IllegalArgumentException("Invalid league format");
         HashSet<Integer> unique = new HashSet<>();
@@ -35,7 +38,11 @@ public final class LeagueSchedule {
             for (int i = 0; i < size / 2; i++) {
                 int a = ring[i], b = ring[size - 1 - i];
                 if (a < 0 || b < 0) continue;
-                if ((round + i) % 2 == 0) games.add(new Pairing(a, b));
+                // Only the fixed pairing alternates by round. Alternating every pairing by
+                // round produces whole half-seasons away for some rotating clubs.
+                boolean homeFirst = balancedVenues ? (i == 0 ? round % 2 == 0 : i % 2 == 0)
+                        : (round + i) % 2 == 0;
+                if (homeFirst) games.add(new Pairing(a, b));
                 else games.add(new Pairing(b, a));
             }
             rounds[round] = games.toArray(new Pairing[0]);
