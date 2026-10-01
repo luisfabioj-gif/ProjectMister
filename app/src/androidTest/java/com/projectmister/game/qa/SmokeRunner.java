@@ -177,6 +177,14 @@ public final class SmokeRunner extends Instrumentation {
                 page("13-fixtures","showCompetitionCalendar",new Class[0]);
                 page("14-board","showClubOffice",new Class[0]);
                 page("15-inbox","showInbox",new Class[0]);
+                try(InputStream input=getTargetContext().getAssets().open("competitions/2026-27.json")) {
+                    Class<?> catalogClass=activity.getClassLoader().loadClass("com.projectmister.game.CompetitionCatalog");
+                    Object catalog=catalogClass.getMethod("read",InputStream.class).invoke(null,input);
+                    List<?> divisions=(List<?>)catalogClass.getField("divisions").get(catalog);
+                    check(divisions.size()==20,"catalog loads all twenty divisions on Android");
+                    int clubs=0;for(Object d:divisions)clubs+=((List<?>)d.getClass().getField("clubs").get(d)).size();
+                    check(clubs==365,"catalog contains 365 clubs on Android");
+                }
                 page("28-league-table","showLeagueTable",new Class[0]);
                 tap("Qualification & relegation rules");
                 check(node("2026/27 finish")!=null,"next-season European qualification context");

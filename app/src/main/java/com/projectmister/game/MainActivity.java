@@ -3806,6 +3806,7 @@ public class MainActivity extends Activity {
         backAction = () -> showDashboard();
         LinearLayout page = createPage("Liga Portugal", "Season 2026/27 • Matchday " + matchday, true);
         page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
+        page.addView(makeText("Projected finishing zones • CL: Champions League • EL: Europa League • CO: Conference League. Cup results, UEFA adjustments and licensing can change entry. These are reference zones, not confirmed career admissions.", 12, muted));
 
         Integer[] order = new Integer[clubNames.length];
         for (int i = 0; i < clubNames.length; i++) order[i] = i;
@@ -3847,7 +3848,19 @@ public class MainActivity extends Activity {
             rlp.setMargins(0, 0, 0, dp(7));
             row.setLayoutParams(rlp);
             row.addView(makeLeagueCell(String.valueOf(position + 1), 0.45f, accent, true));
-            row.addView(makeLeagueCell(clubNames[club], 2.5f, text, true));
+            LinearLayout clubCell = new LinearLayout(this);
+            clubCell.setOrientation(LinearLayout.VERTICAL);
+            clubCell.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 2.5f));
+            TextView clubName = makeText(clubNames[club], 13, text);
+            clubName.setSingleLine(true);clubName.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            clubName.setTypeface(Typeface.DEFAULT_BOLD);clubCell.addView(clubName);
+            int rank = position + 1;
+            String zone = rank <= 2 ? "CL · League phase*" : rank == 3 ? "CL · Q3*"
+                    : rank == 4 ? "EL · Q2*" : rank == 5 ? "CO · Q2*"
+                    : rank == 6 ? "Europe · cup-dependent*" : rank == 16 ? "Relegation play-off"
+                    : rank >= 17 ? "Relegation" : "";
+            if (!zone.isEmpty()) clubCell.addView(makeText(zone, 10, rank >= 16 ? danger : accent));
+            row.addView(clubCell);
             row.addView(makeLeagueCell(String.valueOf(played[club]), 0.55f, muted, false));
             row.addView(makeLeagueCell(String.valueOf(won[club]), 0.55f, muted, false));
             row.addView(makeLeagueCell(String.valueOf(drawn[club]), 0.55f, muted, false));
