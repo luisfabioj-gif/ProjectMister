@@ -195,3 +195,21 @@ Additional rule research for the next integration milestone:
   15/16 May 2027; no Premiership fixtures on 26 September or 3 October. The
   third round-robin and split need a dedicated schedule, not a generic 34-game one.
   https://spfl.co.uk/news/fixtures-qa-51267
+
+## Verified checkpoint, 1 October 2026
+
+Code commit: 627006c378a5efffe1193ca2df966e94de3325df.
+GitHub Actions: https://github.com/luisfabioj-gif/ProjectMister/actions/runs/36893728897
+Both API 35 and API 36 passed Java/APK/AAB builds, baseline-save upgrade,
+navigation, transfer interaction, match/half-time/substitution checks, full
+match statistics, reload and compact landscape checks. Local core/data checks
+and manual SDK builds also passed. Table screenshots were inspected on both
+APIs; latest guide, match and compact tactics screenshots were also inspected.
+Compact tactics still uses a scrolling pitch viewport; not all eleven markers
+are visible simultaneously on the shortest landscape layout. Keep that as a
+presentation follow-up rather than calling visual QA flawless.
+
+Stable main and the previously delivered APK are unchanged. No completed
+20-division APK or Play Store release is claimed. The catalog is shipped data;
+active careers still use the legacy 18-club world. Remaining work is explicitly
+listed above, especially world/save integration and actual competition outcomes.
