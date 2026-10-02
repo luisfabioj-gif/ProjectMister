@@ -889,7 +889,7 @@ public class MainActivity extends Activity {
                 .show());
         page.addView(leagueButton);
 
-        TextView note = makeText("Choose a country and division. Club names are real; players, budgets and ratings are generated for your career.", 13, muted);
+        TextView note = makeText("Choose a country and division. Real club names with fictional players, budgets and ratings. Fixture dates currently follow a simulated weekly calendar.", 13, muted);
         note.setPadding(0, 0, 0, dp(12));
         page.addView(note);
 
@@ -3818,7 +3818,7 @@ public class MainActivity extends Activity {
         backAction = () -> showDashboard();
         LinearLayout page = createPage(leagueName(), "Season " + careerSeasonStart.getYear()+"/"+(careerSeasonStart.getYear()+1)+" • Matchday " + matchday, true);
         page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
-        page.addView(makeText("Projected finishing zones • CL: Champions League • EL: Europa League • CO: Conference League. Cup results, UEFA adjustments and licensing can change entry. These are reference zones, not confirmed career admissions.", 12, muted));
+        page.addView(makeText(division!=null && division.tier==2 ? "Promotion and relegation are not yet simulated in this development career." : "2027/28 European reference • Cup results, UEFA adjustments and licensing apply. Career admissions are not yet simulated.", 12, muted));
 
         Integer[] order = new Integer[clubNames.length];
         for (int i = 0; i < clubNames.length; i++) order[i] = i;
@@ -3840,6 +3840,8 @@ public class MainActivity extends Activity {
 
         for (int position = 0; position < order.length; position++) {
             int club = order[position];
+            if(division!=null && division.splitSeason() && splitOrder.length==12 && (position==0||position==6))
+                page.addView(profileSectionTitle(position==0?"CHAMPIONSHIP GROUP":"LOWER GROUP"));
             int gd = goalsFor[club] - goalsAgainst[club];
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
@@ -3909,7 +3911,8 @@ public class MainActivity extends Activity {
     private TextView makeTableHeadCell(String value, float weight) {
         TextView tv = makeText(value, 11, Color.WHITE);
         tv.setTypeface(Typeface.DEFAULT_BOLD);
-        tv.setGravity(Gravity.CENTER_VERTICAL);
+        tv.setGravity("Club".equals(value)?Gravity.CENTER_VERTICAL:Gravity.CENTER);
+        tv.setPadding(dp(2),0,dp(2),0);
         tv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight));
         return tv;
     }
@@ -3917,7 +3920,8 @@ public class MainActivity extends Activity {
     private TextView makeLeagueCell(String value, float weight, int colour, boolean bold) {
         TextView tv = makeText(value, 13, colour);
         if (bold) tv.setTypeface(Typeface.DEFAULT_BOLD);
-        tv.setGravity(Gravity.CENTER_VERTICAL);
+        tv.setGravity(Gravity.CENTER);
+        tv.setPadding(dp(2),0,dp(2),0);
         tv.setSingleLine(true);
         tv.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight));
         return tv;

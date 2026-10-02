@@ -238,3 +238,31 @@ do not show the legacy Portuguese fictitious cup results. The next-season action
 retains the division and states that limitation. Later career seasons explicitly use a simulated registration calendar based on
 2026/27. The transfer hub and season review label it as simulated; verified
 2026/27 data remains unchanged. This is not a final release APK.
+
+Further primary-rule verification, 2 October:
+- SPFL rules updated 29 July 2026, C15–C17: 33 rounds then locked six-team
+  groups; five split games, at least two at home. C18–C25: last relegated,
+  eleventh enters a ladder against Championship fourth/third, then second;
+  higher seed hosts leg two, aggregate ties use extra time then penalties.
+  C36: points, goal difference, goals scored, head-to-head points and goal
+  difference. C37–C38: unresolved consequential ties require a deciding game;
+  otherwise equal positions. An arbitrary club-index fallback is not a final
+  official tie-breaker. Store a complete results ledger before implementing it.
+  https://spfl.co.uk/admin/filemanager/images/shares/pdfs/MASTER%20-%20Rules%20and%20Regulations%20(CLEAN%20-%2029%20July%202026).pdf
+- Premier League's own explainer confirms 2026/27 Championship eliminators:
+  fifth hosts eighth and sixth hosts seventh; third/fourth enter two-leg semis.
+  https://www.premierleague.com/en/news/4611805/who-will-be-promoted-from-efl-championship-to-premier-league-for-2026-27-season
+- Belgian Pro League Q&A explicitly confirms the top flight's bottom two
+  relegated in 2026/27. Its older U23 quota paragraphs are superseded by the
+  newer no-quota notice; do not import that obsolete protection.
+  https://www.proleague.be/nieuws/qanda-wat-verandert-er-aan-het-competitieformat
+
+
+Integration run 37000932886 passed on API 35 and 36 at code d9eb26d:
+all twenty complete-season cases, 24-club live result/reload, odd-league bye,
+Scottish split persistence, legacy upgrade, navigation and compact match tests.
+Visual QA identified tight L/GD spacing; centred numeric cells and explicit
+Scottish split dividers are being verified in the follow-up build. The new-career
+screen now explicitly identifies its weekly fixture calendar as simulated.
+The preceding 3437f80 run failed a QA setup assertion because the test stopped
+the ticker before asserting that the match was active; d9eb26d corrected that.
