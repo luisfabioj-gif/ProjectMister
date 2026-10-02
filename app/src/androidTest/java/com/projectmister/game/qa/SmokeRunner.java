@@ -129,23 +129,26 @@ public final class SmokeRunner extends Instrumentation {
         Object catalog=get("catalog");check(catalog!=null,"competition catalog available");
         List<?> divisions=(List<?>)catalog.getClass().getField("divisions").get(catalog);
         Class<?> worldClass=activity.getClassLoader().loadClass("com.projectmister.game.CareerDivision");
-        for(int index=0;index<divisions.size();index++) {
-            Object data=divisions.get(index);String id=(String)data.getClass().getField("id").get(data);
-            Object world=worldClass.getConstructor(data.getClass()).newInstance(data);
-            int count=((List<?>)data.getClass().getField("clubs").get(data)).size();final int leagueIndex=index+1;
+        for(int index=0;index<divisions.size()*2;index++) {
+            final boolean linked=index>=divisions.size();
+            Object data=divisions.get(index%divisions.size());String id=(String)data.getClass().getField("id").get(data);
+            Object world=linked?worldClass.getMethod("countryCareer",catalog.getClass(),data.getClass()).invoke(null,catalog,data):worldClass.getConstructor(data.getClass()).newInstance(data);
+            int count=((List<?>)data.getClass().getField("clubs").get(data)).size();final int leagueIndex=index%divisions.size()+1;
+            final int worldCount=((String[])worldClass.getField("names").get(world)).length;
+            final int[] memberships=(int[])worldClass.getField("clubTiers").get(world);
             ui(()->{
                 call("configureDivision",new Class[]{worldClass},world);set("managerLeagueIndex",leagueIndex);
                 set("selectedSlot",1);set("selectedClub",count-1);call("initialiseNewManagerDefaults",new Class[0]);
                 set("managerLeagueIndex",leagueIndex);set("managerFirstName","Division");set("managerLastName",id);
                 call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
                 call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
-                check(((List<?>)get("players")).size()==count*20,id+" generates full squads");
+                check(((List<?>)get("players")).size()==worldCount*20,id+" generates full squads");
                 call("saveCurrentGame",new Class[0]);call("showMainMenu",new Class[0]);
             });
             if(id.equals("eng:2")||id.equals("be:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-save");
             ui(()->{
                 check((Boolean)call("loadSave",new Class[]{int.class},1),id+" save loads");
-                check(((String[])get("clubNames")).length==count && (Integer)get("selectedClub")==count-1,id+" club identity survives reload");
+                check(((String[])get("clubNames")).length==worldCount && (Integer)get("selectedClub")==count-1,id+" club identity survives reload");
                 if(id.equals("eng:2")) {
                     call("startLiveMatchday",new Class[0]);set("livePaused",true);
                     check((Boolean)get("liveMatchActive"),"24-club career starts live match");
@@ -179,22 +182,42 @@ public final class SmokeRunner extends Instrumentation {
                     set("matchday",round+1);call("prepareSplitIfNeeded",new Class[0]);
                 }
                 int expected=id.equals("sco:1")?38:id.equals("sco:2")?36:(count-1)*2;
-                for(int value:(int[])get("played"))if(value!=expected)throw new AssertionError(id+" wrong season appearances: "+value);
-                check(byes==(count%2==1?2:0),id+" byes and season lengths correct");
+                int expectedResults=0;
+                for(int club=0;club<worldCount;club++) {
+                    int members=((int[])worldClass.getMethod("members",int.class).invoke(world,memberships[club])).length;
+                    int games=id.startsWith("sco:")?(memberships[club]==1?38:36):(members-1)*2;
+                    if(((int[])get("played"))[club]!=games)throw new AssertionError(id+" wrong season appearances for "+club);
+                    expectedResults+=games;
+                }
+                check(byes==rounds-expected,id+" byes and season lengths correct");
                 call("saveCurrentGame",new Class[0]);call("loadSave",new Class[]{int.class},0);
                 check(((String[])get("clubNames")).length==18,"legacy world restored after "+id);
                 call("loadSave",new Class[]{int.class},1);
                 check((Integer)get("matchday")==rounds,id+" completed season reloads");
                 Object ledger=get("leagueResults");
-                check((Integer)ledger.getClass().getMethod("size").invoke(ledger)==count*expected/2,id+" all results survive reload");
-                if(id.equals("sco:1"))check(((int[])get("splitOrder")).length==12,"Scottish split survives reload");
+                check((Integer)ledger.getClass().getMethod("size").invoke(ledger)==expectedResults/2,id+" all results survive reload");
+                if(id.equals("sco:1")||(linked&&id.equals("sco:2")))check(((int[])get("splitOrder")).length==12,"Scottish split survives reload");
                 call("showLeagueTable",new Class[0]);
             });
             if(id.equals("eng:2")||id.equals("be:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-table");
+            if(linked)ui(()->{
+                int[] upper=(int[])worldClass.getMethod("members",int.class).invoke(world,1);
+                int[] lower=(int[])worldClass.getMethod("members",int.class).invoke(world,2);
+                boolean[] reserves=(boolean[])worldClass.getField("reserves").get(world);
+                int promoted=-1;for(int club:lower)if(!reserves[club]){promoted=club;break;}
+                Object moved=worldClass.getMethod("moveBetweenTiers",int[].class,int[].class,int.class).invoke(world,new int[]{promoted},new int[]{upper[0]},promoted);
+                check(worldClass.getField("tier").getInt(moved)==1,"promoted manager follows club");
+                check(java.util.Arrays.equals((String[])worldClass.getField("clubIds").get(world),(String[])worldClass.getField("clubIds").get(moved)),"tier movement preserves every club identity");
+                check(((int[])worldClass.getMethod("members",int.class).invoke(moved,1)).length==upper.length,"tier movement preserves division sizes");
+                Object restored=worldClass.getMethod("restore",String.class).invoke(null,worldClass.getMethod("snapshot").invoke(moved));
+                check(java.util.Arrays.equals((int[])worldClass.getField("clubTiers").get(moved),(int[])worldClass.getField("clubTiers").get(restored)),"membership movement survives snapshot");
+                call("showLeagueTable",new Class[]{int.class},3-worldClass.getField("tier").getInt(world));
+            });
+            if(linked&&(id.equals("eng:2")||id.equals("sco:2")))capture("linked-"+id.replace(':','-')+"-other-table");
             if(id.equals("eng:2"))page("division-eng-2-results","showLeagueResults",new Class[]{int.class},0);
         }
         ui(()->call("loadSave",new Class[]{int.class},0));
-        check(true,"all twenty division careers verified");
+        check(true,"all twenty standalone and twenty linked division careers verified");
     }
 
     @SuppressWarnings("unchecked") public void onStart(){

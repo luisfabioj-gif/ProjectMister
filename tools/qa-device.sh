@@ -12,8 +12,8 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 timeout 300s adb shell am instrument -w -e mode full com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/candidate.txt
 grep -q 'PASS completed match survives reload' qa-output/candidate.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/candidate.txt
-timeout 240s adb shell am instrument -w -e mode divisions com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/divisions.txt
-grep -q 'PASS all twenty division careers verified' qa-output/divisions.txt
+timeout 480s adb shell am instrument -w -e mode divisions com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/divisions.txt
+grep -q 'PASS all twenty standalone and twenty linked division careers verified' qa-output/divisions.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/divisions.txt
 adb shell wm size 720x1280
 adb shell wm density 320
