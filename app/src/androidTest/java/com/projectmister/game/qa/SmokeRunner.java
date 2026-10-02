@@ -213,9 +213,14 @@ public final class SmokeRunner extends Instrumentation {
                 check(java.util.Arrays.equals((int[])worldClass.getField("clubTiers").get(moved),(int[])worldClass.getField("clubTiers").get(restored)),"membership movement survives snapshot");
                 int other=3-worldClass.getField("tier").getInt(world);
                 call("showLeagueResults",new Class[]{int.class,int.class},0,other);
-                check(node("League results")!=null,"other division results screen opens");
-                call("showLeagueTable",new Class[]{int.class},other);
+
             });
+            if(linked) {
+                waitForIdleSync();
+                check(node("League results")!=null,"other division results screen opens");
+                if(id.equals("eng:2"))capture("linked-eng-2-other-results");
+                ui(()->call("showLeagueTable",new Class[]{int.class},3-worldClass.getField("tier").getInt(world)));
+            }
             if(linked&&(id.equals("eng:2")||id.equals("sco:2")))capture("linked-"+id.replace(':','-')+"-other-table");
             if(id.equals("eng:2"))page("division-eng-2-results","showLeagueResults",new Class[]{int.class},0);
         }
