@@ -147,7 +147,7 @@ public final class SmokeRunner extends Instrumentation {
                 check((Boolean)call("loadSave",new Class[]{int.class},1),id+" save loads");
                 check(((String[])get("clubNames")).length==count && (Integer)get("selectedClub")==count-1,id+" club identity survives reload");
                 if(id.equals("eng:2")) {
-                    call("startLiveMatchday",new Class[0]);set("livePaused",true);call("stopLiveMatchTicker",new Class[0]);
+                    call("startLiveMatchday",new Class[0]);set("livePaused",true);
                     check((Boolean)get("liveMatchActive"),"24-club career starts live match");
                     call("finishLiveMatch",new Class[0]);
                     check(((int[])get("played"))[count-1]==1,"24-club live result reaches table");

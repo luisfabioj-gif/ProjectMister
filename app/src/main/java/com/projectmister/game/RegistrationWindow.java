@@ -45,6 +45,17 @@ public final class RegistrationWindow {
                 "20:00", "Europe/Rome", source));
         return Collections.unmodifiableList(result);
     }
+    /** Explicit game calendar for later career seasons, never presented as official dates. */
+    public static List<RegistrationWindow> forCareerSeason(String country,int tier,int startYear) {
+        if(startYear<2026)return Collections.emptyList();
+        List<RegistrationWindow> base=forDivision(country,tier);
+        if(startYear==2026)return base;
+        List<RegistrationWindow> result=new ArrayList<>();
+        for(RegistrationWindow w:base)result.add(new RegistrationWindow(country,w.label+" (simulated)",
+                w.opens.plusYears(startYear-2026).toString(),w.closes.plusYears(startYear-2026).toString(),
+                w.deadline==null?null:w.deadline.toString(),w.zone.getId(),"Simulated career calendar based on 2026/27"));
+        return Collections.unmodifiableList(result);
+    }
     private static final List<RegistrationWindow> VERIFIED_2026 = new ArrayList<>();
     static {
         add("BE", "2026-06-17", "2026-09-03", "2027-01-02", "2027-02-03", null, "Europe/Brussels",

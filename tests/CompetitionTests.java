@@ -55,6 +55,12 @@ public final class CompetitionTests {
                 }
             }
         }
+        for(String country:new String[]{"ENG","ES","DE","IT","FR","PT","NL","BE","SCO","TR"})for(int tier=1;tier<=2;tier++) {
+            RegistrationWindow later=RegistrationWindow.forCareerSeason(country,tier,2027).get(0);
+            check(later.opens.getYear()==2027 && later.includes(later.opens),"later career window playable");
+            check(later.label.contains("simulated") && later.source.startsWith("Simulated"),"projected window marked honestly");
+            check(!later.includes(later.opens.minusYears(1)),"projected window season isolation");
+        }
         check(RegistrationWindow.forCountry("SCO").get(1).opens.equals(LocalDate.of(2027,1,5)),"Scottish winter opening");
         check(RegistrationWindow.forCountry("ES").get(1).closes.equals(LocalDate.of(2027,2,1)),"Spanish winter close verified against FIFA");
         boolean unknownRejected=false;

@@ -4783,15 +4783,15 @@ public class MainActivity extends Activity {
     }
 
     private String transferWindowStatus(LocalDate date) {
-        for (RegistrationWindow window : RegistrationWindow.forDivision(division==null?"PT":division.country, division==null?1:division.tier)) {
-            if (window.includes(date)) return "OPEN • Closes " + window.closes.format(DATE_FORMAT);
-            if (date.isBefore(window.opens)) return "CLOSED • Opens " + window.opens.format(DATE_FORMAT);
+        for (RegistrationWindow window : RegistrationWindow.forCareerSeason(division==null?"PT":division.country, division==null?1:division.tier, careerSeasonStart.getYear())) {
+            if (window.includes(date)) return "OPEN • Closes " + window.closes.format(DATE_FORMAT)+(careerSeasonStart.getYear()>2026?" • Simulated calendar":"");
+            if (date.isBefore(window.opens)) return "CLOSED • Opens " + window.opens.format(DATE_FORMAT)+(careerSeasonStart.getYear()>2026?" • Simulated calendar":"");
         }
         return "CLOSED • Next season's dates not yet confirmed";
     }
 
     private boolean isTransferWindowOpen(LocalDate date) {
-        for (RegistrationWindow window : RegistrationWindow.forDivision(division==null?"PT":division.country, division==null?1:division.tier))
+        for (RegistrationWindow window : RegistrationWindow.forCareerSeason(division==null?"PT":division.country, division==null?1:division.tier, careerSeasonStart.getYear()))
             if (window.includes(date)) return true;
         return false;
     }
@@ -6233,7 +6233,7 @@ public class MainActivity extends Activity {
     private void showSeasonReview() {
         backAction=this::showDashboard;
         LinearLayout page=createPage("Season review",leagueName()+" • Season complete",true);
-        page.addView(makeText("All league rounds have been completed. Promotion, relegation and European admissions are awaiting the competition expansion; this development career retains its division for the next season.",14,muted));
+        page.addView(makeText("All league rounds have been completed. Promotion, relegation and European admissions are awaiting the competition expansion; this development career retains its division for the next season. Future transfer windows use a simulated calendar based on 2026/27, not newly verified official dates.",14,muted));
         page.addView(makeButton("Final league table",v->showLeagueTable()));
         page.addView(makeAccentButton("Continue next season",v->{
             careerSeasonStart=careerSeasonStart.plusYears(1);currentDate=careerSeasonStart;matchday=0;splitOrder=new int[0];careerSchedule=null;

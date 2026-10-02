@@ -235,6 +235,6 @@ Remaining explicit limitations: dates still use a simulated weekly calendar;
 national tie-breakers, split venue optimisation, reserve eligibility, promotion,
 relegation and playable domestic/European cups are unfinished. New division careers
 do not show the legacy Portuguese fictitious cup results. The next-season action
-retains the division and states that limitation. Later transfer windows remain
-closed until a future-season policy is implemented; 2026/27 deadlines are not
-silently relabelled as verified future dates. This is not a final release APK.
+retains the division and states that limitation. Later career seasons explicitly use a simulated registration calendar based on
+2026/27. The transfer hub and season review label it as simulated; verified
+2026/27 data remains unchanged. This is not a final release APK.
