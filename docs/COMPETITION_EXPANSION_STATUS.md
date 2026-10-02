@@ -266,3 +266,21 @@ Scottish split dividers are being verified in the follow-up build. The new-caree
 screen now explicitly identifies its weekly fixture calendar as simulated.
 The preceding 3437f80 run failed a QA setup assertion because the test stopped
 the ticker before asserting that the match was active; d9eb26d corrected that.
+
+## Verified selectable-division checkpoint
+
+Code 06d80c85042e6be5d5beba7c76fa93c0c60be45e passed both API 35 and 36 in
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37001842373
+All twenty full-season cases, legacy upgrades and existing feature tests passed.
+Final API 35 Scottish and English table screenshots were inspected: numeric
+columns are separated and the two Scottish groups are visibly labelled.
+
+## Result-history integration — in development
+
+LeagueResults now retains each played fixture and score, guards duplicate
+completion, and provides group-only mini-table data for future tie-breakers.
+A matchday results screen is connected to new division careers. The save stores
+its ledger separately, scoped to the save-owned club order. Older missing
+history is explicitly unavailable; aggregate tables are not reverse-engineered
+into fictional results. Corrupt optional history falls back without discarding
+the career. National tie-breakers and consequential-tie playoffs remain to wire.

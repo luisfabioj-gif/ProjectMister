@@ -63,3 +63,18 @@ https://developer.android.com/studio/publish/upload-bundle
 https://support.google.com/googleplay/android-developer/answer/9842756?hl=en
 https://support.google.com/googleplay/android-developer/answer/9859455?hl=en
 https://support.google.com/googleplay/android-developer/answer/14151465?hl=en
+
+## Local bundle packaging verification, 2 October 2026
+
+For the release AAB from successful run 37000932886 (code d9eb26d), official
+Google bundletool 1.18.3 `validate` passed. `build-apks` produced an APK set
+signed only with the existing public development key for testing; both generated
+base APK signatures passed apksigner. The release manifest preserves
+com.projectmister.game, version code 27, minimum API 26, target API 36,
+non-debuggable application, and no requested permissions. Estimated compressed
+APK-set delivery is approximately 1.80 MB (bundletool get-size).
+
+No bundle-generated APK was installed on a device in this local check; CI
+installs the Gradle debug APK. Bundle/split device installation and a private-key
+Play internal-track installation remain required before production readiness.
+No private production key was created and nothing was uploaded to Play Console.

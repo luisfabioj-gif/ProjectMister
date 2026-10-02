@@ -94,6 +94,7 @@ public class MainActivity extends Activity {
     private CompetitionCatalog catalog;
     private CareerDivision division;
     private int[] splitOrder = new int[0];
+    private LeagueResults leagueResults = new LeagueResults(18,false);
     private LocalDate careerSeasonStart = SEASON_START;
 
     private final String[] paletteNames = {
@@ -3791,6 +3792,7 @@ public class MainActivity extends Activity {
     }
 
     private void updateTable(int home, int away, int homeGoals, int awayGoals) {
+        if(division!=null && !leagueResults.record(matchday,home,away,homeGoals,awayGoals))return;
         played[home]++;
         played[away]++;
         goalsFor[home] += homeGoals;
@@ -3817,6 +3819,7 @@ public class MainActivity extends Activity {
     private void showLeagueTable() {
         backAction = () -> showDashboard();
         LinearLayout page = createPage(leagueName(), "Season " + careerSeasonStart.getYear()+"/"+(careerSeasonStart.getYear()+1)+" • Matchday " + matchday, true);
+        if(division!=null)page.addView(makeButton("League results",v->showLeagueResults(Math.max(0,matchday-1))));
         page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
         page.addView(makeText(division!=null && division.tier==2 ? "Promotion and relegation are not yet simulated in this development career." : "2027/28 European reference • Cup results, UEFA adjustments and licensing apply. Career admissions are not yet simulated.", 12, muted));
 
@@ -6161,7 +6164,7 @@ public class MainActivity extends Activity {
         budgets=value==null?legacyBudgets.clone():value.budgets.clone();
         defaultPrimary=value==null?legacyPrimary.clone():value.primary.clone();
         defaultSecondary=value==null?legacySecondary.clone():value.secondary.clone();
-        int n=defaultClubNames.length;shortNames=value==null?legacyShort.clone():new String[n];
+        int n=defaultClubNames.length;leagueResults=new LeagueResults(n,value!=null);shortNames=value==null?legacyShort.clone():new String[n];
         if(value!=null)for(int i=0;i<n;i++) {
             String letters=defaultClubNames[i].replaceAll("[^\\p{L}]", "").toUpperCase(Locale.ROOT);
             shortNames[i]=letters.substring(0,Math.min(3,letters.length()));
@@ -6234,6 +6237,33 @@ public class MainActivity extends Activity {
         addNews("LEAGUE","Rest week completed","Your club had no league fixture this round. The other league results and your weekly club operations have been processed.");
         saveCurrentGame();showDashboard();
     }
+    private void resetLeagueStandings() {
+        for(int[] array:new int[][]{played,won,drawn,lost,goalsFor,goalsAgainst,points})Arrays.fill(array,0);
+        Arrays.fill(clubMatchGF,-1);Arrays.fill(clubMatchGA,-1);
+        leagueResults=new LeagueResults(clubNames.length,division!=null);
+    }
+    private void showLeagueResults(int requestedRound) {
+        int round=Math.max(0,Math.min(seasonRounds()-1,requestedRound));
+        backAction=this::showLeagueTable;
+        LinearLayout page=createPage("League results",leagueName()+" • Matchday "+(round+1),true);
+        page.addView(makeText(careerSeasonStart.plusDays(round*7L).format(DATE_FORMAT)+" • Simulated fixture calendar",12,muted));
+        LinearLayout controls=new LinearLayout(this);controls.setOrientation(LinearLayout.HORIZONTAL);
+        Button previous=makeButton("Previous",v->showLeagueResults(round-1));previous.setEnabled(round>0);
+        Button next=makeButton("Next",v->showLeagueResults(round+1));next.setEnabled(round+1<seasonRounds());
+        controls.addView(previous,new LinearLayout.LayoutParams(0,-2,1));controls.addView(next,new LinearLayout.LayoutParams(0,-2,1));page.addView(controls);
+        if(!leagueResults.recordedFromStart)page.addView(makeText("Earlier results were not stored by this save. New results are retained from this update onwards.",12,muted));
+        LeagueSchedule.Pairing[] fixtures=fixturesForRound(round);
+        if(fixtures.length==0)page.addView(makeText("Split fixtures will appear once the groups are confirmed.",14,muted));
+        for(LeagueSchedule.Pairing f:fixtures) {
+            LeagueResults.Result result=leagueResults.fixture(round,f.home,f.away);
+            LinearLayout card=makePanel();
+            card.addView(makeText(clubNames[f.home]+"  v  "+clubNames[f.away],15,f.contains(selectedClub)?accent:text));
+            card.addView(makeText(result==null?(round<matchday?"Result unavailable":"Scheduled"):"FT  "+result.homeGoals+" – "+result.awayGoals,14,muted));
+            page.addView(card);
+        }
+        if(fixtures.length>0 && leagueOpponentForRound(round)<0)page.addView(makeText("Your club has a bye this round.",14,accent));
+        page.addView(makeButton("League table",v->showLeagueTable()));
+    }
     private void showSeasonReview() {
         backAction=this::showDashboard;
         LinearLayout page=createPage("Season review",leagueName()+" • Season complete",true);
@@ -6241,8 +6271,7 @@ public class MainActivity extends Activity {
         page.addView(makeButton("Final league table",v->showLeagueTable()));
         page.addView(makeAccentButton("Continue next season",v->{
             careerSeasonStart=careerSeasonStart.plusYears(1);currentDate=careerSeasonStart;matchday=0;splitOrder=new int[0];careerSchedule=null;
-            for(int[] array:new int[][]{played,won,drawn,lost,goalsFor,goalsAgainst,points})Arrays.fill(array,0);
-            Arrays.fill(clubMatchGF,-1);Arrays.fill(clubMatchGA,-1);saveCurrentGame();showDashboard();
+            resetLeagueStandings();saveCurrentGame();showDashboard();
         }));
     }
 
@@ -6300,6 +6329,7 @@ public class MainActivity extends Activity {
                 .putString(key(selectedSlot,"career_world"),division==null?"":division.snapshot())
                 .putString(key(selectedSlot,"season_start"),careerSeasonStart.toString())
                 .putString(key(selectedSlot,"split_order"),encode(splitOrder))
+                .putString(key(selectedSlot,"league_results"),division==null?"":leagueResults.snapshot())
                 .putString(key(selectedSlot, "manager_first"), managerFirstName)
                 .putString(key(selectedSlot, "manager_last"), managerLastName)
                 .putString(key(selectedSlot, "manager_dob"), managerDob)
@@ -6434,6 +6464,9 @@ public class MainActivity extends Activity {
         decode(prefs.getString(key(slot, "ga"), ""), goalsAgainst);
         decode(prefs.getString(key(slot, "points"), ""), points);
 
+        String history=prefs.getString(key(slot,"league_results"),"");
+        try { leagueResults=history.isEmpty()?new LeagueResults(clubNames.length,division!=null&&matchday==0):LeagueResults.restore(history,clubNames.length); }
+        catch(RuntimeException invalid){leagueResults=new LeagueResults(clubNames.length,false);android.util.Log.w("BOSSXI","Optional result history unavailable",invalid);}
         generatePlayers();
         decodePlayerField(prefs.getString(key(slot, "p_apps"), ""), "apps");
         decodePlayerField(prefs.getString(key(slot, "p_goals"), ""), "goals");
@@ -6472,7 +6505,7 @@ public class MainActivity extends Activity {
     private void clearSave(int slot) {
         SharedPreferences.Editor editor = prefs.edit();
         String[] fields = {
-                "career_world", "season_start", "split_order", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
+                "career_world", "season_start", "split_order", "league_results", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
                 "manager_wage", "manager_contract_years", "manager_tactical", "manager_motivating", "manager_discipline", "manager_player_knowledge", "manager_youth", "manager_negotiating",
                 "matchday", "date", "training", "formation", "playstyle", "budget", "roles", "role_slots", "role_pos",
                 "staff_am_name", "staff_am_rating", "staff_coach_name", "staff_coach_rating", "staff_scout_name", "staff_scout_rating",
@@ -7887,6 +7920,7 @@ public class MainActivity extends Activity {
 
     private void resetCareerState() {
         fixtureVersion = 2;
+        leagueResults=new LeagueResults(clubNames.length,division!=null);
         careerSchedule = null;
         matchday = 0;
         currentDate = careerSeasonStart;

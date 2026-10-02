@@ -153,7 +153,7 @@ public final class SmokeRunner extends Instrumentation {
                     check(((int[])get("played"))[count-1]==1,"24-club live result reaches table");
                     call("loadSave",new Class[]{int.class},1);
                     check(((int[])get("played"))[count-1]==1,"24-club live result survives reload");
-                    for(String field:new String[]{"played","won","drawn","lost","goalsFor","goalsAgainst","points"})Arrays.fill((int[])get(field),0);
+                    call("resetLeagueStandings",new Class[0]);
                 }
                 if(count%2==1) {
                     int bye=-1;int total=(Integer)call("seasonRounds",new Class[0]);
@@ -161,7 +161,7 @@ public final class SmokeRunner extends Instrumentation {
                     check(bye>=0,"odd division has rest round");set("matchday",bye);
                     call("advanceByeRound",new Class[0]);
                     check(((int[])get("played"))[count-1]==0 && (Integer)get("matchday")==bye+1,"bye advances without invented result");
-                    for(String field:new String[]{"played","won","drawn","lost","goalsFor","goalsAgainst","points"})Arrays.fill((int[])get(field),0);
+                    call("resetLeagueStandings",new Class[0]);
                 }
                 int rounds=(Integer)call("seasonRounds",new Class[0]);int byes=0;
                 for(int round=0;round<rounds;round++) {
@@ -185,10 +185,13 @@ public final class SmokeRunner extends Instrumentation {
                 check(((String[])get("clubNames")).length==18,"legacy world restored after "+id);
                 call("loadSave",new Class[]{int.class},1);
                 check((Integer)get("matchday")==rounds,id+" completed season reloads");
+                Object ledger=get("leagueResults");
+                check((Integer)ledger.getClass().getMethod("size").invoke(ledger)==count*expected/2,id+" all results survive reload");
                 if(id.equals("sco:1"))check(((int[])get("splitOrder")).length==12,"Scottish split survives reload");
                 call("showLeagueTable",new Class[0]);
             });
             if(id.equals("eng:2")||id.equals("be:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-table");
+            if(id.equals("eng:2"))page("division-eng-2-results","showLeagueResults",new Class[]{int.class},0);
         }
         ui(()->call("loadSave",new Class[]{int.class},0));
         check(true,"all twenty division careers verified");
