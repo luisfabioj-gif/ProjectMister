@@ -213,3 +213,28 @@ Stable main and the previously delivered APK are unchanged. No completed
 20-division APK or Play Store release is claimed. The catalog is shipped data;
 active careers still use the legacy 18-club world. Remaining work is explicitly
 listed above, especially world/save integration and actual competition outcomes.
+
+
+## Playable-division integration, 2 October 2026 — awaiting device verification
+
+Twenty catalog divisions are now selectable for new careers. CareerDivision saves
+own their club identities and seed data; legacy saves restore the original world.
+Squad, scouting, roles, table and result arrays follow the selected division size.
+Players, budgets and ratings remain explicitly fictional. One division is active
+per career at this stage; a two-division promotion world is not yet implemented.
+
+All active fixtures share the schedule, including 15-club byes, the Scottish
+Championship's four meetings, and the Premiership's 33-round plus 6/6 split.
+The split is persisted and table groups stay locked. A bye advances club operations
+without inventing a match or appearances. Android QA exercises all twenty full
+seasons, save/world switching, a 24-club live match and a 15-club rest round.
+Local property tests cover 21 schedule formats. Device results will be recorded
+when CI completes; compilation alone does not validate this change.
+
+Remaining explicit limitations: dates still use a simulated weekly calendar;
+national tie-breakers, split venue optimisation, reserve eligibility, promotion,
+relegation and playable domestic/European cups are unfinished. New division careers
+do not show the legacy Portuguese fictitious cup results. The next-season action
+retains the division and states that limitation. Later transfer windows remain
+closed until a future-season policy is implemented; 2026/27 deadlines are not
+silently relabelled as verified future dates. This is not a final release APK.

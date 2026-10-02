@@ -45,18 +45,18 @@ public class MainActivity extends Activity {
 
     private static final int SAVE_SLOTS = 3;
     private static final int PLAYERS_PER_TEAM = 20;
-    private static final int TOTAL_PLAYERS = 18 * PLAYERS_PER_TEAM;
+    private int TOTAL_PLAYERS = 18 * PLAYERS_PER_TEAM;
     private static final LocalDate SEASON_START = LocalDate.of(2026, 8, 9);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.UK);
     private static final String[] COUNTRY_OPTIONS = {
             "🇵🇹 Portugal", "🇪🇸 Spain", "🇫🇷 France", "🇮🇹 Italy",
             "🇩🇪 Germany", "🏴 England", "🇳🇱 Netherlands", "🇧🇷 Brazil"
     };
-    private static final String[] LEAGUE_OPTIONS = {
+    private String[] LEAGUE_OPTIONS = {
             "🇵🇹 Portugal • Primeira Liga"
     };
 
-    private final String[] defaultClubNames = {
+    private String[] defaultClubNames = {
             "Lisboa Águias", "Lisboa Leões", "Porto Dragões", "Braga Guerreiros",
             "Guimarães Castelo", "Famal Norte", "Moreira FC", "Vila do Conde",
             "Barcelos FC", "Estoril Praia", "Lisboa Corvos", "Açores FC",
@@ -64,30 +64,37 @@ public class MainActivity extends Activity {
             "Tondela SC", "Vila das Aves"
     };
 
-    private final String[] shortNames = {
+    private String[] shortNames = {
             "LAG", "LLE", "PDR", "BGR", "GCT", "FAM", "MOR", "VDC", "BAR",
             "EST", "LCO", "ACO", "MDN", "ALV", "ARO", "AMA", "TON", "VDA"
     };
 
-    private final int[] strength = {
+    private int[] strength = {
             88, 87, 86, 81, 78, 75, 72, 71, 70, 72, 68, 71, 69, 67, 70, 67, 66, 65
     };
 
-    private final int[] budgets = {
+    private int[] budgets = {
             42, 38, 36, 20, 12, 10, 8, 9, 7, 10, 6, 8, 7, 6, 8, 6, 5, 5
     };
 
-    private final int[] defaultPrimary = {
+    private int[] defaultPrimary = {
             0xFFE53935, 0xFF1B8F4D, 0xFF1565C0, 0xFFD32F2F, 0xFFF5F5F5, 0xFF1565C0,
             0xFF2E7D32, 0xFF2E7D32, 0xFFD32F2F, 0xFFFBC02D, 0xFF20252B, 0xFFD32F2F,
             0xFF20252B, 0xFFD32F2F, 0xFFFBC02D, 0xFFD32F2F, 0xFF2E7D32, 0xFFD32F2F
     };
 
-    private final int[] defaultSecondary = {
+    private int[] defaultSecondary = {
             0xFFF5F5F5, 0xFFF5F5F5, 0xFFF5F5F5, 0xFFF5F5F5, 0xFF20252B, 0xFFF5F5F5,
             0xFFF5F5F5, 0xFFF5F5F5, 0xFF1565C0, 0xFF1565C0, 0xFFF5F5F5, 0xFFF5F5F5,
             0xFFF5F5F5, 0xFF1565C0, 0xFF1565C0, 0xFFF5F5F5, 0xFFFBC02D, 0xFFF5F5F5
     };
+
+    private final String[] legacyNames=defaultClubNames.clone(), legacyShort=shortNames.clone();
+    private final int[] legacyStrength=strength.clone(), legacyBudgets=budgets.clone(), legacyPrimary=defaultPrimary.clone(), legacySecondary=defaultSecondary.clone();
+    private CompetitionCatalog catalog;
+    private CareerDivision division;
+    private int[] splitOrder = new int[0];
+    private LocalDate careerSeasonStart = SEASON_START;
 
     private final String[] paletteNames = {
             "Red", "Green", "Blue", "Yellow", "Orange", "Purple", "Black", "White", "Sky Blue", "Pink"
@@ -98,17 +105,17 @@ public class MainActivity extends Activity {
             0xFF7B1FA2, 0xFF20252B, 0xFFF5F5F5, 0xFF039BE5, 0xFFD81B60
     };
 
-    private final String[] clubNames = new String[18];
-    private final int[] primaryColours = new int[18];
-    private final int[] secondaryColours = new int[18];
+    private String[] clubNames = new String[18];
+    private int[] primaryColours = new int[18];
+    private int[] secondaryColours = new int[18];
 
-    private final int[] played = new int[18];
-    private final int[] won = new int[18];
-    private final int[] drawn = new int[18];
-    private final int[] lost = new int[18];
-    private final int[] goalsFor = new int[18];
-    private final int[] goalsAgainst = new int[18];
-    private final int[] points = new int[18];
+    private int[] played = new int[18];
+    private int[] won = new int[18];
+    private int[] drawn = new int[18];
+    private int[] lost = new int[18];
+    private int[] goalsFor = new int[18];
+    private int[] goalsAgainst = new int[18];
+    private int[] points = new int[18];
 
     private final ArrayList<Player> players = new ArrayList<>();
     private final Random random = new Random();
@@ -144,14 +151,14 @@ public class MainActivity extends Activity {
     private String tacticFormation = "4-3-3";
     private String playStyle = "Balanced";
     private int currentTransferBudget = 0;
-    private final int[] playerRoleStatus = new int[TOTAL_PLAYERS]; // 2=start, 1=sub, 0=reserve
-    private final int[] playerSelectedSlot = new int[TOTAL_PLAYERS]; // starter slot index if selected in XI
-    private final String[] playerSelectedPosition = new String[TOTAL_PLAYERS];
-    private final int[] clubMatchGF = new int[34];
+    private int[] playerRoleStatus = new int[TOTAL_PLAYERS]; // 2=start, 1=sub, 0=reserve
+    private int[] playerSelectedSlot = new int[TOTAL_PLAYERS]; // starter slot index if selected in XI
+    private String[] playerSelectedPosition = new String[TOTAL_PLAYERS];
+    private int[] clubMatchGF = new int[34];
     // Version 0 preserves already-played legacy careers; new careers share a whole-league schedule.
     private int fixtureVersion = 2;
     private LeagueSchedule careerSchedule;
-    private final int[] clubMatchGA = new int[34];
+    private int[] clubMatchGA = new int[34];
     private Runnable backAction = null;
     private String managerFirstName = "";
     private String managerLastName = "";
@@ -179,10 +186,10 @@ public class MainActivity extends Activity {
     // CM 01/02-inspired career systems. These are original Project Mister implementations
     // based on documented gameplay concepts, not copied source code.
     private boolean attributeMasking = true;
-    private final int[] scoutKnowledge = new int[TOTAL_PLAYERS]; // 0 unknown, 1 basic, 2 partial, 3 report, 4 full
-    private final int[] scoutDueRound = new int[TOTAL_PLAYERS];
-    private final boolean[] shortlisted = new boolean[TOTAL_PLAYERS];
-    private final String[] managerNotes = new String[TOTAL_PLAYERS];
+    private int[] scoutKnowledge = new int[TOTAL_PLAYERS]; // 0 unknown, 1 basic, 2 partial, 3 report, 4 full
+    private int[] scoutDueRound = new int[TOTAL_PLAYERS];
+    private boolean[] shortlisted = new boolean[TOTAL_PLAYERS];
+    private String[] managerNotes = new String[TOTAL_PLAYERS];
     private int comparePlayerId = -1;
     private int boardConfidence = 65;
     private int managerReputation = 45;
@@ -474,6 +481,7 @@ public class MainActivity extends Activity {
         getWindow().setNavigationBarColor(background);
         safeEnableImmersiveNavigation();
         prefs = getSharedPreferences("project_mister", MODE_PRIVATE);
+        loadCompetitionCatalog();
         loadEditorData();
         generatePlayers();
         portraits = new PortraitManager(this);
@@ -770,7 +778,7 @@ public class MainActivity extends Activity {
                 String date = prefs.getString(key(slot, "date"), SEASON_START.toString());
 
                 TextView details = makeText(
-                        clubNames[club] + "\nMatchday " + md + "  •  " + pts + " pts\n" + date,
+                        savedClubName(slot, club) + "\nMatchday " + md + "  •  " + pts + " pts\n" + date,
                         18,
                         text
                 );
@@ -779,8 +787,7 @@ public class MainActivity extends Activity {
                 box.addView(details);
 
                 box.addView(makeAccentButton("Continue Career", v -> {
-                    loadSave(s);
-                    showDashboard();
+                    if (loadSave(s)) showDashboard();
                 }));
 
                 Button delete = makeButton("Delete Save", v -> confirmDeleteSave(s));
@@ -794,6 +801,7 @@ public class MainActivity extends Activity {
 
                 box.addView(makeAccentButton("Start New Career", v -> {
                     selectedSlot = s;
+                    configureDivision(null);
                     resetCareerState();
                     generatePlayers();
                     initialiseNewManagerDefaults();
@@ -881,7 +889,7 @@ public class MainActivity extends Activity {
                 .show());
         page.addView(leagueButton);
 
-        TextView note = makeText("Flags show your country of origin. More starting leagues can be added in later database updates.", 13, muted);
+        TextView note = makeText("Choose a country and division. Club names are real; players, budgets and ratings are generated for your career.", 13, muted);
         note.setPadding(0, 0, 0, dp(12));
         page.addView(note);
 
@@ -896,6 +904,7 @@ public class MainActivity extends Activity {
             managerFirstName = first;
             managerLastName = last;
             managerDob = dob;
+            configureDivision(managerLeagueIndex==0 ? null : new CareerDivision(catalog.divisions.get(managerLeagueIndex-1)));
             showClubSelection();
         }));
 
@@ -962,22 +971,22 @@ public class MainActivity extends Activity {
         LinearLayout fixture=makePanel();
         fixture.addView(profileSectionTitle("NEXT FIXTURE"));
         int opponent=leagueOpponentForRound(matchday);
-        fixture.addView(makeText(clubNames[selectedClub]+"  v  "+clubNames[opponent],21,text));
-        fixture.addView(makeText((selectedHomeForRound(matchday)?"Home":"Away")+"  •  League  •  "+tacticFormation,13,muted));
-        fixture.addView(makeAccentButton("Match centre",v->startLiveMatchday()));
+        fixture.addView(makeText(opponent<0 ? (matchday>=seasonRounds()?"Season complete":"No fixture • bye round") : clubNames[selectedClub]+"  v  "+clubNames[opponent],21,text));
+        fixture.addView(makeText((opponent<0?"Rest week":selectedHomeForRound(matchday)?"Home":"Away")+"  •  "+leagueName()+"  •  "+tacticFormation,13,muted));
+        fixture.addView(makeAccentButton(matchday>=seasonRounds()?"Season review":opponent<0?"Advance bye round":"Match centre",v->startLiveMatchday()));
         page.addView(fixture);
         int rank=1;
-        for(int i=0;i<clubNames.length;i++) if(i!=selectedClub && (points[i]>points[selectedClub] || (points[i]==points[selectedClub] && goalsFor[i]-goalsAgainst[i]>goalsFor[selectedClub]-goalsAgainst[selectedClub]))) rank++;
+        for(int i=0;i<clubNames.length;i++) if(i!=selectedClub && compareLeagueClubs(i,selectedClub)<0) rank++;
         int fit=0,count=0,injured=0;
         for(Player p:players) if(p.team==selectedClub) { fit+=p.fitness;count++;if(p.injuredWeeks>0)injured++; }
         LinearLayout overview=makePanel();
         overview.addView(profileSectionTitle("CLUB PULSE"));
-        overview.addView(profileInfoRow("League position",rank+" / 18  •  "+points[selectedClub]+" pts"));
+        overview.addView(profileInfoRow("League position",rank+" / "+clubNames.length+"  •  "+points[selectedClub]+" pts"));
         overview.addView(profileInfoRow("Bank balance",moneyK(financeBalanceK)));
         overview.addView(profileInfoRow("Squad condition",(count==0?0:fit/count)+"%  •  "+injured+" injured"));
         overview.addView(profileInfoRow("Board confidence",boardConfidence+"%"));
         overview.addView(profileInfoRow("Manager",managerFullName()));
-        if(matchday>0 && matchday-1<clubMatchGF.length) overview.addView(profileInfoRow("Last result",clubMatchGF[matchday-1]+" – "+clubMatchGA[matchday-1]));
+        if(matchday>0 && matchday-1<clubMatchGF.length && clubMatchGF[matchday-1]>=0) overview.addView(profileInfoRow("Last result",clubMatchGF[matchday-1]+" – "+clubMatchGA[matchday-1]));
         StringBuilder form=new StringBuilder();
         for(int i=Math.max(0,matchday-5);i<Math.min(matchday,clubMatchGF.length);i++) if(clubMatchGF[i]>=0) form.append(clubMatchGF[i]>clubMatchGA[i]?"W  ":clubMatchGF[i]<clubMatchGA[i]?"L  ":"D  ");
         overview.addView(profileInfoRow("Recent form",form.length()==0?"Season opening":form.toString()));
@@ -1223,6 +1232,8 @@ public class MainActivity extends Activity {
     private void stopLiveMatchAudio() { if(audio!=null) { audio.close(); audio=null; } }
 
     private void startLiveMatchday() {
+        if (division!=null && matchday>=seasonRounds()) { showSeasonReview(); return; }
+        if (division!=null && leagueOpponentForRound(matchday)<0) { advanceByeRound(); return; }
         if (countRole(2) != 11) {
             Toast.makeText(this, "Select exactly 11 starters in Tactics before the match.", Toast.LENGTH_LONG).show();
             showTactics();
@@ -1239,7 +1250,7 @@ public class MainActivity extends Activity {
 
         liveOtherFixtures.clear();
         if (fixtureVersion >= 1) {
-            for (LeagueSchedule.Pairing pairing : leagueSchedule().round(Math.floorMod(matchday, leagueSchedule().roundCount()))) {
+            for (LeagueSchedule.Pairing pairing : fixturesForRound(matchday)) {
                 if (!pairing.contains(selectedClub)) liveOtherFixtures.add(new int[]{pairing.home, pairing.away});
             }
         } else {
@@ -3209,7 +3220,8 @@ public class MainActivity extends Activity {
         matchday++;
         processScoutingAssignments();
         processInjuriesAndRecovery();
-        if (matchday == 34) processSeasonEnd();
+        prepareSplitIfNeeded();
+        if (matchday == seasonRounds()) processSeasonEnd();
         LocalDate playedDate = currentDate;
         currentDate = currentDate.plusDays(7);
         saveCurrentGame();
@@ -3804,22 +3816,13 @@ public class MainActivity extends Activity {
 
     private void showLeagueTable() {
         backAction = () -> showDashboard();
-        LinearLayout page = createPage("Liga Portugal", "Season 2026/27 • Matchday " + matchday, true);
+        LinearLayout page = createPage(leagueName(), "Season " + careerSeasonStart.getYear()+"/"+(careerSeasonStart.getYear()+1)+" • Matchday " + matchday, true);
         page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
         page.addView(makeText("Projected finishing zones • CL: Champions League • EL: Europa League • CO: Conference League. Cup results, UEFA adjustments and licensing can change entry. These are reference zones, not confirmed career admissions.", 12, muted));
 
         Integer[] order = new Integer[clubNames.length];
         for (int i = 0; i < clubNames.length; i++) order[i] = i;
-        Arrays.sort(order, new Comparator<Integer>() {
-            @Override
-            public int compare(Integer a, Integer b) {
-                if (points[a] != points[b]) return Integer.compare(points[b], points[a]);
-                int gdA = goalsFor[a] - goalsAgainst[a];
-                int gdB = goalsFor[b] - goalsAgainst[b];
-                if (gdA != gdB) return Integer.compare(gdB, gdA);
-                return Integer.compare(goalsFor[b], goalsFor[a]);
-            }
-        });
+        Arrays.sort(order, this::compareLeagueClubs);
 
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
@@ -3855,10 +3858,8 @@ public class MainActivity extends Activity {
             clubName.setSingleLine(true);clubName.setEllipsize(android.text.TextUtils.TruncateAt.END);
             clubName.setTypeface(Typeface.DEFAULT_BOLD);clubCell.addView(clubName);
             int rank = position + 1;
-            String zone = rank <= 2 ? "CL · League phase*" : rank == 3 ? "CL · Q3*"
-                    : rank == 4 ? "EL · Q2*" : rank == 5 ? "CO · Q2*"
-                    : rank == 6 ? "Europe · cup-dependent*" : rank == 16 ? "Relegation play-off"
-                    : rank >= 17 ? "Relegation" : "";
+            String zone = division==null ? (rank<=6 ? EuropeanAccess.positionLabel("PT",rank) : rank==16?"Relegation play-off":rank>=17?"Relegation":"")
+                    : division.tier==1 ? EuropeanAccess.positionLabel(division.country,rank) : "";
             if (!zone.isEmpty()) clubCell.addView(makeText(zone, 10, rank >= 16 ? danger : accent));
             row.addView(clubCell);
             row.addView(makeLeagueCell(String.valueOf(played[club]), 0.55f, muted, false));
@@ -4782,7 +4783,7 @@ public class MainActivity extends Activity {
     }
 
     private String transferWindowStatus(LocalDate date) {
-        for (RegistrationWindow window : RegistrationWindow.forCountry("PT")) {
+        for (RegistrationWindow window : RegistrationWindow.forDivision(division==null?"PT":division.country, division==null?1:division.tier)) {
             if (window.includes(date)) return "OPEN • Closes " + window.closes.format(DATE_FORMAT);
             if (date.isBefore(window.opens)) return "CLOSED • Opens " + window.opens.format(DATE_FORMAT);
         }
@@ -4790,7 +4791,7 @@ public class MainActivity extends Activity {
     }
 
     private boolean isTransferWindowOpen(LocalDate date) {
-        for (RegistrationWindow window : RegistrationWindow.forCountry("PT"))
+        for (RegistrationWindow window : RegistrationWindow.forDivision(division==null?"PT":division.country, division==null?1:division.tier))
             if (window.includes(date)) return true;
         return false;
     }
@@ -5603,7 +5604,12 @@ public class MainActivity extends Activity {
     }
 
     private void updatePlayerMatchStats() {
+        boolean[] playing=new boolean[clubNames.length];
+        if(division!=null)for(LeagueSchedule.Pairing f:fixturesForRound(matchday)){playing[f.home]=true;playing[f.away]=true;}
         for (Player p : players) {
+            if(division!=null && (p.team<0 || p.team>=playing.length || !playing[p.team])) {
+                p.fitness=Math.min(100,p.fitness+3);continue;
+            }
             if(p.team==liveHome || p.team==liveAway) {
                 if(matchParticipants.contains(p.id)) { p.appearances++;p.morale=Math.max(30,Math.min(100,p.morale+1)); }
                 else p.fitness=Math.min(100,p.fitness+3);
@@ -5727,10 +5733,10 @@ public class MainActivity extends Activity {
         ArrayList<Fixture> list = new ArrayList<>();
 
         if ("League".equals(tab)) {
-            for (int round = 0; round < 34; round++) {
+            for (int round = 0; round < seasonRounds(); round++) {
                 Fixture f = new Fixture(
-                        SEASON_START.plusDays(round * 7L),
-                        "Liga Portugal",
+                        careerSeasonStart.plusDays(round * 7L),
+                        leagueName(),
                         "League Matchday " + (round + 1),
                         leagueOpponentForRound(round),
                         selectedHomeForRound(round)
@@ -5745,6 +5751,7 @@ public class MainActivity extends Activity {
             return list;
         }
 
+        if (division!=null) return list; // No fabricated cup progression for new database careers.
         if ("Taça".equals(tab)) {
             int[] months = {10, 11, 12, 2, 3, 4, 5};
             int[] days = {18, 22, 17, 10, 3, 21, 30};
@@ -5796,14 +5803,16 @@ public class MainActivity extends Activity {
         if (careerSchedule == null) {
             int[] ids = new int[clubNames.length];
             for (int i = 0; i < ids.length; i++) ids[i] = i;
-            careerSchedule = new LeagueSchedule(ids, 2, fixtureVersion >= 2);
+            careerSchedule = new LeagueSchedule(ids, division==null?2:division.meetings(), fixtureVersion >= 2);
         }
         return careerSchedule;
     }
 
     private int leagueOpponentForRound(int round) {
-        if (fixtureVersion >= 1) return leagueSchedule().fixture(
-                Math.floorMod(round, leagueSchedule().roundCount()), selectedClub).opponent(selectedClub);
+        if (fixtureVersion >= 1) {
+            for(LeagueSchedule.Pairing pairing:fixturesForRound(round))if(pairing.contains(selectedClub))return pairing.opponent(selectedClub);
+            return -999;
+        }
         int halfRound = Math.floorMod(round, 17);
         int opponent = (selectedClub + halfRound + 1) % 18;
         if (opponent == selectedClub) opponent = (opponent + 1) % 18;
@@ -5811,8 +5820,10 @@ public class MainActivity extends Activity {
     }
 
     private boolean selectedHomeForRound(int round) {
-        if (fixtureVersion >= 1) return leagueSchedule().fixture(
-                Math.floorMod(round, leagueSchedule().roundCount()), selectedClub).home == selectedClub;
+        if (fixtureVersion >= 1) {
+            for(LeagueSchedule.Pairing pairing:fixturesForRound(round))if(pairing.contains(selectedClub))return pairing.home==selectedClub;
+            return false;
+        }
         boolean firstHalfHome = ((round + selectedClub) % 2 == 0);
         return round < 17 ? firstHalfHome : !firstHalfHome;
     }
@@ -5824,7 +5835,7 @@ public class MainActivity extends Activity {
     }
 
     private String fixtureOpponentName(Fixture f) {
-        if (f.opponent == -999) return "TBD";
+        if (f.opponent == -999) return division==null?"TBD":division.splitSeason()?"Split fixtures pending":"Bye • rest week";
         if (f.opponent >= 0) return clubNames[f.opponent];
         String[] europeanOpponents = {
                 "Madrid Blanco", "Catalunya Blau", "Manchester Red", "London Cannon",
@@ -5894,6 +5905,7 @@ public class MainActivity extends Activity {
     }
 
     private String europeanCompetitionForClub(int club) {
+        if(division!=null)return "Entry not assigned";
         if (club == 1 || club == 2) return "Champions League";
         if (club == 0) return "Europa League";
         if (club == 3) return "Conference League";
@@ -5915,8 +5927,8 @@ public class MainActivity extends Activity {
                 "CM", "CM", "AM", "RM", "LM", "RW", "LW", "ST", "ST", "ST"
         };
 
-        for (int team = 0; team < 18; team++) {
-            Random r = new Random(71000L + team * 997L);
+        for (int team = 0; team < clubNames.length; team++) {
+            Random r = new Random(71000L + (division==null?team*997L:division.clubIds[team].hashCode()));
             for (int i = 0; i < PLAYERS_PER_TEAM; i++) {
                 Player p = new Player(team * PLAYERS_PER_TEAM + i, team);
                 p.name = firstNames[r.nextInt(firstNames.length)] + " " + lastNames[r.nextInt(lastNames.length)];
@@ -6127,19 +6139,122 @@ public class MainActivity extends Activity {
         return "Custom";
     }
 
+    private void loadCompetitionCatalog() {
+        try(java.io.InputStream in=getAssets().open("competitions/2026-27.json")) {
+            catalog=CompetitionCatalog.read(in);
+            LEAGUE_OPTIONS=new String[catalog.divisions.size()+1];LEAGUE_OPTIONS[0]="BOSS XI Classic • Portugal";
+            for(int i=0;i<catalog.divisions.size();i++) {
+                CompetitionCatalog.Division d=catalog.divisions.get(i);
+                LEAGUE_OPTIONS[i+1]=d.country+" • "+d.name;
+            }
+        }catch(Exception error){android.util.Log.w("BOSSXI","Optional competition catalog unavailable",error);}
+    }
+
+    private void configureDivision(CareerDivision value) {
+        division=value;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
+        defaultClubNames=value==null?legacyNames.clone():value.names.clone();
+        strength=value==null?legacyStrength.clone():value.strengths.clone();
+        budgets=value==null?legacyBudgets.clone():value.budgets.clone();
+        defaultPrimary=value==null?legacyPrimary.clone():value.primary.clone();
+        defaultSecondary=value==null?legacySecondary.clone():value.secondary.clone();
+        int n=defaultClubNames.length;shortNames=value==null?legacyShort.clone():new String[n];
+        if(value!=null)for(int i=0;i<n;i++) {
+            String letters=defaultClubNames[i].replaceAll("[^\\p{L}]", "").toUpperCase(Locale.ROOT);
+            shortNames[i]=letters.substring(0,Math.min(3,letters.length()));
+        }
+        clubNames=new String[n];primaryColours=new int[n];secondaryColours=new int[n];
+        played=new int[n];won=new int[n];drawn=new int[n];lost=new int[n];goalsFor=new int[n];goalsAgainst=new int[n];points=new int[n];
+        TOTAL_PLAYERS=n*PLAYERS_PER_TEAM;
+        playerRoleStatus=new int[TOTAL_PLAYERS];playerSelectedSlot=new int[TOTAL_PLAYERS];playerSelectedPosition=new String[TOTAL_PLAYERS];
+        scoutKnowledge=new int[TOTAL_PLAYERS];scoutDueRound=new int[TOTAL_PLAYERS];shortlisted=new boolean[TOTAL_PLAYERS];managerNotes=new String[TOTAL_PLAYERS];
+        Arrays.fill(playerSelectedPosition,"");Arrays.fill(managerNotes,"");
+        clubMatchGF=new int[seasonRounds()];clubMatchGA=new int[seasonRounds()];
+        Arrays.fill(clubMatchGF,-1);Arrays.fill(clubMatchGA,-1);
+        loadEditorData();
+    }
+    private String editorKey(String field,int club) {
+        return "editor_"+field+"_"+(division==null?String.valueOf(club):division.clubIds[club]);
+    }
+    private String savedClubName(int slot,int club) {
+        String world=prefs.getString(key(slot,"career_world"),"");
+        try {
+            if(!world.isEmpty()) {
+                CareerDivision saved=CareerDivision.restore(world);
+                if(club>=0&&club<saved.names.length)return prefs.getString("editor_name_"+saved.clubIds[club],saved.names[club]);
+            } else if(club>=0&&club<legacyNames.length)return prefs.getString("editor_name_"+club,legacyNames[club]);
+        }catch(Exception ignored){}
+        return "Saved club";
+    }
+    private String leagueName(){return division==null?"Liga Portugal":division.name;}
+    private int seasonRounds(){return division==null?34:division.rounds();}
+    private int compareLeagueClubs(int a,int b) {
+        int c=Integer.compare(splitGroup(a),splitGroup(b));if(c!=0)return c;
+        c=Integer.compare(points[b],points[a]);if(c!=0)return c;
+        c=Integer.compare(goalsFor[b]-goalsAgainst[b],goalsFor[a]-goalsAgainst[a]);if(c!=0)return c;
+        c=Integer.compare(goalsFor[b],goalsFor[a]);return c!=0?c:Integer.compare(a,b);
+    }
+    private int splitGroup(int club) {
+        if(division==null||!division.splitSeason()||splitOrder.length!=12)return 0;
+        for(int i=0;i<splitOrder.length;i++)if(splitOrder[i]==club)return i/6;
+        return 0;
+    }
+    private LeagueSchedule.Pairing[] fixturesForRound(int round) {
+        if(division==null)return leagueSchedule().round(Math.floorMod(round,leagueSchedule().roundCount()));
+        if(round<0||round>=seasonRounds())return new LeagueSchedule.Pairing[0];
+        if(!division.splitSeason()||round<33)return leagueSchedule().round(round);
+        if(splitOrder.length!=12)return new LeagueSchedule.Pairing[0];
+        ArrayList<LeagueSchedule.Pairing> games=new ArrayList<>();
+        for(int group=0;group<2;group++) {
+            int[] ids=Arrays.copyOfRange(splitOrder,group*6,group*6+6);
+            Collections.addAll(games,new LeagueSchedule(ids,2).round(round-33));
+        }
+        return games.toArray(new LeagueSchedule.Pairing[0]);
+    }
+    private void prepareSplitIfNeeded() {
+        if(division==null||!division.splitSeason()||matchday!=33||splitOrder.length==12)return;
+        Integer[] order=new Integer[clubNames.length];for(int i=0;i<order.length;i++)order[i]=i;
+        Arrays.sort(order,(a,b)->{
+            int c=Integer.compare(points[b],points[a]);if(c!=0)return c;
+            c=Integer.compare(goalsFor[b]-goalsAgainst[b],goalsFor[a]-goalsAgainst[a]);if(c!=0)return c;
+            c=Integer.compare(goalsFor[b],goalsFor[a]);return c!=0?c:Integer.compare(a,b);
+        });
+        splitOrder=new int[order.length];for(int i=0;i<order.length;i++)splitOrder[i]=order[i];
+        addNews("LEAGUE","League split confirmed","The top six and bottom six now play five further matches within their group. League points are retained.");
+    }
+    private void advanceByeRound() {
+        for(LeagueSchedule.Pairing f:fixturesForRound(matchday))updateTable(f.home,f.away,simulateGoals(f.home,f.away,true),simulateGoals(f.away,f.home,false));
+        applyTrainingSession();processFinanceWeek();advanceStadiumProject();matchday++;
+        processScoutingAssignments();processInjuriesAndRecovery();prepareSplitIfNeeded();
+        if(matchday==seasonRounds())processSeasonEnd();
+        currentDate=currentDate.plusDays(7);
+        addNews("LEAGUE","Rest week completed","Your club had no league fixture this round. The other league results and your weekly club operations have been processed.");
+        saveCurrentGame();showDashboard();
+    }
+    private void showSeasonReview() {
+        backAction=this::showDashboard;
+        LinearLayout page=createPage("Season review",leagueName()+" • Season complete",true);
+        page.addView(makeText("All league rounds have been completed. Promotion, relegation and European admissions are awaiting the competition expansion; this development career retains its division for the next season.",14,muted));
+        page.addView(makeButton("Final league table",v->showLeagueTable()));
+        page.addView(makeAccentButton("Continue next season",v->{
+            careerSeasonStart=careerSeasonStart.plusYears(1);currentDate=careerSeasonStart;matchday=0;splitOrder=new int[0];careerSchedule=null;
+            for(int[] array:new int[][]{played,won,drawn,lost,goalsFor,goalsAgainst,points})Arrays.fill(array,0);
+            Arrays.fill(clubMatchGF,-1);Arrays.fill(clubMatchGA,-1);saveCurrentGame();showDashboard();
+        }));
+    }
+
     private void loadEditorData() {
         for (int i = 0; i < clubNames.length; i++) {
-            clubNames[i] = prefs.getString("editor_name_" + i, defaultClubNames[i]);
-            primaryColours[i] = prefs.getInt("editor_primary_" + i, defaultPrimary[i]);
-            secondaryColours[i] = prefs.getInt("editor_secondary_" + i, defaultSecondary[i]);
+            clubNames[i] = prefs.getString(editorKey("name", i), defaultClubNames[i]);
+            primaryColours[i] = prefs.getInt(editorKey("primary", i), defaultPrimary[i]);
+            secondaryColours[i] = prefs.getInt(editorKey("secondary", i), defaultSecondary[i]);
         }
     }
 
     private void saveEditorTeam(int club) {
         prefs.edit()
-                .putString("editor_name_" + club, clubNames[club])
-                .putInt("editor_primary_" + club, primaryColours[club])
-                .putInt("editor_secondary_" + club, secondaryColours[club])
+                .putString(editorKey("name", club), clubNames[club])
+                .putInt(editorKey("primary", club), primaryColours[club])
+                .putInt(editorKey("secondary", club), secondaryColours[club])
                 .apply();
     }
 
@@ -6178,6 +6293,9 @@ public class MainActivity extends Activity {
         prefs.edit()
                 .putBoolean(key(selectedSlot, "exists"), true)
                 .putInt(key(selectedSlot, "club"), selectedClub)
+                .putString(key(selectedSlot,"career_world"),division==null?"":division.snapshot())
+                .putString(key(selectedSlot,"season_start"),careerSeasonStart.toString())
+                .putString(key(selectedSlot,"split_order"),encode(splitOrder))
                 .putString(key(selectedSlot, "manager_first"), managerFirstName)
                 .putString(key(selectedSlot, "manager_last"), managerLastName)
                 .putString(key(selectedSlot, "manager_dob"), managerDob)
@@ -6239,8 +6357,29 @@ public class MainActivity extends Activity {
         saveFinanceStadiumState();
     }
 
-    private void loadSave(int slot) {
+    private boolean loadSave(int slot) {
+        String world=prefs.getString(key(slot,"career_world"),"");
+        try {
+            CareerDivision saved=world.isEmpty()?null:CareerDivision.restore(world);
+            int club=prefs.getInt(key(slot,"club"),0),n=saved==null?legacyNames.length:saved.names.length;
+            if(club<0||club>=n)throw new IllegalArgumentException("Invalid saved club");
+            String rawSplit=prefs.getString(key(slot,"split_order"),"");
+            if(!rawSplit.isEmpty()) {
+                String[] ids=rawSplit.split(",");java.util.HashSet<Integer> seen=new java.util.HashSet<>();
+                if(saved==null||!saved.splitSeason()||ids.length!=n)throw new IllegalArgumentException("Invalid split");
+                for(String id:ids){int value=Integer.parseInt(id);if(value<0||value>=n||!seen.add(value))throw new IllegalArgumentException("Invalid split identity");}
+            } else if(saved!=null&&saved.splitSeason()&&prefs.getInt(key(slot,"matchday"),0)>33)throw new IllegalArgumentException("Missing split");
+            configureDivision(saved);
+        }
+        catch(Exception invalid) {
+            new BossDialog.Builder(this).setTitle("Career could not be loaded").setMessage("The saved competition data could not be read. Your save has been kept.").setPositiveButton("OK",null).show();return false;
+        }
         selectedSlot = slot;
+        try { careerSeasonStart=LocalDate.parse(prefs.getString(key(slot,"season_start"),SEASON_START.toString())); }
+        catch(Exception ignored){careerSeasonStart=SEASON_START;}
+        String split=prefs.getString(key(slot,"split_order"),"");
+        splitOrder=split.isEmpty()?new int[0]:new int[clubNames.length];
+        if(splitOrder.length>0)decode(split,splitOrder);
         fixtureVersion = prefs.getInt(key(slot, "fixture_version"), 0);
         careerSchedule = null;
         selectedClub = prefs.getInt(key(slot, "club"), 0);
@@ -6249,7 +6388,7 @@ public class MainActivity extends Activity {
         managerDob = prefs.getString(key(slot, "manager_dob"), "01/01/1990");
         managerGender = prefs.getString(key(slot, "manager_gender"), "Male");
         managerCountryIndex = prefs.getInt(key(slot, "manager_country_index"), 0);
-        managerLeagueIndex = prefs.getInt(key(slot, "manager_league_index"), 0);
+        managerLeagueIndex = Math.max(0,Math.min(LEAGUE_OPTIONS.length-1,prefs.getInt(key(slot, "manager_league_index"), 0)));
         managerWeeklyWageK = prefs.getInt(key(slot, "manager_wage"), 32);
         managerContractYears = prefs.getInt(key(slot, "manager_contract_years"), 3);
         managerTactical = prefs.getInt(key(slot, "manager_tactical"), 12);
@@ -6311,6 +6450,7 @@ public class MainActivity extends Activity {
         ensureTacticsValid();
         loadClassicState(slot);
         loadFinanceStadiumState(slot);
+        return true;
     }
 
     private void confirmDeleteSave(int slot) {
@@ -6328,7 +6468,7 @@ public class MainActivity extends Activity {
     private void clearSave(int slot) {
         SharedPreferences.Editor editor = prefs.edit();
         String[] fields = {
-                "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
+                "career_world", "season_start", "split_order", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
                 "manager_wage", "manager_contract_years", "manager_tactical", "manager_motivating", "manager_discipline", "manager_player_knowledge", "manager_youth", "manager_negotiating",
                 "matchday", "date", "training", "formation", "playstyle", "budget", "roles", "role_slots", "role_pos",
                 "staff_am_name", "staff_am_rating", "staff_coach_name", "staff_coach_rating", "staff_scout_name", "staff_scout_rating",
@@ -6343,9 +6483,8 @@ public class MainActivity extends Activity {
     }
 
     private int getSavedPoints(int slot, int club) {
-        int[] temp = new int[18];
-        decode(prefs.getString(key(slot, "points"), ""), temp);
-        return temp[club];
+        String[] values=prefs.getString(key(slot,"points"),"").split(",");
+        try{return club>=0&&club<values.length?Integer.parseInt(values[club]):0;}catch(Exception ignored){return 0;}
     }
 
     private String encode(int[] values) {
@@ -6634,7 +6773,7 @@ public class MainActivity extends Activity {
         backAction = () -> showDashboard();
         LinearLayout page = createPage("Inbox", "News, scouting, transfers, board and match reports", true);
 
-        if (selectedClub >= 0 && matchday < 34) {
+        if (selectedClub >= 0 && matchday < seasonRounds() && leagueOpponentForRound(matchday)>=0) {
             LinearLayout report = makePanel();
             report.setBackground(buttonBackground(Color.rgb(20, 72, 88)));
 
@@ -6905,7 +7044,7 @@ public class MainActivity extends Activity {
 
         int weeksPlayed = Math.max(1, matchday);
         int averageWeeklyNet = seasonProfit / weeksPlayed;
-        int projectedSeasonProfit = seasonProfit + averageWeeklyNet * Math.max(0, 34 - matchday);
+        int projectedSeasonProfit = seasonProfit + averageWeeklyNet * Math.max(0, seasonRounds() - matchday);
         LinearLayout forecast = makePanel();
         TextView forecastTitle = makeText("FORECAST & CONTROL", 13, accent);
         forecastTitle.setTypeface(Typeface.DEFAULT_BOLD);
@@ -7731,7 +7870,7 @@ public class MainActivity extends Activity {
 
     private void processSeasonEnd() {
         rollFinanceSeason();
-        addNews("SEASON", "Season complete", "Player ages and development have been updated. A small youth intake has joined the league database.");
+        addNews("SEASON", "Season complete", "Player ages, development and the season finances have been updated.");
         for (Player p : players) {
             p.age++;
             if (p.age <= 24 && p.currentAbility < p.potentialAbility && random.nextDouble() < 0.45) {
@@ -7746,7 +7885,8 @@ public class MainActivity extends Activity {
         fixtureVersion = 2;
         careerSchedule = null;
         matchday = 0;
-        currentDate = SEASON_START;
+        currentDate = careerSeasonStart;
+        splitOrder = new int[0];
         trainingFocus = "Balanced";
         managerWeeklyWageK = 32;
         managerContractYears = 3;

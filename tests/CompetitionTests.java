@@ -5,7 +5,7 @@ import java.util.HashSet;
 public final class CompetitionTests {
     private static void check(boolean ok, String message) { if (!ok) throw new AssertionError(message); }
     public static void main(String[] args) {
-        for (int n : new int[]{10,12,15,18,20,22,24}) for (int legs : new int[]{2,4}) {
+        for (int n : new int[]{10,12,15,18,20,22,24}) for (int legs : new int[]{2,3,4}) {
             int[] ids = new int[n]; for(int i=0;i<n;i++) ids[i]=100+i*3;
             LeagueSchedule s = new LeagueSchedule(ids, legs);
             int[][] meetings = new int[n][n]; int[] homes=new int[n], aways=new int[n], byes=new int[n];
@@ -30,9 +30,9 @@ public final class CompetitionTests {
                 check(Math.abs(halfHomes*2-(n-1))<=1,"unbalanced first half-season venues");
             }
             for(int i=0;i<n;i++) {
-                check(homes[i]==(n-1)*legs/2 && homes[i]==aways[i],"unbalanced home/away games");
+                check(homes[i]+aways[i]==(n-1)*legs && Math.abs(homes[i]-aways[i])<=(legs%2==0?0:n%2==0?1:2),"unbalanced home/away games n="+n+" legs="+legs+" club="+i+" H="+homes[i]+" A="+aways[i]);
                 check(byes[i]==(n%2==1?legs:0),"incorrect byes");
-                for(int j=0;j<n;j++) check(meetings[i][j]==(i==j?0:legs/2),"missing or repeated fixture");
+                for(int j=0;j<n;j++) check(i==j?meetings[i][j]==0:meetings[i][j]+meetings[j][i]==legs && Math.abs(meetings[i][j]-meetings[j][i])<=1,"missing or repeated fixture");
             }
         }
         for (RegistrationWindow w : RegistrationWindow.forCountry("PT")) {
@@ -72,6 +72,6 @@ public final class CompetitionTests {
         check(EuropeanAccess.positionLabel("SCO",1).contains("Q2"),"Scottish access");
         check(EuropeanAccess.positionLabel("ENG",5).contains("Europa"),"unearned permanent EPS");
         check(EuropeanAccess.positionLabel("PT",6).contains("cup-dependent"),"cup winner assumed");
-        System.out.println("PASS: 14 fixture formats, byes, registration boundaries, provisional UEFA access");
+        System.out.println("PASS: 21 fixture formats, byes, registration boundaries, provisional UEFA access");
     }
 }

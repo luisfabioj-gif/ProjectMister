@@ -125,6 +125,75 @@ public final class SmokeRunner extends Instrumentation {
         ui(()->target[0]=call("findPlayer",new Class[]{int.class},60));
         check(playerInt(target[0],"team")==0,"signing survives save reload");
     }
+    private void verifyDivisionCareers() throws Exception {
+        Object catalog=get("catalog");check(catalog!=null,"competition catalog available");
+        List<?> divisions=(List<?>)catalog.getClass().getField("divisions").get(catalog);
+        Class<?> worldClass=activity.getClassLoader().loadClass("com.projectmister.game.CareerDivision");
+        for(int index=0;index<divisions.size();index++) {
+            Object data=divisions.get(index);String id=(String)data.getClass().getField("id").get(data);
+            Object world=worldClass.getConstructor(data.getClass()).newInstance(data);
+            int count=((List<?>)data.getClass().getField("clubs").get(data)).size();final int leagueIndex=index+1;
+            ui(()->{
+                call("configureDivision",new Class[]{worldClass},world);set("managerLeagueIndex",leagueIndex);
+                set("selectedSlot",1);set("selectedClub",count-1);call("initialiseNewManagerDefaults",new Class[0]);
+                set("managerLeagueIndex",leagueIndex);set("managerFirstName","Division");set("managerLastName",id);
+                call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
+                call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
+                check(((List<?>)get("players")).size()==count*20,id+" generates full squads");
+                call("saveCurrentGame",new Class[0]);call("showMainMenu",new Class[0]);
+            });
+            if(id.equals("eng:2")||id.equals("be:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-save");
+            ui(()->{
+                check((Boolean)call("loadSave",new Class[]{int.class},1),id+" save loads");
+                check(((String[])get("clubNames")).length==count && (Integer)get("selectedClub")==count-1,id+" club identity survives reload");
+                if(id.equals("eng:2")) {
+                    call("startLiveMatchday",new Class[0]);set("livePaused",true);call("stopLiveMatchTicker",new Class[0]);
+                    check((Boolean)get("liveMatchActive"),"24-club career starts live match");
+                    call("finishLiveMatch",new Class[0]);
+                    check(((int[])get("played"))[count-1]==1,"24-club live result reaches table");
+                    call("loadSave",new Class[]{int.class},1);
+                    check(((int[])get("played"))[count-1]==1,"24-club live result survives reload");
+                    for(String field:new String[]{"played","won","drawn","lost","goalsFor","goalsAgainst","points"})Arrays.fill((int[])get(field),0);
+                }
+                if(count%2==1) {
+                    int bye=-1;int total=(Integer)call("seasonRounds",new Class[0]);
+                    for(int r=0;r<total;r++)if((Integer)call("leagueOpponentForRound",new Class[]{int.class},r)<0){bye=r;break;}
+                    check(bye>=0,"odd division has rest round");set("matchday",bye);
+                    call("advanceByeRound",new Class[0]);
+                    check(((int[])get("played"))[count-1]==0 && (Integer)get("matchday")==bye+1,"bye advances without invented result");
+                    for(String field:new String[]{"played","won","drawn","lost","goalsFor","goalsAgainst","points"})Arrays.fill((int[])get(field),0);
+                }
+                int rounds=(Integer)call("seasonRounds",new Class[0]);int byes=0;
+                for(int round=0;round<rounds;round++) {
+                    set("matchday",round);
+                    Object[] games=(Object[])call("fixturesForRound",new Class[]{int.class},round);
+                    HashSet<Integer> seen=new HashSet<>();
+                    for(Object game:games) {
+                        int home=game.getClass().getField("home").getInt(game),away=game.getClass().getField("away").getInt(game);
+                        if(!seen.add(home)||!seen.add(away))throw new AssertionError(id+" repeated club in round "+round);
+                        call("updateTable",new Class[]{int.class,int.class,int.class,int.class},home,away,1,0);
+                    }
+                    if(!seen.contains(count-1)) {
+                        byes++;if((Integer)call("leagueOpponentForRound",new Class[]{int.class},round)!=-999)throw new AssertionError("Invented bye opponent");
+                    }
+                    set("matchday",round+1);call("prepareSplitIfNeeded",new Class[0]);
+                }
+                int expected=id.equals("sco:1")?38:id.equals("sco:2")?36:(count-1)*2;
+                for(int value:(int[])get("played"))if(value!=expected)throw new AssertionError(id+" wrong season appearances: "+value);
+                check(byes==(count%2==1?2:0),id+" byes and season lengths correct");
+                call("saveCurrentGame",new Class[0]);call("loadSave",new Class[]{int.class},0);
+                check(((String[])get("clubNames")).length==18,"legacy world restored after "+id);
+                call("loadSave",new Class[]{int.class},1);
+                check((Integer)get("matchday")==rounds,id+" completed season reloads");
+                if(id.equals("sco:1"))check(((int[])get("splitOrder")).length==12,"Scottish split survives reload");
+                call("showLeagueTable",new Class[0]);
+            });
+            if(id.equals("eng:2")||id.equals("be:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-table");
+        }
+        ui(()->call("loadSave",new Class[]{int.class},0));
+        check(true,"all twenty division careers verified");
+    }
+
     @SuppressWarnings("unchecked") public void onStart(){
         Bundle result=new Bundle();
         try {
@@ -149,6 +218,8 @@ public final class SmokeRunner extends Instrumentation {
                 ui(()->{set("managerFirstName","");call("loadSave",new Class[]{int.class},0);});
                 check("Upgrade".equals(get("managerFirstName")),"baseline save reloads");
                 check(true,"baseline career seeded");
+            } else if(mode.equals("divisions")) {
+                verifyDivisionCareers();
             } else if(mode.equals("compact")) {
                 ui(()->{call("loadSave",new Class[]{int.class},0);call("startLiveMatchday",new Class[0]);set("livePaused",true);});
                 capture("23-compact-match");
