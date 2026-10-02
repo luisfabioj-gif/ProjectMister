@@ -211,7 +211,10 @@ public final class SmokeRunner extends Instrumentation {
                 check(((int[])worldClass.getMethod("members",int.class).invoke(moved,1)).length==upper.length,"tier movement preserves division sizes");
                 Object restored=worldClass.getMethod("restore",String.class).invoke(null,worldClass.getMethod("snapshot").invoke(moved));
                 check(java.util.Arrays.equals((int[])worldClass.getField("clubTiers").get(moved),(int[])worldClass.getField("clubTiers").get(restored)),"membership movement survives snapshot");
-                call("showLeagueTable",new Class[]{int.class},3-worldClass.getField("tier").getInt(world));
+                int other=3-worldClass.getField("tier").getInt(world);
+                call("showLeagueResults",new Class[]{int.class,int.class},0,other);
+                check(node("League results")!=null,"other division results screen opens");
+                call("showLeagueTable",new Class[]{int.class},other);
             });
             if(linked&&(id.equals("eng:2")||id.equals("sco:2")))capture("linked-"+id.replace(':','-')+"-other-table");
             if(id.equals("eng:2"))page("division-eng-2-results","showLeagueResults",new Class[]{int.class},0);

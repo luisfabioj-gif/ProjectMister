@@ -306,3 +306,22 @@ reserve eligibility, promotion/relegation transactions, proper dated calendars,
 and real cup/European admission progression. Current first/second divisions are
 individually playable; changing league membership between seasons is unfinished.
 This remains a development checkpoint, not the completed requested release.
+
+## Linked-country checkpoint verified, 2 October 2026
+
+Code: 009c12bf17c81080322540ed9de0ebd4e3467c33.
+Run: https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37072048204
+Both API 35 and 36 passed all gates. New careers include both national tiers,
+with stable club/player IDs, separately browsable tables and shared background
+simulation. The Scottish split also runs when managing a Championship club.
+Forty complete-season cases cover the 20 prior standalone formats and all 20
+linked starting divisions. Result histories and both memberships survive reload;
+validated tier swaps retain identities and division sizes. Existing standalone
+and classic careers remain compatible. The API 35 opposite-tier Scottish table
+screenshot was inspected: group labels and all numeric columns fit correctly.
+
+Follow-up: allow browsing stored results in either tier, not only the managed one.
+National rules research is recorded in NATIONAL_RULES_VERIFICATION.md, including
+superseded playoff formats and outstanding verification. Tier swaps are validated
+at the model layer but are not yet driven by season-end promotion playoffs. The
+full expansion and production Play release therefore remain unfinished.

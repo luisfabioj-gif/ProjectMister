@@ -3822,7 +3822,7 @@ public class MainActivity extends Activity {
         backAction = () -> showDashboard();
         LinearLayout page = createPage(division==null?leagueName():division.nameFor(tableTier), "Season " + careerSeasonStart.getYear()+"/"+(careerSeasonStart.getYear()+1)+" • Matchday " + matchday, true);
         if(division!=null&&division.linked)page.addView(makeButton(division.nameFor(3-tableTier),v->showLeagueTable(3-tableTier)));
-        if(division!=null&&tableTier==division.tier)page.addView(makeButton("League results",v->showLeagueResults(Math.max(0,matchday-1))));
+        if(division!=null)page.addView(makeButton("League results",v->showLeagueResults(Math.max(0,matchday-1),tableTier)));
         page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
         page.addView(makeText(division!=null && tableTier==2 ? "Promotion and relegation are not yet simulated in this development career." : "2027/28 European reference • Cup results, UEFA adjustments and licensing apply. Career admissions are not yet simulated.", 12, muted));
 
@@ -6255,17 +6255,19 @@ public class MainActivity extends Activity {
         Arrays.fill(clubMatchGF,-1);Arrays.fill(clubMatchGA,-1);
         leagueResults=new LeagueResults(clubNames.length,division!=null);
     }
-    private void showLeagueResults(int requestedRound) {
-        int round=Math.max(0,Math.min(leagueRounds()-1,requestedRound));
-        backAction=this::showLeagueTable;
-        LinearLayout page=createPage("League results",leagueName()+" • Matchday "+(round+1),true);
+    private void showLeagueResults(int requestedRound) {showLeagueResults(requestedRound,division==null?1:division.tier);}
+    private void showLeagueResults(int requestedRound,int tableTier) {
+        int total=division==null?34:division.rounds(tableTier);
+        int round=Math.max(0,Math.min(total-1,requestedRound));
+        backAction=()->showLeagueTable(tableTier);
+        LinearLayout page=createPage("League results",(division==null?leagueName():division.nameFor(tableTier))+" • Matchday "+(round+1),true);
         page.addView(makeText(careerSeasonStart.plusDays(round*7L).format(DATE_FORMAT)+" • Simulated fixture calendar",12,muted));
         LinearLayout controls=new LinearLayout(this);controls.setOrientation(LinearLayout.HORIZONTAL);
-        Button previous=makeButton("Previous",v->showLeagueResults(round-1));previous.setEnabled(round>0);
-        Button next=makeButton("Next",v->showLeagueResults(round+1));next.setEnabled(round+1<leagueRounds());
+        Button previous=makeButton("Previous",v->showLeagueResults(round-1,tableTier));previous.setEnabled(round>0);
+        Button next=makeButton("Next",v->showLeagueResults(round+1,tableTier));next.setEnabled(round+1<total);
         controls.addView(previous,new LinearLayout.LayoutParams(0,-2,1));controls.addView(next,new LinearLayout.LayoutParams(0,-2,1));page.addView(controls);
         if(!leagueResults.recordedFromStart)page.addView(makeText("Earlier results were not stored by this save. New results are retained from this update onwards.",12,muted));
-        LeagueSchedule.Pairing[] fixtures=fixturesForTier(division.tier,round);
+        LeagueSchedule.Pairing[] fixtures=fixturesForTier(tableTier,round);
         if(fixtures.length==0)page.addView(makeText("Split fixtures will appear once the groups are confirmed.",14,muted));
         for(LeagueSchedule.Pairing f:fixtures) {
             LeagueResults.Result result=leagueResults.fixture(round,f.home,f.away);
@@ -6274,8 +6276,8 @@ public class MainActivity extends Activity {
             card.addView(makeText(result==null?(round<matchday?"Result unavailable":"Scheduled"):"FT  "+result.homeGoals+" – "+result.awayGoals,14,muted));
             page.addView(card);
         }
-        if(fixtures.length>0 && leagueOpponentForRound(round)<0)page.addView(makeText("Your club has a bye this round.",14,accent));
-        page.addView(makeButton("League table",v->showLeagueTable()));
+        if(fixtures.length>0 && division!=null && tableTier==division.tier && leagueOpponentForRound(round)<0)page.addView(makeText("Your club has a bye this round.",14,accent));
+        page.addView(makeButton("League table",v->showLeagueTable(tableTier)));
     }
     private void showSeasonReview() {
         backAction=this::showDashboard;
