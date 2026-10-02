@@ -247,6 +247,28 @@ public final class SmokeRunner extends Instrumentation {
                 ui(()->{set("managerFirstName","");call("loadSave",new Class[]{int.class},0);});
                 check("Upgrade".equals(get("managerFirstName")),"baseline save reloads");
                 check(true,"baseline career seeded");
+            } else if(mode.equals("release")) {
+                check((getTargetContext().getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)==0,"installed bundle application is non-debuggable");
+                ui(()->check((Boolean)call("loadSave",new Class[]{int.class},0),"release loads legacy save"));
+                check("Upgrade".equals(get("managerFirstName")),"release preserves legacy manager");
+                page("release-dashboard","showDashboard",new Class[0]);
+                page("release-squad","showTeamPlayers",new Class[]{int.class},0);
+                page("release-player","showPlayerProfile",new Class[]{int.class,int.class},0,0);
+                page("release-staff","showStaffHub",new Class[0]);
+                page("release-staff-profile","showStaffProfile",new Class[]{String.class},"Assistant Manager");
+                page("release-tactics","showTactics",new Class[0]);
+                page("release-finance","showFinances",new Class[0]);
+                page("release-stadium","showStadiumCentre",new Class[0]);
+                ui(()->{call("startLiveMatchday",new Class[0]);set("livePaused",true);});
+                capture("release-match");
+                ui(()->{set("liveMinute",44);set("liveMinuteFloat",44.98f);set("livePaused",false);});
+                awaitBoolean("liveHalfTimeTacticsActive");capture("release-halftime");verifyTacticsMarkers();
+                ui(()->{call("stopLiveMatchTicker",new Class[0]);call("stopLiveMatchAudio",new Class[0]);set("matchInProgress",false);
+                    check((Boolean)call("loadSave",new Class[]{int.class},1),"release loads linked-country save");});
+                Object savedWorld=get("division");
+                check(savedWorld!=null&&savedWorld.getClass().getField("linked").getBoolean(savedWorld),"linked country survives release upgrade");
+                page("release-linked-table","showLeagueTable",new Class[0]);
+                check(true,"release bundle upgrade and feature navigation verified");
             } else if(mode.equals("divisions")) {
                 verifyDivisionCareers();
             } else if(mode.equals("compact")) {

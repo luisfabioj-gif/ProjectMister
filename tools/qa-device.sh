@@ -22,6 +22,7 @@ grep -q 'PASS compact landscape formations usable' qa-output/compact.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/compact.txt
 adb shell wm size reset
 adb shell wm density reset
+bash tools/qa-release-bundle.sh
 adb shell am force-stop com.projectmister.game
 adb shell am start -W -n com.projectmister.game/.MainActivity
 adb shell pidof com.projectmister.game | grep -Eq '[0-9]+'
