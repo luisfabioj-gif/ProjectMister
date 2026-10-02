@@ -284,3 +284,25 @@ its ledger separately, scoped to the save-owned club order. Older missing
 history is explicitly unavailable; aggregate tables are not reverse-engineered
 into fictional results. Corrupt optional history falls back without discarding
 the career. National tie-breakers and consequential-tie playoffs remain to wire.
+
+## Result-history checkpoint verified, 2 October 2026
+
+Code: 71b9b6e25bad78ab9652e3afc26bd7d3758bb214.
+Run: https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37060661003
+API 35 and 36 both passed APK/AAB build, installation, startup, legacy upgrade,
+existing navigation/transfer/match/half-time/substitution regressions and all
+20 complete-season cases. Each division's full result count survived save/reload.
+Core tests cover duplicate/conflicting deliveries, malformed snapshots and
+three-team mini-table calculations. The API 36 matchday-results screenshot was
+inspected; fixture names, score rows and navigation fit the phone viewport.
+
+Local compilation initially found a corrupt SDK D8 JAR in transient build tools.
+Restoring that JAR from Google's official build-tools 35 archive fixed local APK
+and QA-runner assembly; no app startup workaround or test gate was changed.
+
+Next implementation: a shared country world with stable club/player identities
+across both tiers, then country-specific tie-breakers and consequential playoffs,
+reserve eligibility, promotion/relegation transactions, proper dated calendars,
+and real cup/European admission progression. Current first/second divisions are
+individually playable; changing league membership between seasons is unfinished.
+This remains a development checkpoint, not the completed requested release.
