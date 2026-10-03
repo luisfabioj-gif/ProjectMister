@@ -325,3 +325,28 @@ National rules research is recorded in NATIONAL_RULES_VERIFICATION.md, including
 superseded playoff formats and outstanding verification. Tier swaps are validated
 at the model layer but are not yet driven by season-end promotion playoffs. The
 full expansion and production Play release therefore remain unfinished.
+
+## Linked results and release packaging verified, 3 October 2026
+
+Code 9f595fb5cecba2e89072b0775799a111e64e02e6 passed all Android 35/36 gates in
+run 37073864954, including the new other-division results visibility check and
+release-bundle install/feature tests. The first results-view test incorrectly
+waited on the UI thread, preventing rendering; moving accessibility polling to
+the instrumentation thread fixed the test. No startup workaround was changed.
+
+## Scottish playoff integration — awaiting device validation
+
+KnockoutTie separates regulation, aggregate, extra-time and shootout scores;
+ScotlandPromotion implements the three-stage SPFL ladder with persisted legs.
+The manager watches 90 minutes of their own legs using the existing live engine;
+extra time and shootouts are explicitly simulated. Completed playoffs can move
+clubs between the two linked tiers without reordering any club or player IDs.
+Scottish table ordering now uses tied-group head-to-head points/GD after overall
+points/GD/GF. Unresolved consequential ties, or an unverified historical split,
+do not silently award promotion through the fallback display order. The existing
+retain-divisions development option remains available for that unfinished case.
+
+Not implemented here: deciding league ties; lower-pyramid relegation; playoff
+calendar dates/recovery; fully visual extra time/shootouts; the other national
+promotion formats; domestic cups or actual European admission. Playoff player
+statistics for background clubs and full end-of-season honours still need work.

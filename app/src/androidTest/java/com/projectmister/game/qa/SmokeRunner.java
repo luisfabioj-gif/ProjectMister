@@ -223,9 +223,54 @@ public final class SmokeRunner extends Instrumentation {
             }
             if(linked&&(id.equals("eng:2")||id.equals("sco:2")))capture("linked-"+id.replace(':','-')+"-other-table");
             if(id.equals("eng:2"))page("division-eng-2-results","showLeagueResults",new Class[]{int.class},0);
+            if(linked&&id.equals("sco:2"))verifyScottishPromotion();
         }
         ui(()->call("loadSave",new Class[]{int.class},0));
         check(true,"all twenty standalone and twenty linked division careers verified");
+    }
+
+    private void verifyScottishPromotion() throws Exception {
+        final int[] leagueGames={0},playerId={0},oldTeam={0};
+        final String[][] identities={null};
+        ui(()->{
+            Object world=get("division");Class<?> type=world.getClass();
+            int[] upper=(int[])type.getMethod("members",int.class).invoke(world,1),lower=(int[])type.getMethod("members",int.class).invoke(world,2);
+            // Synthetic distinct final standings isolate the postseason transaction from league-rank tests.
+            int[] totals=(int[])get("points");for(int i=0;i<upper.length;i++)totals[upper[i]]=100-i;
+            for(int i=0;i<lower.length;i++)totals[lower[i]]=80-i;
+            set("scottishSplitProvisional",false);set("promotion",null);set("selectedClub",lower[3]);
+            call("initialiseTacticsForClub",new Class[0]);
+            check((Boolean)call("preparePromotion",new Class[0]),"resolved Scottish standings seed playoffs");
+            identities[0]=((String[])type.getField("clubIds").get(world)).clone();
+            playerId[0]=lower[3]*20;Object player=call("findPlayer",new Class[]{int.class},playerId[0]);oldTeam[0]=playerInt(player,"team");
+            leagueGames[0]=((int[])get("played"))[lower[3]];
+            call("startLiveMatchday",new Class[]{boolean.class},true);set("livePaused",true);
+            check((Boolean)get("liveMatchActive")&&(Boolean)get("livePlayoff"),"manager can watch a promotion leg");
+        });
+        capture("promotion-live-leg");
+        ui(()->{
+            call("finishLiveMatch",new Class[0]);
+            check(((int[])get("played"))[(Integer)get("selectedClub")]==leagueGames[0],"playoff does not change league appearances");
+            check((Integer)get("matchday")==38,"playoff does not advance regular league round");
+            call("loadSave",new Class[]{int.class},1);Object campaign=get("promotion");
+            check(campaign!=null,"unfinished playoff survives reload");
+            Object tie=campaign.getClass().getMethod("current").invoke(campaign);
+            check((Integer)tie.getClass().getMethod("playedLegs").invoke(tie)==1,"first leg survives reload without replay");
+            for(int leg=0;leg<6 && !(Boolean)campaign.getClass().getMethod("complete").invoke(campaign);leg++)call("simulatePromotionLeg",new Class[0]);
+            check((Boolean)campaign.getClass().getMethod("complete").invoke(campaign),"Scottish ladder finishes");
+            call("showSeasonReview",new Class[0]);
+        });
+        capture("promotion-final-review");
+        ui(()->{
+            call("continueDivisionSeason",new Class[0]);check((Integer)get("matchday")==0,"promoted season begins at round zero");
+            check(get("promotion")==null,"promotion applied once and cleared");
+            call("loadSave",new Class[]{int.class},1);Object world=get("division");Class<?> type=world.getClass();
+            check(java.util.Arrays.equals(identities[0],(String[])type.getField("clubIds").get(world)),"season movement preserves all club IDs");
+            check(((int[])type.getMethod("members",int.class).invoke(world,1)).length==12&&((int[])type.getMethod("members",int.class).invoke(world,2)).length==10,"Scottish divisions retain correct sizes");
+            check(playerInt(call("findPlayer",new Class[]{int.class},playerId[0]),"team")==oldTeam[0],"promotion keeps player's club identity");
+            check((Integer)get("matchday")==0&&get("promotion")==null,"promotion transition survives reload");
+        });
+        check(true,"Scottish watched playoff and season transition verified");
     }
 
     @SuppressWarnings("unchecked") public void onStart(){

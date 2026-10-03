@@ -78,3 +78,14 @@ No bundle-generated APK was installed on a device in this local check; CI
 installs the Gradle debug APK. Bundle/split device installation and a private-key
 Play internal-track installation remain required before production readiness.
 No private production key was created and nothing was uploaded to Play Console.
+
+## Release bundle device gate verified, 3 October 2026
+
+Code 9f595fb5cecba2e89072b0775799a111e64e02e6 passed both Android 35 and 36:
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37073864954
+The pipeline now validates the non-debuggable bundle manifest, generates a
+matching APK set with official bundletool 1.18.3 (SHA-256 pinned), installs it
+over the development APK using the same public TEST key, and checks legacy and
+linked saves, dashboard, squad, player/staff profiles, tactics, finance, stadium,
+live match and automatic half-time tactics. This closes the local split-install
+QA gap. It does not establish private-key or Play internal-track readiness.
