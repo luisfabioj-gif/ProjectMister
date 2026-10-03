@@ -8,8 +8,9 @@ public final class ScottishStandingsTests {
         ledger.record(0,0,1,3,0);ledger.record(1,1,2,2,0);ledger.record(2,2,0,1,0);
         ScottishStandings s=new ScottishStandings(clubs,groups,points,gf,ga,ledger);
         check(s.order[0]==0&&s.order[1]==1&&s.order[2]==2&&!s.tiedAt(0)&&s.tiedAt(1));
+        check(s.rankAt(0)==1&&s.rankAt(1)==2&&s.rankAt(2)==2);
         // Three-team circular wins are ranked using one shared mini-table, not pairwise comparison.
-        s=new ScottishStandings(clubs,groups,points,gf,ga,new LeagueResults(3,false));check(s.tiedAt(0)&&s.tiedAt(1));
+        s=new ScottishStandings(clubs,groups,points,gf,ga,new LeagueResults(3,false));check(s.tiedAt(0)&&s.tiedAt(1)&&s.rankAt(2)==1);
         groups[0]=1;s=new ScottishStandings(clubs,groups,points,gf,ga,ledger);check(s.order[2]==0);
         points[1]=11;s=new ScottishStandings(clubs,groups,points,gf,ga,ledger);check(s.order[0]==1);
         System.out.println("PASS: Scottish standings, circular head-to-head groups, incomplete history and locked split groups");

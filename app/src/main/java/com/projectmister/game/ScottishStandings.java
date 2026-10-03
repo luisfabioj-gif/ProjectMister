@@ -32,5 +32,10 @@ public final class ScottishStandings {
             start=end;
         }
     }
+    public int rankAt(int position){
+        if(position<0||position>=order.length)throw new IllegalArgumentException("Invalid table position");
+        while(position>0&&tiedAt(position-1))position--;
+        return position+1;
+    }
     public boolean tiedAt(int leftPosition){return leftPosition>=0&&leftPosition<tiedWithNext.length&&tiedWithNext[leftPosition];}
 }

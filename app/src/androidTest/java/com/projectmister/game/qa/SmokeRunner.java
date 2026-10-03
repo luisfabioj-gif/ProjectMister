@@ -246,6 +246,8 @@ public final class SmokeRunner extends Instrumentation {
             leagueGames[0]=((int[])get("played"))[lower[3]];
             call("startLiveMatchday",new Class[]{boolean.class},true);set("livePaused",true);
             check((Boolean)get("liveMatchActive")&&(Boolean)get("livePlayoff"),"manager can watch a promotion leg");
+            set("liveHomeGoals",2);set("liveAwayGoals",1);call("refreshLiveHeader",new Class[0]);
+            check(call("liveTieSummary",new Class[0]).equals("LEG 1 • AGG 2–1"),"first-leg aggregate follows live score");
         });
         capture("promotion-live-leg");
         ui(()->{
@@ -256,6 +258,9 @@ public final class SmokeRunner extends Instrumentation {
             check(campaign!=null,"unfinished playoff survives reload");
             Object tie=campaign.getClass().getMethod("current").invoke(campaign);
             check((Integer)tie.getClass().getMethod("playedLegs").invoke(tie)==1,"first leg survives reload without replay");
+            call("startLiveMatchday",new Class[]{boolean.class},true);set("livePaused",true);
+            check(call("liveTieSummary",new Class[0]).equals("LEG 2 • AGG 1–2"),"return-leg aggregate uses reversed home-away order");
+            call("finishLiveMatch",new Class[0]);
             for(int leg=0;leg<6 && !(Boolean)campaign.getClass().getMethod("complete").invoke(campaign);leg++)call("simulatePromotionLeg",new Class[0]);
             check((Boolean)campaign.getClass().getMethod("complete").invoke(campaign),"Scottish ladder finishes");
             call("showSeasonReview",new Class[0]);
