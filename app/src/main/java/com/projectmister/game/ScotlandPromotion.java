@@ -7,7 +7,7 @@ import java.util.List;
 
 /** SPFL Premiership/Championship ladder, C18–C25 (29 July 2026).
  * League ranking and lower-pyramid relegation are separate responsibilities. */
-public final class ScotlandPromotion {
+public final class ScotlandPromotion implements PromotionCampaign {
     public final int automaticUp,automaticDown,premiershipClub,second,third,fourth;
     private final ArrayList<KnockoutTie> ties=new ArrayList<>();
     public ScotlandPromotion(int automaticUp,int automaticDown,int premiershipClub,int second,int third,int fourth) {
@@ -17,6 +17,12 @@ public final class ScotlandPromotion {
         this.automaticUp=automaticUp;this.automaticDown=automaticDown;this.premiershipClub=premiershipClub;
         this.second=second;this.third=third;this.fourth=fourth;ties.add(newTie(fourth,third));
     }
+    public String country(){return "SCO";}
+    public int[] automaticPromoted(){return new int[]{automaticUp};}
+    public int[] automaticRelegated(){return new int[]{automaticDown};}
+    public int[] upperEntrants(){return new int[]{automaticDown,premiershipClub};}
+    public int[] lowerEntrants(){return new int[]{automaticUp,second,third,fourth};}
+    public String roundName(int index){return new String[]{"Quarter-final","Semi-final","Premiership play-off final"}[index];}
     private static KnockoutTie newTie(int lower,int higher){return new KnockoutTie(lower,higher,2,higher,false,KnockoutTie.Rule.EXTRA_TIME_PENALTIES);}
     private void advance() {
         KnockoutTie last=ties.get(ties.size()-1);

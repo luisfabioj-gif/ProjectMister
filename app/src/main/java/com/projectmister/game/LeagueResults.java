@@ -52,6 +52,15 @@ public final class LeagueResults {
         }
         return table;
     }
+    /** Verify each pair, not merely the total games in a tied mini-table. */
+    public boolean meetingsComplete(int[] members,int expected) {
+        if(expected<1)throw new IllegalArgumentException("Invalid meeting count");
+        for(int i=0;i<members.length;i++)for(int j=i+1;j<members.length;j++) {
+            int count=0;for(Result r:results)if((r.home==members[i]&&r.away==members[j])||(r.home==members[j]&&r.away==members[i]))count++;
+            if(count!=expected)return false;
+        }
+        return true;
+    }
     public String snapshot() {
         StringBuilder s=new StringBuilder("1;").append(clubCount).append(';').append(recordedFromStart?1:0);
         for(Result r:results)s.append('|').append(r.round).append(',').append(r.home).append(',').append(r.away)

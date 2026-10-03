@@ -350,3 +350,37 @@ Not implemented here: deciding league ties; lower-pyramid relegation; playoff
 calendar dates/recovery; fully visual extra time/shootouts; the other national
 promotion formats; domestic cups or actual European admission. Playoff player
 statistics for background clubs and full end-of-season honours still need work.
+
+## Scottish postseason verified, 3 October 2026
+
+Runs 37145455786 (e3ed59a) and 37145760482 (5631b77) passed Android 35/36,
+including all forty standalone/linked career seasons, watched playoff legs,
+reload between legs, unchanged league statistics, stable club/player identity
+through promotion, legacy upgrade and AAB-derived device installation.
+The second run also verifies live aggregate orientation after venues reverse.
+Equal Scottish table positions are marked explicitly and consequential unresolved
+places are not awarded. Return-leg match intent now also considers aggregate score.
+
+## Germany integration (awaiting device validation)
+
+Added DFL-specific ordering, with direct-meeting criteria withheld until both
+meetings are complete, shared unresolved positions and separate away-goal rules
+for league ordering versus knockout ties (no knockout away-goals advantage).
+Linked German careers now seed two automatic swaps plus the Bundesliga-16 /
+second-tier-third playoff. Watched legs, reloads and the existing stable-identity
+season transition share the small PromotionCampaign interface. Existing Scottish
+snapshot strings remain unchanged and readable.
+
+Venue selection uses final scheduled league dates: fewer rest days gives the
+return leg at home, equal days draw lots and persist the result. The current
+weekly simulated calendar gives the tiers equal dates, so this build uses the
+draw path. Official dated calendars remain a separate unfinished requirement.
+Third-tier relegation, unresolved neutral deciding matches and licensing
+adjustments remain inactive. German table labels say which lower-pyramid zones
+are inactive. Full UEFA admissions and the other eight countries remain pending.
+
+Visual review of the Scottish Android screenshots exposed identical purple
+markers for both clubs. KitColours now resolves clashes with a contrasting away
+secondary or fallback colour, calculated once per match, preserving saved club
+colours. Home/away marker outlines also differ. Unit tests cover identical kits
+and dark/light fallbacks; new device QA asserts separation in the watched leg.

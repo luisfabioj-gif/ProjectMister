@@ -224,9 +224,46 @@ public final class SmokeRunner extends Instrumentation {
             if(linked&&(id.equals("eng:2")||id.equals("sco:2")))capture("linked-"+id.replace(':','-')+"-other-table");
             if(id.equals("eng:2"))page("division-eng-2-results","showLeagueResults",new Class[]{int.class},0);
             if(linked&&id.equals("sco:2"))verifyScottishPromotion();
+            if(linked&&id.equals("de:2"))verifyGermanPromotion();
         }
         ui(()->call("loadSave",new Class[]{int.class},0));
         check(true,"all twenty standalone and twenty linked division careers verified");
+    }
+
+    private void verifyGermanPromotion() throws Exception {
+        final String[][] identities={null};final int[] club={0},games={0};
+        ui(()->{
+            Object world=get("division");Class<?> type=world.getClass();
+            int[] upper=(int[])type.getMethod("members",int.class).invoke(world,1),lower=(int[])type.getMethod("members",int.class).invoke(world,2);
+            int[] totals=(int[])get("points");for(int i=0;i<upper.length;i++)totals[upper[i]]=100-i;
+            for(int i=0;i<lower.length;i++)totals[lower[i]]=80-i;
+            set("promotion",null);club[0]=lower[2];set("selectedClub",club[0]);call("initialiseTacticsForClub",new Class[0]);
+            check((Boolean)call("preparePromotion",new Class[0]),"resolved German standings seed playoff");
+            identities[0]=((String[])type.getField("clubIds").get(world)).clone();games[0]=((int[])get("played"))[club[0]];
+            call("startLiveMatchday",new Class[]{boolean.class},true);set("livePaused",true);
+            check((Boolean)get("livePlayoff"),"manager can watch German first leg");
+            set("liveHomeGoals",(Integer)get("liveHome")==club[0]?2:0);set("liveAwayGoals",(Integer)get("liveAway")==club[0]?2:0);
+            call("finishLiveMatch",new Class[0]);call("loadSave",new Class[]{int.class},1);
+            Object campaign=get("promotion"),tie=campaign.getClass().getMethod("current").invoke(campaign);
+            check(campaign.getClass().getMethod("country").invoke(campaign).equals("DE"),"German campaign reloads as correct country");
+            check((Integer)tie.getClass().getMethod("playedLegs").invoke(tie)==1,"German first leg survives reload");
+            call("startLiveMatchday",new Class[]{boolean.class},true);set("livePaused",true);set("liveMinute",85);
+            float intent=(Float)call("teamIntent",new Class[]{int.class},(Integer)get("liveHome")==club[0]?(Integer)get("liveAway"):(Integer)get("liveHome"));
+            check(intent>0,"opponent chases aggregate deficit in return leg");
+            call("finishLiveMatch",new Class[0]);
+            check(((int[])get("played"))[club[0]]==games[0]&&(Integer)get("matchday")==34,"German playoff leaves league table untouched");
+            check((Boolean)get("promotion").getClass().getMethod("complete").invoke(get("promotion")),"German two-leg playoff completes");
+        });
+        capture("german-promotion-review");
+        ui(()->{
+            call("continueDivisionSeason",new Class[0]);call("loadSave",new Class[]{int.class},1);Object world=get("division");Class<?> type=world.getClass();
+            check(type.getField("tier").getInt(world)==1,"winning German manager promoted to Bundesliga");
+            check(((int[])type.getMethod("members",int.class).invoke(world,1)).length==18&&((int[])type.getMethod("members",int.class).invoke(world,2)).length==18,"German tier sizes preserved");
+            check(java.util.Arrays.equals(identities[0],(String[])type.getField("clubIds").get(world)),"German promotion retains stable club IDs");
+            check((Integer)get("matchday")==0&&get("promotion")==null,"German next-season transition persists");
+            check(playerInt(call("findPlayer",new Class[]{int.class},club[0]*20),"team")==club[0],"German player remains at original club");
+        });
+        check(true,"German watched playoff and season transition verified");
     }
 
     private void verifyScottishPromotion() throws Exception {
@@ -246,6 +283,8 @@ public final class SmokeRunner extends Instrumentation {
             leagueGames[0]=((int[])get("played"))[lower[3]];
             call("startLiveMatchday",new Class[]{boolean.class},true);set("livePaused",true);
             check((Boolean)get("liveMatchActive")&&(Boolean)get("livePlayoff"),"manager can watch a promotion leg");
+            int[] colours=(int[])get("primaryColours");
+            check(colours[(Integer)get("liveHome")]!=(Integer)get("liveAwayKitColour"),"watched match resolves identical team colours");
             set("liveHomeGoals",2);set("liveAwayGoals",1);call("refreshLiveHeader",new Class[0]);
             check(call("liveTieSummary",new Class[0]).equals("LEG 1 • AGG 2–1"),"first-leg aggregate follows live score");
         });

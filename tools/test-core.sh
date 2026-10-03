@@ -3,7 +3,7 @@ set -euo pipefail
 python3 tools/validate-competitions.py
 out=$(mktemp -d)
 trap 'rm -rf "$out"' EXIT
-javac -d "$out" app/src/main/java/com/projectmister/game/{SubstitutionLedger,MatchMath,MatchMotion,LeagueSchedule,LeagueResults,KnockoutTie,ScotlandPromotion,ScottishStandings,RegistrationWindow,EuropeanAccess}.java tests/RegressionTests.java tests/CompetitionTests.java tests/LeagueResultsTests.java tests/KnockoutTieTests.java tests/ScotlandPromotionTests.java tests/ScottishStandingsTests.java
+javac -d "$out" app/src/main/java/com/projectmister/game/{SubstitutionLedger,MatchMath,MatchMotion,KitColours,LeagueSchedule,LeagueResults,KnockoutTie,PromotionCampaign,ScotlandPromotion,ScottishStandings,GermanyPromotion,GermanStandings,RegistrationWindow,EuropeanAccess}.java tests/RegressionTests.java tests/CompetitionTests.java tests/LeagueResultsTests.java tests/KnockoutTieTests.java tests/ScotlandPromotionTests.java tests/ScottishStandingsTests.java tests/GermanyPromotionTests.java tests/GermanStandingsTests.java
 java -cp "$out" com.projectmister/game/RegressionTests
 java -cp "$out" com.projectmister.game.CompetitionTests
 java -cp "$out" com.projectmister.game.LeagueResultsTests
@@ -11,3 +11,6 @@ java -cp "$out" com.projectmister.game.LeagueResultsTests
 java -cp "$out" com.projectmister.game.KnockoutTieTests
 java -cp "$out" com.projectmister.game.ScotlandPromotionTests
 java -cp "$out" com.projectmister.game.ScottishStandingsTests
+
+java -cp "$out" com.projectmister.game.GermanyPromotionTests
+java -cp "$out" com.projectmister.game.GermanStandingsTests

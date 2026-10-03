@@ -36,6 +36,11 @@ public final class RegressionTests {
         for(int i=0;i<=100;i++) { float v=MatchMath.flightProgress(i/100f); check(v>=last && v<=1,"monotonic bounded ball travel"); last=v; }
         check(MatchMath.arc(0,.1f)==0 && MatchMath.arc(1,.1f)==0, "ball lands");
         check(MatchMath.intent(0,1,85)>0 && MatchMath.intent(1,0,85)<0, "score-aware risk");
+        int purple=0xff80438d,white=0xfff4f7fb;
+        check(KitColours.away(purple,purple,white)==white,"identical home and away kits switch to contrasting secondary");
+        for(int home:new int[]{0xff000000,0xffffffff,0xffe62929,0xff358344,0xff1976b8,purple})
+            check(KitColours.contrast(home,KitColours.away(home,home,home))>=2.2,"fallback separates identical kit colours");
+        check(KitColours.away(0xff000000,white,purple)==white,"already contrasting kit preserved");
         System.out.println("PASS: substitution transactions, pace, fatigue, ball travel and score-aware intent");
     }
 }

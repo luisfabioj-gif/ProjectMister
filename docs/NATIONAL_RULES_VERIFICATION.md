@@ -1,7 +1,10 @@
-# National rules verification — 2 October 2026
+# National rules verification — 3 October 2026
 
 These are implementation inputs, not claims that the game already enforces them.
-The current linked-country build still retains division membership at season end.
+Linked Scottish careers implement the Premiership/Championship playoff ladder.
+German top/second-tier transitions are now implemented, awaiting device validation.
+Other countries still retain division membership at season end. Scottish unresolved
+qualification ties and the lower-pyramid boundary remain unimplemented.
 Never silently substitute a generic playoff or a club-index tie-break for these rules.
 
 ## England
@@ -107,9 +110,21 @@ https://www.lfp.fr/article/ligue-2-bkt-le-calendrier-de-la-saison-2026-2027
 
 ## Germany
 
-Two automatic promotions/relegations; Bundesliga 16 faces Bundesliga 2 third
-in a two-legged relegation playoff. Verify current DFL rules for leg ordering,
-full tie-break order and the separate second/third-tier boundary.
+Verified against DFL SpOL dated 11 June 2026, sections 2 and 3:
+- Both tiers: points, GD, goals scored, direct-meeting aggregate, direct-meeting
+  away goals, all away goals. If the meetings are incomplete, use only GD/goals
+  after points; unresolved interim positions are shared. Final unresolved ties
+  require a neutral deciding match. Do not prematurely use one direct meeting.
+- Two automatic promotions/relegations. Bundesliga 16 faces second-tier third
+  over two legs, with extra time and penalties after a tied aggregate.
+- Return-leg home advantage belongs to the club with FEWER free days before
+  the first leg; draw lots if equal. It is not intrinsically given to either tier.
+  This requires the actual fixture calendar before seeding venues.
+- Second-tier bottom two relegate; 16 meets third-tier third over two legs with
+  the same rest-day venue rule. No third-tier world currently exists in the app.
+- Licensing adjustments in section 3 are not yet simulated.
+
+https://media.dfl.de/sites/2/2026/06/Spielordnung-SpOL-2026-06-11-Stand.pdf
 
 https://www.bundesliga.com/en/bundesliga/news/how-does-promotion-and-relegation-work-in-the-bundesliga-10645
 
