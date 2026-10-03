@@ -384,3 +384,23 @@ markers for both clubs. KitColours now resolves clashes with a contrasting away
 secondary or fallback colour, calculated once per match, preserving saved club
 colours. Home/away marker outlines also differ. Unit tests cover identical kits
 and dark/light fallbacks; new device QA asserts separation in the watched leg.
+
+## Germany and match presentation verified, 3 October 2026
+
+Code 1a96ad28a10bcda95897ff6524b024d4ef4d24be passed both Android 35 and 36:
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37146454621
+The jobs verified German watched legs, a saved first-leg score, aggregate-driven
+late-game opposition intent, actual promotion, stable identities, unchanged
+league results, and reload after the season transition. The Scottish tests,
+all forty career seasons, legacy upgrades, navigation, half-time/substitutions,
+compact tactics and AAB-derived release installation also passed.
+
+Reviewed API 35 screenshots: german-promotion-review.png and promotion-live-leg.png.
+Long automatic-promotion club names fit, the season action is unobstructed,
+aggregate scores are readable, and identical club colours now render distinct
+purple/white markers. Screenshot test scores are synthetic fixtures used to
+exercise the transaction and aggregate display, not real match results.
+
+Verified development APK artifact: 11282931160 (API 35; 1,961,513 bytes).
+This is an installable development update using the existing test signing key,
+not the finished twenty-division expansion or a production Play release.

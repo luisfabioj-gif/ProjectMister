@@ -2,7 +2,7 @@
 
 These are implementation inputs, not claims that the game already enforces them.
 Linked Scottish careers implement the Premiership/Championship playoff ladder.
-German top/second-tier transitions are now implemented, awaiting device validation.
+German top/second-tier transitions passed Android 35/36 device validation in run 37146454621.
 Other countries still retain division membership at season end. Scottish unresolved
 qualification ties and the lower-pyramid boundary remain unimplemented.
 Never silently substitute a generic playoff or a club-index tie-break for these rules.

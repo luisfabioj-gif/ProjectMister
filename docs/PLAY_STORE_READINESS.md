@@ -89,3 +89,9 @@ over the development APK using the same public TEST key, and checks legacy and
 linked saves, dashboard, squad, player/staff profiles, tactics, finance, stadium,
 live match and automatic half-time tactics. This closes the local split-install
 QA gap. It does not establish private-key or Play internal-track readiness.
+
+
+The same bundle-install and legacy-save gates passed again for code 1a96ad2,
+run 37146454621, on both Android 35 and 36 after the Scottish/German promotion
+integration. Production signing, save export/import, publisher details, store
+assets and Play internal-track validation remain outstanding.
