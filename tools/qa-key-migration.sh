@@ -19,7 +19,7 @@ BOSS_MIGRATION_TEST_PASSWORD=$(openssl rand -hex 24)
 printf '%s' "$BOSS_MIGRATION_TEST_PASSWORD" > "$password"
 keytool -genkeypair -keystore "$key" -alias migration-test -storepass:env BOSS_MIGRATION_TEST_PASSWORD -keypass:env BOSS_MIGRATION_TEST_PASSWORD -keyalg RSA -keysize 2048 -validity 2 -dname 'CN=BOSS XI Disposable Migration Test' -noprompt
 java -jar "$bundletool" build-apks --bundle="$bundle" --output="$work/migration-test.apks" --device-spec="$work/device.json" --overwrite --ks="$key" --ks-key-alias=migration-test --ks-pass="file:$password" --key-pass="file:$password"
-"$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$key" --ks-key-alias migration-test --ks-pass "file:$password" --key-pass "file:$password" --out "$work/migration-qa.apk" app/build/test-manual/qa.apk
+"$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$key" --ks-key-alias migration-test --ks-pass env:BOSS_MIGRATION_TEST_PASSWORD --key-pass env:BOSS_MIGRATION_TEST_PASSWORD --out "$work/migration-qa.apk" app/build/test-manual/qa.apk
 # Verify it is actually a different certificate before uninstalling synthetic QA data.
 keytool -exportcert -keystore "$key" -alias migration-test -storepass:env BOSS_MIGRATION_TEST_PASSWORD -file "$work/migration-cert.der"
 keytool -exportcert -keystore project-mister-dev.keystore -alias projectmister -storepass projectmisterdev -file "$work/development-cert.der"

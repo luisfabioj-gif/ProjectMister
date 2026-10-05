@@ -6532,7 +6532,7 @@ public class MainActivity extends Activity {
                 if(tie.winner()>=0)card.addView(makeText("Through: "+clubNames[tie.winner()],14,accent));
                 page.addView(card);
             }
-            page.addView(makeText((promotion.country().equals("TR")?"Single-match eliminators • two-leg semi-final • neutral final. ":"Two-legged ties. ")+"No away-goals rule • "+(promotion.country().equals("ES")?"higher league finisher advances if tied after extra time.":"extra time and penalties if needed.")+" Extra time and shootouts are simulated. Lower-pyramid relegation and European admissions are not yet active.",12,muted));
+            page.addView(makeText((promotion.country().equals("TR")?"Single-match eliminators • two-leg semi-final • neutral final. ":"Two-legged ties. ")+"No away-goals rule • "+(promotion.country().equals("ES")?"higher league finisher advances if tied after extra time.":"extra time and penalties if needed.")+(promotion.country().equals("ES")?" Extra time is simulated.":" Extra time and shootouts are simulated.")+" Lower-pyramid relegation and European admissions are not yet active.",12,muted));
             if(promotion.country().equals("DE"))page.addView(makeText("Calendar currently simulated: equal rest days require a draw for return-leg home advantage. The drawn order is saved.",12,muted));
             if(!promotion.complete())page.addView(makeAccentButton("Continue play-offs",v->advancePromotion()));
             else page.addView(makeAccentButton("Apply promotion & start next season",v->continueDivisionSeason()));
