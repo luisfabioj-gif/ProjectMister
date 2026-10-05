@@ -194,3 +194,33 @@ GD, away GF, then a test match. Parent relegation forces its U23 side down,
 reprieving the penultimate sporting relegation place. Current implementation
 detects this collision and blocks rollover pending external-tier replacements.
 Licensing refusals and transfer-ban qualification exclusions are not simulated.
+
+
+## England and France implementation sources checked 6 October 2026
+
+France's current LFP competition regulations, 23 July 2026:
+https://www.lfp.fr/assets/26_27_Reglement_Competitions_23_07_2026_77d8dcbfc1.pdf
+Articles 518 ter and 519/519 ter underpin FrenchStandings/FrenchPromotion.
+The two single-leg Ligue 2 playoffs use direct penalties; the barrage uses
+aggregate, extra time and penalties, with the Ligue 1 club hosting the return.
+The last ranking criteria (discipline and draw) are not fabricated when absent.
+
+Current EFL regulations, sections 9/10:
+https://images.gc.eflservices.co.uk/c99e4490-a070-11f1-b53b-9be1de328ad3.pdf
+Current EFL playoff rules, section 2 (the PDF metadata has an obsolete title,
+but the first page explicitly identifies the 2026/27 rules):
+https://images.gc.eflservices.co.uk/659e3bb0-7b8d-11f1-b366-6527b2d4899f.pdf
+The quarter-finals are 5v8/6v7. Third then faces the lowest-ranked survivor;
+fourth faces the other survivor. Third/fourth host the second semi-final leg.
+The final is neutral. EFL ranking differs from Premier League ranking.
+Premier League 2026/27 handbook, C.7/C.17, filed by Manchester United:
+https://www.sec.gov/Archives/edgar/data/1549107/000110465926110384/manu-20260630xex4d14.htm
+Equal PL positions remain shared during the season. At the end, title/relegation
+boundaries use head-to-head points and away goals. European admissions remain
+inactive. EFL disciplinary and final deciding-match criteria remain pending.
+
+Core tests cover all 32 English and eight French paths, every saved phase,
+correct venues, retention/promotion, and national ranking. Android device QA
+now watches a club from each country's early playoff round through promotion,
+checks saves/backups and league history, and enters the next season. Device
+results must pass before this new checkpoint is called verified.

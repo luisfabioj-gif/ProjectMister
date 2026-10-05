@@ -145,7 +145,7 @@ public final class SmokeRunner extends Instrumentation {
                 check(((List<?>)get("players")).size()==worldCount*20,id+" generates full squads");
                 call("saveCurrentGame",new Class[0]);call("showMainMenu",new Class[0]);
             });
-            if(id.equals("eng:2")||id.equals("be:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-save");
+            if(id.equals("eng:2")||id.equals("be:2")||id.equals("fr:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-save");
             ui(()->{
                 check((Boolean)call("loadSave",new Class[]{int.class},1),id+" save loads");
                 check(((String[])get("clubNames")).length==worldCount && (Integer)get("selectedClub")==count-1,id+" club identity survives reload");
@@ -199,7 +199,7 @@ public final class SmokeRunner extends Instrumentation {
                 if(id.equals("sco:1")||(linked&&id.equals("sco:2")))check(((int[])get("splitOrder")).length==12,"Scottish split survives reload");
                 call("showLeagueTable",new Class[0]);
             });
-            if(id.equals("eng:2")||id.equals("be:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-table");
+            if(id.equals("eng:2")||id.equals("be:2")||id.equals("fr:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-table");
             if(linked)ui(()->{
                 int[] upper=(int[])worldClass.getMethod("members",int.class).invoke(world,1);
                 int[] lower=(int[])worldClass.getMethod("members",int.class).invoke(world,2);
@@ -226,7 +226,7 @@ public final class SmokeRunner extends Instrumentation {
             if(linked&&id.equals("sco:2"))verifyScottishPromotion();
             if(linked&&id.equals("de:2"))verifyGermanPromotion();
             if(linked&&id.equals("tr:2"))verifyTurkishPromotion();
-            if(linked&&(id.equals("pt:2")||id.equals("es:2")||id.equals("be:2")))verifyEligiblePromotion();
+            if(linked&&(id.equals("pt:2")||id.equals("es:2")||id.equals("be:2")||id.equals("fr:2")||id.equals("eng:2")))verifyEligiblePromotion();
         }
         ui(()->call("loadSave",new Class[]{int.class},0));
         check(true,"all twenty standalone and twenty linked division careers verified");
@@ -298,7 +298,7 @@ public final class SmokeRunner extends Instrumentation {
             // Parent clubs remain safely above relegation in this transition test.
             String[] ids=(String[])type.getField("clubIds").get(world);
             for(int id:upper)if(ids[id].equals("pt:fc-porto")||ids[id].equals("pt:sl-benfica")||ids[id].equals("pt:sporting-cp")||ids[id].equals("es:celta")||ids[id].equals("es:real-sociedad")||ids[id].equals("be:club-brugge")||ids[id].equals("be:krc-genk")||ids[id].equals("be:kaa-gent")||ids[id].equals("be:rsc-anderlecht"))totals[id]+=100;
-            set("promotion",null);club[0]=eligible.get(country[0].equals("BE")?1:2);set("selectedClub",club[0]);call("initialiseTacticsForClub",new Class[0]);
+            set("promotion",null);club[0]=eligible.get(country[0].equals("BE")?1:country[0].equals("FR")?3:country[0].equals("ENG")?4:2);set("selectedClub",club[0]);call("initialiseTacticsForClub",new Class[0]);
             check((Boolean)call("preparePromotion",new Class[0]),country[0]+" eligible standings seed promotion");
             int[] entrants=(int[])get("promotion").getClass().getMethod("lowerEntrants").invoke(get("promotion"));
             for(int id:entrants)check(!reserve[id],country[0]+" reserve excluded from promotion");
@@ -324,7 +324,7 @@ public final class SmokeRunner extends Instrumentation {
             Object world=get("division");Class<?> type=world.getClass();
             check(type.getField("tier").getInt(world)==1,country[0]+" winner promoted");
             check(java.util.Arrays.equals(identities[0],(String[])type.getField("clubIds").get(world)),country[0]+" stable identities preserved");
-            check(((int[])type.getMethod("members",int.class).invoke(world,1)).length==(country[0].equals("ES")?20:18),country[0]+" top division size preserved");
+            check(((int[])type.getMethod("members",int.class).invoke(world,1)).length==(country[0].equals("ES")||country[0].equals("ENG")?20:18),country[0]+" top division size preserved");
             check((Integer)get("matchday")==0&&get("promotion")==null,country[0]+" next season survives reload");
             check(playerInt(call("findPlayer",new Class[]{int.class},club[0]*20),"team")==club[0],country[0]+" player remains at club");
         });

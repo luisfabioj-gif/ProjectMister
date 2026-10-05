@@ -1,6 +1,24 @@
 # Competition expansion — implementation checkpoint, 5 October 2026
 
-## Current candidate — Belgium and signing-key migration QA, 5 October 2026
+## Current candidate — England and France, 6 October 2026
+
+Two more linked-country transitions are implemented: the six-club English
+Championship playoff with reseeded semifinals, and France's two Ligue 2 single
+matches followed by the two-leg Ligue 1 barrage. Country-specific standings,
+saved playoff phases, watched matches, balanced tier movement and table badges
+are connected. Core tests cover all 32 English and eight French winner paths.
+Android compilation passes; the extended device matrix is the next gate.
+
+Italy and Netherlands transitions, missing disciplinary/deciding outcomes,
+lower-pyramid replacements, official fixture calendars, playable cups/European
+admissions and physical-device/production checks remain open. Eight-country
+implementation does not mean all national rules are complete.
+
+The prior screenshot archive fix passed Android 35/36 in run 37379146459,
+source 06addafcd4df5154d462eb62ce1032c915ae003e, including the required PT/ES/BE
+screen captures before uninstalling for the different-key migration test.
+
+## Previous candidate — Belgium and signing-key migration QA, 5 October 2026
 
 Source `e0aeafeed2acd4788774ec409f3e42933100f240` passed both Android 35
 (job 111810605542) and Android 36 (job 111810605253):

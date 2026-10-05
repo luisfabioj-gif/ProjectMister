@@ -18,7 +18,8 @@ This is a tested development APK, not a Play Store production release. Android h
 - Restored-career screenshot reviewed: readable dashboard, club/manager,
   next fixture and navigation. Earlier screen captures were lost when Android
   cleared app files on uninstall; the script now pulls them to a separate
-  archive before uninstall. Verification of that capture fix is pending.
+  archive before uninstall. That capture fix subsequently passed both API levels in run 37379146459
+  (source 06addafcd4df5154d462eb62ce1032c915ae003e).
 
 The following sections preserve earlier checkpoints and their then-open gaps.
 Current competition scope is tracked in COMPETITION_EXPANSION_STATUS.md.
@@ -84,3 +85,14 @@ This closes the current implementation and automated verification milestone. The
 ## v2.3.1 follow-up
 
 See [V2_3_1_CHANGES.md](V2_3_1_CHANGES.md) for final successful run 36594832195, new offer/action tests, recorded audio validation, screenshot findings and APK hash. Earlier synthesized-crowd notes above describe v2.3; current audio provenance is in AUDIO_SOURCES.md.
+
+
+## England/France candidate — 6 October 2026
+
+Both countries now have promotion campaigns and standings integrated into
+careers. Core tests passed all English 32/French eight winner paths, saved
+regulation/extra-time/penalty phases, reseeding, venue policy and league ranking.
+Direct SDK application and instrumentation compilation passed. The device gate
+requires watched early-round progression through promotion, save/backup reload,
+unchanged league results and next-season identity/tier retention in both countries.
+This entry awaits the new matrix result; it does not assert a device pass yet.
