@@ -1,5 +1,37 @@
 # Competition expansion — implementation checkpoint, 1 October 2026
 
+## Latest work — 5 October 2026 (UK time)
+
+Resumed from the saved Türkiye changes after the verified German/Scottish
+checkpoint `d0552b4`. Türkiye now has saved single-match eliminators, a two-leg
+semifinal and a neutral final, with two automatic promotions and three relegations.
+Standings use TFF head-to-head/group mini-table rules. Final unresolved qualifying
+positions block seeding rather than using club IDs as a sporting tie-break.
+Neutral simulated finals receive no home advantage. Single-match live/review
+labels no longer describe a nonexistent second leg or aggregate.
+
+Regression coverage includes all 16 winner paths, saves in every knockout phase,
+neutral final shootouts, no away-goal tie-break, and retained group mini-tables.
+Android QA adds watched eliminator/semifinal/final progression, save reloads,
+unchanged league ledger, stable club/player identities and the 18/20-club season
+transition. All pure Java/data regressions passed, the SDK-built APK compiled
+and passed signature verification, and the independent Android test runner built.
+Code checkpoint: `9698b3e7af2e034a99a026dcfb6ca89f640be1cc`.
+
+This checkpoint is committed locally but has NOT been pushed. Automatic approval
+review rejected publication to the public repository and did not accept retrieved
+prior-chat consent; explicit confirmation in the continuation conversation is
+required. No new GitHub Actions run or emulator result exists for this code yet.
+After approval, push the development branch and inspect both API 35/36 jobs,
+including the Turkish neutral-final/review screenshots and release-bundle tests.
+The latest remotely verified code remains `1a96ad2` / run `37146454621`.
+
+Still unfinished: the other seven countries' season transitions; deciding-match
+ties; lower-pyramid relegation; authentic date/break scheduling; playable national
+and European cups and admissions; full national squad/registration exemptions;
+production signing, Play Console setup and physical-device performance/audio QA.
+The historical entries below record the progression, not the current feature list.
+
 This is development work, NOT a completed 20-division release. Last verified
 user-delivered version: 2.3.1, run 36594832195. Stable main remains untouched.
 

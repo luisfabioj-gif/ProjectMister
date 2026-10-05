@@ -1,9 +1,10 @@
-# National rules verification — 3 October 2026
+# National rules verification — 5 October 2026
 
 These are implementation inputs, not claims that the game already enforces them.
 Linked Scottish careers implement the Premiership/Championship playoff ladder.
 German top/second-tier transitions passed Android 35/36 device validation in run 37146454621.
-Other countries still retain division membership at season end. Scottish unresolved
+Türkiye now implements its top-two promotion, five-club playoffs and three-club
+relegation; new Android validation is pending. Other countries still retain division membership at season end. Scottish unresolved
 qualification ties and the lower-pyramid boundary remain unimplemented.
 Never silently substitute a generic playoff or a club-index tie-break for these rules.
 
@@ -78,6 +79,21 @@ neutral single final. Ties use extra time then penalties. Read player eligibilit
 appendices separately; a correct playoff does not imply squad rules are implemented.
 
 https://www.tff.org/Resources/TFF/Auto/18c19be2866242679eb483a7a154e0cf.pdf
+
+Rechecked official 2026/27 statutes on 5 October (UK time): Süper Lig has 18
+clubs and relegates places 16–18. The 1. Lig playoff includes five matches in
+total: two single eliminators, two semifinal legs and one neutral final.
+https://www.tff.org/Resources/TFF/Auto/18eb7fde7b3e415db804b0c60b01a051.pdf
+https://www.tff.org/Resources/TFF/Documents/STATULER/2026-2027/2026-2027-sezonu-tff-1-lig-musabakalari-statusu.pdf
+
+Football Competition Instructions article 9: equal points use direct points and
+GD; three-or-more-club groups then use mini-table goals scored. Do not reapply
+the direct criteria to narrowed subsets. Next use overall GD and goals scored,
+then absence of forfeitures, then deciding match(es). Away goals are not a
+tie-break. The simulation has no forfeiture events. Missing final match history
+or an unresolved sporting tie prevents consequential playoff seeding. Deciding
+matches and relegation to the third tier remain unimplemented.
+https://www.tff.org/Resources/TFF/Auto/7b2bb90b23884fa89c0c73ffac9b0fc5.pdf
 
 ## Spain
 

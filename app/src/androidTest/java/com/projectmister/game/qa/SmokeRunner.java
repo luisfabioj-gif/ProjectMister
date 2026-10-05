@@ -225,9 +225,66 @@ public final class SmokeRunner extends Instrumentation {
             if(id.equals("eng:2"))page("division-eng-2-results","showLeagueResults",new Class[]{int.class},0);
             if(linked&&id.equals("sco:2"))verifyScottishPromotion();
             if(linked&&id.equals("de:2"))verifyGermanPromotion();
+            if(linked&&id.equals("tr:2"))verifyTurkishPromotion();
         }
         ui(()->call("loadSave",new Class[]{int.class},0));
         check(true,"all twenty standalone and twenty linked division careers verified");
+    }
+
+    private void verifyTurkishPromotion() throws Exception {
+        final String[][] identities={null};final int[] club={0},games={0},ledgerSize={0};
+        ui(()->{
+            Object world=get("division");Class<?> type=world.getClass();
+            int[] upper=(int[])type.getMethod("members",int.class).invoke(world,1),lower=(int[])type.getMethod("members",int.class).invoke(world,2);
+            int[] totals=(int[])get("points");for(int i=0;i<upper.length;i++)totals[upper[i]]=100-i;
+            for(int i=0;i<lower.length;i++)totals[lower[i]]=80-i;
+            set("promotion",null);club[0]=lower[3];set("selectedClub",club[0]);call("initialiseTacticsForClub",new Class[0]);
+            Object ledger=get("leagueResults");ledgerSize[0]=(Integer)ledger.getClass().getMethod("size").invoke(ledger);
+            // Historical saves with an unresolved seventh/eighth boundary must not invent a qualifier.
+            totals[lower[7]]=totals[lower[6]];
+            set("leagueResults",ledger.getClass().getConstructor(int.class,boolean.class).newInstance(upper.length+lower.length,false));
+            check(!(Boolean)call("preparePromotion",new Class[0]),"Turkish missing-history qualification tie blocks promotion");
+            set("leagueResults",ledger);totals[lower[7]]=73;
+            check((Boolean)call("preparePromotion",new Class[0]),"resolved Turkish standings seed playoffs");
+            identities[0]=((String[])type.getField("clubIds").get(world)).clone();games[0]=((int[])get("played"))[club[0]];
+        });
+        for(int game=0;game<4;game++) {
+            final int step=game;
+            ui(()->{
+                call("advancePromotion",new Class[0]);set("livePaused",true);
+                check((Boolean)get("livePlayoff"),"manager watches Turkish postseason match "+step);
+                Object campaign=get("promotion"),tie=campaign.getClass().getMethod("current").invoke(campaign);
+                if(step==0)check(tie.getClass().getField("legs").getInt(tie)==1,"Turkish eliminator is one match");
+                if(step==2)check((Integer)tie.getClass().getMethod("playedLegs").invoke(tie)==1,"Turkish first-leg result survives reload");
+                if(step==3) {
+                    check(tie.getClass().getField("neutral").getBoolean(tie),"Turkish final uses neutral ground");
+                    check(call("liveTieSummary",new Class[0]).equals("FINAL • NEUTRAL VENUE"),"neutral final has correct live label");
+                }
+                set("liveHomeGoals",(Integer)get("liveHome")==club[0]?2:0);set("liveAwayGoals",(Integer)get("liveAway")==club[0]?2:0);
+                call("refreshLiveHeader",new Class[0]);
+            });
+            if(game==3)capture("turkish-neutral-final");
+            ui(()->{
+                call("finishLiveMatch",new Class[0]);call("loadSave",new Class[]{int.class},1);
+                check(get("promotion").getClass().getMethod("country").invoke(get("promotion")).equals("TR"),"Turkish campaign reloads with correct country");
+                check(((int[])get("played"))[club[0]]==games[0]&&(Integer)get("matchday")==38,"Turkish playoffs leave league appearances and round unchanged");
+                Object ledger=get("leagueResults");check((Integer)ledger.getClass().getMethod("size").invoke(ledger)==ledgerSize[0],"Turkish playoffs do not enter league ledger");
+            });
+        }
+        ui(()->{
+            check((Boolean)get("promotion").getClass().getMethod("complete").invoke(get("promotion")),"Turkish five-match campaign completes");
+            call("showSeasonReview",new Class[0]);
+        });
+        capture("turkish-promotion-review");
+        ui(()->{
+            call("continueDivisionSeason",new Class[0]);call("loadSave",new Class[]{int.class},1);Object world=get("division");Class<?> type=world.getClass();
+            check(type.getField("tier").getInt(world)==1,"Turkish playoff winner promoted to Super Lig");
+            check(((int[])type.getMethod("members",int.class).invoke(world,1)).length==18&&((int[])type.getMethod("members",int.class).invoke(world,2)).length==20,"Turkish tier sizes preserved");
+            check(java.util.Arrays.equals(identities[0],(String[])type.getField("clubIds").get(world)),"Turkish promotion preserves stable club IDs");
+            check((Integer)get("matchday")==0&&get("promotion")==null,"Turkish season transition survives reload");
+            check(playerInt(call("findPlayer",new Class[]{int.class},club[0]*20),"team")==club[0],"Turkish player remains at original club");
+        });
+        check(true,"Turkish watched playoffs and season transition verified");
     }
 
     private void verifyGermanPromotion() throws Exception {

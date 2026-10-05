@@ -993,6 +993,10 @@ public class MainActivity extends Activity {
             GermanStandings ranked=germanStandings(division.tier);
             for(int i=0;i<ranked.order.length;i++)if(ranked.order[i]==selectedClub)rank=ranked.rankAt(i);
         }
+        if(division!=null&&division.country.equals("TR")) {
+            TurkishStandings ranked=turkishStandings(division.tier);
+            for(int i=0;i<ranked.order.length;i++)if(ranked.order[i]==selectedClub)rank=ranked.rankAt(i);
+        }
         int fit=0,count=0,injured=0;
         for(Player p:players) if(p.team==selectedClub) { fit+=p.fitness;count++;if(p.injuredWeeks>0)injured++; }
         LinearLayout overview=makePanel();
@@ -2953,6 +2957,7 @@ public class MainActivity extends Activity {
     private String liveTieSummary() {
         if(!livePlayoff||promotion==null||promotion.current()==null)return "BOSS XI • LIVE";
         KnockoutTie tie=promotion.current();
+        if(tie.legs==1)return tie.neutral?"FINAL • NEUTRAL VENUE":"ELIMINATOR • SINGLE MATCH";
         return "LEG "+(tie.playedLegs()+1)+" • AGG "+(tie.aggregate(liveHome)+liveHomeGoals)+"–"+(tie.aggregate(liveAway)+liveAwayGoals);
     }
 
@@ -3857,15 +3862,17 @@ public class MainActivity extends Activity {
         if(division!=null&&division.linked)page.addView(makeButton(division.nameFor(3-tableTier),v->showLeagueTable(3-tableTier)));
         if(division!=null)page.addView(makeButton("League results",v->showLeagueResults(Math.max(0,matchday-1),tableTier)));
         page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
-        page.addView(makeText(division!=null && tableTier==2 ? (division.linked&&(division.country.equals("SCO")||division.country.equals("DE"))?"Promotion play-offs apply when qualification is resolved. Lower-pyramid relegation is not yet active.":"Promotion and relegation are not yet simulated in this development career.") : "2027/28 European reference • Cup results, UEFA adjustments and licensing apply. Career admissions are not yet simulated.", 12, muted));
+        page.addView(makeText(division!=null && tableTier==2 ? (division.linked&&(division.country.equals("SCO")||division.country.equals("DE")||division.country.equals("TR"))?"Promotion play-offs apply when qualification is resolved. Lower-pyramid relegation is not yet active.":"Promotion and relegation are not yet simulated in this development career.") : "2027/28 European reference • Cup results, UEFA adjustments and licensing apply. Career admissions are not yet simulated.", 12, muted));
 
         Integer[] order = tableMembers(tableTier);
         ScottishStandings scottish=division!=null&&division.country.equals("SCO")?scottishStandings(tableTier):null;
         GermanStandings german=division!=null&&division.country.equals("DE")?germanStandings(tableTier):null;
+        TurkishStandings turkish=division!=null&&division.country.equals("TR")?turkishStandings(tableTier):null;
         if(scottish!=null)order=scottish.order;
         else if(german!=null)order=german.order;
+        else if(turkish!=null)order=turkish.order;
         else Arrays.sort(order, this::compareLeagueClubs);
-        if(scottish!=null||german!=null)page.addView(makeText("= marks equal positions. Tied qualification places need a deciding match; badges are projections.",12,muted));
+        if(scottish!=null||german!=null||turkish!=null)page.addView(makeText("= marks equal positions. Tied qualification places need a deciding match; badges are projections.",12,muted));
         if(tableTier==1&&scottishSplitProvisional)page.addView(makeText("Split allocation is provisional: the deciding-match case remains unresolved.",12,danger));
 
         LinearLayout header = new LinearLayout(this);
@@ -3896,8 +3903,8 @@ public class MainActivity extends Activity {
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rlp.setMargins(0, 0, 0, dp(7));
             row.setLayoutParams(rlp);
-            boolean tied=scottish!=null&&(scottish.tiedAt(position)||scottish.tiedAt(position-1))||german!=null&&(german.tiedAt(position)||german.tiedAt(position-1));
-            int displayedRank=scottish!=null?scottish.rankAt(position):german!=null?german.rankAt(position):position+1;
+            boolean tied=scottish!=null&&(scottish.tiedAt(position)||scottish.tiedAt(position-1))||german!=null&&(german.tiedAt(position)||german.tiedAt(position-1))||turkish!=null&&(turkish.tiedAt(position)||turkish.tiedAt(position-1));
+            int displayedRank=scottish!=null?scottish.rankAt(position):german!=null?german.rankAt(position):turkish!=null?turkish.rankAt(position):position+1;
             row.addView(makeLeagueCell((tied?"=":"")+displayedRank, 0.45f, accent, true));
             LinearLayout clubCell = new LinearLayout(this);
             clubCell.setOrientation(LinearLayout.VERTICAL);
@@ -3918,6 +3925,11 @@ public class MainActivity extends Activity {
                 if(rank>=17)zone=tableTier==1?"Relegation*":"Relegation · inactive";
                 else if(rank==16)zone=tableTier==1?"Relegation play-off*":"Lower-league play-off · inactive";
                 else if(tableTier==2)zone=rank<=2?"Automatic promotion*":rank==3?"Promotion play-off*":"";
+                if(tied)zone="Equal position · place unresolved";
+            }
+            if(turkish!=null) {
+                if(tableTier==1&&rank>=16)zone="Relegation*";
+                else if(tableTier==2)zone=rank<=2?"Automatic promotion*":rank==3?"Promotion final*":rank<=7?"Promotion play-off*":rank>=17?"Relegation · inactive":"";
                 if(tied)zone="Equal position · place unresolved";
             }
             if (!zone.isEmpty()) clubCell.addView(makeText(zone, 10, zone.startsWith("Relegation")||zone.startsWith("Lower-league") ? danger : accent));
@@ -6336,12 +6348,23 @@ public class MainActivity extends Activity {
     private GermanStandings germanStandings(int tier) {
         return new GermanStandings(tableMembers(tier),points,goalsFor,goalsAgainst,leagueResults);
     }
+    private TurkishStandings turkishStandings(int tier) {
+        return new TurkishStandings(tableMembers(tier),points,goalsFor,goalsAgainst,leagueResults,matchday>=division.rounds(tier));
+    }
     private String clubList(int[] clubs) {
         StringBuilder names=new StringBuilder();for(int club:clubs){if(names.length()>0)names.append(" • ");names.append(clubNames[club]);}return names.toString();
     }
     private boolean preparePromotion() {
         if(promotion!=null)return true;
         if(division==null||!division.linked||matchday<seasonRounds()||!unreadablePromotion.isEmpty())return false;
+        if(division.country.equals("TR")) {
+            TurkishStandings upper=turkishStandings(1),lower=turkishStandings(2);
+            if(upper.tiedAt(14))return false;
+            for(int boundary=1;boundary<=6;boundary++)if(lower.tiedAt(boundary))return false;
+            int[] entrants=new int[7];for(int i=0;i<7;i++)entrants[i]=lower.order[i];
+            promotion=new TurkeyPromotion(entrants,new int[]{upper.order[15],upper.order[16],upper.order[17]});
+            saveCurrentGame();return true;
+        }
         if(division.country.equals("DE")) {
             GermanStandings upper=germanStandings(1),lower=germanStandings(2);
             if(upper.tiedAt(14)||upper.tiedAt(15)||lower.tiedAt(1)||lower.tiedAt(2))return false;
@@ -6370,22 +6393,22 @@ public class MainActivity extends Activity {
                 card.addView(makeText(clubNames[tie.firstHome]+" v "+clubNames[tie.firstAway],15,text));
                 for(int leg=0;leg<tie.playedLegs();leg++) {
                     int[] score=tie.regulationScore(leg);int home=tie.homeForLeg(leg),away=home==tie.firstHome?tie.firstAway:tie.firstHome;
-                    card.addView(makeText("Leg "+(leg+1)+": "+clubNames[home]+" "+score[0]+"–"+score[1]+" "+clubNames[away],13,muted));
+                    card.addView(makeText((tie.legs==1?"Match: ":"Leg "+(leg+1)+": ")+clubNames[home]+" "+score[0]+"–"+score[1]+" "+clubNames[away],13,muted));
                 }
                 int[] extra=tie.extraTimeScore(),pens=tie.penaltyScore();
                 if(extra[0]>=0)card.addView(makeText("Extra time (simulated): "+extra[0]+"–"+extra[1],12,muted));
                 if(pens[0]>=0)card.addView(makeText("Penalties: "+pens[0]+"–"+pens[1],12,muted));
-                card.addView(makeText("Aggregate: "+clubNames[tie.firstHome]+" "+tie.aggregate(tie.firstHome)+"–"+tie.aggregate(tie.firstAway)+" "+clubNames[tie.firstAway],13,text));
+                card.addView(makeText((tie.legs==1?"Final score: ":"Aggregate: ")+clubNames[tie.firstHome]+" "+tie.aggregate(tie.firstHome)+"–"+tie.aggregate(tie.firstAway)+" "+clubNames[tie.firstAway],13,text));
                 if(tie.winner()>=0)card.addView(makeText("Through: "+clubNames[tie.winner()],14,accent));
                 page.addView(card);
             }
-            page.addView(makeText("Two-legged ties • no away-goals rule • extra time and penalties if needed. Extra time and shootouts are simulated. Lower-pyramid relegation and European admissions are not yet active.",12,muted));
+            page.addView(makeText((promotion.country().equals("TR")?"Single-match eliminators • two-leg semi-final • neutral final. ":"Two-legged ties. ")+"No away-goals rule • extra time and penalties if needed. Extra time and shootouts are simulated. Lower-pyramid relegation and European admissions are not yet active.",12,muted));
             if(promotion.country().equals("DE"))page.addView(makeText("Calendar currently simulated: equal rest days require a draw for return-leg home advantage. The drawn order is saved.",12,muted));
             if(!promotion.complete())page.addView(makeAccentButton("Continue play-offs",v->advancePromotion()));
             else page.addView(makeAccentButton("Apply promotion & start next season",v->continueDivisionSeason()));
         } else {
             String reason=!unreadablePromotion.isEmpty()?"Saved playoff data could not be read. It has been kept; league progress remains available.":
-                division!=null&&division.linked&&(division.country.equals("SCO")||division.country.equals("DE"))?"The split or final league places need a deciding fixture or verified historical ranking before playoff places can be awarded. This deciding-match case is not implemented yet; no club has been promoted or relegated.":
+                division!=null&&division.linked&&(division.country.equals("SCO")||division.country.equals("DE")||division.country.equals("TR"))?"The split or final league places need a deciding fixture or verified historical ranking before playoff places can be awarded. This deciding-match case is not implemented yet; no club has been promoted or relegated.":
                 "Promotion, relegation and European admissions are awaiting this competition's implementation. This development career retains its division.";
             page.addView(makeText(reason,14,muted));
             if(unreadablePromotion.isEmpty())page.addView(makeButton("Next season — retain divisions",v->continueDivisionSeason()));
@@ -6417,7 +6440,7 @@ public class MainActivity extends Activity {
     private void simulatePromotionLeg() {
         if(promotion==null||promotion.current()==null)return;
         KnockoutTie tie=promotion.current();int home=tie.home(),away=tie.away();
-        tie.recordRegulation(simulateGoals(home,away,true),simulateGoals(away,home,false));
+        tie.recordRegulation(simulateGoals(home,away,!tie.neutral),simulateGoals(away,home,false));
         settleKnockout(tie);saveCurrentGame();
     }
     private int extraTimeGoals(int attack,int defence,boolean home) {
@@ -6437,7 +6460,7 @@ public class MainActivity extends Activity {
     }
     private void settleKnockout(KnockoutTie tie) {
         int home=tie.home(),away=tie.away();
-        if(tie.phase()==KnockoutTie.Phase.EXTRA_TIME)tie.recordExtraTime(extraTimeGoals(home,away,true),extraTimeGoals(away,home,false));
+        if(tie.phase()==KnockoutTie.Phase.EXTRA_TIME)tie.recordExtraTime(extraTimeGoals(home,away,!tie.neutral),extraTimeGoals(away,home,false));
         if(tie.phase()==KnockoutTie.Phase.PENALTIES) {
             int h=0,a=0;double hp=penaltyChance(home,away),ap=penaltyChance(away,home);
             for(int kick=0;kick<5;kick++) {

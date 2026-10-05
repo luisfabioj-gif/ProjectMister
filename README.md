@@ -1,14 +1,14 @@
-# BOSS XI v2.3.1 candidate
+# BOSS XI v2.3.2 development candidate
 
 Android football-management game, package `com.projectmister.game`.
 
 ## Status
 
-Development candidate with successful Gradle, emulator startup, save-upgrade and feature regression runs. Hardware audio/performance review remains open. See [audit and scope](docs/V2_3_AUDIT.md) and [validation status](docs/VALIDATION.md).
+Twenty selectable divisions across ten countries, with linked two-tier careers. The Scottish and German promotion checkpoints passed Android 35/36 verification; Türkiye is implemented with device verification pending. Other countries' transitions and playable domestic/European cups remain unfinished. See [current competition status](docs/COMPETITION_EXPANSION_STATUS.md), [audit and scope](docs/V2_3_AUDIT.md) and [validation status](docs/VALIDATION.md). Hardware audio/performance review remains open.
 
 ## Normal build
 
-JDK 17, Gradle 8.9, Android SDK 35 and build-tools 35.0.0:
+JDK 17, Gradle 8.11.1, Android SDK 36 and build-tools 35.0.0 (Android SDK 35 is also required for the independent QA runner):
 
 ```
 gradle :app:assembleDebug --no-daemon
