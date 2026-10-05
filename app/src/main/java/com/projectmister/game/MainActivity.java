@@ -824,6 +824,79 @@ public class MainActivity extends Activity {
         editorTitle.setPadding(0, dp(6), 0, dp(8));
         page.addView(editorTitle);
         page.addView(makeButton("✏  Game Editor — Teams & Colours", v -> showTeamEditor()));
+        page.addView(makeButton("Back up & restore careers", v -> showBackupTools()));
+    }
+
+    private static final int EXPORT_BACKUP=8101, IMPORT_BACKUP=8102;
+    private void showBackupTools() {
+        backAction=()->showMainMenu();
+        LinearLayout page=createPage("Career backups","Keep your careers when changing device or installation",true);
+        page.addView(makeText("A backup includes all three career slots, manager details, team edits and sound settings. It is not encrypted. Choose a location you trust and keep the file before uninstalling BOSS XI.",15,text));
+        page.addView(makeAccentButton("Export backup",v->chooseBackupFile(true)));
+        page.addView(makeButton("Restore backup",v->chooseBackupFile(false)));
+        page.addView(makeText("Restoring replaces all three current careers, team edits and sound settings. You will be asked to confirm after the file has been checked. Canceling the file picker leaves your careers unchanged.",14,muted));
+    }
+    private void chooseBackupFile(boolean export) {
+        if(export&&!slotExists(0)&&!slotExists(1)&&!slotExists(2)){backupError("Create a career before exporting a backup.");return;}
+        android.content.Intent intent=new android.content.Intent(export?android.content.Intent.ACTION_CREATE_DOCUMENT:android.content.Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);
+        intent.setType(export?"application/octet-stream":"*/*");
+        if(export)intent.putExtra(android.content.Intent.EXTRA_TITLE,"BOSS-XI-"+LocalDate.now()+".bossxi");
+        try{startActivityForResult(intent,export?EXPORT_BACKUP:IMPORT_BACKUP);}
+        catch(android.content.ActivityNotFoundException missing){backupError("No document picker is available on this device.");}
+    }
+    private void backupError(String message) {
+        if(isFinishing()||isDestroyed())return;
+        new BossDialog.Builder(this).setTitle("Backup could not be completed").setMessage(message).setPositiveButton("OK",null).show();
+    }
+    private android.app.Dialog backupProgress(String message) {
+        android.app.Dialog dialog=new android.app.Dialog(this);
+        LinearLayout body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(dp(24),dp(24),dp(24),dp(24));body.setBackground(rounded(panel));
+        body.addView(makeText(message+" — please wait…",16,text));body.addView(new android.widget.ProgressBar(this));
+        dialog.setContentView(body);dialog.setCancelable(false);dialog.setCanceledOnTouchOutside(false);dialog.show();return dialog;
+    }
+    @Override protected void onActivityResult(int request,int result,android.content.Intent data) {
+        super.onActivityResult(request,result,data);
+        if(request!=EXPORT_BACKUP&&request!=IMPORT_BACKUP)return;
+        if(result!=RESULT_OK||data==null||data.getData()==null)return;
+        android.net.Uri uri=data.getData();
+        android.app.Dialog progress=backupProgress(request==EXPORT_BACKUP?"Exporting careers":"Checking backup");
+        java.util.Map<String,?> snapshot=prefs.getAll();
+        new Thread(()->{
+            try {
+                if(request==EXPORT_BACKUP) {
+                    byte[] bytes=SaveBackup.encode(snapshot);
+                    try(java.io.OutputStream out=getContentResolver().openOutputStream(uri,"wt")) {
+                        if(out==null)throw new java.io.IOException("File unavailable");out.write(bytes);out.flush();
+                    }
+                    runOnUiThread(()->{progress.dismiss();if(!isDestroyed())Toast.makeText(this,"Backup exported. Keep it before uninstalling.",Toast.LENGTH_LONG).show();});
+                } else {
+                    byte[] bytes;
+                    try(java.io.InputStream in=getContentResolver().openInputStream(uri)){bytes=SaveBackup.read(in);}
+                    java.util.Map<String,Object> checked=BackupRestore.validate(bytes);int count=0;
+                    for(int i=0;i<SAVE_SLOTS;i++)if(Boolean.TRUE.equals(checked.get(key(i,"exists"))))count++;
+                    final int careers=count;
+                    runOnUiThread(()->{progress.dismiss();if(isDestroyed()||isFinishing())return;
+                        new BossDialog.Builder(this).setTitle("Replace current careers?")
+                            .setMessage("This checked backup contains "+careers+" career(s). Restoring replaces all three current slots, team edits and sound settings. Export your current careers first if you want to keep them.")
+                            .setNegativeButton("Cancel",null).setPositiveButton("Replace & restore",(dialog,which)->restoreBackup(bytes)).show();
+                    });
+                }
+            } catch(Exception error){runOnUiThread(()->{progress.dismiss();backupError(request==EXPORT_BACKUP?"The backup could not be written. Your careers are unchanged; delete any incomplete file and try another location.":"This file could not be restored. It may be damaged, incompatible or unavailable. Your current careers are unchanged.");});}
+        },"boss-backup-file").start();
+    }
+    private void restoreBackup(byte[] bytes) {
+        android.app.Dialog progress=backupProgress("Restoring careers");
+        new Thread(()->{
+            try {
+                BackupRestore.restore(prefs,bytes);
+                runOnUiThread(()->{progress.dismiss();if(isDestroyed()||isFinishing())return;
+                    selectedSlot=-1;selectedClub=-1;configureDivision(null);
+                    if(audio!=null)audio.settings(prefs.getBoolean("audio_crowd",true),prefs.getBoolean("audio_effects",true));
+                    showMainMenu();Toast.makeText(this,"Careers restored. Choose a slot to continue.",Toast.LENGTH_LONG).show();
+                });
+            } catch(Exception error){runOnUiThread(()->{progress.dismiss();backupError(error.getMessage());});}
+        },"boss-backup-restore").start();
     }
 
     private void initialiseNewManagerDefaults() {
@@ -995,6 +1068,10 @@ public class MainActivity extends Activity {
         }
         if(division!=null&&division.country.equals("TR")) {
             TurkishStandings ranked=turkishStandings(division.tier);
+            for(int i=0;i<ranked.order.length;i++)if(ranked.order[i]==selectedClub)rank=ranked.rankAt(i);
+        }
+        if(division!=null&&(division.country.equals("PT")||division.country.equals("ES"))) {
+            IberianStandings ranked=iberianStandings(division.tier);
             for(int i=0;i<ranked.order.length;i++)if(ranked.order[i]==selectedClub)rank=ranked.rankAt(i);
         }
         int fit=0,count=0,injured=0;
@@ -3862,17 +3939,19 @@ public class MainActivity extends Activity {
         if(division!=null&&division.linked)page.addView(makeButton(division.nameFor(3-tableTier),v->showLeagueTable(3-tableTier)));
         if(division!=null)page.addView(makeButton("League results",v->showLeagueResults(Math.max(0,matchday-1),tableTier)));
         page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
-        page.addView(makeText(division!=null && tableTier==2 ? (division.linked&&(division.country.equals("SCO")||division.country.equals("DE")||division.country.equals("TR"))?"Promotion play-offs apply when qualification is resolved. Lower-pyramid relegation is not yet active.":"Promotion and relegation are not yet simulated in this development career.") : "2027/28 European reference • Cup results, UEFA adjustments and licensing apply. Career admissions are not yet simulated.", 12, muted));
+        page.addView(makeText(division!=null && tableTier==2 ? (hasPromotionRules()?"Promotion play-offs apply when qualification is resolved. Lower-pyramid relegation is not yet active.":"Promotion and relegation are not yet simulated in this development career.") : "2027/28 European reference • Cup results, UEFA adjustments and licensing apply. Career admissions are not yet simulated.", 12, muted));
 
         Integer[] order = tableMembers(tableTier);
         ScottishStandings scottish=division!=null&&division.country.equals("SCO")?scottishStandings(tableTier):null;
         GermanStandings german=division!=null&&division.country.equals("DE")?germanStandings(tableTier):null;
         TurkishStandings turkish=division!=null&&division.country.equals("TR")?turkishStandings(tableTier):null;
+        IberianStandings iberian=division!=null&&(division.country.equals("PT")||division.country.equals("ES"))?iberianStandings(tableTier):null;
         if(scottish!=null)order=scottish.order;
         else if(german!=null)order=german.order;
         else if(turkish!=null)order=turkish.order;
+        else if(iberian!=null)order=iberian.order;
         else Arrays.sort(order, this::compareLeagueClubs);
-        if(scottish!=null||german!=null||turkish!=null)page.addView(makeText("= marks equal positions. Tied qualification places need a deciding match; badges are projections.",12,muted));
+        if(scottish!=null||german!=null||turkish!=null||iberian!=null)page.addView(makeText("= marks equal positions. Tied qualification places need a deciding match; badges are projections.",12,muted));
         if(tableTier==1&&scottishSplitProvisional)page.addView(makeText("Split allocation is provisional: the deciding-match case remains unresolved.",12,danger));
 
         LinearLayout header = new LinearLayout(this);
@@ -3903,8 +3982,8 @@ public class MainActivity extends Activity {
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rlp.setMargins(0, 0, 0, dp(7));
             row.setLayoutParams(rlp);
-            boolean tied=scottish!=null&&(scottish.tiedAt(position)||scottish.tiedAt(position-1))||german!=null&&(german.tiedAt(position)||german.tiedAt(position-1))||turkish!=null&&(turkish.tiedAt(position)||turkish.tiedAt(position-1));
-            int displayedRank=scottish!=null?scottish.rankAt(position):german!=null?german.rankAt(position):turkish!=null?turkish.rankAt(position):position+1;
+            boolean tied=scottish!=null&&(scottish.tiedAt(position)||scottish.tiedAt(position-1))||german!=null&&(german.tiedAt(position)||german.tiedAt(position-1))||turkish!=null&&(turkish.tiedAt(position)||turkish.tiedAt(position-1))||iberian!=null&&(iberian.tiedAt(position)||iberian.tiedAt(position-1));
+            int displayedRank=scottish!=null?scottish.rankAt(position):german!=null?german.rankAt(position):turkish!=null?turkish.rankAt(position):iberian!=null?iberian.rankAt(position):position+1;
             row.addView(makeLeagueCell((tied?"=":"")+displayedRank, 0.45f, accent, true));
             LinearLayout clubCell = new LinearLayout(this);
             clubCell.setOrientation(LinearLayout.VERTICAL);
@@ -3930,6 +4009,16 @@ public class MainActivity extends Activity {
             if(turkish!=null) {
                 if(tableTier==1&&rank>=16)zone="Relegation*";
                 else if(tableTier==2)zone=rank<=2?"Automatic promotion*":rank==3?"Promotion final*":rank<=7?"Promotion play-off*":rank>=17?"Relegation · inactive":"";
+                if(tied)zone="Equal position · place unresolved";
+            }
+            if(iberian!=null) {
+                int size=order.length;
+                if(tableTier==1&&rank>size-3)zone=division.country.equals("PT")&&rank==size-2?"Relegation play-off*":"Relegation*";
+                if(tableTier==2) {
+                    int eligibleRank=0;for(int i=0;i<=position;i++)if(!division.reserves[order[i]])eligibleRank++;
+                    zone=division.reserves[club]?"Reserve · cannot promote":eligibleRank<=2?"Automatic promotion*":eligibleRank<=(division.country.equals("PT")?3:6)?"Promotion play-off*":"";
+                    if(rank>size-(division.country.equals("PT")?2:4))zone="Relegation · inactive";
+                }
                 if(tied)zone="Equal position · place unresolved";
             }
             if (!zone.isEmpty()) clubCell.addView(makeText(zone, 10, zone.startsWith("Relegation")||zone.startsWith("Lower-league") ? danger : accent));
@@ -3973,7 +4062,7 @@ public class MainActivity extends Activity {
         LinearLayout notes = makePanel();
         notes.addView(profileSectionTitle("HOW TO READ THE GUIDE"));
         notes.addView(makeText("Q1 / Q2 / Q3 = qualifying rounds. Play-off = final qualifying round. League phase = entry to the main competition. Cup runners-up do not inherit the winner's European place. Two European performance places depend on the current season's association results.", 13, text));
-        notes.addView(makeText("Portugal: 17th and 18th go down; 16th enters the promotion/relegation play-off against the eligible third-placed second-division club. A second division and end-of-season admission system are still required to enact this in the career.", 13, muted));
+        notes.addView(makeText("Portugal: 17th and 18th go down; 16th enters the promotion/relegation play-off against the eligible third-placed second-division club. Linked Portuguese careers apply promotion play-offs, with reserve teams excluded. Lower-pyramid movements and reserve/parent relegation collisions remain pending.", 13, muted));
         notes.addView(makeText("Source: UEFA circular 54/2026, 9 September 2026. Provisional 2027/28 access list; checked 29 September 2026.", 12, muted));
         page.addView(notes);
     }
@@ -6351,12 +6440,29 @@ public class MainActivity extends Activity {
     private TurkishStandings turkishStandings(int tier) {
         return new TurkishStandings(tableMembers(tier),points,goalsFor,goalsAgainst,leagueResults,matchday>=division.rounds(tier));
     }
+    private IberianStandings iberianStandings(int tier) {
+        return new IberianStandings(division.country,tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier));
+    }
+    private boolean hasPromotionRules() {
+        return division!=null&&division.linked&&java.util.Arrays.asList("SCO","DE","TR","PT","ES").contains(division.country);
+    }
     private String clubList(int[] clubs) {
         StringBuilder names=new StringBuilder();for(int club:clubs){if(names.length()>0)names.append(" • ");names.append(clubNames[club]);}return names.toString();
     }
     private boolean preparePromotion() {
         if(promotion!=null)return true;
         if(division==null||!division.linked||matchday<seasonRounds()||!unreadablePromotion.isEmpty())return false;
+        if(division.country.equals("PT")||division.country.equals("ES")) {
+            IberianStandings upper=iberianStandings(1),lower=iberianStandings(2);
+            int boundary=upper.order.length-4;
+            if(upper.tiedAt(boundary)||(division.country.equals("PT")&&upper.tiedAt(boundary+1)))return false;
+            int[] eligible;
+            try{eligible=lower.eligible(division.reserves,division.country.equals("PT")?3:6);}
+            catch(IllegalStateException unresolved){return false;}
+            int n=upper.order.length;
+            promotion=new IberianPromotion(division.country,eligible,new int[]{upper.order[n-3],upper.order[n-2],upper.order[n-1]},random.nextBoolean());
+            saveCurrentGame();return true;
+        }
         if(division.country.equals("TR")) {
             TurkishStandings upper=turkishStandings(1),lower=turkishStandings(2);
             if(upper.tiedAt(14))return false;
@@ -6402,13 +6508,13 @@ public class MainActivity extends Activity {
                 if(tie.winner()>=0)card.addView(makeText("Through: "+clubNames[tie.winner()],14,accent));
                 page.addView(card);
             }
-            page.addView(makeText((promotion.country().equals("TR")?"Single-match eliminators • two-leg semi-final • neutral final. ":"Two-legged ties. ")+"No away-goals rule • extra time and penalties if needed. Extra time and shootouts are simulated. Lower-pyramid relegation and European admissions are not yet active.",12,muted));
+            page.addView(makeText((promotion.country().equals("TR")?"Single-match eliminators • two-leg semi-final • neutral final. ":"Two-legged ties. ")+"No away-goals rule • "+(promotion.country().equals("ES")?"higher league finisher advances if tied after extra time.":"extra time and penalties if needed.")+" Extra time and shootouts are simulated. Lower-pyramid relegation and European admissions are not yet active.",12,muted));
             if(promotion.country().equals("DE"))page.addView(makeText("Calendar currently simulated: equal rest days require a draw for return-leg home advantage. The drawn order is saved.",12,muted));
             if(!promotion.complete())page.addView(makeAccentButton("Continue play-offs",v->advancePromotion()));
             else page.addView(makeAccentButton("Apply promotion & start next season",v->continueDivisionSeason()));
         } else {
             String reason=!unreadablePromotion.isEmpty()?"Saved playoff data could not be read. It has been kept; league progress remains available.":
-                division!=null&&division.linked&&(division.country.equals("SCO")||division.country.equals("DE")||division.country.equals("TR"))?"The split or final league places need a deciding fixture or verified historical ranking before playoff places can be awarded. This deciding-match case is not implemented yet; no club has been promoted or relegated.":
+                hasPromotionRules()?"The split or final league places need a deciding fixture or verified historical ranking before playoff places can be awarded. This deciding-match case is not implemented yet; no club has been promoted or relegated.":
                 "Promotion, relegation and European admissions are awaiting this competition's implementation. This development career retains its division.";
             page.addView(makeText(reason,14,muted));
             if(unreadablePromotion.isEmpty())page.addView(makeButton("Next season — retain divisions",v->continueDivisionSeason()));
@@ -6420,6 +6526,12 @@ public class MainActivity extends Activity {
         if(promotion!=null) {
             if(!promotion.complete())return;
             int oldTier=division.tier;
+            if(ReserveEligibility.parentRelegationConflict(division.clubIds,division.reserves,promotion.relegated())) {
+                new BossDialog.Builder(this).setTitle("Reserve-team relegation required")
+                    .setMessage("A relegated parent club cannot share its division with its reserve team. Lower-tier replacements are not implemented yet; this completed season has been kept unchanged.")
+                    .setPositiveButton("Back",(dialog,which)->showSeasonReview()).show();
+                return;
+            }
             division=division.moveBetweenTiers(promotion.promoted(),promotion.relegated(),selectedClub);
             if(catalog!=null)for(int i=0;i<catalog.divisions.size();i++)if(catalog.divisions.get(i).id.equals(division.id))managerLeagueIndex=i+1;
             addNews("SEASON",oldTier==division.tier?"Next season confirmed":division.tier==1?"Promotion secured":"Club relegated",clubNames[selectedClub]+" will compete in "+division.name+" next season. Club identity, squad and contracts have been retained.");

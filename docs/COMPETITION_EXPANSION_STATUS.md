@@ -1,6 +1,42 @@
 # Competition expansion — implementation checkpoint, 1 October 2026
 
-## Latest work — 5 October 2026 (UK time)
+## Current candidate — Portugal, Spain and career backups, 5 October 2026
+
+Linked Portuguese and Spanish careers now seed country-specific promotion
+campaigns, retain every playoff phase in saves, and apply balanced tier changes.
+Portuguese leg order is drawn once and saved; aggregate draws go to extra time
+and penalties. Spanish semifinals/final give the better league finisher the
+second leg and advancement after tied extra time, without a shootout. Reserve
+teams are excluded from eligible places. A relegated parent/reserve collision
+blocks rollover because lower-tier replacements are not implemented.
+
+Country tables use the verified Portuguese/Spanish tiebreak criteria available
+in the simulation. Unknown historical head-to-head results and unresolved
+qualification ties are kept unresolved. Fair-play/deciding-match resolution is
+still pending. Pure Java tests cover Portuguese retention/promotion and venue
+draws, all eight Spanish winner paths, saved phases and corrupted fixtures.
+
+Career Hub now offers an explicit full backup/restore flow through Android's
+document picker. It includes three career slots, team edits and sound settings.
+The versioned, typed format has bounded input and a corruption checksum; it is
+not encrypted. Restore validates all careers before replacement and requires
+in-app confirmation. Cancellation and invalid files preserve current data.
+Storage commit failures attempt to restore the previous preference snapshot.
+Android QA covers actual file writes, restored classic/linked careers, pending
+playoffs, invalid files/club IDs and cancellation. Provider/device-specific
+picker behavior and migration to a private production key still require QA.
+
+Core tests pass. Candidate Android build/device results are recorded below
+when verified; this entry does not claim Android QA has already passed.
+
+Remaining competition scope: England, Italy, France, Netherlands and Belgium
+season transitions; deciding-match ties; lower-pyramid movements including
+parent/reserve collisions; authentic date/break scheduling; playable domestic
+and European cups/admissions; complete national squad/registration exemptions.
+Production signing, Console setup and physical-device performance/audio QA
+also remain. This is not a completed release.
+
+## Previous verified work — Türkiye, 5 October 2026 (UK time)
 
 Resumed from the saved Türkiye changes after the verified German/Scottish
 checkpoint `d0552b4`. Türkiye now has saved single-match eliminators, a two-leg

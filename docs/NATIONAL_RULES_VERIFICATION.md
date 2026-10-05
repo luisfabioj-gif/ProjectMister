@@ -152,3 +152,24 @@ historical point-gap thresholds. Obtain the current FIGC/Lega B notice covering
 Also verify Serie A consequential relegation/title ties separately.
 
 https://www.legab.it/documentazione
+
+## Portugal and Spain implementation sources checked 5 October 2026
+
+- Liga Portugal 2026/27 competition regulations, art.18 (ranking), art.22
+  (promotion/relegation), art.31 (playoff) and annex V art.9 (B teams):
+  https://www.ligaportugal.pt/backoffice/assets/20260701_RC_2026_27_f53785bcd4.pdf
+- RFEF 2026/27 circular 84, Primera/Segunda competition rules, ranking and
+  promotion playoff provisions:
+  https://rfef.es/sites/default/files/pdf/circulares/1._Circular_84_-_CNL_Primera_y_Segunda_Division___Anexo.pdf?cb=6df81e55
+
+Portugal: direct-match points/GD, overall GD, wins, goals scored. Interim
+standings omit direct GD until both meetings; final unresolved outcomes require
+a deciding fixture. Two automatic promotions, 16th-v-next eligible lower club
+in two drawn-order legs; no away-goals rule, extra time and penalties.
+Spain: two-club direct GD; multi-club mini-table points/GD; overall GD and GF,
+then fair-play/deciding resolution not yet simulated. Two automatic promotions,
+3v6/4v5 semifinals and final, two legs, higher finisher home second; tied extra
+time advances higher finisher with no shootout. B teams cannot be promoted.
+Parent/reserve relegation collisions are detected and block rollover pending
+lower-pyramid replacement support. These sources do not establish that all
+national rules or all career competition features have been implemented.

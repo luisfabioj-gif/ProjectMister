@@ -40,7 +40,8 @@ identity/contact fields cannot be invented. Re-audit after adding any SDK.
 - Finish gameplay integration and release regression/visual QA.
 - Private upload signing; secure key backup; monotonically increasing release
   version code; signed AAB and device/Play internal-track validation.
-- Save export/import for development-key to Play-key migration.
+- Save export/import is implemented in the current candidate. Verify the full
+  export/uninstall/private-key-install/import journey before production migration.
 - Adaptive app icon, 512px store icon, 1024x500 feature graphic, representative
   phone screenshots, concise store description and supported-device checks.
 - Rights review for real competition/club naming before commercial listing;
@@ -95,3 +96,16 @@ The same bundle-install and legacy-save gates passed again for code 1a96ad2,
 run 37146454621, on both Android 35 and 36 after the Scottish/German promotion
 integration. Production signing, save export/import, publisher details, store
 assets and Play internal-track validation remain outstanding.
+
+## Backup candidate, 5 October 2026
+
+Career Hub → Back up & restore careers exports all three slots, team edits and
+sound settings to a user-selected `.bossxi` file. Restore checks the format,
+checksum, types, size limits and career identities before asking to replace
+current data. Files contain manager details and are not encrypted; the UI states
+this and advises keeping a backup before uninstalling. No storage or network
+permission has been added. The chosen document provider may be cloud-backed;
+update privacy disclosures to describe user-initiated exports accordingly.
+
+Official Android Storage Access Framework reference:
+https://developer.android.com/training/data-storage/shared/documents-files

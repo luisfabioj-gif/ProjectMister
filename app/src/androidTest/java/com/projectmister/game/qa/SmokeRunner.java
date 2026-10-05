@@ -226,9 +226,109 @@ public final class SmokeRunner extends Instrumentation {
             if(linked&&id.equals("sco:2"))verifyScottishPromotion();
             if(linked&&id.equals("de:2"))verifyGermanPromotion();
             if(linked&&id.equals("tr:2"))verifyTurkishPromotion();
+            if(linked&&(id.equals("pt:2")||id.equals("es:2")))verifyIberianPromotion();
         }
         ui(()->call("loadSave",new Class[]{int.class},0));
         check(true,"all twenty standalone and twenty linked division careers verified");
+    }
+
+    private Class<?> gameClass(String name)throws Exception{return activity.getClass().getClassLoader().loadClass("com.projectmister.game."+name);}
+    private byte[] backupBytes(Map<String,?> values)throws Exception{return (byte[])gameClass("SaveBackup").getMethod("encode",Map.class).invoke(null,values);}
+    private void checkBackupReadable()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+        Object checked=gameClass("BackupRestore").getMethod("validate",byte[].class).invoke(null,(Object)backupBytes(prefs.getAll()));
+        check(checked.equals(prefs.getAll()),"backup preserves current linked postseason and classic saves");
+    }
+    private void verifyBackups()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+        Map<String,?> original=new HashMap<>(prefs.getAll());byte[] bytes=backupBytes(original);
+        checkBackupReadable();
+        Class<?> restore=gameClass("BackupRestore");
+        byte[] damaged=bytes.clone();damaged[20]^=1;
+        for(byte[] bad:new byte[][]{damaged,backupBytes(Collections.singletonMap("save_0_exists",true))}) {
+            try{restore.getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,bad);throw new AssertionError("Invalid backup accepted");}
+            catch(InvocationTargetException expected){check(expected.getCause() instanceof IOException,"invalid backup rejected before replacement");}
+            check(prefs.getAll().equals(original),"invalid backup leaves every career and setting unchanged");
+        }
+        Map<String,Object> invalidClub=new HashMap<>(original);invalidClub.put("save_0_club",9999);
+        try{restore.getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,backupBytes(invalidClub));throw new AssertionError("Invalid club accepted");}
+        catch(InvocationTargetException expected){check(expected.getCause() instanceof IOException,"invalid club identity rejected");}
+        check(prefs.getAll().equals(original),"invalid club restore leaves careers unchanged");
+        ui(()->call("showBackupTools",new Class[0]));capture("career-backup-tools");
+        ui(()->call("onActivityResult",new Class[]{int.class,int.class,Intent.class},8102,Activity.RESULT_CANCELED,null));
+        check(prefs.getAll().equals(original),"canceling document picker changes no data");
+        File backup=new File(getTargetContext().getCacheDir(),"qa-careers.bossxi");backup.delete();
+        Intent selected=new Intent().setData(android.net.Uri.fromFile(backup));
+        ui(()->call("onActivityResult",new Class[]{int.class,int.class,Intent.class},8101,Activity.RESULT_OK,selected));
+        long until=SystemClock.uptimeMillis()+15000;boolean exported=false;
+        while(SystemClock.uptimeMillis()<until){
+            if(backup.isFile())try(InputStream in=new FileInputStream(backup)){
+                byte[] content=(byte[])gameClass("SaveBackup").getMethod("read",InputStream.class).invoke(null,in);
+                Object map=gameClass("SaveBackup").getMethod("decode",byte[].class).invoke(null,(Object)content);
+                if(map.equals(original)){exported=true;break;}
+            }catch(Exception incomplete){}SystemClock.sleep(100);
+        }
+        check(exported,"document export writes complete readable backup");waitForIdleSync();
+        prefs.edit().putBoolean("audio_crowd",!prefs.getBoolean("audio_crowd",true)).commit();
+        ui(()->call("onActivityResult",new Class[]{int.class,int.class,Intent.class},8102,Activity.RESULT_OK,selected));
+        node("Replace current careers?");capture("career-backup-confirmation");tap("Cancel");
+        check(!prefs.getAll().equals(original),"canceling restore preserves current settings");
+        ui(()->call("onActivityResult",new Class[]{int.class,int.class,Intent.class},8102,Activity.RESULT_OK,selected));
+        tap("Replace & restore");
+        until=SystemClock.uptimeMillis()+15000;
+        while(SystemClock.uptimeMillis()<until&&!prefs.getAll().equals(original))SystemClock.sleep(100);
+        check(prefs.getAll().equals(original),"confirmed restore replaces all careers and settings exactly");waitForIdleSync();
+        ui(()->{
+            check((Boolean)call("loadSave",new Class[]{int.class},1),"restored linked career opens");
+            check((Boolean)call("loadSave",new Class[]{int.class},0),"restored classic career opens");
+            call("showDashboard",new Class[0]);
+        });
+        backup.delete();check(true,"career backup export, validation, cancellation, restore and load verified");
+    }
+
+    private void verifyIberianPromotion() throws Exception {
+        final int[] club={0},games={0},rounds={0},size={0};final String[][] identities={null};final String[] country={null};
+        ui(()->{
+            Object world=get("division");Class<?> type=world.getClass();country[0]=(String)type.getField("country").get(world);
+            int[] upper=(int[])type.getMethod("members",int.class).invoke(world,1),lower=(int[])type.getMethod("members",int.class).invoke(world,2);
+            boolean[] reserve=(boolean[])type.getField("reserves").get(world);
+            int[] totals=(int[])get("points");for(int i=0;i<upper.length;i++)totals[upper[i]]=100-i;
+            java.util.ArrayList<Integer> eligible=new java.util.ArrayList<>();
+            for(int i=0;i<lower.length;i++){totals[lower[i]]=80-i;if(!reserve[lower[i]])eligible.add(lower[i]);}
+            // Parent clubs remain safely above relegation in this transition test.
+            String[] ids=(String[])type.getField("clubIds").get(world);
+            for(int id:upper)if(ids[id].equals("pt:fc-porto")||ids[id].equals("pt:sl-benfica")||ids[id].equals("pt:sporting-cp")||ids[id].equals("es:celta")||ids[id].equals("es:real-sociedad"))totals[id]+=100;
+            set("promotion",null);club[0]=eligible.get(2);set("selectedClub",club[0]);call("initialiseTacticsForClub",new Class[0]);
+            check((Boolean)call("preparePromotion",new Class[0]),country[0]+" eligible standings seed promotion");
+            int[] entrants=(int[])get("promotion").getClass().getMethod("lowerEntrants").invoke(get("promotion"));
+            for(int id:entrants)check(!reserve[id],country[0]+" reserve excluded from promotion");
+            identities[0]=ids.clone();games[0]=((int[])get("played"))[club[0]];rounds[0]=(Integer)get("matchday");
+            Object ledger=get("leagueResults");size[0]=(Integer)ledger.getClass().getMethod("size").invoke(ledger);
+        });
+        for(int i=0;i<(country[0].equals("PT")?2:4);i++){
+            ui(()->{
+                call("advancePromotion",new Class[0]);set("livePaused",true);
+                check((Boolean)get("livePlayoff"),country[0]+" manager watches playoff leg");
+                set("liveHomeGoals",(Integer)get("liveHome")==club[0]?2:0);set("liveAwayGoals",(Integer)get("liveAway")==club[0]?2:0);
+                call("finishLiveMatch",new Class[0]);call("loadSave",new Class[]{int.class},1);
+                check(get("promotion").getClass().getMethod("country").invoke(get("promotion")).equals(country[0]),country[0]+" promotion restores");
+                checkBackupReadable();
+                check(((int[])get("played"))[club[0]]==games[0]&&(Integer)get("matchday")==rounds[0],country[0]+" league table unchanged by playoffs");
+                Object ledger=get("leagueResults");check((Integer)ledger.getClass().getMethod("size").invoke(ledger)==size[0],country[0]+" league history unchanged");
+            });
+        }
+        ui(()->{check((Boolean)get("promotion").getClass().getMethod("complete").invoke(get("promotion")),country[0]+" playoffs finish");call("showSeasonReview",new Class[0]);});
+        capture(country[0].toLowerCase(java.util.Locale.ROOT)+"-promotion-review");
+        ui(()->{
+            call("continueDivisionSeason",new Class[0]);call("loadSave",new Class[]{int.class},1);
+            Object world=get("division");Class<?> type=world.getClass();
+            check(type.getField("tier").getInt(world)==1,country[0]+" winner promoted");
+            check(java.util.Arrays.equals(identities[0],(String[])type.getField("clubIds").get(world)),country[0]+" stable identities preserved");
+            check(((int[])type.getMethod("members",int.class).invoke(world,1)).length==(country[0].equals("PT")?18:20),country[0]+" top division size preserved");
+            check((Integer)get("matchday")==0&&get("promotion")==null,country[0]+" next season survives reload");
+            check(playerInt(call("findPlayer",new Class[]{int.class},club[0]*20),"team")==club[0],country[0]+" player remains at club");
+        });
+        check(true,country[0]+" watched playoffs and season transition verified");
     }
 
     private void verifyTurkishPromotion() throws Exception {
@@ -422,6 +522,7 @@ public final class SmokeRunner extends Instrumentation {
                 check(true,"release bundle upgrade and feature navigation verified");
             } else if(mode.equals("divisions")) {
                 verifyDivisionCareers();
+                verifyBackups();
             } else if(mode.equals("compact")) {
                 ui(()->{call("loadSave",new Class[]{int.class},0);call("startLiveMatchday",new Class[0]);set("livePaused",true);});
                 capture("23-compact-match");
