@@ -28,6 +28,7 @@ keytool -exportcert -keystore project-mister-dev.keystore -alias projectmister -
 # separately so the final capture cannot overwrite startup/report files.
 mkdir -p qa-output/before-key-migration
 adb pull /sdcard/Android/data/com.projectmister.game/files/qa qa-output/before-key-migration/
+test -s qa-output/before-key-migration/qa/it-promotion-review.png
 test -s qa-output/before-key-migration/qa/fr-promotion-review.png
 test -s qa-output/before-key-migration/qa/eng-promotion-review.png
 test -s qa-output/before-key-migration/qa/be-promotion-review.png

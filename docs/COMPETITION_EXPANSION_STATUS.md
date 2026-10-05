@@ -1,6 +1,19 @@
 # Competition expansion — implementation checkpoint, 5 October 2026
 
-## Current candidate — England and France, 6 October 2026
+## Current candidate — Italy, 6 October 2026
+
+Italy's Serie A/B transition is implemented with the fourteen-point promotion
+threshold, fixed preliminary/semi-final bracket, conditional final tiebreak,
+and Serie A title/survival deciders. Local core tests cover 32 playoff paths and
+saved phases. Device QA is extended to a watched five-match promotion and saved
+20/20 season rollover. This checkpoint still needs its Android matrix result.
+
+Netherlands transitions, missing disciplinary/deciding outcomes, lower-pyramid
+replacements, official calendars, playable cups/European admissions and
+physical-device/production checks remain open. Nine-country implementation is
+not completion of all national rules or the full product.
+
+## Prior candidate — England and France, 6 October 2026
 
 Two more linked-country transitions are implemented: the six-club English
 Championship playoff with reseeded semifinals, and France's two Ligue 2 single
@@ -9,7 +22,7 @@ saved playoff phases, watched matches, balanced tier movement and table badges
 are connected. Core tests cover all 32 English and eight French winner paths.
 Android compilation passes; the extended device matrix is the next gate.
 
-Italy and Netherlands transitions, missing disciplinary/deciding outcomes,
+Netherlands transitions, missing disciplinary/deciding outcomes,
 lower-pyramid replacements, official fixture calendars, playable cups/European
 admissions and physical-device/production checks remain open. Eight-country
 implementation does not mean all national rules are complete.

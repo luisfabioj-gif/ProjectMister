@@ -5,8 +5,9 @@ Linked Scottish careers implement the Premiership/Championship playoff ladder.
 German top/second-tier transitions passed Android 35/36 device validation in run 37146454621.
 Türkiye now implements its top-two promotion, five-club playoffs and three-club
 relegation; Android 35/36 validation passed in run 37272085051. Portugal, Spain and Belgium transitions also passed both API levels in run
-37324192531. England, Italy, France and Netherlands still retain division
-membership at season end. Scottish unresolved
+37324192531. England, France and Italy now implement linked-tier transitions; their latest
+device evidence is tracked in COMPETITION_EXPANSION_STATUS.md. Netherlands still
+retains division membership at season end. Scottish unresolved
 qualification ties and the lower-pyramid boundary remain unimplemented.
 Never silently substitute a generic playoff or a club-index tie-break for these rules.
 
@@ -224,3 +225,30 @@ correct venues, retention/promotion, and national ranking. Android device QA
 now watches a club from each country's early playoff round through promotion,
 checks saves/backups and league history, and enters the next season. Device
 results must pass before this new checkpoint is called verified.
+
+## Italy implementation sources checked 6 October 2026
+
+FIGC CU 25/A, 28 July 2026, Serie B 2026/27 (official LND republication):
+https://comunicati.lnd.it/storage/comunicati/2026/2027/LND/1785309470_CU_N__25_A_FIGC_-_Deroga_art__51_NOIF_Campionato_Serie_B_2026_2027.pdf
+FIGC CU 244/A, 27 May 2026, Serie A 2026/27:
+https://files.figc.it/version/c%3AZmUzYzk0MzUtMzU0Zi00%3AYTk3YzZiZGEtYmExYi00/244%20-%20Deroga%20art.%2051%20NOIF%20-%20Determinazione%20classifica%20Campionato%20Serie%20A%20ss%202026%20-%202027.pdf
+
+Serie B third promotes automatically only when its lead over fourth exceeds
+14 points. Otherwise 5v8 and 6v7 play single matches (extra time, then higher
+league position); third plays the 6v7 winner and fourth the 5v8 winner in fixed
+two-leg semifinals. Aggregate ties advance the higher finisher without extra
+time. The final uses the same rule unless the finalists had equal league points,
+in which case extra time and penalties apply. Higher finishers host the return.
+
+Serie A equal-points title contenders play one match, better mini-table side at
+home, with direct penalties. Equal-points 17th/18th play two legs, better ranked
+side home second, with direct penalties after a tied aggregate. Multi-club groups
+use mini-table points/GD, overall GD/GF and ultimately lots to select contenders.
+Unknown lots remain unresolved. The UEFA-finalist exception is pending the
+unimplemented European competition model; no club currently has finalist status.
+Lower-pyramid Serie B playout/replacements are not implemented.
+
+Core tests cover all 32 lower-playoff winner paths, the 14/15-point boundary,
+equal-points finals, both top-flight deciders, phase restoration and standings.
+Android QA adds a five-match watched lower-playoff promotion, backup validation,
+stable club/squad identities and a persisted 20/20 season transition.

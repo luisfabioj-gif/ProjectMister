@@ -4,7 +4,7 @@ Android football-management game, package `com.projectmister.game`.
 
 ## Status
 
-Twenty selectable divisions across ten countries, with linked two-tier careers. Scottish, German, Turkish, Portuguese, Spanish and Belgian promotion checkpoints passed Android 35/36 verification. Career backup/restore also passed a different-signing-key uninstall/reinstall test. England and France transitions are now implemented with core tests; their extended Android device checks are pending. Italy and Netherlands transitions and playable domestic/European cups remain unfinished. See [current competition status](docs/COMPETITION_EXPANSION_STATUS.md), [audit and scope](docs/V2_3_AUDIT.md) and [validation status](docs/VALIDATION.md). Hardware audio/performance review remains open.
+Twenty selectable divisions across ten countries, with linked two-tier careers. Scottish, German, Turkish, Portuguese, Spanish and Belgian promotion checkpoints passed Android 35/36 verification. Career backup/restore also passed a different-signing-key uninstall/reinstall test. England, France and Italy transitions are now implemented with core tests; their extended Android device checks are tracked in the status document. Netherlands transitions and playable domestic/European cups remain unfinished. See [current competition status](docs/COMPETITION_EXPANSION_STATUS.md), [audit and scope](docs/V2_3_AUDIT.md) and [validation status](docs/VALIDATION.md). Hardware audio/performance review remains open.
 
 ## Normal build
 
