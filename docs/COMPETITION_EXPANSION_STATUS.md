@@ -18,13 +18,27 @@ transition. All pure Java/data regressions passed, the SDK-built APK compiled
 and passed signature verification, and the independent Android test runner built.
 Code checkpoint: `9698b3e7af2e034a99a026dcfb6ca89f640be1cc`.
 
-This checkpoint is committed locally but has NOT been pushed. Automatic approval
-review rejected publication to the public repository and did not accept retrieved
-prior-chat consent; explicit confirmation in the continuation conversation is
-required. No new GitHub Actions run or emulator result exists for this code yet.
-After approval, push the development branch and inspect both API 35/36 jobs,
-including the Turkish neutral-final/review screenshots and release-bundle tests.
-The latest remotely verified code remains `1a96ad2` / run `37146454621`.
+Published with explicit user approval on 5 October to `work/boss-xi-v2.3`.
+Remote code: `819477ab3104275d98668c1d4387f64e8077b1ec`; its tree exactly
+matches the locally tested checkpoint. Android 35/36 run:
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37272085051
+Both Android 35 and 36 jobs passed core regressions, APK/AAB builds, legacy
+save upgrades, all forty standalone/linked career seasons, watched Turkish
+eliminator/semifinal/neutral-final progression and saved promotion into the next
+season. Compact layouts, complete live matches and AAB-derived release installs
+also passed. API 36 first encountered an external "System UI isn't responding"
+dialog, visible in its failure screenshot. A fresh-emulator retry passed without
+changing source or weakening test assertions.
+
+Reviewed API 35 screenshots: turkish-neutral-final.png and
+ turkish-promotion-review.png. Neutral-final label and team markers are legible;
+playoff scores, extra time, penalties and aggregates are readable. The review
+scrolls to its later rounds. Scores were injected by transaction tests and are
+not real matches or match-balance evidence.
+
+Verified APK artifact: 11329530153 (API 35), also 11328724248 (API 36).
+These are development builds signed with the existing test key, not a completed
+competition expansion or a production Play Store release.
 
 Still unfinished: the other seven countries' season transitions; deciding-match
 ties; lower-pyramid relegation; authentic date/break scheduling; playable national
