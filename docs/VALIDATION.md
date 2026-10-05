@@ -2,6 +2,27 @@
 
 This is a tested development APK, not a Play Store production release. Android hardware listening and sustained performance review remain necessary.
 
+## Current verified gameplay checkpoint — 5 October 2026
+
+- Source: `e0aeafeed2acd4788774ec409f3e42933100f240`.
+- Run: https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37324192531
+- Android 35 job 111810605542 and Android 36 job 111810605253 both succeeded.
+- All 20 standalone and 20 linked careers, saved PT/ES/BE playoff phases and
+  promotion, backup validation/cancellation/restoration, compact tactics,
+  baseline upgrades and non-debuggable release splits passed.
+- A distinct disposable signing certificate was verified before uninstalling;
+  the new install began empty, restored every stored field and reopened classic
+  and linked careers. This is emulator QA, not a Play signing/internal-track test.
+- Candidate APK artifacts: API 35 `11351976542`; API 36 `11351517422`.
+- QA artifacts: API 35 `11351477095`; API 36 `11352006636`.
+- Restored-career screenshot reviewed: readable dashboard, club/manager,
+  next fixture and navigation. Earlier screen captures were lost when Android
+  cleared app files on uninstall; the script now pulls them to a separate
+  archive before uninstall. Verification of that capture fix is pending.
+
+The following sections preserve earlier checkpoints and their then-open gaps.
+Current competition scope is tracked in COMPETITION_EXPANSION_STATUS.md.
+
 ## Baseline and source integrity
 
 - Original successful baseline: Actions run 36338934062 at c52c5c905f279059c0d1cd0e53f9665950060e5f.

@@ -40,8 +40,8 @@ identity/contact fields cannot be invented. Re-audit after adding any SDK.
 - Finish gameplay integration and release regression/visual QA.
 - Private upload signing; secure key backup; monotonically increasing release
   version code; signed AAB and device/Play internal-track validation.
-- Save export/import is implemented in the current candidate. Verify the full
-  export/uninstall/private-key-install/import journey before production migration.
+- Save export/import and disposable-key uninstall/install/restore passed API
+  35/36. Actual Play-signed/internal-track migration remains to be validated.
 - Adaptive app icon, 512px store icon, 1024x500 feature graphic, representative
   phone screenshots, concise store description and supported-device checks.
 - Rights review for real competition/club naming before commercial listing;
@@ -110,10 +110,13 @@ update privacy disclosures to describe user-initiated exports accordingly.
 Official Android Storage Access Framework reference:
 https://developer.android.com/training/data-storage/shared/documents-files
 
-The next device gate exports synthetic QA careers before uninstalling the
+The device gate passed API 35/36 in run 37324192531 at source e0aeafee.
+It exports synthetic QA careers before uninstalling the
 public-test-key build, installs release splits and the QA runner signed with a
 new disposable two-day test identity, restores all stored fields, and reopens
 classic/linked careers. The identity is generated only on the runner and deleted
 at script exit; its keystore/password are not artifacts. This tests signature
-migration without creating or handling a production upload key. Device results
-must pass before this gate is described as verified.
+migration without creating or handling a production upload key. Both jobs
+verified empty storage after reinstall, exact restoration of every field, and
+reopening classic/linked careers. Provider-specific document-picker behavior
+and real Play internal-track migration remain unverified.

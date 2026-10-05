@@ -1,6 +1,17 @@
-# Competition expansion — implementation checkpoint, 1 October 2026
+# Competition expansion — implementation checkpoint, 5 October 2026
 
 ## Current candidate — Belgium and signing-key migration QA, 5 October 2026
+
+Source `e0aeafeed2acd4788774ec409f3e42933100f240` passed both Android 35
+(job 111810605542) and Android 36 (job 111810605253):
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37324192531
+This includes all forty career variants, watched PT/ES/BE playoffs, backups,
+release-split installation and different-key uninstall/install career restoration.
+The latter retained every stored field and reopened classic and linked careers.
+The final migration screenshot was visually reviewed. Pre-uninstall screenshots
+were removed by Android before the old end-of-run capture; the QA script now
+archives them separately before uninstalling. That evidence-capture change is
+pending its own device run; the successful gameplay result above is unchanged.
 
 Belgium now applies its 2026/27 single-table 18-club top division and 15-club
 second division: two relegations, one eligible automatic promotion, and seeded
@@ -21,8 +32,8 @@ https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37321267896
 Job 111800637235 passed all forty career variants, watched PT/ES playoffs,
 backup export/cancel/validation/restore and AAB-derived release installation.
 Android 36 stopped before emulator launch because SDK system-image extraction
-failed with "Error on ZipFile unknown archive". The updated candidate runs both
-API levels again; the earlier run is not an Android 36 game-test failure or pass.
+failed with "Error on ZipFile unknown archive". The subsequent run above passed both API levels; the earlier run is not an
+Android 36 game-test failure or pass.
 
 Still required: England, Italy, France and Netherlands season transitions,
 deciding matches, lower-pyramid replacements, authentic calendars, playable

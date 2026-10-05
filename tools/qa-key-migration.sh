@@ -24,6 +24,13 @@ java -jar "$bundletool" build-apks --bundle="$bundle" --output="$work/migration-
 keytool -exportcert -keystore "$key" -alias migration-test -storepass:env BOSS_MIGRATION_TEST_PASSWORD -file "$work/migration-cert.der"
 keytool -exportcert -keystore project-mister-dev.keystore -alias projectmister -storepass projectmisterdev -file "$work/development-cert.der"
 ! cmp -s "$work/migration-cert.der" "$work/development-cert.der"
+# Uninstall removes external app files too. Archive the pre-migration evidence
+# separately so the final capture cannot overwrite startup/report files.
+mkdir -p qa-output/before-key-migration
+adb pull /sdcard/Android/data/com.projectmister.game/files/qa qa-output/before-key-migration/
+test -s qa-output/before-key-migration/qa/be-promotion-review.png
+test -s qa-output/before-key-migration/qa/es-promotion-review.png
+test -s qa-output/before-key-migration/qa/pt-promotion-review.png
 adb uninstall com.projectmister.game
 adb uninstall com.projectmister.game.test
 java -jar "$bundletool" install-apks --apks="$work/migration-test.apks"
