@@ -17,6 +17,7 @@ public interface PromotionCampaign {
     int[] relegated();
     String snapshot();
     static PromotionCampaign restore(String value) {
+        if(value.startsWith("BE#"))return BelgianPromotion.restore(value);
         if(value.startsWith("PT#")||value.startsWith("ES#"))return IberianPromotion.restore(value);
         if(value.startsWith("TR#"))return TurkeyPromotion.restore(value);
         return value.startsWith("DE#")?GermanyPromotion.restore(value):ScotlandPromotion.restore(value);

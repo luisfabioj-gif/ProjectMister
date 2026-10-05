@@ -61,6 +61,12 @@ public final class LeagueResults {
         }
         return true;
     }
+    /** Full-season away wins, goals for and goals against, for Belgian ranking. */
+    public int[][] awayTable() {
+        int[][] table=new int[clubCount][3];
+        for(Result r:results){if(r.awayGoals>r.homeGoals)table[r.away][0]++;table[r.away][1]+=r.awayGoals;table[r.away][2]+=r.homeGoals;}
+        return table;
+    }
     public String snapshot() {
         StringBuilder s=new StringBuilder("1;").append(clubCount).append(';').append(recordedFromStart?1:0);
         for(Result r:results)s.append('|').append(r.round).append(',').append(r.home).append(',').append(r.away)

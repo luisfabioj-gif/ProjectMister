@@ -1074,6 +1074,10 @@ public class MainActivity extends Activity {
             IberianStandings ranked=iberianStandings(division.tier);
             for(int i=0;i<ranked.order.length;i++)if(ranked.order[i]==selectedClub)rank=ranked.rankAt(i);
         }
+        if(division!=null&&division.country.equals("BE")) {
+            BelgianStandings ranked=belgianStandings(division.tier);
+            for(int i=0;i<ranked.order.length;i++)if(ranked.order[i]==selectedClub)rank=ranked.rankAt(i);
+        }
         int fit=0,count=0,injured=0;
         for(Player p:players) if(p.team==selectedClub) { fit+=p.fitness;count++;if(p.injuredWeeks>0)injured++; }
         LinearLayout overview=makePanel();
@@ -3946,12 +3950,14 @@ public class MainActivity extends Activity {
         GermanStandings german=division!=null&&division.country.equals("DE")?germanStandings(tableTier):null;
         TurkishStandings turkish=division!=null&&division.country.equals("TR")?turkishStandings(tableTier):null;
         IberianStandings iberian=division!=null&&(division.country.equals("PT")||division.country.equals("ES"))?iberianStandings(tableTier):null;
+        BelgianStandings belgian=division!=null&&division.country.equals("BE")?belgianStandings(tableTier):null;
         if(scottish!=null)order=scottish.order;
         else if(german!=null)order=german.order;
         else if(turkish!=null)order=turkish.order;
         else if(iberian!=null)order=iberian.order;
+        else if(belgian!=null)order=belgian.order;
         else Arrays.sort(order, this::compareLeagueClubs);
-        if(scottish!=null||german!=null||turkish!=null||iberian!=null)page.addView(makeText("= marks equal positions. Tied qualification places need a deciding match; badges are projections.",12,muted));
+        if(scottish!=null||german!=null||turkish!=null||iberian!=null||belgian!=null)page.addView(makeText("= marks equal positions. Tied qualification places need a deciding match; badges are projections.",12,muted));
         if(tableTier==1&&scottishSplitProvisional)page.addView(makeText("Split allocation is provisional: the deciding-match case remains unresolved.",12,danger));
 
         LinearLayout header = new LinearLayout(this);
@@ -3982,8 +3988,8 @@ public class MainActivity extends Activity {
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rlp.setMargins(0, 0, 0, dp(7));
             row.setLayoutParams(rlp);
-            boolean tied=scottish!=null&&(scottish.tiedAt(position)||scottish.tiedAt(position-1))||german!=null&&(german.tiedAt(position)||german.tiedAt(position-1))||turkish!=null&&(turkish.tiedAt(position)||turkish.tiedAt(position-1))||iberian!=null&&(iberian.tiedAt(position)||iberian.tiedAt(position-1));
-            int displayedRank=scottish!=null?scottish.rankAt(position):german!=null?german.rankAt(position):turkish!=null?turkish.rankAt(position):iberian!=null?iberian.rankAt(position):position+1;
+            boolean tied=scottish!=null&&(scottish.tiedAt(position)||scottish.tiedAt(position-1))||german!=null&&(german.tiedAt(position)||german.tiedAt(position-1))||turkish!=null&&(turkish.tiedAt(position)||turkish.tiedAt(position-1))||iberian!=null&&(iberian.tiedAt(position)||iberian.tiedAt(position-1))||belgian!=null&&(belgian.tiedAt(position)||belgian.tiedAt(position-1));
+            int displayedRank=scottish!=null?scottish.rankAt(position):german!=null?german.rankAt(position):turkish!=null?turkish.rankAt(position):iberian!=null?iberian.rankAt(position):belgian!=null?belgian.rankAt(position):position+1;
             row.addView(makeLeagueCell((tied?"=":"")+displayedRank, 0.45f, accent, true));
             LinearLayout clubCell = new LinearLayout(this);
             clubCell.setOrientation(LinearLayout.VERTICAL);
@@ -4018,6 +4024,15 @@ public class MainActivity extends Activity {
                     int eligibleRank=0;for(int i=0;i<=position;i++)if(!division.reserves[order[i]])eligibleRank++;
                     zone=division.reserves[club]?"Reserve · cannot promote":eligibleRank<=2?"Automatic promotion*":eligibleRank<=(division.country.equals("PT")?3:6)?"Promotion play-off*":"";
                     if(rank>size-(division.country.equals("PT")?2:4))zone="Relegation · inactive";
+                }
+                if(tied)zone="Equal position · place unresolved";
+            }
+            if(belgian!=null) {
+                if(tableTier==1&&rank>order.length-2)zone="Relegation*";
+                if(tableTier==2) {
+                    int eligibleRank=0;for(int i=0;i<=position;i++)if(!division.reserves[order[i]])eligibleRank++;
+                    zone=division.reserves[club]?"U23 · cannot promote":eligibleRank==1?"Automatic promotion*":eligibleRank<=5?"Promotion play-off*":"";
+                    if(rank>order.length-2)zone="Relegation · inactive";
                 }
                 if(tied)zone="Equal position · place unresolved";
             }
@@ -6440,11 +6455,14 @@ public class MainActivity extends Activity {
     private TurkishStandings turkishStandings(int tier) {
         return new TurkishStandings(tableMembers(tier),points,goalsFor,goalsAgainst,leagueResults,matchday>=division.rounds(tier));
     }
+    private BelgianStandings belgianStandings(int tier) {
+        return new BelgianStandings(tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults);
+    }
     private IberianStandings iberianStandings(int tier) {
         return new IberianStandings(division.country,tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier));
     }
     private boolean hasPromotionRules() {
-        return division!=null&&division.linked&&java.util.Arrays.asList("SCO","DE","TR","PT","ES").contains(division.country);
+        return division!=null&&division.linked&&java.util.Arrays.asList("SCO","DE","TR","PT","ES","BE").contains(division.country);
     }
     private String clubList(int[] clubs) {
         StringBuilder names=new StringBuilder();for(int club:clubs){if(names.length()>0)names.append(" • ");names.append(clubNames[club]);}return names.toString();
@@ -6452,6 +6470,12 @@ public class MainActivity extends Activity {
     private boolean preparePromotion() {
         if(promotion!=null)return true;
         if(division==null||!division.linked||matchday<seasonRounds()||!unreadablePromotion.isEmpty())return false;
+        if(division.country.equals("BE")) {
+            BelgianStandings upper=belgianStandings(1),lower=belgianStandings(2);int n=upper.order.length;
+            if(upper.tiedAt(n-3))return false;
+            int[] eligible;try{eligible=lower.eligible(division.reserves);}catch(IllegalStateException unresolved){return false;}
+            promotion=new BelgianPromotion(eligible,new int[]{upper.order[n-2],upper.order[n-1]});saveCurrentGame();return true;
+        }
         if(division.country.equals("PT")||division.country.equals("ES")) {
             IberianStandings upper=iberianStandings(1),lower=iberianStandings(2);
             int boundary=upper.order.length-4;

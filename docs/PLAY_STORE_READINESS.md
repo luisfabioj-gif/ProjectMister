@@ -109,3 +109,11 @@ update privacy disclosures to describe user-initiated exports accordingly.
 
 Official Android Storage Access Framework reference:
 https://developer.android.com/training/data-storage/shared/documents-files
+
+The next device gate exports synthetic QA careers before uninstalling the
+public-test-key build, installs release splits and the QA runner signed with a
+new disposable two-day test identity, restores all stored fields, and reopens
+classic/linked careers. The identity is generated only on the runner and deleted
+at script exit; its keystore/password are not artifacts. This tests signature
+migration without creating or handling a production upload key. Device results
+must pass before this gate is described as verified.

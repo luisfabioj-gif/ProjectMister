@@ -173,3 +173,21 @@ time advances higher finisher with no shootout. B teams cannot be promoted.
 Parent/reserve relegation collisions are detected and block rollover pending
 lower-pyramid replacement support. These sources do not establish that all
 national rules or all career competition features have been implemented.
+
+## Belgium implementation sources checked 5 October 2026
+
+Current RBFA Book P, professional championships pp.66–70:
+https://belgianfootball.s3.eu-central-1.amazonaws.com/s3fs-public/rbfa/docs/pdf/reglement/bondsreglement_reglement_federal/URBSFA_Reglement_Livre_P_proleague.pdf
+
+Book B7.25 and B7.42, two-leg resolution and ranking:
+https://belgianfootball.s3.eu-central-1.amazonaws.com/s3fs-public/rbfa/docs/pdf/reglement/bondsreglement_reglement_federal/URBSFA_Reglement_Livre_B_Titre_7_Competitions.pdf
+
+The current Book P confirms 18 top-tier clubs with two relegations, 15 lower-tier
+clubs with one eligible automatic promotion and playoffs for eligible positions
+2–5. U23 teams are skipped; 2v5/3v4 and the final are two-legged, higher finisher
+home second. Book B applies aggregate goals, extra time and penalties, with no
+away-goal advantage. League ranking uses points, wins, GD, GF, away wins, away
+GD, away GF, then a test match. Parent relegation forces its U23 side down,
+reprieving the penultimate sporting relegation place. Current implementation
+detects this collision and blocks rollover pending external-tier replacements.
+Licensing refusals and transfer-ban qualification exclusions are not simulated.

@@ -1,6 +1,6 @@
 package com.projectmister.game;
 
-/** Explicit stable-ID parent relations for the currently shipped Iberian reserves. */
+/** Explicit stable-ID parent relations for the currently supported reserve teams. */
 public final class ReserveEligibility {
     private ReserveEligibility(){}
     static String parent(String id){
@@ -10,6 +10,10 @@ public final class ReserveEligibility {
             case "pt:sporting-cp-b":return "pt:sporting-cp";
             case "es:celta-fortuna":return "es:celta";
             case "es:real-sociedad-b":return "es:real-sociedad";
+            case "be:club-nxt":return "be:club-brugge";
+            case "be:jong-genk":return "be:krc-genk";
+            case "be:jong-kaa-gent":return "be:kaa-gent";
+            case "be:rsca-futures":return "be:rsc-anderlecht";
             default:return "";
         }
     }

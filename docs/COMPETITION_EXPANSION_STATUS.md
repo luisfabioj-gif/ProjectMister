@@ -1,6 +1,35 @@
 # Competition expansion — implementation checkpoint, 1 October 2026
 
-## Current candidate — Portugal, Spain and career backups, 5 October 2026
+## Current candidate — Belgium and signing-key migration QA, 5 October 2026
+
+Belgium now applies its 2026/27 single-table 18-club top division and 15-club
+second division: two relegations, one eligible automatic promotion, and seeded
+two-leg semifinals/final for the second promotion. U23 teams cannot promote.
+Table criteria include wins before goal difference and the later away-record
+tiebreaks. Missing historical away records and final ties remain unresolved.
+Parent/U23 relegation conflicts are detected. Licensing sanctions and movements
+below tier two remain outside the implemented simulation.
+
+Core tests cover all eight Belgian playoff paths, every saved knockout phase,
+away-ranking criteria and U23 eligibility. Both Android APK and test runner
+compile locally. Android QA adds watched Belgian playoffs and saved 18/15
+transition, and a separate disposable-key uninstall/install/restore gate for
+career migration. No production signing key or Play upload is involved.
+
+The preceding Portugal/Spain/backup candidate (`c49eed09`) passed Android 35:
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37321267896
+Job 111800637235 passed all forty career variants, watched PT/ES playoffs,
+backup export/cancel/validation/restore and AAB-derived release installation.
+Android 36 stopped before emulator launch because SDK system-image extraction
+failed with "Error on ZipFile unknown archive". The updated candidate runs both
+API levels again; the earlier run is not an Android 36 game-test failure or pass.
+
+Still required: England, Italy, France and Netherlands season transitions,
+deciding matches, lower-pyramid replacements, authentic calendars, playable
+cups/European admissions and full registration rules, plus production/physical
+phone checks. The entries below are historical checkpoints.
+
+## Prior candidate — Portugal, Spain and career backups, 5 October 2026
 
 Linked Portuguese and Spanish careers now seed country-specific promotion
 campaigns, retain every playoff phase in saves, and apply balanced tier changes.
