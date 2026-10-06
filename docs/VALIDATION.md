@@ -2,7 +2,37 @@
 
 This is a tested development APK, not a Play Store production release. Android hardware listening and sustained performance review remain necessary.
 
-## Current verified gameplay checkpoint — 5 October 2026
+## Current verified gameplay checkpoint — 6 October 2026
+
+- Source: `b3e5e53481e82cd2ab12258873b929d5e635bf14`.
+- Run: https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37391856850
+- Android 35 job `112038547250` and Android 36 job `112038546903` succeeded.
+- All 20 standalone and 20 linked careers, watched playoffs in all ten countries,
+  save/backup reload and balanced season movement passed. Italian coverage adds
+  a five-match promotion; Dutch coverage adds six matches after result-derived
+  period qualification. Core tests also cover title/survival deciders and every
+  implemented bracket winner path.
+- Baseline save upgrades, natural match regressions, compact tactics, release
+  AAB-derived installation and different-signing-key restoration passed.
+- QA API 36 artifact `11381712099` preserves playoff screenshots before uninstall.
+  English/French/Italian/Dutch review screens and the final restored dashboard
+  were visually inspected. Long reviews scroll, preserving readable cards.
+- Delivered APK artifact: `11381687057`, 1,996,853 bytes.
+- APK SHA-256: `22f23915253fc0d9919880dab08da31e49636cd74ebc66070f3fc4ace6868d8c`.
+- Signature verified against the existing development certificate:
+  `06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e`.
+- An earlier Italian API 36 attempt was blocked by a visible emulator System UI
+  ANR, not a missing game button. Its environment retry passed. The current QA
+  runner captures and dismisses only observed Quickstep/System UI dialogs, at
+  most twice; app ANRs are never dismissed.
+
+This verifies the development build, not all football regulations or a Play
+release. Dutch period-three start is a documented interpretation of conflicting
+KNVB publications. Missing disciplinary/deciding outcomes, lower-pyramid moves,
+full calendars, playable cups/European admissions, hardware audio/performance
+and production signing/Play checks remain open.
+
+## Previous verified gameplay checkpoint — 5 October 2026
 
 - Source: `e0aeafeed2acd4788774ec409f3e42933100f240`.
 - Run: https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37324192531
