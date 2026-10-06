@@ -1,5 +1,14 @@
 # Competition expansion — verified checkpoint, 6 October 2026
 
+## Latest verified build — 2.3.3, 6 October 2026
+
+See [V2_3_3_CHANGES.md](V2_3_3_CHANGES.md) for worldwide recruitment across
+all twenty divisions, unattached players, sourced competition history, real
+Portuguese legacy defaults, new stadium/portrait art and match movement tweaks.
+Android 35/36 passed run 37488254392, source 1d884afda064005352c3842906c2492158c8338c.
+This supersedes the earlier APK checkpoints below. Competition calendar/cup,
+remaining national-rule exceptions and production/hardware work remain open.
+
 ## Verified calendar integrity and season archive — 6 October 2026
 
 Legacy careers no longer fabricate cup or European fixtures/results when a date

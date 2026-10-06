@@ -56,7 +56,30 @@ independent instrumentation runner compile with the direct SDK build.
 Android QA adds signings sourced from all twenty divisions in a Portuguese
 legacy career, a free-agent signing, rejection for duplicate/fee/wage/window
 failures, reload/backup checks and an imported player in a live lineup. It also
-captures the market/history/stadium screens. Full Android 35/36 CI is pending.
+captures the market/history/stadium screens. Both Android 35 (job 112353875327) and 36 (job 112353876320) passed:
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37488254392
+Tested source: 1d884afda064005352c3842906c2492158c8338c.
+The complete gate also passed all forty career variants, ten country playoff
+flows, season transitions, backup restoration, full natural matches, compact
+formations, release-split installs and different-key migration.
+
+The first run stopped at a QA assumption that a legacy starter had an explicit
+attacking slot. Its preceding recruitment/reload checks passed. The test now
+sets a complete explicit XI before verifying that the overseas recruit actually
+appears in a live lineup; it also checks that live matches block new signings.
+No product assertion was removed. The final run above passed the corrected test.
+
+Stadium, transfer hub, worldwide market and History hub screenshots were
+reviewed. All main content/buttons were legible. A temporary rejection toast
+from the scripted negative signing checks appears in the market/history
+captures; this is not default page content.
+
+Delivered file: BOSS-XI-v2.3.3-World-Market-and-History.apk, 2,341,772 bytes.
+SHA-256: d53c8002f4dd411d9e2c32b32f089fc3cd33a7bd28b5617a15e439c2f376eba8.
+Version code 28, version name 2.3.3-dev. Existing development signing certificate:
+06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e.
+APK artifact 11424497970; QA artifact 11424179602.
+
 
 This candidate does not complete playable cups, authentic date calendars,
 full all-country eligibility exceptions or production/physical-device QA.
