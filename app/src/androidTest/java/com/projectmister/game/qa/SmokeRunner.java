@@ -141,6 +141,7 @@ public final class SmokeRunner extends Instrumentation {
             check(replaced>=0,"test has an attacking starter");roles[first[0]]=2;slots[first[0]]=slots[replaced];roles[replaced]=0;slots[replaced]=-1;
             call("startLiveMatchday",new Class[0]);set("livePaused",true);
             check(((java.util.List<?>)get("liveHomeLineupIds")).contains(first[0])||((java.util.List<?>)get("liveAwayLineupIds")).contains(first[0]),"worldwide recruit participates in live lineup");
+            check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~7")==-1,"recruitment cannot mutate a staged live match");
             call("stopLiveMatchTicker",new Class[0]);set("matchInProgress",false);
         });
         ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);call("showWorldMarket",new Class[0]);});

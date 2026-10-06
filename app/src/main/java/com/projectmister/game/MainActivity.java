@@ -4992,10 +4992,12 @@ public class MainActivity extends Activity {
         return index>=0&&index<marketHires.size()?marketHires.get(index).hashCode():p.id;
     }
     private void showWorldMarket() {
+        backAction=()->showTransferHub();
         LinearLayout page=createPage("Worldwide transfers","20 divisions • fictional players • saved recruitment",true);
         page.addView(makeButton("Free agents • no transfer fee",v->showMarketClub("free","Unattached players",0)));
         if(catalog!=null)for(CompetitionCatalog.Division d:catalog.divisions)
             page.addView(makeButton(d.country+" • "+d.name,v->{
+                backAction=()->showWorldMarket();
                 LinearLayout clubs=createPage(d.name,"Select a club",true);
                 for(CompetitionCatalog.Club c:d.clubs)clubs.addView(makeButton(c.name,w->{
                     int local=marketLocalClub(c.id);
@@ -5004,6 +5006,7 @@ public class MainActivity extends Activity {
             }));
     }
     private void showMarketClub(String id,String name,int tier) {
+        backAction=()->showWorldMarket();
         LinearLayout page=createPage(name,"Fictional transfer market • tap a player to view terms",true);
         for(int slot=0;slot<(tier==0?60:20);slot++) {
             WorldMarket.Candidate c=new WorldMarket.Candidate(id+"~"+tier+"~"+slot);
@@ -5013,6 +5016,7 @@ public class MainActivity extends Activity {
         page.addView(makeButton("All divisions & free agents",v->showWorldMarket()));
     }
     private void showMarketCandidate(WorldMarket.Candidate c,String source) {
+        backAction=()->showMarketClub(c.key.split("~")[0],source,Integer.parseInt(c.key.split("~")[1]));
         LinearLayout page=createPage(c.name,source+" • fictional player",true);
         page.addView(new RealisticHumanPortraitView(c.key.hashCode(),c.position,primaryColours[selectedClub],secondaryColours[selectedClub],c.age,true),new LinearLayout.LayoutParams(dp(120),dp(140)));
         page.addView(profileInfoRow("Position / age",c.position+" / "+c.age));
@@ -5027,7 +5031,7 @@ public class MainActivity extends Activity {
     }
     private int signMarketPlayer(String key) {
         WorldMarket.Candidate c=new WorldMarket.Candidate(key);
-        String issue=marketLocalClub(key.split("~")[0])>=0?"Use the existing club squad to negotiate this transfer":!isTransferWindowOpen(currentDate)?"Registration window is closed":marketHires.contains(key)?"Player already recruited":marketHires.size()>=WorldMarket.MAX_HIRES?"Recruitment capacity reached":currentTransferBudget<c.fee?"Insufficient transfer budget":totalPlayerWagesK()+totalStaffWagesK()+c.wage>wageBudgetK?"Insufficient wage budget":null;
+        String issue=matchInProgress?"Finish the current match before signing players":marketLocalClub(key.split("~")[0])>=0?"Use the existing club squad to negotiate this transfer":!isTransferWindowOpen(currentDate)?"Registration window is closed":marketHires.contains(key)?"Player already recruited":marketHires.size()>=WorldMarket.MAX_HIRES?"Recruitment capacity reached":currentTransferBudget<c.fee?"Insufficient transfer budget":totalPlayerWagesK()+totalStaffWagesK()+c.wage>wageBudgetK?"Insufficient wage budget":null;
         if(issue!=null){Toast.makeText(this,issue,Toast.LENGTH_LONG).show();return -1;}
         marketHires.add(key);Player p=appendMarketPlayer(c);currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
         scoutKnowledge[p.id]=4;addNews("TRANSFER",c.name+" signs",(c.free?"Free agent":"Worldwide transfer")+" • €"+c.wage+"k/week • 3 years");saveCurrentGame();return p.id;
@@ -6640,6 +6644,7 @@ public class MainActivity extends Activity {
         catch(Exception unavailable){Toast.makeText(this,"No browser available",Toast.LENGTH_SHORT).show();}
     }
     private void showHistoryHub() {
+        backAction=()->showDashboard();
         LinearLayout page=createPage("History","Real-world records and your career",true);
         if(division!=null)page.addView(makeAccentButton("Your career • season history",v->showSeasonHistory()));
         page.addView(makeText("Historical records are separate from your simulated career. Selected verified seasons are included; this is not yet a complete all-time honours database.",13,muted));
@@ -6653,6 +6658,7 @@ public class MainActivity extends Activity {
                 org.json.JSONObject competition=competitions.getJSONObject(i);
                 page.addView(makeButton(competition.getString("name"),v->{
                     try {
+                        backAction=()->showHistoryHub();
                         LinearLayout history=createPage(competition.getString("name"),"Real-world winners • selected historical seasons",true);
                         history.addView(makeText(competition.getString("fact"),15,accent));
                         org.json.JSONArray winners=competition.getJSONArray("winners");
@@ -6667,6 +6673,7 @@ public class MainActivity extends Activity {
         } catch(Exception invalid){page.addView(makeText("History archive unavailable.",14,muted));}
     }
     private void showSeasonHistory() {
+        backAction=()->showHistoryHub();
         LinearLayout page=createPage("Season history","Completed seasons with your club",true);
         if(seasonHistory.entries().isEmpty())page.addView(makeText("No archived seasons yet. Completed seasons are recorded when you continue into the next year. Earlier seasons cannot be reconstructed from old saves.",14,muted));
         java.util.List<SeasonHistory.Entry> entries=seasonHistory.entries();
