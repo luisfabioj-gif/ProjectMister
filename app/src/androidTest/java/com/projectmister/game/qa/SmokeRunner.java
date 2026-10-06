@@ -136,9 +136,12 @@ public final class SmokeRunner extends Instrumentation {
             call("loadSave",new Class[]{int.class},0);check(((java.util.List<?>)get("players")).size()==base+21,"all worldwide recruits survive reload once");
             check(playerInt(call("findPlayer",new Class[]{int.class},first[0]),"team")==0,"overseas recruit belongs to managed club after reload");
             checkBackupReadable();
-            int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");int replaced=-1;
-            for(int i=0;i<base;i++)if(roles[i]==2&&slots[i]>=8){replaced=i;break;}
-            check(replaced>=0,"test has an attacking starter");roles[first[0]]=2;slots[first[0]]=slots[replaced];roles[replaced]=0;slots[replaced]=-1;
+            int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");
+            String[] positions=(String[])get("playerSelectedPosition"),formation=(String[])call("formationSlots",new Class[0]);
+            java.util.Arrays.fill(roles,0);java.util.Arrays.fill(slots,-1);
+            int[] eleven={0,2,3,4,5,6,8,9,12,15,first[0]};
+            for(int i=0;i<eleven.length;i++){roles[eleven[i]]=2;slots[eleven[i]]=i;positions[eleven[i]]=formation[i];}
+            check((Integer)call("countRole",new Class[]{int.class},2)==11,"explicit QA lineup includes eleven starters");
             call("startLiveMatchday",new Class[0]);set("livePaused",true);
             check(((java.util.List<?>)get("liveHomeLineupIds")).contains(first[0])||((java.util.List<?>)get("liveAwayLineupIds")).contains(first[0]),"worldwide recruit participates in live lineup");
             check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~7")==-1,"recruitment cannot mutate a staged live match");
