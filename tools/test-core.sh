@@ -3,7 +3,7 @@ set -euo pipefail
 python3 tools/validate-competitions.py
 out=$(mktemp -d)
 trap 'rm -rf "$out"' EXIT
-javac -d "$out" app/src/main/java/com/projectmister/game/{SubstitutionLedger,MatchMath,MatchMotion,KitColours,LeagueSchedule,LeagueResults,KnockoutTie,PromotionCampaign,ScotlandPromotion,ScottishStandings,GermanyPromotion,GermanStandings,TurkeyPromotion,TurkishStandings,IberianPromotion,IberianStandings,BelgianPromotion,BelgianStandings,FrenchPromotion,FrenchStandings,EnglishPromotion,EnglishStandings,ItalianPromotion,ItalianStandings,ReserveEligibility,SaveBackup,RegistrationWindow,EuropeanAccess}.java tests/RegressionTests.java tests/CompetitionTests.java tests/LeagueResultsTests.java tests/KnockoutTieTests.java tests/ScotlandPromotionTests.java tests/ScottishStandingsTests.java tests/GermanyPromotionTests.java tests/GermanStandingsTests.java tests/TurkeyPromotionTests.java tests/TurkishStandingsTests.java tests/IberianTests.java tests/SaveBackupTests.java tests/BelgianTests.java tests/FrenchTests.java tests/EnglishTests.java tests/ItalianTests.java
+javac -d "$out" app/src/main/java/com/projectmister/game/{SubstitutionLedger,MatchMath,MatchMotion,KitColours,LeagueSchedule,LeagueResults,KnockoutTie,PromotionCampaign,ScotlandPromotion,ScottishStandings,GermanyPromotion,GermanStandings,TurkeyPromotion,TurkishStandings,IberianPromotion,IberianStandings,BelgianPromotion,BelgianStandings,FrenchPromotion,FrenchStandings,EnglishPromotion,EnglishStandings,ItalianPromotion,ItalianStandings,DutchPromotion,DutchStandings,DutchQualification,ReserveEligibility,SaveBackup,RegistrationWindow,EuropeanAccess}.java tests/RegressionTests.java tests/CompetitionTests.java tests/LeagueResultsTests.java tests/KnockoutTieTests.java tests/ScotlandPromotionTests.java tests/ScottishStandingsTests.java tests/GermanyPromotionTests.java tests/GermanStandingsTests.java tests/TurkeyPromotionTests.java tests/TurkishStandingsTests.java tests/IberianTests.java tests/SaveBackupTests.java tests/BelgianTests.java tests/FrenchTests.java tests/EnglishTests.java tests/ItalianTests.java tests/DutchTests.java
 java -cp "$out" com.projectmister/game/RegressionTests
 java -cp "$out" com.projectmister.game.CompetitionTests
 java -cp "$out" com.projectmister.game.LeagueResultsTests
@@ -29,3 +29,5 @@ java -cp "$out" com.projectmister.game.FrenchTests
 java -cp "$out" com.projectmister.game.EnglishTests
 
 java -cp "$out" com.projectmister.game.ItalianTests
+
+java -cp "$out" com.projectmister.game.DutchTests

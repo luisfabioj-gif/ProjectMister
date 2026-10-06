@@ -15,6 +15,7 @@ grep -q 'PASS completed match survives reload' qa-output/candidate.txt
 timeout 480s adb shell am instrument -w -e mode divisions com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/divisions.txt
 grep -q 'PASS all twenty standalone and twenty linked division careers verified' qa-output/divisions.txt
 grep -q 'PASS FR watched playoffs and season transition verified' qa-output/divisions.txt
+grep -q 'PASS NL watched playoffs and season transition verified' qa-output/divisions.txt
 grep -q 'PASS IT watched playoffs and season transition verified' qa-output/divisions.txt
 grep -q 'PASS ENG watched playoffs and season transition verified' qa-output/divisions.txt
 grep -q 'PASS career backup export, validation, cancellation, restore and load verified' qa-output/divisions.txt

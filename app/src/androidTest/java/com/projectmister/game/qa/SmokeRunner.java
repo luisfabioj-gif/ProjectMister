@@ -14,6 +14,7 @@ public final class SmokeRunner extends Instrumentation {
     private Bundle args;
     private final StringBuilder report=new StringBuilder();
     private File output;
+    private int emulatorAnrs;
     public void onCreate(Bundle args){super.onCreate(args);this.args=args;start();}
     private Object call(String name,Class<?>[] types,Object... values) throws Exception {
         Method m=activity.getClass().getDeclaredMethod(name,types);m.setAccessible(true);return m.invoke(activity,values);
@@ -47,26 +48,30 @@ public final class SmokeRunner extends Instrumentation {
         }
         throw new AssertionError("Timed out waiting for full-time");
     }
-    private void dismissEmulatorLauncherAnr() throws Exception {
+    private void dismissEmulatorSystemAnr() throws Exception {
         android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
         if(root==null || !"android".contentEquals(root.getPackageName())) return;
-        // Only the observed AOSP emulator launcher failure. Never dismiss BOSS XI ANRs.
-        boolean launcher=false;
-        for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText("Quickstep isn't responding"))
-            if(n.isVisibleToUser() && "Quickstep isn't responding".contentEquals(n.getText())) launcher=true;
-        if(!launcher)return;
+        // Only observed AOSP launcher/System UI dialogs. BOSS XI ANRs must still fail.
+        String observed=null;
+        for(String title:new String[]{"Quickstep isn't responding","System UI isn't responding"})
+            for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText(title))
+                if(n.isVisibleToUser()&&title.contentEquals(n.getText()))observed=title;
+        if(observed==null)return;
+        if(++emulatorAnrs>2)throw new AssertionError("Repeated emulator system ANR: "+observed);
+        Bitmap evidence=getUiAutomation().takeScreenshot();
+        if(evidence!=null){try(FileOutputStream f=new FileOutputStream(new File(output,"emulator-system-anr-"+emulatorAnrs+".png"))){evidence.compress(Bitmap.CompressFormat.PNG,100,f);}evidence.recycle();}
         for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText("Close app")) {
-            if(n.isVisibleToUser() && n.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)) {
-                report.append("ENVIRONMENT dismissed emulator Quickstep ANR; game checks remain enabled\n");
+            if(n.isVisibleToUser()&&n.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)) {
+                report.append("ENVIRONMENT dismissed emulator ").append(observed).append("; game checks remain enabled\n");
                 SystemClock.sleep(500);waitForIdleSync();return;
             }
         }
-        throw new AssertionError("Emulator launcher ANR could not be dismissed");
+        throw new AssertionError("Emulator system ANR could not be dismissed");
     }
     private void capture(String name)throws Exception {
         // Wait through asynchronous layout, portrait decoding and orientation changes.
         SystemClock.sleep(700);waitForIdleSync();
-        dismissEmulatorLauncherAnr();
+        dismissEmulatorSystemAnr();
         Bitmap b=getUiAutomation().takeScreenshot();
         if(b==null)throw new AssertionError("Screenshot missing: "+name);
         try(FileOutputStream f=new FileOutputStream(new File(output,name+".png"))){b.compress(Bitmap.CompressFormat.PNG,100,f);} b.recycle();
@@ -92,7 +97,7 @@ public final class SmokeRunner extends Instrumentation {
     private android.view.accessibility.AccessibilityNodeInfo node(String text)throws Exception {
         long until=SystemClock.uptimeMillis()+5000;
         do {
-            dismissEmulatorLauncherAnr();
+            dismissEmulatorSystemAnr();
             android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
             if(root!=null)for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText(text))if(n.isVisibleToUser())return n;
             SystemClock.sleep(100);
@@ -226,7 +231,7 @@ public final class SmokeRunner extends Instrumentation {
             if(linked&&id.equals("sco:2"))verifyScottishPromotion();
             if(linked&&id.equals("de:2"))verifyGermanPromotion();
             if(linked&&id.equals("tr:2"))verifyTurkishPromotion();
-            if(linked&&(id.equals("pt:2")||id.equals("es:2")||id.equals("be:2")||id.equals("fr:2")||id.equals("eng:2")||id.equals("it:2")))verifyEligiblePromotion();
+            if(linked&&(id.equals("pt:2")||id.equals("es:2")||id.equals("be:2")||id.equals("fr:2")||id.equals("eng:2")||id.equals("it:2")||id.equals("nl:2")))verifyEligiblePromotion();
         }
         ui(()->call("loadSave",new Class[]{int.class},0));
         check(true,"all twenty standalone and twenty linked division careers verified");
@@ -298,14 +303,26 @@ public final class SmokeRunner extends Instrumentation {
             // Parent clubs remain safely above relegation in this transition test.
             String[] ids=(String[])type.getField("clubIds").get(world);
             for(int id:upper)if(ids[id].equals("pt:fc-porto")||ids[id].equals("pt:sl-benfica")||ids[id].equals("pt:sporting-cp")||ids[id].equals("es:celta")||ids[id].equals("es:real-sociedad")||ids[id].equals("be:club-brugge")||ids[id].equals("be:krc-genk")||ids[id].equals("be:kaa-gent")||ids[id].equals("be:rsc-anderlecht"))totals[id]+=100;
+            if(country[0].equals("NL")) {
+                Object old=get("leagueResults"),ledger=gameClass("LeagueResults").getConstructor(int.class,boolean.class).newInstance(ids.length,true);
+                java.lang.reflect.Method record=ledger.getClass().getMethod("record",int.class,int.class,int.class,int.class,int.class);
+                for(int round=0;round<38;round++)for(Object result:(java.util.List<?>)old.getClass().getMethod("round",int.class).invoke(old,round)) {
+                    Class<?> rc=result.getClass();int h=rc.getField("home").getInt(result),a=rc.getField("away").getInt(result);
+                    int hi=-1,ai=-1;for(int i=0;i<lower.length;i++){if(lower[i]==h)hi=i;if(lower[i]==a)ai=i;}
+                    record.invoke(ledger,round,h,a,hi>=0?(hi<ai?60-hi:0):rc.getField("homeGoals").getInt(result),ai>=0?(ai<hi?60-ai:0):rc.getField("awayGoals").getInt(result));
+                }
+                set("leagueResults",ledger);
+                for(int id:upper)if(ids[id].equals("nl:ajax")||ids[id].equals("nl:az")||ids[id].equals("nl:fc-utrecht")||ids[id].equals("nl:psv"))totals[id]+=100;
+            }
             set("promotion",null);club[0]=eligible.get(country[0].equals("BE")?1:country[0].equals("FR")?3:(country[0].equals("ENG")||country[0].equals("IT"))?4:2);set("selectedClub",club[0]);call("initialiseTacticsForClub",new Class[0]);
             check((Boolean)call("preparePromotion",new Class[0]),country[0]+" eligible standings seed promotion");
             int[] entrants=(int[])get("promotion").getClass().getMethod("lowerEntrants").invoke(get("promotion"));
             for(int id:entrants)check(!reserve[id],country[0]+" reserve excluded from promotion");
+            if(country[0].equals("NL")){club[0]=entrants[7];set("selectedClub",club[0]);call("initialiseTacticsForClub",new Class[0]);}
             identities[0]=ids.clone();games[0]=((int[])get("played"))[club[0]];rounds[0]=(Integer)get("matchday");
             Object ledger=get("leagueResults");size[0]=(Integer)ledger.getClass().getMethod("size").invoke(ledger);
         });
-        for(int i=0;i<(country[0].equals("PT")?2:country[0].equals("IT")?5:4);i++){
+        for(int i=0;i<(country[0].equals("PT")?2:country[0].equals("IT")?5:country[0].equals("NL")?6:4);i++){
             ui(()->{
                 call("advancePromotion",new Class[0]);set("livePaused",true);
                 check((Boolean)get("livePlayoff"),country[0]+" manager watches playoff leg");

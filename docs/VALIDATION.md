@@ -95,4 +95,4 @@ regulation/extra-time/penalty phases, reseeding, venue policy and league ranking
 Direct SDK application and instrumentation compilation passed. The device gate
 requires watched early-round progression through promotion, save/backup reload,
 unchanged league results and next-season identity/tier retention in both countries.
-This entry awaits the new matrix result; it does not assert a device pass yet.
+Both API levels passed run 37387639632 at 73398af27c9f203587078929eb10c20ff0e68de3 (35 job 112024851271; 36 job 112024851093). Promotion review screenshots were visually checked. QA artifact 11379639227 preserves the pre-uninstall evidence.

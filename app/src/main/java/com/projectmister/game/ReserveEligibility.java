@@ -14,6 +14,10 @@ public final class ReserveEligibility {
             case "be:jong-genk":return "be:krc-genk";
             case "be:jong-kaa-gent":return "be:kaa-gent";
             case "be:rsca-futures":return "be:rsc-anderlecht";
+            case "nl:jong-ajax":return "nl:ajax";
+            case "nl:jong-az":return "nl:az";
+            case "nl:jong-fc-utrecht":return "nl:fc-utrecht";
+            case "nl:jong-psv":return "nl:psv";
             default:return "";
         }
     }

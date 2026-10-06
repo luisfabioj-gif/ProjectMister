@@ -5,9 +5,9 @@ Linked Scottish careers implement the Premiership/Championship playoff ladder.
 German top/second-tier transitions passed Android 35/36 device validation in run 37146454621.
 Türkiye now implements its top-two promotion, five-club playoffs and three-club
 relegation; Android 35/36 validation passed in run 37272085051. Portugal, Spain and Belgium transitions also passed both API levels in run
-37324192531. England, France and Italy now implement linked-tier transitions; their latest
-device evidence is tracked in COMPETITION_EXPANSION_STATUS.md. Netherlands still
-retains division membership at season end. Scottish unresolved
+37324192531. All ten countries now have linked-tier transition implementations; their latest
+device evidence is tracked in COMPETITION_EXPANSION_STATUS.md. Dutch qualification
+uses the calendar interpretation documented below. Scottish unresolved
 qualification ties and the lower-pyramid boundary remain unimplemented.
 Never silently substitute a generic playoff or a club-index tie-break for these rules.
 
@@ -252,3 +252,37 @@ Core tests cover all 32 lower-playoff winner paths, the 14/15-point boundary,
 equal-points finals, both top-flight deciders, phase restoration and standings.
 Android QA adds a five-match watched lower-playoff promotion, backup validation,
 stable club/squad identities and a persisted 20/20 season transition.
+
+## Netherlands implementation and calendar interpretation — 6 October 2026
+
+KNVB July 2026 RWB article 17, national ranking:
+https://www.knvb.nl/downloads/bestand/29888/reglementen-betaald-voetbal
+Period qualification, articles 3 and 6–9:
+https://www.knvb.nl/downloads/bestand/30195/reglement-periodekampioenschappen-eerste-divisie-2026-27
+Playoff entry, bracket and tie resolution:
+https://www.knvb.nl/downloads/bestand/30197/reglement-play-off-promotie-degradatie-2026-27
+
+The KNVB calendar explicitly highlights period endings 10, 19, 28 and 38:
+https://www.knvb.nl/downloads/bestand/29830/speeldagenkalender
+Its announcement says periods have 10, 9, 9 and 10 matches:
+https://www.knvb.nl/node/71361
+The period-regulation PDF instead prints 21–28 for period three, omitting round
+20 and yielding only eight rounds. Implementation interprets that start as 20,
+using the calendar boundaries and announced lengths. This is a documented
+interpretation of conflicting primary sources, not an official correction.
+Recheck if KNVB publishes an amendment; the boundary has an explicit regression.
+
+Complete per-round results reconstruct period points/GD/GF. Repeat winners and
+reserves pass places to the next eligible runner-up or final-table replacement;
+last-place and automatically promoted qualifiers are replaced. Missing history
+or consequential unknown disciplinary/deciding results prevent qualification.
+Two automatic promotions plus six period/table qualifiers feed the saved
+six-tie bracket; Eredivisie 16 enters the semifinals. Higher finishers host the
+return, with the Eredivisie club taking priority. Drawn aggregate uses extra time
+and penalties. Parent/reserve tier collisions block rollover pending external
+replacements. European playoffs and licensing sanctions remain inactive.
+
+Core coverage includes all 64 winner paths, retention, every saved phase,
+period boundaries, reserve/repeated-winner pass-down, lower-ranked period winners,
+last-place exclusion, unresolved discipline and result-derived qualification.
+Android QA watches a six-match promotion then saves the next 18/20 season.

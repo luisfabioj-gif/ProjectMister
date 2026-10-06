@@ -1,12 +1,26 @@
 # Competition expansion — implementation checkpoint, 5 October 2026
 
-## Current candidate — Italy, 6 October 2026
+## Current candidate — Netherlands, 6 October 2026
+
+Dutch promotion now derives period qualification from complete league history,
+excludes reserves, handles repeated/automatic/last-place qualifiers and seeds the
+six-tie bracket. Core tests cover all 64 winner paths and qualification edge
+cases. The conflicting period-three start is interpreted from the KNVB calendar
+and announcement; see NATIONAL_RULES_VERIFICATION.md. The extended Android
+matrix still needs to pass before this ten-country checkpoint is verified.
+
+Missing disciplinary/deciding outcomes, lower-pyramid replacements, authentic
+fixture calendars, playable cups/European admissions and physical-device/
+production checks remain open. All ten transition implementations do not mean
+all national rules or the full product are complete.
+
+## Prior candidate — Italy, 6 October 2026
 
 Italy's Serie A/B transition is implemented with the fourteen-point promotion
 threshold, fixed preliminary/semi-final bracket, conditional final tiebreak,
 and Serie A title/survival deciders. Local core tests cover 32 playoff paths and
 saved phases. Device QA is extended to a watched five-match promotion and saved
-20/20 season rollover. This checkpoint still needs its Android matrix result.
+20/20 season rollover. Android 35 passed run 37388502492, source ff06e8fb. Android 36 was blocked by an emulator System UI ANR over the qualification-guide button, confirmed in its screenshot; the failed job was rerun. The Dutch QA runner also preserves and dismisses only the two observed AOSP system ANR dialogs, with a strict retry limit. App ANRs are never dismissed.
 
 Netherlands transitions, missing disciplinary/deciding outcomes, lower-pyramid
 replacements, official calendars, playable cups/European admissions and
@@ -20,7 +34,7 @@ Championship playoff with reseeded semifinals, and France's two Ligue 2 single
 matches followed by the two-leg Ligue 1 barrage. Country-specific standings,
 saved playoff phases, watched matches, balanced tier movement and table badges
 are connected. Core tests cover all 32 English and eight French winner paths.
-Android compilation passes; the extended device matrix is the next gate.
+Android 35/36 passed run 37387639632, source 73398af27c9f203587078929eb10c20ff0e68de3. Both promotion review screenshots were inspected; text/cards and navigation are readable. The run also passed backups, release-split install and different-key migration.
 
 Netherlands transitions, missing disciplinary/deciding outcomes,
 lower-pyramid replacements, official fixture calendars, playable cups/European
