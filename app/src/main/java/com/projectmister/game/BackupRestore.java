@@ -34,6 +34,12 @@ public final class BackupRestore {
                 } else if(division!=null&&division.country.equals("SCO")&&(division.linked||division.splitSeason())&&round>33)throw new IllegalArgumentException("Missing split");
                 WorldMarket.restore((String)data.getOrDefault(prefix+"market_hires",""));
                 SeasonHistory.restore((String)data.getOrDefault(prefix+"season_history",""));
+                String cup=(String)data.getOrDefault(prefix+"league_cup","");
+                if(!cup.isEmpty()) {
+                    if(division==null||!division.linked||!division.country.equals("PT"))throw new IllegalArgumentException("Unexpected cup");
+                    PortugueseLeagueCup restoredCup=PortugueseLeagueCup.restore(cup,division.clubIds);
+                    restoredCup.validateDate(LocalDate.parse((String)data.get(prefix+"date")));
+                }
                 String history=(String)data.getOrDefault(prefix+"league_results","");
                 if(!history.isEmpty())LeagueResults.restore(history,size);
                 String promotion=(String)data.getOrDefault(prefix+"promotion","");

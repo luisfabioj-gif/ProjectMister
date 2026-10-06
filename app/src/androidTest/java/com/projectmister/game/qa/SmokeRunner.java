@@ -181,6 +181,66 @@ public final class SmokeRunner extends Instrumentation {
         ui(()->{set("currentDate",old[0]);set("selectedClub",old[1]);set("promotion",old[2]);call("showDashboard",new Class[0]);});
         check(true,"calendar recorded results and shootout orientation verified");
     }
+
+    private void verifyPortugueseLeagueCup()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+        byte[] original=backupBytes(prefs.getAll());
+        ui(()->{
+            Object catalog=get("catalog"),data=null;
+            for(Object d:(List<?>)catalog.getClass().getField("divisions").get(catalog))if(d.getClass().getField("id").get(d).equals("pt:1"))data=d;
+            check(data!=null,"Portuguese division found");Class<?> wc=gameClass("CareerDivision");
+            Object world=wc.getMethod("countryCareer",catalog.getClass(),data.getClass()).invoke(null,catalog,data);
+            call("configureDivision",new Class[]{wc},world);set("selectedSlot",2);set("selectedClub",0);
+            call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
+            call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
+            check(get("leagueCup")!=null,"new linked Portuguese career creates published cup draw");
+            set("matchday",11);set("currentDate",java.time.LocalDate.of(2026,10,25));
+            call("startLiveMatchday",new Class[0]);set("livePaused",true);call("finishLiveMatch",new Class[0]);
+            check(get("currentDate").equals(java.time.LocalDate.of(2026,10,27)),"league week stops at intervening cup date");
+            call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"cup schedule reloads");
+        });
+        final int[] balance={0},games={0};final String[] ledger={null};
+        for(int stage=0;stage<3;stage++) {
+            final int round=stage;
+            ui(()->{
+                if(round==1){set("matchday",22);set("currentDate",java.time.LocalDate.of(2027,1,5));}
+                balance[0]=(Integer)get("financeBalanceK");games[0]=((int[])get("played"))[0];
+                Object history=get("leagueResults");ledger[0]=(String)history.getClass().getMethod("snapshot").invoke(history);
+                call("startLiveMatchday",new Class[0]);set("livePaused",true);
+                check((Boolean)get("liveCup")&&(Boolean)get("matchInProgress"),"cup advances background ties and starts managed live match");
+                check(((List<?>)get("liveOtherFixtures")).isEmpty(),"cup has no league fixtures attached");
+                check((Integer)get("liveHome")==0||(Integer)get("liveAway")==0,"manager participates in drawn cup tie");
+                set("liveHomeGoals",(Integer)get("liveHome")==0?2:0);set("liveAwayGoals",(Integer)get("liveAway")==0?2:0);
+            });
+            if(stage==2)capture("33-league-cup-final-live");
+            ui(()->{
+                call("finishLiveMatch",new Class[0]);
+                check((Integer)get("financeBalanceK")==balance[0],"cup does not repeat weekly finance");
+                check(((int[])get("played"))[0]==games[0],"cup leaves league appearances unchanged");
+                Object history=get("leagueResults");check(ledger[0].equals(history.getClass().getMethod("snapshot").invoke(history)),"cup leaves league ledger unchanged");
+                check((Boolean)call("loadSave",new Class[]{int.class},2),"cup result reloads");checkBackupReadable();
+                if(round==0)check(get("currentDate").equals(java.time.LocalDate.of(2026,11,1)),"quarter-final returns to scheduled league date");
+            });
+        }
+        ui(()->{
+            Object cup=get("leagueCup");check((Integer)cup.getClass().getMethod("winner").invoke(cup)==0,"managed club wins saved cup final");
+            check(get("currentDate").equals(java.time.LocalDate.of(2027,1,10)),"final returns to next league date");
+            String snapshot=(String)cup.getClass().getMethod("snapshot").invoke(cup);
+            call("startLiveMatchday",new Class[0]);set("livePaused",true);check(!(Boolean)get("liveCup"),"league resumes after cup final");
+            call("finishLiveMatch",new Class[0]);check((Integer)get("matchday")==23,"league advances exactly once");
+            check(snapshot.equals(cup.getClass().getMethod("snapshot").invoke(cup)),"league result cannot rewrite cup trophy");
+            call("showCalendarTab",new Class[]{String.class},"League Cup");
+        });
+        capture("34-league-cup-winners");
+        ui(()->{
+            Map<String,Object> invalid=new HashMap<>(prefs.getAll());invalid.put("save_2_date","2026-08-09");
+            boolean rejected=false;try{gameClass("BackupRestore").getMethod("validate",byte[].class).invoke(null,(Object)backupBytes(invalid));}catch(java.lang.reflect.InvocationTargetException expected){rejected=true;}
+            check(rejected,"backup rejects future cup results");
+            gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);
+            call("loadSave",new Class[]{int.class},0);
+        });
+        check(true,"Portuguese cup live quarter-final semi-final final and league resumption verified");
+    }
     private int playerInt(Object p,String field)throws Exception {Field f=p.getClass().getDeclaredField(field);f.setAccessible(true);return f.getInt(p);}
     private void verifyOfferControls()throws Exception {
         final Object[] target={null};final int[] fee={0},before={0};
@@ -256,6 +316,15 @@ public final class SmokeRunner extends Instrumentation {
                         byes++;if((Integer)call("leagueOpponentForRound",new Class[]{int.class},round)!=-999)throw new AssertionError("Invented bye opponent");
                     }
                     set("matchday",round+1);call("prepareSplitIfNeeded",new Class[0]);
+                }
+                // This fast-forward fixture seeds cup results too; the watched cup flow has its own test.
+                Object cup=get("leagueCup");
+                if(cup!=null) {
+                    while(!(Boolean)cup.getClass().getMethod("complete").invoke(cup)) {
+                        Object tie=cup.getClass().getMethod("current").invoke(cup);
+                        tie.getClass().getMethod("recordRegulation",int.class,int.class).invoke(tie,1,0);
+                    }
+                    set("currentDate",((java.time.LocalDate)get("careerSeasonStart")).plusWeeks(rounds));
                 }
                 int expected=id.equals("sco:1")?38:id.equals("sco:2")?36:(count-1)*2;
                 int expectedResults=0;
@@ -674,6 +743,7 @@ public final class SmokeRunner extends Instrumentation {
                 page("13-fixtures","showCompetitionCalendar",new Class[0]);
                 verifyCalendarIntegrity();
                 verifyWorldMarket();
+                verifyPortugueseLeagueCup();
                 page("14-board","showClubOffice",new Class[0]);
                 page("15-inbox","showInbox",new Class[0]);
                 try(InputStream input=getTargetContext().getAssets().open("competitions/2026-27.json")) {
