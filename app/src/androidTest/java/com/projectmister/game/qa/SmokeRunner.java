@@ -377,8 +377,20 @@ public final class SmokeRunner extends Instrumentation {
             check(java.util.Arrays.equals(identities[0],(String[])type.getField("clubIds").get(world)),country[0]+" stable identities preserved");
             check(((int[])type.getMethod("members",int.class).invoke(world,1)).length==(country[0].equals("ES")||country[0].equals("ENG")||country[0].equals("IT")?20:18),country[0]+" top division size preserved");
             check((Integer)get("matchday")==0&&get("promotion")==null,country[0]+" next season survives reload");
+            Object archive=get("seasonHistory");Class<?> archiveClass=archive.getClass();
+            java.util.List<?> seasons=(java.util.List<?>)archiveClass.getMethod("entries").invoke(archive);
+            check(seasons.size()==1,country[0]+" completed season archived once");
+            Object season=seasons.get(0);Class<?> entryClass=season.getClass();
+            check(entryClass.getField("clubId").get(season).equals(identities[0][club[0]])&&entryClass.getField("played").getInt(season)==games[0],country[0]+" archive retains identity and final league games");
+            check(entryClass.getField("tier").getInt(season)==2&&entryClass.getField("nextTier").getInt(season)==1,country[0]+" archive retains promotion");
+            String saved=(String)archiveClass.getMethod("snapshot").invoke(archive);
+            Object date=get("careerSeasonStart");call("continueDivisionSeason",new Class[0]);
+            check(date.equals(get("careerSeasonStart"))&&saved.equals(archiveClass.getMethod("snapshot").invoke(get("seasonHistory"))),country[0]+" repeated rollover cannot duplicate archive or skip season");
+            checkBackupReadable();call("showSeasonHistory",new Class[0]);
+
             check(playerInt(call("findPlayer",new Class[]{int.class},club[0]*20),"team")==club[0],country[0]+" player remains at club");
         });
+        capture(country[0].toLowerCase(java.util.Locale.ROOT)+"-season-history");
         check(true,country[0]+" watched playoffs and season transition verified");
     }
 

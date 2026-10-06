@@ -1,5 +1,26 @@
 # Competition expansion — verified checkpoint, 6 October 2026
 
+## Calendar integrity and season archive candidate — 6 October 2026
+
+Legacy careers no longer fabricate cup or European fixtures/results when a date
+passes. The calendar displays stored playoff ties, regulation/extra-time/penalty
+results and actual winners. Shootout scores name the final-leg home and away
+clubs. League dates remain explicitly simulated; playoff dates are not assigned.
+Cups and European competitions remain unimplemented, with explicit empty states.
+
+Database careers now archive the managed club's completed league season before
+rollover: stable identity, displayed name, division, W/D/L, goals, points and tier
+movement. The archive survives saves and backups and appears in Season history.
+Old seasons cannot be reconstructed; no missing rankings or trophy claims are
+invented. Legacy classic careers do not use this database-season archive.
+Repeated rollover at round zero is blocked. Invalid archive data blocks loading
+or backup replacement rather than being discarded. The archive supports 1,000
+seasons; reaching that bound preserves the completed season and blocks rollover.
+
+Core archive tests, application compilation and independent QA compilation pass.
+Android QA adds recorded-calendar checks plus seven-country archive reload,
+backup and duplicate-rollover checks. Device verification is pending.
+
 ## Current verified build — all ten country transitions, 6 October 2026
 
 Dutch promotion now derives period qualification from complete league history,

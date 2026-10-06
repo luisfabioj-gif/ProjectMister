@@ -96,6 +96,7 @@ public class MainActivity extends Activity {
     private int[] splitOrder = new int[0];
     private PromotionCampaign promotion;
     private String unreadablePromotion="";
+    private SeasonHistory seasonHistory=new SeasonHistory();
     private boolean livePlayoff=false;
     private int liveAwayKitColour;
     private boolean scottishSplitProvisional=false;
@@ -1112,6 +1113,7 @@ public class MainActivity extends Activity {
         dashboardRow(page,"Fixtures",this::showCompetitionCalendar,"League table",this::showLeagueTable);
         dashboardRow(page,"Finances",this::showFinances,"Stadium",this::showStadiumCentre);
         dashboardRow(page,"Board",this::showClubOffice,"Manager",this::showManagerProfile);
+        if(division!=null)page.addView(makeButton("Season history",v->showSeasonHistory()));
         dashboardRow(page,"Player database",this::showAllTeamsPlayers,"Sound settings",this::showSoundSettings);
     }
 
@@ -6292,6 +6294,7 @@ public class MainActivity extends Activity {
     }
 
     private void configureDivision(CareerDivision value) {
+        seasonHistory=new SeasonHistory();
         division=value;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
         defaultClubNames=value==null?legacyNames.clone():value.names.clone();
         strength=value==null?legacyStrength.clone():value.strengths.clone();
@@ -6551,17 +6554,41 @@ public class MainActivity extends Activity {
         page.addView(makeText("Future seasons use simulated dates based on 2026/27, not newly verified official calendars.",12,muted));
         page.addView(makeButton("Final league table",v->showLeagueTable()));
     }
+    private void showSeasonHistory() {
+        LinearLayout page=createPage("Season history","Completed seasons with your club",true);
+        if(seasonHistory.entries().isEmpty())page.addView(makeText("No archived seasons yet. Completed seasons are recorded when you continue into the next year. Earlier seasons cannot be reconstructed from old saves.",14,muted));
+        java.util.List<SeasonHistory.Entry> entries=seasonHistory.entries();
+        for(int i=entries.size()-1;i>=0;i--) {
+            SeasonHistory.Entry e=entries.get(i);LinearLayout card=makePanel();
+            int year=LocalDate.parse(e.start).getYear();card.addView(profileSectionTitle(year+"/"+(year+1)+" • "+e.clubName));
+            card.addView(makeText(e.league+" • "+e.outcome(),14,accent));
+            card.addView(makeText("Played "+e.played+" • Won "+e.won+" • Drawn "+e.drawn+" • Lost "+e.lost,13,text));
+            card.addView(makeText("Goals "+e.gf+"–"+e.ga+" • Points "+e.points,13,muted));page.addView(card);
+        }
+    }
     private void continueDivisionSeason() {
+        if(division==null||matchday<seasonRounds()||!unreadablePromotion.isEmpty())return;
+        CareerDivision previousDivision=division,nextDivision=division;
         if(promotion!=null) {
             if(!promotion.complete())return;
-            int oldTier=division.tier;
             if(ReserveEligibility.parentRelegationConflict(division.clubIds,division.reserves,promotion.relegated())) {
                 new BossDialog.Builder(this).setTitle("Reserve-team relegation required")
                     .setMessage("A relegated parent club cannot share its division with its reserve team. Lower-tier replacements are not implemented yet; this completed season has been kept unchanged.")
                     .setPositiveButton("Back",(dialog,which)->showSeasonReview()).show();
                 return;
             }
-            division=division.moveBetweenTiers(promotion.promoted(),promotion.relegated(),selectedClub);
+            nextDivision=division.moveBetweenTiers(promotion.promoted(),promotion.relegated(),selectedClub);
+        }
+        try {
+            seasonHistory=seasonHistory.append(new SeasonHistory.Entry(careerSeasonStart.toString(),previousDivision.clubIds[selectedClub],
+                clubNames[selectedClub],previousDivision.name,previousDivision.tier,nextDivision.tier,
+                played[selectedClub],won[selectedClub],drawn[selectedClub],lost[selectedClub],goalsFor[selectedClub],goalsAgainst[selectedClub],points[selectedClub]));
+        } catch(IllegalArgumentException invalid) {
+            new BossDialog.Builder(this).setTitle("Season could not be archived").setMessage("The completed season has been kept unchanged. "+invalid.getMessage()).setPositiveButton("Back",null).show();return;
+        }
+        division=nextDivision;
+        if(promotion!=null) {
+            int oldTier=previousDivision.tier;
             if(catalog!=null)for(int i=0;i<catalog.divisions.size();i++)if(catalog.divisions.get(i).id.equals(division.id))managerLeagueIndex=i+1;
             addNews("SEASON",oldTier==division.tier?"Next season confirmed":division.tier==1?"Promotion secured":"Club relegated",clubNames[selectedClub]+" will compete in "+division.name+" next season. Club identity, squad and contracts have been retained.");
         }
@@ -6690,6 +6717,7 @@ public class MainActivity extends Activity {
                 .putInt(key(selectedSlot, "club"), selectedClub)
                 .putString(key(selectedSlot,"career_world"),division==null?"":division.snapshot())
                 .putString(key(selectedSlot,"season_start"),careerSeasonStart.toString())
+                .putString(key(selectedSlot,"season_history"),seasonHistory.snapshot())
                 .putString(key(selectedSlot,"split_order"),encode(splitOrder))
                 .putString(key(selectedSlot,"league_results"),division==null?"":leagueResults.snapshot())
                 .putString(key(selectedSlot,"promotion"),promotion==null?unreadablePromotion:promotion.snapshot())
@@ -6767,7 +6795,8 @@ public class MainActivity extends Activity {
                 if(saved==null||!saved.country.equals("SCO")||ids.length!=12)throw new IllegalArgumentException("Invalid split");
                 for(String id:ids){int value=Integer.parseInt(id);if(value<0||value>=n||saved.clubTiers[value]!=1||!seen.add(value))throw new IllegalArgumentException("Invalid split identity");}
             } else if(saved!=null&&saved.country.equals("SCO")&&(saved.linked||saved.splitSeason())&&prefs.getInt(key(slot,"matchday"),0)>33)throw new IllegalArgumentException("Missing split");
-            configureDivision(saved);
+            SeasonHistory restoredHistory=SeasonHistory.restore(prefs.getString(key(slot,"season_history"),""));
+            configureDivision(saved);seasonHistory=restoredHistory;
         }
         catch(Exception invalid) {
             new BossDialog.Builder(this).setTitle("Career could not be loaded").setMessage("The saved competition data could not be read. Your save has been kept.").setPositiveButton("OK",null).show();return false;
@@ -6878,7 +6907,7 @@ public class MainActivity extends Activity {
     private void clearSave(int slot) {
         SharedPreferences.Editor editor = prefs.edit();
         String[] fields = {
-                "career_world", "season_start", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
+                "career_world", "season_start", "season_history", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
                 "manager_wage", "manager_contract_years", "manager_tactical", "manager_motivating", "manager_discipline", "manager_player_knowledge", "manager_youth", "manager_negotiating",
                 "matchday", "date", "training", "formation", "playstyle", "budget", "roles", "role_slots", "role_pos",
                 "staff_am_name", "staff_am_rating", "staff_coach_name", "staff_coach_rating", "staff_scout_name", "staff_scout_rating",
