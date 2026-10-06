@@ -114,6 +114,39 @@ public final class SmokeRunner extends Instrumentation {
         if(view instanceof android.widget.TextView)text.append(((android.widget.TextView)view).getText()).append('\n');
         if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)collectScreenText(((ViewGroup)view).getChildAt(i),text);
     }
+    private void verifyWorldMarket()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+        byte[] original=backupBytes(prefs.getAll());final int[] first={-1};
+        ui(()->{
+            set("currentDate",java.time.LocalDate.of(2026,8,9));set("currentTransferBudget",10000);set("wageBudgetK",1000000);
+            Object catalog=get("catalog");java.util.List<?> divisions=(java.util.List<?>)catalog.getClass().getField("divisions").get(catalog);
+            int base=((java.util.List<?>)get("players")).size(),count=0;
+            for(Object division:divisions) {
+                java.util.List<?> clubs=(java.util.List<?>)division.getClass().getField("clubs").get(division);
+                String club=null;for(Object candidate:clubs){String id=(String)candidate.getClass().getField("id").get(candidate);if((Integer)call("marketLocalClub",new Class[]{String.class},id)<0){club=id;break;}}
+                check(club!=null,"division offers an external club in legacy QA career");int tier=division.getClass().getField("tier").getInt(division);
+                int id=(Integer)call("signMarketPlayer",new Class[]{String.class},club+"~"+tier+"~17");check(id==base+count,"market recruit receives contiguous saved identity");if(count++==0)first[0]=id;
+            }
+            int budget=(Integer)get("currentTransferBudget");int free=(Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~4");
+            check(free==base+20&&(Integer)get("currentTransferBudget")==budget,"free agent joins without transfer fee");
+            check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~4")==-1,"duplicate free-agent signing rejected");
+            set("currentTransferBudget",0);check((Integer)call("signMarketPlayer",new Class[]{String.class},"eng:arsenal~1~18")==-1,"unaffordable worldwide transfer rejected");
+            set("wageBudgetK",0);check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~5")==-1,"unaffordable free-agent wages rejected");
+            set("wageBudgetK",1000000);set("currentDate",java.time.LocalDate.of(2026,10,15));check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~6")==-1,"registration gate checked at signing");
+            call("loadSave",new Class[]{int.class},0);check(((java.util.List<?>)get("players")).size()==base+21,"all worldwide recruits survive reload once");
+            check(playerInt(call("findPlayer",new Class[]{int.class},first[0]),"team")==0,"overseas recruit belongs to managed club after reload");
+            checkBackupReadable();
+            int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");int replaced=-1;
+            for(int i=0;i<base;i++)if(roles[i]==2&&slots[i]>=8){replaced=i;break;}
+            check(replaced>=0,"test has an attacking starter");roles[first[0]]=2;slots[first[0]]=slots[replaced];roles[replaced]=0;slots[replaced]=-1;
+            call("startLiveMatchday",new Class[0]);set("livePaused",true);
+            check(((java.util.List<?>)get("liveHomeLineupIds")).contains(first[0])||((java.util.List<?>)get("liveAwayLineupIds")).contains(first[0]),"worldwide recruit participates in live lineup");
+            call("stopLiveMatchTicker",new Class[0]);set("matchInProgress",false);
+        });
+        ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);call("showWorldMarket",new Class[0]);});
+        capture("31-worldwide-market");page("32-history-hub","showHistoryHub",new Class[0]);
+        check(true,"worldwide transfers free agents reload budget and lineup verified");
+    }
     private void verifyCalendarIntegrity()throws Exception {
         final Object[] old={null,null,null};
         ui(()->{
@@ -636,6 +669,7 @@ public final class SmokeRunner extends Instrumentation {
                 page("12-training","showTraining",new Class[0]);
                 page("13-fixtures","showCompetitionCalendar",new Class[0]);
                 verifyCalendarIntegrity();
+                verifyWorldMarket();
                 page("14-board","showClubOffice",new Class[0]);
                 page("15-inbox","showInbox",new Class[0]);
                 try(InputStream input=getTargetContext().getAssets().open("competitions/2026-27.json")) {

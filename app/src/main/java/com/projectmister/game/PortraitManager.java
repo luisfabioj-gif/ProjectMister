@@ -28,10 +28,10 @@ final class PortraitManager {
     }
     void load(int identity, int age, boolean player, boolean female, Loaded loaded) {
         String key = (player ? "player_" : female ? "female_" : "staff_") + identity;
-        int fallback = female ? 36 + Math.floorMod(identity,6) : player ? (age <= 24 ? Math.floorMod(identity, 18) : 18 + Math.floorMod(identity, 12))
+        int fallback = female ? 36 + Math.floorMod(identity,6) : player ? (Math.floorMod(identity,66)<30?Math.floorMod(identity,30):42+Math.floorMod(identity,36))
                 : 30 + Math.floorMod(identity, 6);
         int index = prefs.getInt(key, fallback);
-        if (index < 0 || index >= 42) index = fallback;
+        if (index < 0 || index >= 78) index = fallback;
         prefs.edit().putInt(key, index).apply();
         final int id = index;
         Bitmap hit = cache.get(id);

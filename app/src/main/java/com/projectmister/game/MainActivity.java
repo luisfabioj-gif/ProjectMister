@@ -57,16 +57,16 @@ public class MainActivity extends Activity {
     };
 
     private String[] defaultClubNames = {
-            "Lisboa Águias", "Lisboa Leões", "Porto Dragões", "Braga Guerreiros",
-            "Guimarães Castelo", "Famal Norte", "Moreira FC", "Vila do Conde",
-            "Barcelos FC", "Estoril Praia", "Lisboa Corvos", "Açores FC",
-            "Madeira Nacional", "Alverca Atlético", "Arouca FC", "Amadora Estrela",
-            "Tondela SC", "Vila das Aves"
+            "SL Benfica", "Sporting CP", "FC Porto", "SC Braga",
+            "Vitória SC", "FC Famalicão", "Moreirense FC", "Rio Ave FC",
+            "Gil Vicente FC", "Estoril Praia", "Casa Pia AC", "CD Santa Clara",
+            "CD Nacional", "FC Alverca", "FC Arouca", "CF Estrela da Amadora",
+            "CD Tondela", "AVS Futebol SAD"
     };
 
     private String[] shortNames = {
-            "LAG", "LLE", "PDR", "BGR", "GCT", "FAM", "MOR", "VDC", "BAR",
-            "EST", "LCO", "ACO", "MDN", "ALV", "ARO", "AMA", "TON", "VDA"
+            "BEN", "SCP", "FCP", "BRA", "VSC", "FAM", "MOR", "RAV", "GIL",
+            "EST", "CPA", "SCL", "NAC", "ALV", "ARO", "EST", "TON", "AVS"
     };
 
     private int[] strength = {
@@ -97,6 +97,7 @@ public class MainActivity extends Activity {
     private PromotionCampaign promotion;
     private String unreadablePromotion="";
     private SeasonHistory seasonHistory=new SeasonHistory();
+    private java.util.List<String> marketHires=new ArrayList<>();
     private boolean livePlayoff=false;
     private int liveAwayKitColour;
     private boolean scottishSplitProvisional=false;
@@ -1113,7 +1114,7 @@ public class MainActivity extends Activity {
         dashboardRow(page,"Fixtures",this::showCompetitionCalendar,"League table",this::showLeagueTable);
         dashboardRow(page,"Finances",this::showFinances,"Stadium",this::showStadiumCentre);
         dashboardRow(page,"Board",this::showClubOffice,"Manager",this::showManagerProfile);
-        if(division!=null)page.addView(makeButton("Season history",v->showSeasonHistory()));
+        page.addView(makeButton("History • competitions & career",v->showHistoryHub()));
         dashboardRow(page,"Player database",this::showAllTeamsPlayers,"Sound settings",this::showSoundSettings);
     }
 
@@ -3568,6 +3569,11 @@ public class MainActivity extends Activity {
                 float lead=Math.min(1,Math.max(.015f,duration*.07f)/Math.max(.001f,distance));
                 ballTargetX+=dx*lead;ballTargetY+=dy*lead;
             }
+            if(rt[toSlot]<=0) {
+                float[] receiverVX=toTeam==liveHome?homeVX:awayVX,receiverVY=toTeam==liveHome?homeVY:awayVY;
+                ballTargetX=MatchMath.receivingLead(ballTargetX,receiverVX[toSlot],duration);
+                ballTargetY=MatchMath.receivingLead(ballTargetY,receiverVY[toSlot],duration);
+            }
             startRun(toTeam,toSlot,ballTargetX,ballTargetY,duration+.6f);
             ballTravel = 0f;
             ballTravelDuration = Math.max(0.20f, duration);
@@ -3841,6 +3847,16 @@ public class MainActivity extends Activity {
                         float dist=(float)Math.hypot(dx,dy);
                         if(dist<.045f){if(dist<.0001f){dx=(i<j?-.001f:.001f);dist=.001f;}
                             float push=(.045f-dist)*.75f;tx+=dx/dist*push;ty+=dy/dist*push/.648f;}
+                    }
+                }
+                // Close opponents retain tackling range while avoiding occupying the same point.
+                if(!celebrating&&i>0)for(int j=1;j<11;j++) {
+                    float dx=xs[i]-oppX[j],dy=(ys[i]-oppY[j])*.648f;
+                    float distance=(float)Math.hypot(dx,dy);
+                    if(distance<.022f) {
+                        if(distance<.0001f){dx=team==liveHome?-.001f:.001f;distance=.001f;}
+                        float clearance=(.022f-distance)*.55f;
+                        tx+=dx/distance*clearance;ty+=dy/distance*clearance/.648f;
                     }
                 }
                 MatchMotion.arrive(xs,ys,vx,vy,i,clamp(tx,.035f,.965f),clamp(ty,.035f,.965f),maxSpeed,.32f*mobility,dt);
@@ -4152,6 +4168,7 @@ public class MainActivity extends Activity {
     private void showAllTeamsPlayers() {
         backAction = () -> showDashboard();
         LinearLayout page = createPage("Player Database", "Browse players from every club", true);
+        page.addView(makeAccentButton("Worldwide transfers & free agents",v->showWorldMarket()));
 
         ArrayList<Player> leaders = new ArrayList<>(players);
         Collections.sort(leaders, (a, b) -> Integer.compare(b.overall, a.overall));
@@ -4260,7 +4277,7 @@ public class MainActivity extends Activity {
         top.setGravity(Gravity.TOP);
 
         View portrait = new RealisticHumanPortraitView(
-                p.id,
+                playerPortraitIdentity(p),
                 "PLAYER",
                 primaryColours[p.team],
                 secondaryColours[p.team],
@@ -4962,25 +4979,88 @@ public class MainActivity extends Activity {
         return sb.toString();
     }
 
+    private int marketLocalClub(String id) {
+        if(division!=null){for(int i=0;i<division.clubIds.length;i++)if(division.clubIds[i].equals(id))return i;}
+        else {
+            String[] ids={"pt:sl-benfica","pt:sporting-cp","pt:fc-porto","pt:sc-braga","pt:vitoria-sc","pt:fc-famalicao","pt:moreirense-fc","pt:rio-ave-fc","pt:gil-vicente-fc","pt:estoril-praia","pt:casa-pia-ac","pt:santa-clara","pt:cd-nacional","pt:fc-alverca","pt:fc-arouca","pt:estrela-amadora","pt:cd-tondela","pt:afs"};
+            for(int i=0;i<ids.length;i++)if(ids[i].equals(id))return i;
+        }
+        return -1;
+    }
+    private int playerPortraitIdentity(Player p) {
+        int index=p.id-clubNames.length*PLAYERS_PER_TEAM;
+        return index>=0&&index<marketHires.size()?marketHires.get(index).hashCode():p.id;
+    }
+    private void showWorldMarket() {
+        LinearLayout page=createPage("Worldwide transfers","20 divisions • fictional players • saved recruitment",true);
+        page.addView(makeButton("Free agents • no transfer fee",v->showMarketClub("free","Unattached players",0)));
+        if(catalog!=null)for(CompetitionCatalog.Division d:catalog.divisions)
+            page.addView(makeButton(d.country+" • "+d.name,v->{
+                LinearLayout clubs=createPage(d.name,"Select a club",true);
+                for(CompetitionCatalog.Club c:d.clubs)clubs.addView(makeButton(c.name,w->{
+                    int local=marketLocalClub(c.id);
+                    if(local>=0)showTeamPlayers(local);else showMarketClub(c.id,c.name,d.tier);
+                }));
+            }));
+    }
+    private void showMarketClub(String id,String name,int tier) {
+        LinearLayout page=createPage(name,"Fictional transfer market • tap a player to view terms",true);
+        for(int slot=0;slot<(tier==0?60:20);slot++) {
+            WorldMarket.Candidate c=new WorldMarket.Candidate(id+"~"+tier+"~"+slot);
+            if(marketHires.contains(c.key))continue;
+            page.addView(makeButton(c.position+" • "+c.name+" • "+c.age+" • OVR "+c.overall+" • "+(c.free?"Free agent":"€"+c.fee+"m"),v->showMarketCandidate(c,name)));
+        }
+        page.addView(makeButton("All divisions & free agents",v->showWorldMarket()));
+    }
+    private void showMarketCandidate(WorldMarket.Candidate c,String source) {
+        LinearLayout page=createPage(c.name,source+" • fictional player",true);
+        page.addView(new RealisticHumanPortraitView(c.key.hashCode(),c.position,primaryColours[selectedClub],secondaryColours[selectedClub],c.age,true),new LinearLayout.LayoutParams(dp(120),dp(140)));
+        page.addView(profileInfoRow("Position / age",c.position+" / "+c.age));
+        page.addView(profileInfoRow("Overall",String.valueOf(c.overall)));
+        page.addView(profileInfoRow("Transfer fee",c.free?"€0 • Unattached":"€"+c.fee+"m"));
+        page.addView(profileInfoRow("Contract terms","3 years • €"+c.wage+"k/week"));
+        page.addView(makeText("Recruitment is available during your league's registration window. Free agents have no transfer fee; this build applies the same registration-window gate to them.",13,muted));
+        page.addView(makeAccentButton("Agree terms & sign",v->new BossDialog.Builder(this).setTitle("Confirm signing")
+            .setMessage(c.name+" • fee €"+c.fee+"m • €"+c.wage+"k/week for 3 years. This adds the player to your squad.")
+            .setPositiveButton("Sign player",(d,w)->{int player=signMarketPlayer(c.key);if(player>=0)showPlayerProfile(player,selectedClub);})
+            .setNegativeButton("Cancel",null).show()));
+    }
+    private int signMarketPlayer(String key) {
+        WorldMarket.Candidate c=new WorldMarket.Candidate(key);
+        String issue=marketLocalClub(key.split("~")[0])>=0?"Use the existing club squad to negotiate this transfer":!isTransferWindowOpen(currentDate)?"Registration window is closed":marketHires.contains(key)?"Player already recruited":marketHires.size()>=WorldMarket.MAX_HIRES?"Recruitment capacity reached":currentTransferBudget<c.fee?"Insufficient transfer budget":totalPlayerWagesK()+totalStaffWagesK()+c.wage>wageBudgetK?"Insufficient wage budget":null;
+        if(issue!=null){Toast.makeText(this,issue,Toast.LENGTH_LONG).show();return -1;}
+        marketHires.add(key);Player p=appendMarketPlayer(c);currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
+        scoutKnowledge[p.id]=4;addNews("TRANSFER",c.name+" signs",(c.free?"Free agent":"Worldwide transfer")+" • €"+c.wage+"k/week • 3 years");saveCurrentGame();return p.id;
+    }
+    private Player appendMarketPlayer(WorldMarket.Candidate c) {
+        int old=players.size();Player p=new Player(old,Math.max(0,selectedClub));
+        p.name=c.name;p.position=c.position;p.age=c.age;p.overall=c.overall;
+        p.pace=p.technique=p.passing=p.finishing=p.defending=p.physical=c.overall;
+        tuneAttributesForPosition(p,new Random(c.key.hashCode()));p.fitness=100;p.morale=75;p.valueMillions=Math.max(1,c.fee);
+        p.contractYears=3;p.weeklyWageK=c.wage;p.squadRole="Squad Player";p.currentAbility=c.overall*2;p.potentialAbility=Math.min(200,p.currentAbility+15);
+        p.consistency=p.importantMatches=p.adaptability=p.professionalism=p.pressure=p.temperament=p.ambition=12;p.injuryProneness=7;
+        players.add(p);TOTAL_PLAYERS=players.size();
+        if(playerRoleStatus.length<TOTAL_PLAYERS) {
+            playerRoleStatus=Arrays.copyOf(playerRoleStatus,TOTAL_PLAYERS);playerSelectedSlot=Arrays.copyOf(playerSelectedSlot,TOTAL_PLAYERS);playerSelectedPosition=Arrays.copyOf(playerSelectedPosition,TOTAL_PLAYERS);
+            scoutKnowledge=Arrays.copyOf(scoutKnowledge,TOTAL_PLAYERS);scoutDueRound=Arrays.copyOf(scoutDueRound,TOTAL_PLAYERS);shortlisted=Arrays.copyOf(shortlisted,TOTAL_PLAYERS);managerNotes=Arrays.copyOf(managerNotes,TOTAL_PLAYERS);
+        }
+        playerSelectedSlot[old]=-1;playerSelectedPosition[old]=c.position;scoutDueRound[old]=-1;managerNotes[old]="";return p;
+    }
+
     private void showTransferHub() {
         backAction = () -> showDashboard();
         LinearLayout page = createPage("Transfers", currentDate.format(DATE_FORMAT) + " • " + transferWindowStatus(currentDate), true);
 
         LinearLayout windows = makePanel();
         windows.addView(makeText("AVAILABLE BUDGET  •  €" + currentTransferBudget + "m", 17, accent));
-        TextView title = makeText("PORTUGAL 2026/27 REGISTRATION WINDOWS", 13, accent);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
+        TextView title=makeText("REGISTRATION WINDOWS • "+(division==null?"PT":division.country),13,accent);
         windows.addView(title);
-        windows.addView(makeText(
-                "Summer: 1 Jul 2026 – 4 Sep 2026\nWinter: 4 Jan 2027 – 1 Feb 2027\n\n"
-                        + (isTransferWindowOpen(currentDate)
-                        ? "Status: OPEN — registrations permitted"
-                        : "Status: CLOSED — you can still prepare transfer/loan lists"),
-                15,
-                text
-        ));
+        for(RegistrationWindow window:RegistrationWindow.forCareerSeason(division==null?"PT":division.country,division==null?1:division.tier,careerSeasonStart.getYear()))
+            windows.addView(makeText(window.opens.format(DATE_FORMAT)+" – "+window.closes.format(DATE_FORMAT),14,text));
+        windows.addView(makeText(transferWindowStatus(currentDate),14,muted));
         page.addView(windows);
 
+        page.addView(makeAccentButton("Worldwide transfers & free agents",v->showWorldMarket()));
         page.addView(makeButton("★  Shortlist & Scouting", v -> showScoutCentre()));
         page.addView(makeButton("🌍  Search Player Database", v -> showAllTeamsPlayers()));
 
@@ -6115,6 +6195,7 @@ public class MainActivity extends Activity {
                 players.add(p);
             }
         }
+        for(String key:marketHires)appendMarketPlayer(new WorldMarket.Candidate(key));
     }
 
     private int attributeFromOverall(Random r, int overall, int spread) {
@@ -6294,7 +6375,7 @@ public class MainActivity extends Activity {
     }
 
     private void configureDivision(CareerDivision value) {
-        seasonHistory=new SeasonHistory();
+        seasonHistory=new SeasonHistory();marketHires=new ArrayList<>();
         division=value;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
         defaultClubNames=value==null?legacyNames.clone():value.names.clone();
         strength=value==null?legacyStrength.clone():value.strengths.clone();
@@ -6554,6 +6635,37 @@ public class MainActivity extends Activity {
         page.addView(makeText("Future seasons use simulated dates based on 2026/27, not newly verified official calendars.",12,muted));
         page.addView(makeButton("Final league table",v->showLeagueTable()));
     }
+    private void openHistorySource(String url) {
+        try{startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,android.net.Uri.parse(url)));}
+        catch(Exception unavailable){Toast.makeText(this,"No browser available",Toast.LENGTH_SHORT).show();}
+    }
+    private void showHistoryHub() {
+        LinearLayout page=createPage("History","Real-world records and your career",true);
+        if(division!=null)page.addView(makeAccentButton("Your career • season history",v->showSeasonHistory()));
+        page.addView(makeText("Historical records are separate from your simulated career. Selected verified seasons are included; this is not yet a complete all-time honours database.",13,muted));
+        try(java.io.InputStream in=getAssets().open("competitions/history.json")) {
+            java.io.ByteArrayOutputStream out=new java.io.ByteArrayOutputStream();byte[] bytes=new byte[4096];int n;
+            while((n=in.read(bytes))!=-1)out.write(bytes,0,n);
+            org.json.JSONObject root=new org.json.JSONObject(out.toString("UTF-8"));
+            page.addView(makeText("Verified "+root.getString("verifiedOn"),12,muted));
+            org.json.JSONArray competitions=root.getJSONArray("competitions");
+            for(int i=0;i<competitions.length();i++) {
+                org.json.JSONObject competition=competitions.getJSONObject(i);
+                page.addView(makeButton(competition.getString("name"),v->{
+                    try {
+                        LinearLayout history=createPage(competition.getString("name"),"Real-world winners • selected historical seasons",true);
+                        history.addView(makeText(competition.getString("fact"),15,accent));
+                        org.json.JSONArray winners=competition.getJSONArray("winners");
+                        for(int j=0;j<winners.length();j++){org.json.JSONObject winner=winners.getJSONObject(j);history.addView(profileInfoRow(winner.getString("season"),winner.getString("winner")));}
+                        String url=competition.getString("source");history.addView(makeButton("Official source",w->openHistorySource(url)));
+                        org.json.JSONArray sources=competition.optJSONArray("sources");
+                        if(sources!=null)for(int j=0;j<sources.length();j++){String link=sources.getString(j);history.addView(makeButton("Additional official source "+(j+1),w->openHistorySource(link)));}
+                        history.addView(makeButton("All competition history",w->showHistoryHub()));
+                    }catch(Exception invalid){Toast.makeText(this,"History entry unavailable",Toast.LENGTH_SHORT).show();}
+                }));
+            }
+        } catch(Exception invalid){page.addView(makeText("History archive unavailable.",14,muted));}
+    }
     private void showSeasonHistory() {
         LinearLayout page=createPage("Season history","Completed seasons with your club",true);
         if(seasonHistory.entries().isEmpty())page.addView(makeText("No archived seasons yet. Completed seasons are recorded when you continue into the next year. Earlier seasons cannot be reconstructed from old saves.",14,muted));
@@ -6718,6 +6830,7 @@ public class MainActivity extends Activity {
                 .putString(key(selectedSlot,"career_world"),division==null?"":division.snapshot())
                 .putString(key(selectedSlot,"season_start"),careerSeasonStart.toString())
                 .putString(key(selectedSlot,"season_history"),seasonHistory.snapshot())
+                .putString(key(selectedSlot,"market_hires"),WorldMarket.snapshot(marketHires))
                 .putString(key(selectedSlot,"split_order"),encode(splitOrder))
                 .putString(key(selectedSlot,"league_results"),division==null?"":leagueResults.snapshot())
                 .putString(key(selectedSlot,"promotion"),promotion==null?unreadablePromotion:promotion.snapshot())
@@ -6796,7 +6909,8 @@ public class MainActivity extends Activity {
                 for(String id:ids){int value=Integer.parseInt(id);if(value<0||value>=n||saved.clubTiers[value]!=1||!seen.add(value))throw new IllegalArgumentException("Invalid split identity");}
             } else if(saved!=null&&saved.country.equals("SCO")&&(saved.linked||saved.splitSeason())&&prefs.getInt(key(slot,"matchday"),0)>33)throw new IllegalArgumentException("Missing split");
             SeasonHistory restoredHistory=SeasonHistory.restore(prefs.getString(key(slot,"season_history"),""));
-            configureDivision(saved);seasonHistory=restoredHistory;
+            java.util.List<String> restoredMarket=WorldMarket.restore(prefs.getString(key(slot,"market_hires"),""));
+            configureDivision(saved);seasonHistory=restoredHistory;marketHires=restoredMarket;
         }
         catch(Exception invalid) {
             new BossDialog.Builder(this).setTitle("Career could not be loaded").setMessage("The saved competition data could not be read. Your save has been kept.").setPositiveButton("OK",null).show();return false;
@@ -6907,7 +7021,7 @@ public class MainActivity extends Activity {
     private void clearSave(int slot) {
         SharedPreferences.Editor editor = prefs.edit();
         String[] fields = {
-                "career_world", "season_start", "season_history", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
+                "career_world", "season_start", "season_history", "market_hires", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
                 "manager_wage", "manager_contract_years", "manager_tactical", "manager_motivating", "manager_discipline", "manager_player_knowledge", "manager_youth", "manager_negotiating",
                 "matchday", "date", "training", "formation", "playstyle", "budget", "roles", "role_slots", "role_pos",
                 "staff_am_name", "staff_am_rating", "staff_coach_name", "staff_coach_rating", "staff_scout_name", "staff_scout_rating",
@@ -7687,6 +7801,12 @@ public class MainActivity extends Activity {
                 + attendance * (stadiumBarsLevel + stadiumRestaurantsLevel + stadiumHospitalityLevel + stadiumFanZoneLevel) / 2200;
     }
 
+    private View stadiumIllustration(String asset,String description) {
+        ImageView view=new ImageView(this);view.setScaleType(ImageView.ScaleType.CENTER_CROP);view.setContentDescription(description);
+        view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,dp(190)));
+        try(java.io.InputStream in=getAssets().open("stadium/"+asset+".webp")){view.setImageBitmap(android.graphics.BitmapFactory.decodeStream(in));}
+        catch(Exception ignored){view.setVisibility(View.GONE);}return view;
+    }
     private void showStadiumCentre() {
         backAction = () -> showDashboard();
         LinearLayout page = createPage(
@@ -7695,6 +7815,8 @@ public class MainActivity extends Activity {
                 true
         );
 
+        page.addView(stadiumIllustration("ground","Illustrative football stadium"));
+        page.addView(makeText("Illustrative stadium artwork • your ground statistics appear below",11,muted));
         LinearLayout ground = makePanel();
         TextView title = makeText("GROUND INFORMATION", 13, accent);
         title.setTypeface(Typeface.DEFAULT_BOLD);
@@ -7719,6 +7841,7 @@ public class MainActivity extends Activity {
         TextView projectTitle = makeText("CURRENT DEVELOPMENT PROJECT", 13, accent);
         projectTitle.setTypeface(Typeface.DEFAULT_BOLD);
         project.addView(projectTitle);
+        project.addView(stadiumIllustration("upgrade","Illustrative stand construction"));
         if (stadiumProjectWeeks > 0) {
             project.addView(makeText(
                     stadiumProjectType + "\n"

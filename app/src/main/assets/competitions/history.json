@@ -1,0 +1,277 @@
+{
+  "schema": 1,
+  "verifiedOn": "2026-10-06",
+  "scope": "Selected verified historical seasons; not a complete honours database.",
+  "competitions": [
+    {
+      "name": "Liga Portugal",
+      "winners": [
+        {
+          "season": "2025/26",
+          "winner": "FC Porto"
+        },
+        {
+          "season": "2024/25",
+          "winner": "Sporting CP"
+        },
+        {
+          "season": "2023/24",
+          "winner": "Sporting CP"
+        },
+        {
+          "season": "2022/23",
+          "winner": "SL Benfica"
+        },
+        {
+          "season": "2021/22",
+          "winner": "FC Porto"
+        }
+      ],
+      "fact": "The Portuguese league began in 1934/35.",
+      "source": "https://www.ligaportugal.pt/team/157/fc-porto/ligaportugalbetclic/20242025",
+      "sources": [
+        "https://www.ligaportugal.pt/team/303/sporting-cp/20242025",
+        "https://www.ligaportugal.pt/team/278/sl-benfica/20242025"
+      ]
+    },
+    {
+      "name": "Premier League",
+      "winners": [
+        {
+          "season": "2025/26",
+          "winner": "Arsenal"
+        },
+        {
+          "season": "2024/25",
+          "winner": "Liverpool"
+        },
+        {
+          "season": "2023/24",
+          "winner": "Manchester City"
+        }
+      ],
+      "fact": "The Premier League began in 1992; its field reduced from 22 to 20 clubs in 1995/96.",
+      "source": "https://www.premierleague.com/en/news/4365156/new-to-the-premier-league-heres-all-you-need-to-know"
+    },
+    {
+      "name": "LaLiga",
+      "winners": [
+        {
+          "season": "2024/25",
+          "winner": "FC Barcelona"
+        },
+        {
+          "season": "2023/24",
+          "winner": "Real Madrid"
+        }
+      ],
+      "fact": "Barcelona won its 28th league title in 2024/25.",
+      "source": "https://www.laliga.com/en-US/news/fc-barcelona-crowned-champions-of-laliga-ea-sports-2024-25",
+      "sources": [
+        "https://www.laliga.com/en-GB/news/real-madrid-proclaimed-laliga-ea-sports-champions"
+      ]
+    },
+    {
+      "name": "Bundesliga",
+      "winners": [
+        {
+          "season": "2024/25",
+          "winner": "Bayern Munich"
+        },
+        {
+          "season": "2023/24",
+          "winner": "Bayer Leverkusen"
+        }
+      ],
+      "fact": "The nationwide Bundesliga started in 1963. Leverkusen won it for the first time in 2024.",
+      "source": "https://www.bundesliga.com/en/faq/10-things-on-the-bundesliga/german-champions-in-the-bundesliga-10554"
+    },
+    {
+      "name": "Serie A",
+      "winners": [
+        {
+          "season": "2024/25",
+          "winner": "Napoli"
+        }
+      ],
+      "fact": "Napoli secured the 2024/25 championship by beating Cagliari on the final day.",
+      "source": "https://en.legaseriea.it/serie-a/news/napoli-the-scudetto-is-blue"
+    },
+    {
+      "name": "Ligue 1",
+      "winners": [
+        {
+          "season": "2025/26",
+          "winner": "Paris Saint-Germain"
+        },
+        {
+          "season": "2024/25",
+          "winner": "Paris Saint-Germain"
+        },
+        {
+          "season": "2023/24",
+          "winner": "Paris Saint-Germain"
+        },
+        {
+          "season": "2022/23",
+          "winner": "Paris Saint-Germain"
+        },
+        {
+          "season": "2021/22",
+          "winner": "Paris Saint-Germain"
+        },
+        {
+          "season": "2020/21",
+          "winner": "LOSC Lille"
+        }
+      ],
+      "fact": "Lyon won seven consecutive French league titles from 2002 through 2008.",
+      "source": "https://ligue1.com/en/articles/l1_article_289-le-palmares-des-champions-de-ligue-1"
+    },
+    {
+      "name": "Eredivisie",
+      "winners": [
+        {
+          "season": "2025/26",
+          "winner": "PSV"
+        },
+        {
+          "season": "2024/25",
+          "winner": "PSV"
+        },
+        {
+          "season": "2023/24",
+          "winner": "PSV"
+        }
+      ],
+      "fact": "PSV secured the 2025/26 championship on 5 April, the earliest title date in Eredivisie history.",
+      "source": "https://eredivisie.com/news/psv-crowned-champions-2526/",
+      "sources": [
+        "https://eredivisie.com/news/psv-crowned-dutch-champions-for-the-26th-time/",
+        "https://eredivisie.nl/nieuws/psv-voor-de-25e-keer-landskampioen-van-nederland/"
+      ]
+    },
+    {
+      "name": "Belgian Pro League",
+      "winners": [
+        {
+          "season": "2024/25",
+          "winner": "Union Saint-Gilloise"
+        }
+      ],
+      "fact": "Union’s 2025 championship ended a 90-year wait since its previous Belgian title.",
+      "source": "https://www.proleague.be/fr/informations/lunion-saint-gilloise-sacree-pour-la-premiere-fois-en-90-ans-apres-des-play-offs-solides"
+    },
+    {
+      "name": "Scottish Premiership",
+      "winners": [
+        {
+          "season": "2025/26",
+          "winner": "Celtic"
+        },
+        {
+          "season": "2024/25",
+          "winner": "Celtic"
+        }
+      ],
+      "fact": "Celtic clinched the 2025/26 title with a final-day 3–1 win over Hearts.",
+      "source": "https://spfl.co.uk/news/celtic-clinch-the-title-51235",
+      "sources": [
+        "https://spfl.co.uk/news/celtic-are-champions-50568"
+      ]
+    },
+    {
+      "name": "Süper Lig",
+      "winners": [
+        {
+          "season": "2024/25",
+          "winner": "Galatasaray"
+        }
+      ],
+      "fact": "The Turkish federation records the national league’s start as 1959.",
+      "source": "https://www.tff.org/default.aspx?pageID=545"
+    },
+    {
+      "name": "UEFA Champions League",
+      "winners": [
+        {
+          "season": "2025/26",
+          "winner": "Paris Saint-Germain"
+        },
+        {
+          "season": "2024/25",
+          "winner": "Paris Saint-Germain"
+        },
+        {
+          "season": "2023/24",
+          "winner": "Real Madrid"
+        }
+      ],
+      "fact": "Real Madrid won the first five European Cups, from 1956 to 1960.",
+      "source": "https://www.uefa.com/uefachampionsleague/news/0275-1541637ad1db-88aeeefefefd-1000--champions-league-winners-list-which-teams-have-won-the-eu/",
+      "sources": [
+        "https://www.uefa.com/uefachampionsleague/history/seasons/2024/"
+      ]
+    },
+    {
+      "name": "UEFA Europa League",
+      "winners": [
+        {
+          "season": "2025/26",
+          "winner": "Aston Villa"
+        }
+      ],
+      "fact": "Aston Villa beat Freiburg 3–0 in the 2026 final, its first European trophy in 44 years.",
+      "source": "https://www.uefa.com/uefaeuropaleague/news/02a5-20ac3759bba4-7f91e47690b9-1000/"
+    },
+    {
+      "name": "UEFA Conference League",
+      "winners": [
+        {
+          "season": "2025/26",
+          "winner": "Crystal Palace"
+        },
+        {
+          "season": "2024/25",
+          "winner": "Chelsea"
+        },
+        {
+          "season": "2023/24",
+          "winner": "Olympiacos"
+        },
+        {
+          "season": "2022/23",
+          "winner": "West Ham United"
+        },
+        {
+          "season": "2021/22",
+          "winner": "Roma"
+        }
+      ],
+      "fact": "Roma won the inaugural competition in 2021/22.",
+      "source": "https://www.uefa.com/uefaconferenceleague/news/0298-1d6e887134f4-450771540b4a-1000/"
+    },
+    {
+      "name": "Taça de Portugal",
+      "winners": [
+        {
+          "season": "2024/25",
+          "winner": "Sporting CP"
+        }
+      ],
+      "fact": "Sporting beat Benfica 3–1 after extra time in the 2025 final at the Jamor.",
+      "source": "https://www.fpf.pt/pt/News/Todas-as-not%C3%ADcias/Not%C3%ADcia/news/50739"
+    },
+    {
+      "name": "Taça da Liga",
+      "winners": [
+        {
+          "season": "2024/25",
+          "winner": "SL Benfica"
+        }
+      ],
+      "fact": "The 2025 final was contested by Sporting CP and SL Benfica in Leiria.",
+      "source": "https://www.ligaportugal.pt/videos?tags=_allianzcup_20242025"
+    }
+  ]
+}

@@ -32,6 +32,9 @@ public final class RegressionTests {
             check(Math.abs(speed-previous)<=.32f/120f+.0001f,"movement acceleration bounded");previous=speed;
         }
         check(Math.abs(x[0]-.7f)<.003&&Math.abs(y[0]-.6f)<.003,"arrival converges without oscillation");
+        check(MatchMath.receivingLead(.5f,.1f,1f)>.5f,"passes lead moving receiver");
+        check(MatchMath.receivingLead(.5f,0,1f)==.5f,"stationary receiver is not displaced");
+        check(MatchMath.receivingLead(.95f,1f,10f)<=.96f,"pass lead remains on pitch");
         float last=0;
         for(int i=0;i<=100;i++) { float v=MatchMath.flightProgress(i/100f); check(v>=last && v<=1,"monotonic bounded ball travel"); last=v; }
         check(MatchMath.arc(0,.1f)==0 && MatchMath.arc(1,.1f)==0, "ball lands");

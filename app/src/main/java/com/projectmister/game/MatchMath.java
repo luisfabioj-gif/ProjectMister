@@ -15,6 +15,9 @@ final class MatchMath {
         float t = clamp(time, 0, 1);
         return 4 * peak * t * (1-t);
     }
+    static float receivingLead(float position,float velocity,float duration) {
+        return clamp(position+velocity*clamp(duration*.35f,0,.35f),.04f,.96f);
+    }
     static float intent(int goalsFor, int goalsAgainst, int minute) {
         int margin = goalsFor - goalsAgainst;
         if (minute < 60) return 0;
