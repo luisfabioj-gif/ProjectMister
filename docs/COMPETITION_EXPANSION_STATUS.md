@@ -619,3 +619,18 @@ exercise the transaction and aggregate display, not real match results.
 Verified development APK artifact: 11282931160 (API 35; 1,961,513 bytes).
 This is an installable development update using the existing test signing key,
 not the finished twenty-division expansion or a production Play release.
+
+
+## Portuguese League Cup verified, 6 October 2026
+
+Version 2.3.4 adds the playable 2026/27 Portuguese League Cup in new linked
+Portuguese careers, with dated cup events, watched manager matches, background
+results, direct penalties and a saved trophy/archive. Both Android 35/36 passed
+run 37537592141 at source e1b921b2c0b379168ee3663fea1578130dd64378.
+See V2_3_4_CHANGES.md for sources, test evidence and installation notes.
+
+This updates earlier blanket statements that no cups are playable. Other
+domestic cups, UEFA competitions and authentic league calendars remain
+unimplemented. The published 2027/28 Portuguese League Cup format depends on
+European qualification and lower-pyramid entrants; it is not replaced by the
+obsolete eight-team format. Existing careers receive no retrospective results.

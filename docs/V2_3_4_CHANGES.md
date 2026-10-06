@@ -48,5 +48,27 @@ chronological processing, direct penalties, snapshots at shootout boundaries,
 backup round trips, malformed saves and date validation. Android QA adds a
 watched quarter-final, semi-final and final, intervening background ties,
 reload/backup after each stage and league resumption with unchanged league
-records and weekly finances during cup matches. Device gate results are
-recorded after CI completes.
+records and weekly finances during cup matches. Both Android 35 and 36 passed the complete device gate in run
+37537592141 (source e1b921b2c0b379168ee3663fea1578130dd64378):
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37537592141
+
+The gate also passed all forty career configurations, all ten national playoff
+paths, old-save upgrade, compact controls, AAB-derived installation and
+different-key backup restoration. Reviewed API 36 cup-final and bracket
+screenshots: the competition label, controls, dates, scores and separate
+shootout results are readable. A queued wage-budget toast from the preceding
+negative transfer test appears in the bracket capture; it is not cup UI.
+
+Delivered APK: BOSS-XI-v2.3.4-Portuguese-League-Cup.apk (2,347,648 bytes),
+version code 29, version 2.3.4-dev, artifact 11447766763.
+SHA-256: 9f5c43a6a785bfaf96798f2492b787e45d180181fd6e5e739d5a0ec9566574bb.
+Existing development signing certificate retained.
+
+## Phone test
+
+Back up from Career Hub before updating. Install the APK over the current
+development build. In a spare slot choose Liga Portugal Betclic and Benfica,
+then open Calendar → League Cup. Progress the league into late October for
+the first cup match. Check tactics, substitutions, save/reload, the next
+league date, transfers, history and stadium screens. Send screenshots or a
+short recording with the club, game date and steps for any issue.
