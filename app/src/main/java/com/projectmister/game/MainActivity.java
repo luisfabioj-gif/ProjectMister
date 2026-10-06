@@ -437,18 +437,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    private static class CalendarEvent {
-        LocalDate date;
-        String competition;
-        String stage;
-
-        CalendarEvent(int year, int month, int day, String competition, String stage) {
-            this.date = LocalDate.of(year, month, day);
-            this.competition = competition;
-            this.stage = stage;
-        }
-    }
-
     private static class Fixture {
         LocalDate date;
         String competition;
@@ -5887,14 +5875,18 @@ public class MainActivity extends Activity {
         tabs.setOrientation(LinearLayout.HORIZONTAL);
         tabs.setPadding(0, 0, 0, dp(6));
         tabs.addView(calendarTabButton("League", tab), calendarTabParams());
-        tabs.addView(calendarTabButton("Taça", tab), calendarTabParams());
+        tabs.addView(calendarTabButton("Cup", tab), calendarTabParams());
+        tabs.addView(calendarTabButton("Play-offs", tab), calendarTabParams());
         tabs.addView(calendarTabButton("League Cup", tab), calendarTabParams());
         tabs.addView(calendarTabButton("Europe", tab), calendarTabParams());
-        page.addView(tabs);
+        HorizontalScrollView tabScroll=new HorizontalScrollView(this);
+        tabScroll.setHorizontalScrollBarEnabled(false);tabScroll.addView(tabs);page.addView(tabScroll);
+        if("Play-offs".equals(tab)){showPlayoffCalendar(page);return;}
+        if("League".equals(tab))page.addView(makeText("Simulated weekly dates • official match dates and postponements are not yet applied.",12,muted));
 
         ArrayList<Fixture> fixtures = buildClubFixtures(tab);
         if (fixtures.isEmpty()) {
-            TextView none = makeText("No fixtures in this competition.", 14, muted);
+            TextView none = makeText("League".equals(tab)?"No league fixtures available.":"This competition is not yet playable. No draw, qualification or results have been assigned in this career.", 14, muted);
             none.setPadding(0, dp(14), 0, 0);
             page.addView(none);
             return;
@@ -5960,7 +5952,7 @@ public class MainActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams calendarTabParams() {
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, dp(36), 1f);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(48));
         p.setMargins(dp(2), 0, dp(2), dp(4));
         return p;
     }
@@ -5987,52 +5979,40 @@ public class MainActivity extends Activity {
             return list;
         }
 
-        if (division!=null) return list; // No fabricated cup progression for new database careers.
-        if ("Taça".equals(tab)) {
-            int[] months = {10, 11, 12, 2, 3, 4, 5};
-            int[] days = {18, 22, 17, 10, 3, 21, 30};
-            int[] years = {2026, 2026, 2026, 2027, 2027, 2027, 2027};
-            String[] stages = {"3rd Round", "4th Round", "Round of 16", "Quarter-final", "Semi-final 1st leg", "Semi-final 2nd leg", "Final"};
-            for (int i = 0; i < stages.length; i++) {
-                LocalDate date = LocalDate.of(years[i], months[i], days[i]);
-                int opp = date.isBefore(currentDate) ? domesticCupOpponent(i, 5) : -999;
-                Fixture f = new Fixture(date, "Taça de Portugal", stages[i], opp, i % 2 == 0);
-                applyDeterministicResultIfPlayed(f);
-                if (!f.played && f.opponent == -999) f.stage = stages[i] + " • Draw pending";
-                list.add(f);
-            }
-            return list;
-        }
-
-        if ("League Cup".equals(tab)) {
-            LocalDate[] dates = {
-                    LocalDate.of(2026, 10, 28),
-                    LocalDate.of(2027, 1, 6),
-                    LocalDate.of(2027, 1, 9)
-            };
-            String[] stages = {"Quarter-final", "Semi-final", "Final"};
-            for (int i = 0; i < stages.length; i++) {
-                int opp = dates[i].isBefore(currentDate) ? domesticCupOpponent(i, 11) : -999;
-                Fixture f = new Fixture(dates[i], "Taça da Liga", stages[i], opp, i != 1);
-                applyDeterministicResultIfPlayed(f);
-                if (!f.played && f.opponent == -999) f.stage = stages[i] + " • Draw pending";
-                list.add(f);
-            }
-            return list;
-        }
-
-        String competition = europeanCompetitionForClub(selectedClub);
-        if ("No European competition".equals(competition)) return list;
-        int stageIndex = 0;
-        for (CalendarEvent e : buildEuropeanCalendar()) {
-            if (!e.competition.equals(competition)) continue;
-            int opponent = -(stageIndex + 1);
-            Fixture f = new Fixture(e.date, competition, e.stage, opponent, stageIndex % 2 == 0);
-            applyDeterministicResultIfPlayed(f);
-            list.add(f);
-            stageIndex++;
-        }
+        // Only stored competition state may create fixtures or results, including legacy careers.
         return list;
+    }
+
+    private void showPlayoffCalendar(LinearLayout page) {
+        page.addView(makeText("Saved playoff fixtures and results • dates have not been scheduled. Only drawn rounds are shown.",12,muted));
+        int shown=0,index=0;
+        if(promotion!=null)for(KnockoutTie tie:promotion.ties()) {
+            String round=promotion.roundName(index++);
+            if(tie.firstHome!=selectedClub&&tie.firstAway!=selectedClub)continue;
+            shown++;
+            LinearLayout card=makePanel();card.addView(profileSectionTitle(round));
+            appendKnockoutDetails(card,tie,true);page.addView(card);
+        }
+        if(shown==0)page.addView(makeText("No saved playoff fixtures for your club in this season.",14,muted));
+        if(promotion!=null)page.addView(makeButton("Season review",v->showSeasonReview()));
+    }
+
+    private void appendKnockoutDetails(LinearLayout card,KnockoutTie tie,boolean upcoming) {
+        card.addView(makeText(clubNames[tie.firstHome]+" v "+clubNames[tie.firstAway]+(tie.neutral?" • Neutral venue":""),15,text));
+        for(int leg=0;leg<tie.legs;leg++) {
+            int home=tie.homeForLeg(leg),away=home==tie.firstHome?tie.firstAway:tie.firstHome;
+            String label=tie.legs==1?"Match: ":"Leg "+(leg+1)+": ";
+            if(leg<tie.playedLegs()) {
+                int[] score=tie.regulationScore(leg);
+                card.addView(makeText(label+clubNames[home]+" "+score[0]+"–"+score[1]+" "+clubNames[away]+" • 90 min",13,muted));
+            } else if(upcoming)card.addView(makeText(label+clubNames[home]+" v "+clubNames[away]+" • Upcoming",13,muted));
+        }
+        int home=tie.homeForLeg(tie.legs-1),away=home==tie.firstHome?tie.firstAway:tie.firstHome;
+        int[] extra=tie.extraTimeScore(),pens=tie.penaltyScore();
+        if(extra[0]>=0)card.addView(makeText("Extra time (simulated): "+clubNames[home]+" "+extra[0]+"–"+extra[1]+" "+clubNames[away],12,muted));
+        if(pens[0]>=0)card.addView(makeText("Penalties: "+clubNames[home]+" "+pens[0]+"–"+pens[1]+" "+clubNames[away],12,muted));
+        if(tie.playedLegs()>0)card.addView(makeText((tie.legs==1?"Match goals: ":"Aggregate: ")+clubNames[tie.firstHome]+" "+tie.aggregate(tie.firstHome)+"–"+tie.aggregate(tie.firstAway)+" "+clubNames[tie.firstAway],13,text));
+        if(tie.winner()>=0)card.addView(makeText("Winner: "+clubNames[tie.winner()],14,accent));
     }
 
     private LeagueSchedule leagueSchedule() {
@@ -6064,88 +6044,13 @@ public class MainActivity extends Activity {
         return round < 17 ? firstHalfHome : !firstHalfHome;
     }
 
-    private int domesticCupOpponent(int stage, int salt) {
-        int opponent = Math.floorMod(selectedClub + stage * 3 + salt, 18);
-        if (opponent == selectedClub) opponent = (opponent + 1) % 18;
-        return opponent;
-    }
-
     private String fixtureOpponentName(Fixture f) {
-        if (f.opponent == -999) return division==null?"TBD":division.splitSeason()?"Split fixtures pending":"Bye • rest week";
-        if (f.opponent >= 0) return clubNames[f.opponent];
-        String[] europeanOpponents = {
-                "Madrid Blanco", "Catalunya Blau", "Manchester Red", "London Cannon",
-                "Milano Nerazzurri", "München Rot", "Paris Étoile", "Amsterdam 1900",
-                "Dortmund Gelb", "Napoli Azzurro", "Marseille Sud", "Prague Lions",
-                "Roma Capitale", "Istanbul Kartal"
-        };
-        int idx = Math.floorMod((-f.opponent - 1) + selectedClub, europeanOpponents.length);
-        return europeanOpponents[idx];
-    }
-
-    private void applyDeterministicResultIfPlayed(Fixture f) {
-        if (!f.date.isBefore(currentDate)) return;
-        long seed = f.date.toEpochDay() * 97L + selectedClub * 1009L + f.stage.hashCode();
-        Random r = new Random(seed);
-        int qualityBonus = strength[selectedClub] >= 82 ? 1 : 0;
-        f.goalsFor = Math.min(5, r.nextInt(3) + qualityBonus);
-        f.goalsAgainst = Math.min(5, r.nextInt(3));
-        f.played = true;
-    }
-
-    private ArrayList<CalendarEvent> buildEuropeanCalendar() {
-        ArrayList<CalendarEvent> e = new ArrayList<>();
-
-        e.add(new CalendarEvent(2026, 9, 8, "Champions League", "League phase MD1 • 8–10 Sep"));
-        e.add(new CalendarEvent(2026, 10, 13, "Champions League", "League phase MD2 • 13–14 Oct"));
-        e.add(new CalendarEvent(2026, 10, 20, "Champions League", "League phase MD3 • 20–21 Oct"));
-        e.add(new CalendarEvent(2026, 11, 3, "Champions League", "League phase MD4 • 3–4 Nov"));
-        e.add(new CalendarEvent(2026, 11, 24, "Champions League", "League phase MD5 • 24–25 Nov"));
-        e.add(new CalendarEvent(2026, 12, 8, "Champions League", "League phase MD6 • 8–9 Dec"));
-        e.add(new CalendarEvent(2027, 1, 19, "Champions League", "League phase MD7 • 19–20 Jan"));
-        e.add(new CalendarEvent(2027, 1, 27, "Champions League", "League phase MD8"));
-        e.add(new CalendarEvent(2027, 2, 16, "Champions League", "Knockout play-offs • 16/17 & 23/24 Feb"));
-        e.add(new CalendarEvent(2027, 3, 9, "Champions League", "Round of 16 • 9/10 & 16/17 Mar"));
-        e.add(new CalendarEvent(2027, 4, 6, "Champions League", "Quarter-finals • 6/7 & 13/14 Apr"));
-        e.add(new CalendarEvent(2027, 4, 27, "Champions League", "Semi-finals • 27/28 Apr & 4/5 May"));
-        e.add(new CalendarEvent(2027, 6, 5, "Champions League", "Final • Madrid"));
-
-        e.add(new CalendarEvent(2026, 9, 16, "Europa League", "League phase MD1 • 16–17 Sep"));
-        e.add(new CalendarEvent(2026, 10, 15, "Europa League", "League phase MD2"));
-        e.add(new CalendarEvent(2026, 10, 22, "Europa League", "League phase MD3"));
-        e.add(new CalendarEvent(2026, 11, 5, "Europa League", "League phase MD4"));
-        e.add(new CalendarEvent(2026, 11, 26, "Europa League", "League phase MD5"));
-        e.add(new CalendarEvent(2026, 12, 10, "Europa League", "League phase MD6"));
-        e.add(new CalendarEvent(2027, 1, 21, "Europa League", "League phase MD7"));
-        e.add(new CalendarEvent(2027, 1, 28, "Europa League", "League phase MD8"));
-        e.add(new CalendarEvent(2027, 2, 18, "Europa League", "Knockout play-offs • 18 & 25 Feb"));
-        e.add(new CalendarEvent(2027, 3, 11, "Europa League", "Round of 16 • 11 & 18 Mar"));
-        e.add(new CalendarEvent(2027, 4, 8, "Europa League", "Quarter-finals • 8 & 15 Apr"));
-        e.add(new CalendarEvent(2027, 4, 29, "Europa League", "Semi-finals • 29 Apr & 6 May"));
-        e.add(new CalendarEvent(2027, 5, 26, "Europa League", "Final • Frankfurt"));
-
-        e.add(new CalendarEvent(2026, 10, 15, "Conference League", "League phase MD1"));
-        e.add(new CalendarEvent(2026, 10, 22, "Conference League", "League phase MD2"));
-        e.add(new CalendarEvent(2026, 11, 5, "Conference League", "League phase MD3"));
-        e.add(new CalendarEvent(2026, 11, 26, "Conference League", "League phase MD4"));
-        e.add(new CalendarEvent(2026, 12, 10, "Conference League", "League phase MD5"));
-        e.add(new CalendarEvent(2026, 12, 17, "Conference League", "League phase MD6"));
-        e.add(new CalendarEvent(2027, 2, 18, "Conference League", "Knockout play-offs • 18 & 25 Feb"));
-        e.add(new CalendarEvent(2027, 3, 11, "Conference League", "Round of 16 • 11 & 18 Mar"));
-        e.add(new CalendarEvent(2027, 4, 8, "Conference League", "Quarter-finals • 8 & 15 Apr"));
-        e.add(new CalendarEvent(2027, 4, 29, "Conference League", "Semi-finals • 29 Apr & 6 May"));
-        e.add(new CalendarEvent(2027, 6, 2, "Conference League", "Final • Istanbul"));
-
-        Collections.sort(e, (a, b) -> a.date.compareTo(b.date));
-        return e;
+        if(f.opponent==-999)return division==null?"TBD":division.splitSeason()?"Split fixtures pending":"Bye • rest week";
+        return f.opponent>=0?clubNames[f.opponent]:"Draw pending";
     }
 
     private String europeanCompetitionForClub(int club) {
-        if(division!=null)return "Entry not assigned";
-        if (club == 1 || club == 2) return "Champions League";
-        if (club == 0) return "Europa League";
-        if (club == 3) return "Conference League";
-        return "No European competition";
+        return "Entry not assigned";
     }
 
     private void generatePlayers() {
@@ -6624,16 +6529,7 @@ public class MainActivity extends Activity {
             int index=0;
             for(KnockoutTie tie:promotion.ties()) {
                 LinearLayout card=makePanel();card.addView(profileSectionTitle(promotion.roundName(index++)));
-                card.addView(makeText(clubNames[tie.firstHome]+" v "+clubNames[tie.firstAway],15,text));
-                for(int leg=0;leg<tie.playedLegs();leg++) {
-                    int[] score=tie.regulationScore(leg);int home=tie.homeForLeg(leg),away=home==tie.firstHome?tie.firstAway:tie.firstHome;
-                    card.addView(makeText((tie.legs==1?"Match: ":"Leg "+(leg+1)+": ")+clubNames[home]+" "+score[0]+"–"+score[1]+" "+clubNames[away],13,muted));
-                }
-                int[] extra=tie.extraTimeScore(),pens=tie.penaltyScore();
-                if(extra[0]>=0)card.addView(makeText("Extra time (simulated): "+extra[0]+"–"+extra[1],12,muted));
-                if(pens[0]>=0)card.addView(makeText("Penalties: "+pens[0]+"–"+pens[1],12,muted));
-                card.addView(makeText((tie.legs==1?"Final score: ":"Aggregate: ")+clubNames[tie.firstHome]+" "+tie.aggregate(tie.firstHome)+"–"+tie.aggregate(tie.firstAway)+" "+clubNames[tie.firstAway],13,text));
-                if(tie.winner()>=0)card.addView(makeText("Through: "+clubNames[tie.winner()],14,accent));
+                appendKnockoutDetails(card,tie,false);
                 page.addView(card);
             }
             if(promotion instanceof ItalianPromotion&&promotion.complete())page.addView(profileInfoRow("Serie A champion",clubNames[((ItalianPromotion)promotion).champion()]));

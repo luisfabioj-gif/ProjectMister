@@ -110,6 +110,40 @@ public final class SmokeRunner extends Instrumentation {
         check(n!=null&&n.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK),"tap "+text);
         SystemClock.sleep(350);waitForIdleSync();
     }
+    private void collectScreenText(View view,StringBuilder text) {
+        if(view instanceof android.widget.TextView)text.append(((android.widget.TextView)view).getText()).append('\n');
+        if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)collectScreenText(((ViewGroup)view).getChildAt(i),text);
+    }
+    private void verifyCalendarIntegrity()throws Exception {
+        final Object[] old={null,null,null};
+        ui(()->{
+            old[0]=get("currentDate");old[1]=get("selectedClub");old[2]=get("promotion");
+            set("currentDate",java.time.LocalDate.of(2070,1,1));
+            for(String tab:new String[]{"Cup","Taça","League Cup","Europe"})
+                check(((java.util.List<?>)call("buildClubFixtures",new Class[]{String.class},tab)).isEmpty(),"calendar never invents elapsed-date results: "+tab);
+            set("currentDate",old[0]);set("selectedClub",3);
+            Object p=gameClass("FrenchPromotion").getConstructor(int[].class,int[].class).newInstance(new int[]{0,1,2,3,4},new int[]{15,16,17});
+            Class<?> pc=p.getClass();
+            while(!(Boolean)pc.getMethod("complete").invoke(p)) {
+                Object tie=pc.getMethod("current").invoke(p);Class<?> tc=tie.getClass();
+                String phase=tc.getMethod("phase").invoke(tie).toString();
+                if(phase.equals("REGULATION"))tc.getMethod("recordRegulation",int.class,int.class).invoke(tie,0,0);
+                else if(phase.equals("EXTRA_TIME"))tc.getMethod("recordExtraTime",int.class,int.class).invoke(tie,0,0);
+                else {int home=(Integer)tc.getMethod("home").invoke(tie);tc.getMethod("recordPenalties",int.class,int.class).invoke(tie,home==2?2:4,home==2?4:2);}
+            }
+            set("promotion",p);String before=(String)pc.getMethod("snapshot").invoke(p);
+            call("showCalendarTab",new Class[]{String.class},"Play-offs");
+            StringBuilder text=new StringBuilder();collectScreenText(activity.getWindow().getDecorView(),text);
+            String[] names=(String[])get("clubNames");
+            check(text.toString().contains("Penalties: "+names[15]+" 4–2 "+names[3]),"playoff penalties identify return-leg home and away clubs");
+            check(text.toString().contains("Winner: "+names[15]),"playoff calendar shows the stored winner");
+            check(text.toString().contains("dates have not been scheduled"),"playoff calendar does not invent match dates");
+            check(before.equals(pc.getMethod("snapshot").invoke(p)),"calendar projection preserves saved playoff state");
+        });
+        capture("30-playoff-calendar");
+        ui(()->{set("currentDate",old[0]);set("selectedClub",old[1]);set("promotion",old[2]);call("showDashboard",new Class[0]);});
+        check(true,"calendar recorded results and shootout orientation verified");
+    }
     private int playerInt(Object p,String field)throws Exception {Field f=p.getClass().getDeclaredField(field);f.setAccessible(true);return f.getInt(p);}
     private void verifyOfferControls()throws Exception {
         final Object[] target={null};final int[] fee={0},before={0};
@@ -589,6 +623,7 @@ public final class SmokeRunner extends Instrumentation {
                 page("11-transfers","showTransferHub",new Class[0]);
                 page("12-training","showTraining",new Class[0]);
                 page("13-fixtures","showCompetitionCalendar",new Class[0]);
+                verifyCalendarIntegrity();
                 page("14-board","showClubOffice",new Class[0]);
                 page("15-inbox","showInbox",new Class[0]);
                 try(InputStream input=getTargetContext().getAssets().open("competitions/2026-27.json")) {
