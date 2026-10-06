@@ -1,6 +1,6 @@
 # Competition expansion — verified checkpoint, 6 October 2026
 
-## Calendar integrity and season archive candidate — 6 October 2026
+## Verified calendar integrity and season archive — 6 October 2026
 
 Legacy careers no longer fabricate cup or European fixtures/results when a date
 passes. The calendar displays stored playoff ties, regulation/extra-time/penalty
@@ -19,7 +19,20 @@ seasons; reaching that bound preserves the completed season and blocks rollover.
 
 Core archive tests, application compilation and independent QA compilation pass.
 Android QA adds recorded-calendar checks plus seven-country archive reload,
-backup and duplicate-rollover checks. Device verification is pending.
+backup and duplicate-rollover checks. Both Android 35 (job 112224912909) and
+36 (job 112224913027) passed the complete gate:
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37450284832
+Tested source: 85beac549dbf2b1698bfad88ade8c1e73d582d38.
+All forty career variants, ten country playoff flows, release splits, legacy
+upgrades and different-key restoration also passed. The calendar and Dutch
+archive screenshots were visually reviewed. QA tables use injected standings
+and scores to exercise transitions; they are not match-balance evidence.
+
+Delivered APK: BOSS-XI-v2.3.2-Calendar-and-History.apk, 1,998,033 bytes.
+SHA-256: 8853ec475c4b2e77d6df1b62133af8d367d5603e9b0199a8c46038ddf2bb2ead.
+Artifact 11405188613 retains the verified APK; QA artifact 11405268670 contains
+logs and screenshots. It uses the existing development signing identity.
+The wider competition and production gaps below remain unfinished.
 
 ## Current verified build — all ten country transitions, 6 October 2026
 
