@@ -32,8 +32,18 @@ application and independent QA runner compile locally.
 
 Device QA now plays two full Portuguese league/cup seasons, reloads during the
 second edition, starts a third year, checks two trophy archives and exactly two
-ageing passes, and rejects a corrupt archive during backup validation. Candidate
-Android 35/36 results will be recorded after the workflow finishes.
+ageing passes, and rejects a corrupt archive during backup validation. Both Android 35 and 36 passed workflow 37693888225 (jobs 113040537201 and
+113040538132), tested source 77a220dfb50ec48079a461e97d1e1674ffd6e09d.
+The third-year History screenshot was visually reviewed: the new 2028/29 cup
+and both earlier winners are readable. Existing forty-career, promotion, upgrade,
+release-split and different-key migration checks also passed.
+
+https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37693888225
+
+Delivered APK: BOSS-XI-v2.3.6-Recurring-Portuguese-Cup.apk, 2,382,904 bytes.
+SHA-256: e7da08e5ec46c9a94d70f2a7a60b020b9c3bd357df0a18050918902792537aee.
+Artifact 11514732194; QA artifact 11514129998. Package com.projectmister.game,
+version 31 / 2.3.6-dev, same development signing certificate as 2.3.5.
 
 ## Still open
 

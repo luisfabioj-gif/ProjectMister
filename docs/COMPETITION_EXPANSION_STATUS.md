@@ -1,11 +1,11 @@
 # Competition expansion — checkpoint, 7 October 2026
 
-## Recurring Taça de Portugal candidate — 2.3.6
+## Verified recurring Taça de Portugal — 2.3.6
 
 [V2_3_6_CHANGES.md](V2_3_6_CHANGES.md) connects annual Portuguese domestic cups to
 playable careers, updated entry groups, calendar/recovery, trophy history and
-backup validation. Core tests and local builds pass; Android 35/36 candidate QA
-is pending. The broader UEFA, new Portuguese League Cup and other-country cup
+backup validation. Core tests and Android 35/36 QA passed run 37693888225, tested source
+77a220dfb50ec48079a461e97d1e1674ffd6e09d. The History screenshot was reviewed. The broader UEFA, new Portuguese League Cup and other-country cup
 integration remains unfinished.
 
 ## New engine checkpoint — recurring cups and UEFA, 7 October 2026
