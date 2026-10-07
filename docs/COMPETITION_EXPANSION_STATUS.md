@@ -1,5 +1,15 @@
 # Competition expansion — checkpoint, 7 October 2026
 
+## New engine checkpoint — recurring cups and UEFA, 7 October 2026
+
+[RECURRING_COMPETITIONS_ENGINE.md](RECURRING_COMPETITIONS_ENGINE.md) records the
+new season-owned domestic cup engine, DFB-Pokal/FA Cup format factories, all
+three UEFA league-phase models, complete knockout brackets and annual archives.
+Core tests pass, including 96 UEFA knockout brackets and thirty successive
+European seasons. **Career screens, qualification, calendars and backups are
+not connected to these new engines yet.** This is not a new playable release;
+Portuguese recurring seasons and the remaining countries' cups remain open.
+
 ## Latest verified test build — 2.3.5
 
 See [V2_3_5_CHANGES.md](V2_3_5_CHANGES.md) for the 146-club Portuguese domestic
