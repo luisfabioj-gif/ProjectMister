@@ -7073,6 +7073,10 @@ public class MainActivity extends Activity {
                 .putString(key(selectedSlot, "gf"), encode(goalsFor))
                 .putString(key(selectedSlot, "ga"), encode(goalsAgainst))
                 .putString(key(selectedSlot, "points"), encode(points))
+                .putString(key(selectedSlot, "p_age"), encodePlayerField("age"))
+                .putString(key(selectedSlot, "p_ability"), encodePlayerField("ability"))
+                .putString(key(selectedSlot, "p_potential"), encodePlayerField("potential"))
+                .putString(key(selectedSlot, "p_value"), encodePlayerField("value"))
                 .putString(key(selectedSlot, "p_apps"), encodePlayerField("apps"))
                 .putString(key(selectedSlot, "p_goals"), encodePlayerField("goals"))
                 .putString(key(selectedSlot, "p_assists"), encodePlayerField("assists"))
@@ -7202,6 +7206,10 @@ public class MainActivity extends Activity {
             promotion=loaded;
         }catch(RuntimeException invalid){unreadablePromotion=savedPromotion;android.util.Log.w("BOSSXI","Playoff save retained for recovery",invalid);}
         generatePlayers();
+        decodePlayerField(prefs.getString(key(slot, "p_age"), ""), "age");
+        decodePlayerField(prefs.getString(key(slot, "p_ability"), ""), "ability");
+        decodePlayerField(prefs.getString(key(slot, "p_potential"), ""), "potential");
+        decodePlayerField(prefs.getString(key(slot, "p_value"), ""), "value");
         decodePlayerField(prefs.getString(key(slot, "p_apps"), ""), "apps");
         decodePlayerField(prefs.getString(key(slot, "p_goals"), ""), "goals");
         decodePlayerField(prefs.getString(key(slot, "p_assists"), ""), "assists");
@@ -7244,7 +7252,7 @@ public class MainActivity extends Activity {
                 "matchday", "date", "training", "formation", "playstyle", "budget", "roles", "role_slots", "role_pos",
                 "staff_am_name", "staff_am_rating", "staff_coach_name", "staff_coach_rating", "staff_scout_name", "staff_scout_rating",
                 "club_match_gf", "club_match_ga", "played", "won", "drawn", "lost", "gf", "ga", "points",
-                "p_apps", "p_goals", "p_assists", "p_overall", "p_pace", "p_tech", "p_pass", "p_finish", "p_def", "p_phys",
+                "p_age", "p_ability", "p_potential", "p_value", "p_apps", "p_goals", "p_assists", "p_overall", "p_pace", "p_tech", "p_pass", "p_finish", "p_def", "p_phys",
                 "p_fit", "p_morale", "p_transfer", "p_loan", "p_team", "p_onloan"
         };
         for (String field : fields) editor.remove(key(slot, field));
@@ -7301,6 +7309,10 @@ public class MainActivity extends Activity {
             Player p = players.get(i);
             int value;
             switch (field) {
+                case "age": value = p.age; break;
+                case "ability": value = p.currentAbility; break;
+                case "potential": value = p.potentialAbility; break;
+                case "value": value = p.valueMillions; break;
                 case "apps": value = p.appearances; break;
                 case "goals": value = p.goals; break;
                 case "assists": value = p.assists; break;
@@ -7343,6 +7355,10 @@ public class MainActivity extends Activity {
             }
             Player p = players.get(i);
             switch (field) {
+                case "age": p.age=Math.max(14,value); break;
+                case "ability": p.currentAbility=Math.max(1,Math.min(200,value)); break;
+                case "potential": p.potentialAbility=Math.max(1,Math.min(200,value)); break;
+                case "value": p.valueMillions=Math.max(0,value); break;
                 case "apps": p.appearances = value; break;
                 case "goals": p.goals = value; break;
                 case "assists": p.assists = value; break;

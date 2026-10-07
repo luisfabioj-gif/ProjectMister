@@ -282,7 +282,9 @@ public final class SmokeRunner extends Instrumentation {
                 check(!((java.time.LocalDate)get("currentDate")).isBefore(before),"career calendar never rewinds");
                 if(step%7==0||round>=34) {
                     call("saveCurrentGame",new Class[0]);int weeks=(Integer)get("postseasonWeeksProcessed"),balance=(Integer)get("financeBalanceK");
+                    String development=(String)call("encodePlayerField",new Class[]{String.class},"age")+call("encodePlayerField",new Class[]{String.class},"ability")+call("encodePlayerField",new Class[]{String.class},"potential")+call("encodePlayerField",new Class[]{String.class},"value");
                     check((Boolean)call("loadSave",new Class[]{int.class},2),"expanded career reloads throughout cup season");checkBackupReadable();
+                    check(development.equals((String)call("encodePlayerField",new Class[]{String.class},"age")+call("encodePlayerField",new Class[]{String.class},"ability")+call("encodePlayerField",new Class[]{String.class},"potential")+call("encodePlayerField",new Class[]{String.class},"value")),"age development and value survive reload");
                     check(weeks==(Integer)get("postseasonWeeksProcessed")&&balance==(Integer)get("financeBalanceK"),"reload does not repeat postseason wages");
                 }
                 done[0]=(Integer)get("matchday")==34&&(Boolean)call("cupsComplete",new Class[0]);

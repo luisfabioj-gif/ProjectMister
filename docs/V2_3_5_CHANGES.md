@@ -22,6 +22,11 @@ Quick result uses the selected starting players' ability and fitness, plus home
 advantage. It records player goals, appearances, fitness changes, league results
 and the normal career progression. Cup shootouts remain separate from goals.
 
+Player age, current ability, potential and transfer value now persist explicitly.
+Previously, reloading regenerated these fields and could lose season ageing or
+training progress. Old saves retain their generated defaults where no saved
+value exists; lost historical development cannot be reconstructed.
+
 ## Data and simulation boundaries
 
 The opening cup draw and entrants are sourced; subsequent draws and all results

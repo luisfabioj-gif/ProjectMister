@@ -36,6 +36,7 @@ public final class DomesticCupTests {
             check(games==145&&Arrays.equals(counts,expected)&&seen.size()==146,"complete field and bracket");
             check(cup.winner()>=0&&cup.winner()<146,"eligible champion");
             Map<String,Object> save=new HashMap<>();save.put("save_0_domestic_cup",cup.snapshot());save.put("save_0_season_age_applied",true);save.put("save_0_postseason_weeks",8);
+            for(String field:new String[]{"age","ability","potential","value"})save.put("save_0_p_"+field,"21,23,31");
             check(SaveBackup.decode(SaveBackup.encode(save)).equals(save),"cup and season state backup");
         }
         DomesticCup cup=fresh(7);rejects(()->cup.validateDate(LocalDate.of(2026,8,31)));
