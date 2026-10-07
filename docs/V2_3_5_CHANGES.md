@@ -49,7 +49,23 @@ ties), saved extra-time/shootout states, staged entries, chronological dates,
 corrupt-save rejection, backup round trips and league/cup recovery gaps.
 Android integration coverage adds a complete 34-round quick-result career,
 managed runs through both cup finals, periodic reloads/backups, postseason
-processing and next-season archive preservation. Device CI results are pending.
+processing and next-season archive preservation. Android 15/API 35 and Android 16/API 36 passed run 37607971403 on
+7 October 2026, source 818703bf28f911e74652e11954693b803d97fa13. The run also
+passed older-save upgrades, all 40 standalone/linked career configurations,
+all ten countries' playoff flows, compact layouts, release-bundle installation
+and different-signing-key backup migration. The domestic cup winner screen was
+visually reviewed. The first candidate exposed the ageing persistence issue;
+the corrected candidate passed the unchanged season-age assertion.
+
+Delivered development APK: version code 30, version name 2.3.5-dev.
+SHA-256: `8f7369ae303f36b28f7d3f3dff6369cb6dbf10821783fe9299bcabbb0b2c2a66`.
+Development signing certificate SHA-256:
+`06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e`.
+
+For a phone playtest, install the APK as an update and create a fresh Portuguese
+career to receive the expanded world and Taça. Existing careers remain loadable
+with their original competition set. This has been emulator-tested; physical
+Samsung S25 Ultra testing remains with the user.
 
 ## Remaining completion work
 

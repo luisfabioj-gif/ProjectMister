@@ -1,13 +1,22 @@
-# Competition expansion — verified checkpoint, 6 October 2026
+# Competition expansion — checkpoint, 7 October 2026
 
-## Latest verified build — 2.3.3, 6 October 2026
+## Latest verified test build — 2.3.5
 
-See [V2_3_3_CHANGES.md](V2_3_3_CHANGES.md) for worldwide recruitment across
-all twenty divisions, unattached players, sourced competition history, real
-Portuguese legacy defaults, new stadium/portrait art and match movement tweaks.
-Android 35/36 passed run 37488254392, source 1d884afda064005352c3842906c2492158c8338c.
-This supersedes the earlier APK checkpoints below. Competition calendar/cup,
-remaining national-rule exceptions and production/hardware work remain open.
+See [V2_3_5_CHANGES.md](V2_3_5_CHANGES.md) for the 146-club Portuguese domestic
+cup, expanded player world, shared cup calendar, quick results and postseason
+processing. Source 818703bf28f911e74652e11954693b803d97fa13 passed Android 35/36
+verification in run 37607971403. The full-season test also exposed and verified
+a fix for player ageing/development values being regenerated on reload.
+
+## Previous verified build — 2.3.4, 6 October 2026
+
+See [V2_3_4_CHANGES.md](V2_3_4_CHANGES.md) for the Portuguese League Cup.
+Android 35/36 passed run 37537592141, source e1b921b2c0b379168ee3663fea1578130dd64378.
+Worldwide recruitment, free agents, competition history, real Portuguese names
+and stadium/portrait artwork were delivered in 2.3.3. The entries below describe
+older checkpoints; their cup availability statements are superseded by these
+versioned changes. Recurring cups, UEFA and other countries' domestic cups remain
+unfinished.
 
 ## Verified calendar integrity and season archive — 6 October 2026
 
