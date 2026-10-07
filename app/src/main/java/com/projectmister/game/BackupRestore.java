@@ -38,11 +38,16 @@ public final class BackupRestore {
                 int weeks=(Integer)data.getOrDefault(prefix+"postseason_weeks",0);
                 if(weeks<0||weeks>20)throw new IllegalArgumentException("Invalid postseason weeks");
                 if(division!=null&&division.hasCupClubs()&&domestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
+                int cupYear=LocalDate.parse((String)data.getOrDefault(prefix+"season_start","2026-08-09")).getYear();
                 if(!domestic.isEmpty()) {
                     if(division==null||!division.hasCupClubs())throw new IllegalArgumentException("Missing cup registry");
                     DomesticCup restored=DomesticCup.restore(domestic,size);restored.validateEntrants(division.reserves);
                     restored.validateDate(LocalDate.parse((String)data.get(prefix+"date")));
+                    if(restored.season>cupYear||restored.season<cupYear&&!restored.complete())throw new IllegalArgumentException("Wrong domestic cup season");
+                    cupYear=restored.season;
                 }
+                DomesticCupHistory cupHistory=DomesticCupHistory.restore((String)data.getOrDefault(prefix+"domestic_cup_history",""),size,division==null?new boolean[size]:division.reserves,cupYear);
+                if(domestic.isEmpty()&&!cupHistory.editions().isEmpty())throw new IllegalArgumentException("Missing active domestic cup");
                 String cup=(String)data.getOrDefault(prefix+"league_cup","");
                 if(!cup.isEmpty()) {
                     if(division==null||!division.linked||!division.country.equals("PT"))throw new IllegalArgumentException("Unexpected cup");

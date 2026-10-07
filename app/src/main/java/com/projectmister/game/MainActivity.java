@@ -102,6 +102,7 @@ public class MainActivity extends Activity {
     private PortugueseLeagueCup leagueCup;
     private boolean liveCup=false;
     private DomesticCup domesticCup;
+    private DomesticCupHistory domesticCupHistory=new DomesticCupHistory();
     private boolean liveDomesticCup=false,seasonAgeApplied=false;
     private int postseasonWeeksProcessed=0;
     private int liveAwayKitColour;
@@ -6157,7 +6158,7 @@ public class MainActivity extends Activity {
     }
     private KnockoutTie liveKnockout(){return liveDomesticCup&&domesticCup!=null?domesticCup.current():liveCup&&leagueCup!=null?leagueCup.current():livePlayoff&&promotion!=null?promotion.current():null;}
     private LocalDate leagueFixtureDate(int round) {
-        if(fixtureVersion>=3&&careerSeasonStart.getYear()==2026&&round<seasonRounds())return CompetitionCalendar.portugueseCupSeason(careerSeasonStart,seasonRounds()).get(round);
+        if(fixtureVersion>=3&&round<seasonRounds())return CompetitionCalendar.portugueseCupSeason(careerSeasonStart,seasonRounds()).get(round);
         return careerSeasonStart.plusWeeks(round);
     }
     private LocalDate nextLeagueDate(){return leagueFixtureDate(matchday);}
@@ -6177,7 +6178,7 @@ public class MainActivity extends Activity {
     private boolean cupsComplete(){return (leagueCup==null||leagueCup.complete())&&(domesticCup==null||domesticCup.complete());}
     private void finalizeSeasonIfReady(){if(matchday>=seasonRounds()&&cupsComplete()&&!seasonAgeApplied){processSeasonEnd();seasonAgeApplied=true;}}
     private void advanceCareerDate(LocalDate target) {
-        if(domesticCup!=null&&careerSeasonStart.getYear()==2026&&matchday>=seasonRounds()&&!seasonAgeApplied) {
+        if(domesticCup!=null&&matchday>=seasonRounds()&&!seasonAgeApplied) {
             LocalDate lastLeague=leagueFixtureDate(seasonRounds()-1);
             while(postseasonWeeksProcessed<20&&!lastLeague.plusWeeks(postseasonWeeksProcessed+1L).isAfter(target)) {
                 currentDate=lastLeague.plusWeeks(++postseasonWeeksProcessed);
@@ -6242,29 +6243,34 @@ public class MainActivity extends Activity {
 
     private void showDomesticCupCalendar(LinearLayout page) {
         int selected=domesticCup.complete()?7:domesticCup.stage(domesticCup.currentIndex());
-        renderDomesticCupRound(page,selected);
+        renderDomesticCupRound(page,domesticCup,selected,false);
     }
     private void showDomesticCupRound(int stage) {
-        backAction=()->showCalendarTab("Cup");LinearLayout page=createPage("Taça de Portugal","2026/27 • career draw & results",true);
-        renderDomesticCupRound(page,stage);
+        backAction=()->showCalendarTab("Cup");LinearLayout page=createPage("Taça de Portugal",domesticCup.season+"/"+(domesticCup.season+1)+" • career draw & results",true);
+        renderDomesticCupRound(page,domesticCup,stage,false);
     }
-    private void renderDomesticCupRound(LinearLayout page,int stage) {
-        page.addView(profileSectionTitle("TAÇA DE PORTUGAL • 2026/27"));
-        page.addView(makeText("146 clubs • Lower-league opponents • Second-division entry in round 2, first division in round 3, European representatives in round 4. Later draws follow your career results. Extra time and penalties are simulated.",13,muted));
-        page.addView(makeText("Round dates use the published competition windows; individual scheduling, postponements and subsequent-season formats are not yet reproduced. Semi-finals and final are single matches at neutral venues.",12,muted));
+    private void showArchivedDomesticCup(String snapshot,int stage) {
+        DomesticCup cup=DomesticCup.restore(snapshot,clubNames.length);
+        backAction=()->showHistoryHub();LinearLayout page=createPage("Taça de Portugal",cup.season+"/"+(cup.season+1)+" • completed edition",true);
+        renderDomesticCupRound(page,cup,stage,true);
+    }
+    private void renderDomesticCupRound(LinearLayout page,DomesticCup cup,int stage,boolean archive) {
+        page.addView(profileSectionTitle("TAÇA DE PORTUGAL • "+cup.season+"/"+(cup.season+1)));
+        page.addView(makeText("Second-division entry in round 2, first division in round 3, European representatives in round 4. Extra time and penalties decide drawn ties.",13,muted));
+        page.addView(makeText(cup.season==2026?"Opening draw from the published 2026/27 field. Individual scheduling is simulated.":"Career edition • Fresh draw and updated division membership. The lower-league pool is retained; dates and future entry places use the game's published-rules baseline, not confirmed future fixtures.",12,muted));
         LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
-        for(int i=0;i<8;i++){final int r=i;row.addView(compactButton(i<4?"R"+(i+1):i==4?"Last 16":i==5?"QF":i==6?"SF":"Final",v->showDomesticCupRound(r)));}
+        for(int i=0;i<8;i++){final int r=i;row.addView(compactButton(i<4?"R"+(i+1):i==4?"Last 16":i==5?"QF":i==6?"SF":"Final",v->{if(archive)showArchivedDomesticCup(cup.snapshot(),r);else showDomesticCupRound(r);}));}
         HorizontalScrollView tabs=new HorizontalScrollView(this);tabs.addView(row);page.addView(tabs);
         int shown=0;
-        for(int i=0;i<domesticCup.drawnCount();i++)if(domesticCup.stage(i)==stage) {
-            shown++;KnockoutTie tie=domesticCup.at(i);LinearLayout card=makePanel();
-            card.addView(profileSectionTitle(domesticCup.roundName(i)+" • "+domesticCup.date(i).format(DATE_FORMAT)));
+        for(int i=0;i<cup.drawnCount();i++)if(cup.stage(i)==stage) {
+            shown++;KnockoutTie tie=cup.at(i);LinearLayout card=makePanel();
+            card.addView(profileSectionTitle(cup.roundName(i)+" • "+cup.date(i).format(DATE_FORMAT)));
             appendKnockoutDetails(card,tie,true);page.addView(card);
         }
         if(shown==0)page.addView(makeText("This round has not been drawn. Complete the preceding round to establish its entrants.",14,muted));
-        if(domesticCup.complete())page.addView(makeText("Winners: "+clubNames[domesticCup.winner()],20,accent));
-        else if(cupDue())page.addView(makeAccentButton("Continue career",v->startLiveMatchday()));
-        page.addView(makeButton("Dashboard",v->showDashboard()));
+        if(cup.complete())page.addView(makeText("Winners: "+clubNames[cup.winner()],20,accent));
+        else if(!archive&&cupDue())page.addView(makeAccentButton("Continue career",v->startLiveMatchday()));
+        page.addView(makeButton(archive?"History":"Dashboard",v->{if(archive)showHistoryHub();else showDashboard();}));
     }
 
     private void appendKnockoutDetails(LinearLayout card,KnockoutTie tie,boolean upcoming) {
@@ -6564,7 +6570,7 @@ public class MainActivity extends Activity {
 
     private void configureDivision(CareerDivision value) {
         seasonHistory=new SeasonHistory();marketHires=new ArrayList<>();
-        division=value;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;liveCup=false;liveDomesticCup=false;leagueCup=null;domesticCup=null;seasonAgeApplied=false;postseasonWeeksProcessed=0;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
+        division=value;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;liveCup=false;liveDomesticCup=false;leagueCup=null;domesticCup=null;domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
         defaultClubNames=value==null?legacyNames.clone():value.names.clone();
         strength=value==null?legacyStrength.clone():value.strengths.clone();
         budgets=value==null?legacyBudgets.clone():value.budgets.clone();
@@ -6830,7 +6836,12 @@ public class MainActivity extends Activity {
     private void showHistoryHub() {
         backAction=()->showDashboard();
         LinearLayout page=createPage("History","Real-world records and your career",true);
-        if(domesticCup!=null)page.addView(makeButton("Your career • 2026/27 Taça de Portugal",v->showCalendarTab("Cup")));
+        if(domesticCup!=null)page.addView(makeButton("Your career • "+domesticCup.season+"/"+(domesticCup.season+1)+" Taça de Portugal",v->showCalendarTab("Cup")));
+        java.util.List<String> cupEditions=domesticCupHistory.editions();
+        for(int i=cupEditions.size()-1;i>=0;i--) {
+            final String savedEdition=cupEditions.get(i);DomesticCup edition=DomesticCup.restore(savedEdition,clubNames.length);
+            page.addView(makeButton(edition.season+"/"+(edition.season+1)+" • Taça de Portugal • "+clubNames[edition.winner()],v->showArchivedDomesticCup(savedEdition,7)));
+        }
         if(leagueCup!=null)page.addView(makeButton("Your career • 2026/27 League Cup",v->showCalendarTab("League Cup")));
         if(division!=null)page.addView(makeAccentButton("Your career • season history",v->showSeasonHistory()));
         page.addView(makeText("Historical records are separate from your simulated career. Selected verified seasons are included; this is not yet a complete all-time honours database.",13,muted));
@@ -6885,14 +6896,25 @@ public class MainActivity extends Activity {
             }
             nextDivision=division.moveBetweenTiers(promotion.promoted(),promotion.relegated(),selectedClub);
         }
+        DomesticCup nextDomestic=domesticCup;DomesticCupHistory nextCupHistory=domesticCupHistory;
         try {
+            if(domesticCup!=null) {
+                int[] ranked=iberianStandings(1).eligible(division.reserves,6);
+                java.util.LinkedHashSet<Integer> deferred=new java.util.LinkedHashSet<>();
+                for(int i=0;i<3;i++)deferred.add(ranked[i]);
+                if(domesticCup.season==careerSeasonStart.getYear())deferred.add(domesticCup.winner());
+                for(int club:ranked)if(deferred.size()<6)deferred.add(club);
+                int[] european=new int[deferred.size()];int at=0;for(int club:deferred)european[at++]=club;
+                nextDomestic=DomesticCup.nextSeason(careerSeasonStart.getYear()+1,random.nextLong(),nextDivision.clubTiers,nextDivision.reserves,european);
+                nextCupHistory=domesticCupHistory.append(domesticCup);
+            }
             seasonHistory=seasonHistory.append(new SeasonHistory.Entry(careerSeasonStart.toString(),previousDivision.clubIds[selectedClub],
                 clubNames[selectedClub],previousDivision.name,previousDivision.tier,nextDivision.tier,
                 played[selectedClub],won[selectedClub],drawn[selectedClub],lost[selectedClub],goalsFor[selectedClub],goalsAgainst[selectedClub],points[selectedClub]));
-        } catch(IllegalArgumentException invalid) {
+        } catch(IllegalArgumentException|IllegalStateException invalid) {
             new BossDialog.Builder(this).setTitle("Season could not be archived").setMessage("The completed season has been kept unchanged. "+invalid.getMessage()).setPositiveButton("Back",null).show();return;
         }
-        division=nextDivision;
+        division=nextDivision;domesticCup=nextDomestic;domesticCupHistory=nextCupHistory;
         if(promotion!=null) {
             int oldTier=previousDivision.tier;
             if(catalog!=null)for(int i=0;i<catalog.divisions.size();i++)if(catalog.divisions.get(i).id.equals(division.id))managerLeagueIndex=i+1;
@@ -7026,6 +7048,7 @@ public class MainActivity extends Activity {
                 .putString(key(selectedSlot,"season_history"),seasonHistory.snapshot())
                 .putString(key(selectedSlot,"league_cup"),leagueCup==null?"":leagueCup.snapshot())
                 .putString(key(selectedSlot,"domestic_cup"),domesticCup==null?"":domesticCup.snapshot())
+                .putString(key(selectedSlot,"domestic_cup_history"),domesticCupHistory.snapshot())
                 .putBoolean(key(selectedSlot,"season_age_applied"),seasonAgeApplied)
                 .putInt(key(selectedSlot,"postseason_weeks"),postseasonWeeksProcessed)
                 .putString(key(selectedSlot,"market_hires"),WorldMarket.snapshot(marketHires))
@@ -7128,7 +7151,11 @@ public class MainActivity extends Activity {
                 restoredCup=PortugueseLeagueCup.restore(rawCup,saved.clubIds);
                 restoredCup.validateDate(LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())));
             }
-            configureDivision(saved);seasonHistory=restoredHistory;marketHires=restoredMarket;
+            int savedYear=LocalDate.parse(prefs.getString(key(slot,"season_start"),SEASON_START.toString())).getYear();
+            if(restoredDomestic!=null&&(restoredDomestic.season>savedYear||restoredDomestic.season<savedYear&&!restoredDomestic.complete()))throw new IllegalArgumentException("Wrong domestic cup season");
+            DomesticCupHistory restoredCupHistory=DomesticCupHistory.restore(prefs.getString(key(slot,"domestic_cup_history"),""),n,saved==null?new boolean[n]:saved.reserves,restoredDomestic==null?savedYear:restoredDomestic.season);
+            if(restoredDomestic==null&&!restoredCupHistory.editions().isEmpty())throw new IllegalArgumentException("Missing active domestic cup");
+            configureDivision(saved);seasonHistory=restoredHistory;marketHires=restoredMarket;domesticCupHistory=restoredCupHistory;
             leagueCup=restoredCup;
             domesticCup=restoredDomestic;
             seasonAgeApplied=prefs.getBoolean(key(slot,"season_age_applied"),prefs.getInt(key(slot,"matchday"),0)>=seasonRounds());
@@ -8680,7 +8707,7 @@ public class MainActivity extends Activity {
 
     private void resetCareerState() {
         fixtureVersion = 2;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;
-        liveCup=false;liveDomesticCup=false;leagueCup=newPortugueseLeagueCup();domesticCup=newDomesticCup();seasonAgeApplied=false;postseasonWeeksProcessed=0;
+        liveCup=false;liveDomesticCup=false;leagueCup=newPortugueseLeagueCup();domesticCup=newDomesticCup();domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;
         if(domesticCup!=null)fixtureVersion=3;
         leagueResults=new LeagueResults(clubNames.length,division!=null);
         careerSchedule = null;

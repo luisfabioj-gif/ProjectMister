@@ -53,7 +53,29 @@ public final class DomesticCupTests {
             if(i>0)check(ChronoUnit.DAYS.between(dates.get(i-1),dates.get(i))>=3,"league recovery gap");
             for(String date:blocked)check(Math.abs(ChronoUnit.DAYS.between(dates.get(i),LocalDate.parse(date)))>=3,"league avoids cup window");
         }
-        rejects(()->CompetitionCalendar.portugueseCupSeason(LocalDate.of(2027,8,9),34));
+        rejects(()->CompetitionCalendar.portugueseCupSeason(LocalDate.of(2025,8,9),34));
+        int[] tiers=new int[149];Arrays.fill(tiers,0,113,3);Arrays.fill(tiers,113,128,2);Arrays.fill(tiers,128,146,1);Arrays.fill(tiers,146,149,2);
+        boolean[] excluded=new boolean[149];Arrays.fill(excluded,146,149,true);
+        DomesticCupHistory history=new DomesticCupHistory();String original="";
+        for(int year=2026;year<2046;year++) {
+            DomesticCup edition=year==2026?fresh(year):DomesticCup.nextSeason(year,year,tiers,excluded,year%2==0?new int[]{128,129,130,131,132,133}:new int[]{128,129,130,112,131,132});
+            int matches=0;List<LocalDate> league=CompetitionCalendar.portugueseCupSeason(LocalDate.of(year,8,9),34);
+            while(!edition.complete()) {
+                LocalDate date=edition.nextDate();
+                for(LocalDate l:league)check(Math.abs(ChronoUnit.DAYS.between(l,date))>=3,"recurring league/cup recovery gap");
+                edition.current().recordRegulation(2,0);edition=DomesticCup.restore(edition.snapshot(),149);edition.validateDate(date);matches++;
+            }
+            check(matches==145&&edition.season==year,"full recurring cup edition");
+            if(year==2026)original=edition.snapshot();
+            history=history.append(edition);history=DomesticCupHistory.restore(history.snapshot(),149,excluded,year+1);
+            check(history.editions().get(0).equals(original),"original trophy and results immutable");
+            Map<String,Object> backup=new HashMap<>();backup.put("save_0_domestic_cup_history",history.snapshot());check(SaveBackup.decode(SaveBackup.encode(backup)).equals(backup),"recurring cup history in backup");
+        }
+        final DomesticCupHistory completedHistory=history;
+        DomesticCup old=DomesticCup.restore(original,149);rejects(()->completedHistory.append(old));
+        rejects(()->DomesticCupHistory.restore(completedHistory.snapshot(),149,excluded,2045));
+        rejects(()->DomesticCup.nextSeason(2027,1,tiers,excluded,new int[]{128,128}));
+        rejects(()->DomesticCup.nextSeason(2027,1,tiers,excluded,new int[]{146}));
         System.out.println("Domestic cup: 64 full tournaments, 146 entrants, staged draws, extra time, penalties, save integrity and calendar passed");
     }
 }

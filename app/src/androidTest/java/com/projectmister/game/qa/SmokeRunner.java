@@ -303,11 +303,48 @@ public final class SmokeRunner extends Instrumentation {
             String cup=(String)get("domesticCup").getClass().getMethod("snapshot").invoke(get("domesticCup"));
             call("continueDivisionSeason",new Class[0]);
             check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==2027&&(Integer)get("matchday")==0,"completed cup season advances to next year");
-            check(cup.equals(get("domesticCup").getClass().getMethod("snapshot").invoke(get("domesticCup"))),"cup archive survives next season");
+            Object archives=get("domesticCupHistory");List<?> editions=(List<?>)archives.getClass().getMethod("editions").invoke(archives);
+            check(editions.size()==1&&cup.equals(editions.get(0)),"completed cup archive survives next season");
+            check((Integer)get("domesticCup").getClass().getField("season").get(get("domesticCup"))==2027&&!(Boolean)get("domesticCup").getClass().getMethod("complete").invoke(get("domesticCup")),"fresh playable cup in second season");
             check((Boolean)call("loadSave",new Class[]{int.class},2),"next season with expanded world reloads");checkBackupReadable();
             Map<String,Object> invalid=new HashMap<>(prefs.getAll());invalid.put("save_2_postseason_weeks",-1);
             boolean rejected=false;try{gameClass("BackupRestore").getMethod("validate",byte[].class).invoke(null,(Object)backupBytes(invalid));}catch(java.lang.reflect.InvocationTargetException expected){rejected=true;}
             check(rejected,"invalid postseason counter rejected");
+        });
+        done[0]=false;
+        for(int event=0;event<90&&!done[0];event++) {
+            final int step=event;
+            ui(()->{
+                java.time.LocalDate before=(java.time.LocalDate)get("currentDate");call("initialiseTacticsForClub",new Class[0]);
+                if((Boolean)call("cupDue",new Class[0])) {
+                    int round=(Integer)get("matchday");call("startLiveMatchday",new Class[0]);
+                    if((Boolean)get("matchInProgress")) {
+                        check((Boolean)get("liveCup"),"second-year cup starts live match");set("livePaused",true);
+                        set("liveHomeGoals",(Integer)get("liveHome")==0?3:0);set("liveAwayGoals",(Integer)get("liveAway")==0?3:0);
+                        call("finishLiveMatch",new Class[0]);
+                    }
+                    check(round==(Integer)get("matchday"),"recurring cup does not advance league round");
+                } else if((Integer)get("matchday")<34)call("quickResult",new Class[0]);
+                check(!((java.time.LocalDate)get("currentDate")).isBefore(before),"second-year calendar never rewinds");
+                if(step%9==0){call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"second-year cup reloads");checkBackupReadable();}
+                done[0]=(Integer)get("matchday")==34&&(Boolean)call("cupsComplete",new Class[0]);
+            });
+        }
+        ui(()->{
+            check(done[0],"second full league and recurring cup completed");
+            check(playerInt(((List<?>)get("players")).get(0),"age")==initialAge[0]+2,"exactly two annual ageing passes");
+            Object cup=get("domesticCup");check((Integer)cup.getClass().getMethod("winner").invoke(cup)==0,"managed club wins recurring cup");
+            call("continueDivisionSeason",new Class[0]);
+            check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==2028,"second rollover creates third season");
+            Object archives=get("domesticCupHistory");check(((List<?>)archives.getClass().getMethod("editions").invoke(archives)).size()==2,"two distinct trophy archives retained");
+            check((Boolean)call("loadSave",new Class[]{int.class},2),"third-season draw and history reload");checkBackupReadable();
+            call("showHistoryHub",new Class[0]);
+        });
+        capture("36-recurring-cup-history");
+        ui(()->{
+            Map<String,Object> invalid=new HashMap<>(prefs.getAll());invalid.put("save_2_domestic_cup_history","broken");
+            boolean rejected=false;try{gameClass("BackupRestore").getMethod("validate",byte[].class).invoke(null,(Object)backupBytes(invalid));}catch(java.lang.reflect.InvocationTargetException expected){rejected=true;}
+            check(rejected,"corrupt cup archive blocks backup replacement");
             gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);
         });
     }
