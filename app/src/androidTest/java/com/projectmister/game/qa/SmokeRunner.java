@@ -241,6 +241,74 @@ public final class SmokeRunner extends Instrumentation {
         });
         check(true,"Portuguese cup live quarter-final semi-final final and league resumption verified");
     }
+    private void verifyDomesticCupSeason()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+        byte[] original=backupBytes(prefs.getAll());final int[] initialAge={0};
+        ui(()->{
+            Object catalog=get("catalog"),data=null;
+            for(Object d:(List<?>)catalog.getClass().getField("divisions").get(catalog))if(d.getClass().getField("id").get(d).equals("pt:1"))data=d;
+            Object world=call("newCountryCareer",new Class[]{data.getClass()},data);
+            call("configureDivision",new Class[]{gameClass("CareerDivision")},world);set("selectedSlot",2);set("selectedClub",0);
+            call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
+            call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
+            ((Random)get("random")).setSeed(73451);
+            check(((String[])get("clubNames")).length==149&&((List<?>)get("players")).size()==2980,"expanded Portuguese world retains 149 clubs and 2980 players");
+            check(get("domesticCup")!=null&&get("leagueCup")!=null,"both Portuguese cups initialized");
+            initialAge[0]=playerInt(((List<?>)get("players")).get(0),"age");
+            call("saveCurrentGame",new Class[0]);checkBackupReadable();
+        });
+        final boolean[] done={false};final int[] cupMatches={0},quickMatches={0};
+        for(int event=0;event<90&&!done[0];event++) {
+            final int step=event;
+            ui(()->{
+                java.time.LocalDate before=(java.time.LocalDate)get("currentDate");
+                call("initialiseTacticsForClub",new Class[0]);
+                int round=(Integer)get("matchday");boolean cup=(Boolean)call("cupDue",new Class[0]);
+                if(cup) {
+                    Object history=get("leagueResults");String ledger=(String)history.getClass().getMethod("snapshot").invoke(history);
+                    call("startLiveMatchday",new Class[0]);
+                    if((Boolean)get("matchInProgress")) {
+                        check((Boolean)get("liveCup"),"cup window starts cup match");set("livePaused",true);
+                        set("liveHomeGoals",(Integer)get("liveHome")==0?3:0);set("liveAwayGoals",(Integer)get("liveAway")==0?3:0);
+                        call("finishLiveMatch",new Class[0]);cupMatches[0]++;
+                    }
+                    check(round==(Integer)get("matchday")&&ledger.equals(history.getClass().getMethod("snapshot").invoke(history)),"cup leaves league round and results unchanged");
+                } else if(round<34) {
+                    call("quickResult",new Class[0]);
+                    check((Integer)get("matchday")==round+1&&!(Boolean)get("matchInProgress"),"quick result completes exactly one league match");
+                    int goals=0;for(Object value:((Map<?,?>)get("matchGoals")).values())goals+=(Integer)value;
+                    check(goals==(Integer)get("liveHomeGoals")+(Integer)get("liveAwayGoals"),"quick-result goals credited to players");quickMatches[0]++;
+                }
+                check(!((java.time.LocalDate)get("currentDate")).isBefore(before),"career calendar never rewinds");
+                if(step%7==0||round>=34) {
+                    call("saveCurrentGame",new Class[0]);int weeks=(Integer)get("postseasonWeeksProcessed"),balance=(Integer)get("financeBalanceK");
+                    check((Boolean)call("loadSave",new Class[]{int.class},2),"expanded career reloads throughout cup season");checkBackupReadable();
+                    check(weeks==(Integer)get("postseasonWeeksProcessed")&&balance==(Integer)get("financeBalanceK"),"reload does not repeat postseason wages");
+                }
+                done[0]=(Integer)get("matchday")==34&&(Boolean)call("cupsComplete",new Class[0]);
+            });
+        }
+        ui(()->{
+            check(done[0]&&quickMatches[0]==34&&cupMatches[0]>=8,"full league plus both managed cup finals completed");
+            Object cup=get("domesticCup");check((Integer)cup.getClass().getMethod("drawnCount").invoke(cup)==145,"all 145 domestic cup ties resolved");
+            check((Integer)cup.getClass().getMethod("winner").invoke(cup)==0,"managed domestic cup champion saved");
+            check((Boolean)get("seasonAgeApplied")&&playerInt(((List<?>)get("players")).get(0),"age")==initialAge[0]+1,"season ageing runs once after final cup");
+            check((Integer)get("postseasonWeeksProcessed")>0,"postseason recovery and wages advance through May");
+            call("showCalendarTab",new Class[]{String.class},"Cup");
+        });
+        capture("35-domestic-cup-winners");
+        ui(()->{
+            String cup=(String)get("domesticCup").getClass().getMethod("snapshot").invoke(get("domesticCup"));
+            call("continueDivisionSeason",new Class[0]);
+            check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==2027&&(Integer)get("matchday")==0,"completed cup season advances to next year");
+            check(cup.equals(get("domesticCup").getClass().getMethod("snapshot").invoke(get("domesticCup"))),"cup archive survives next season");
+            check((Boolean)call("loadSave",new Class[]{int.class},2),"next season with expanded world reloads");checkBackupReadable();
+            Map<String,Object> invalid=new HashMap<>(prefs.getAll());invalid.put("save_2_postseason_weeks",-1);
+            boolean rejected=false;try{gameClass("BackupRestore").getMethod("validate",byte[].class).invoke(null,(Object)backupBytes(invalid));}catch(java.lang.reflect.InvocationTargetException expected){rejected=true;}
+            check(rejected,"invalid postseason counter rejected");
+            gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);
+        });
+    }
     private int playerInt(Object p,String field)throws Exception {Field f=p.getClass().getDeclaredField(field);f.setAccessible(true);return f.getInt(p);}
     private void verifyOfferControls()throws Exception {
         final Object[] target={null};final int[] fee={0},before={0};
@@ -744,6 +812,7 @@ public final class SmokeRunner extends Instrumentation {
                 verifyCalendarIntegrity();
                 verifyWorldMarket();
                 verifyPortugueseLeagueCup();
+                verifyDomesticCupSeason();
                 page("14-board","showClubOffice",new Class[0]);
                 page("15-inbox","showInbox",new Class[0]);
                 try(InputStream input=getTargetContext().getAssets().open("competitions/2026-27.json")) {

@@ -21,3 +21,16 @@ for league in d['divisions']:
 assert len(ids)==365 and reserves==13
 assert divisions=={(c,t) for c in expected for t in (1,2)}
 print('PASS: 10 countries, 20 divisions, 365 unique club identities, 13 reserve sides')
+
+cup=json.loads((p.parent/'portugal-cup-2026.json').read_text())
+assert cup['schema']==1 and cup['season']==2026
+clubs={c['id']:c for c in cup['clubs']}
+assert len(clubs)==len(cup['clubs'])==113
+assert not set(clubs).intersection(ids)
+assert {level:sum(c['level']==level for c in clubs.values()) for level in (3,4,5)}=={3:19,4:52,5:42}
+assert len(cup['firstRound'])==47 and all(len(pair)==2 for pair in cup['firstRound'])
+opening=[club for pair in cup['firstRound'] for club in pair]+cup['byes']
+assert len(cup['byes'])==19 and len(opening)==len(set(opening))==113 and set(opening)==set(clubs)
+assert len(cup['lateEntrants'])==len(set(cup['lateEntrants']))==5
+assert set(cup['lateEntrants']).issubset(ids)
+print('PASS: Portuguese cup opening draw, 113 lower-tier clubs, 19 byes and five late entrants')

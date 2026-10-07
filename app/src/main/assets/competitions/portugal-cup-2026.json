@@ -1,0 +1,795 @@
+{
+  "schema": 1,
+  "season": 2026,
+  "verifiedOn": "2026-10-06",
+  "sources": [
+    "https://afatv.pt/news-details/0c60aabb-210a-46df-9aa9-f57fec63d903",
+    "https://historiatacaportugal.wordpress.com/category/2026-27/",
+    "https://www.ligaportugal.pt/noticias/28742/sorteio-da-3.a-eliminatoria-da-taca-de-portugal"
+  ],
+  "clubs": [
+    {
+      "id": "pt:cup-correlha",
+      "name": "Correlhã",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-limianos",
+      "name": "Limianos",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-merelinense",
+      "name": "Merelinense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-atletico-dos-arcos",
+      "name": "Atlético dos Arcos",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-montalegre",
+      "name": "Montalegre",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-ponte-da-barca",
+      "name": "Ponte da Barca",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-rebordelo",
+      "name": "Rebordelo",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-braganca",
+      "name": "Bragança",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-vianense",
+      "name": "Vianense",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-minas-de-argozelo",
+      "name": "Minas de Argozelo",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-desp-celoricense",
+      "name": "Desp. Celoricense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-pevidem-sc",
+      "name": "Pevidém SC",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-maia-lidador",
+      "name": "Maia Lidador",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-vila-mea",
+      "name": "Vila Meã",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-maria-da-fonte",
+      "name": "Maria da Fonte",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-u-nogueirense",
+      "name": "U. Nogueirense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-pacos-de-ferreira",
+      "name": "Paços de Ferreira",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-ad-fafe",
+      "name": "AD Fafe",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-varzim",
+      "name": "Varzim",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-trofense",
+      "name": "Trofense",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-ermesinde-1936",
+      "name": "Ermesinde 1936",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-paredes",
+      "name": "Paredes",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-machico",
+      "name": "Machico",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-camacha",
+      "name": "Camacha",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-rebordosa",
+      "name": "Rebordosa",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-alpendorada",
+      "name": "Alpendorada",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-regua",
+      "name": "Régua",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-marco-09",
+      "name": "Marco 09",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-salgueiros",
+      "name": "Salgueiros",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-sousense",
+      "name": "Sousense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-beira-mar",
+      "name": "Beira-Mar",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-u-lamas",
+      "name": "U. Lamas",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-cinfaes",
+      "name": "Cinfães",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-sp-espinho",
+      "name": "Sp. Espinho",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-florgrade",
+      "name": "Florgrade",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-sao-joao-de-ver",
+      "name": "São João de Ver",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-sanjoanense",
+      "name": "Sanjoanense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-pacos-de-brandao",
+      "name": "Paços de Brandão",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-ud-oliveirense",
+      "name": "UD Oliveirense",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-penalva-do-castelo",
+      "name": "Penalva do Castelo",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-ad-nogueirense",
+      "name": "AD Nogueirense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-naval-1893",
+      "name": "Naval 1893",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-ac-fundao",
+      "name": "Ac. Fundão",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-guarda-fc",
+      "name": "Guarda FC",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-fornos-de-algodres",
+      "name": "Fornos de Algodres",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-marialvas",
+      "name": "Marialvas",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-oliveira-do-hospital",
+      "name": "Oliveira do Hospital",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-sourense",
+      "name": "Sourense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-sp-covilha",
+      "name": "Sp. Covilhã",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-mortagua",
+      "name": "Mortágua",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-alcains",
+      "name": "Alcains",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-sertanense",
+      "name": "Sertanense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-fatima",
+      "name": "Fátima",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-benfica-castelo-branco",
+      "name": "Benfica Castelo Branco",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-macao",
+      "name": "Mação",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-gavionenses",
+      "name": "Gavionenses",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-nazarenos",
+      "name": "Nazarenos",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-v-sernache",
+      "name": "V. Sernache",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-uniao-da-serra",
+      "name": "União da Serra",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-uniao-pombal",
+      "name": "União Pombal",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-at-malveira",
+      "name": "At. Malveira",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-mafra",
+      "name": "Mafra",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-caldas",
+      "name": "Caldas",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-sintrense",
+      "name": "Sintrense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-fazendense",
+      "name": "Fazendense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-mocarriense",
+      "name": "Moçarriense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-o-elvas",
+      "name": "O Elvas",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-sao-roque-acores",
+      "name": "São Roque (Açores)",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-portalegrense",
+      "name": "Portalegrense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-santo-antonio",
+      "name": "Santo António",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-1-o-dezembro",
+      "name": "1.º Dezembro",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-real",
+      "name": "Real",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-alcochetense",
+      "name": "Alcochetense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-fayal",
+      "name": "Fayal",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-barreiro",
+      "name": "Barreiro",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-madalena",
+      "name": "Madalena",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-sacavenense",
+      "name": "Sacavenense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-angrense",
+      "name": "Angrense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-futebol-benfica",
+      "name": "Futebol Benfica",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-sp-viana-do-alentejo",
+      "name": "Sp. Viana do Alentejo",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-lgc-alentejo",
+      "name": "LGC Alentejo",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-belenenses",
+      "name": "Belenenses",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-olimpico-do-montijo",
+      "name": "Olímpico do Montijo",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-atletico",
+      "name": "Atlético",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-u-montemor",
+      "name": "U. Montemor",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-juventude-de-evora",
+      "name": "Juventude de Évora",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-castrense",
+      "name": "Castrense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-louletano",
+      "name": "Louletano",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-ferreiras",
+      "name": "Ferreiras",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-aljustrelense",
+      "name": "Aljustrelense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-messejanense",
+      "name": "Messejanense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-portel",
+      "name": "Portel",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-serpa",
+      "name": "Serpa",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-grandolense",
+      "name": "Grandolense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-amora",
+      "name": "Amora",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-anca",
+      "name": "Ançã",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-bombarralense",
+      "name": "Bombarralense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-brito",
+      "name": "Brito",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-castro-daire",
+      "name": "Castro Daire",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-estrela-da-calheta",
+      "name": "Estrela da Calheta",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-g-figueirense-c-rodrigo",
+      "name": "G. Figueirense (C. Rodrigo)",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-imortal",
+      "name": "Imortal",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-juv-lajense",
+      "name": "Juv. Lajense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-lagoa",
+      "name": "Lagoa",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-lamelas",
+      "name": "Lamelas",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-leca",
+      "name": "Leça",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-olhanense",
+      "name": "Olhanense",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-ovarense",
+      "name": "Ovarense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-tirsense",
+      "name": "Tirsense",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-u-santarem",
+      "name": "U. Santarém",
+      "level": 3
+    },
+    {
+      "id": "pt:cup-v-setubal",
+      "name": "V. Setúbal",
+      "level": 4
+    },
+    {
+      "id": "pt:cup-vila-pouca-de-aguiar",
+      "name": "Vila Pouca de Aguiar",
+      "level": 5
+    },
+    {
+      "id": "pt:cup-vinhais",
+      "name": "Vinhais",
+      "level": 4
+    }
+  ],
+  "firstRound": [
+    [
+      "pt:cup-correlha",
+      "pt:cup-limianos"
+    ],
+    [
+      "pt:cup-merelinense",
+      "pt:cup-atletico-dos-arcos"
+    ],
+    [
+      "pt:cup-montalegre",
+      "pt:cup-ponte-da-barca"
+    ],
+    [
+      "pt:cup-rebordelo",
+      "pt:cup-braganca"
+    ],
+    [
+      "pt:cup-vianense",
+      "pt:cup-minas-de-argozelo"
+    ],
+    [
+      "pt:cup-desp-celoricense",
+      "pt:cup-pevidem-sc"
+    ],
+    [
+      "pt:cup-maia-lidador",
+      "pt:cup-vila-mea"
+    ],
+    [
+      "pt:cup-maria-da-fonte",
+      "pt:cup-u-nogueirense"
+    ],
+    [
+      "pt:cup-pacos-de-ferreira",
+      "pt:cup-ad-fafe"
+    ],
+    [
+      "pt:cup-varzim",
+      "pt:cup-trofense"
+    ],
+    [
+      "pt:cup-ermesinde-1936",
+      "pt:cup-paredes"
+    ],
+    [
+      "pt:cup-machico",
+      "pt:cup-camacha"
+    ],
+    [
+      "pt:cup-rebordosa",
+      "pt:cup-alpendorada"
+    ],
+    [
+      "pt:cup-regua",
+      "pt:cup-marco-09"
+    ],
+    [
+      "pt:cup-salgueiros",
+      "pt:cup-sousense"
+    ],
+    [
+      "pt:cup-beira-mar",
+      "pt:cup-u-lamas"
+    ],
+    [
+      "pt:cup-cinfaes",
+      "pt:cup-sp-espinho"
+    ],
+    [
+      "pt:cup-florgrade",
+      "pt:cup-sao-joao-de-ver"
+    ],
+    [
+      "pt:cup-sanjoanense",
+      "pt:cup-pacos-de-brandao"
+    ],
+    [
+      "pt:cup-ud-oliveirense",
+      "pt:cup-penalva-do-castelo"
+    ],
+    [
+      "pt:cup-ad-nogueirense",
+      "pt:cup-naval-1893"
+    ],
+    [
+      "pt:cup-ac-fundao",
+      "pt:cup-guarda-fc"
+    ],
+    [
+      "pt:cup-fornos-de-algodres",
+      "pt:cup-marialvas"
+    ],
+    [
+      "pt:cup-oliveira-do-hospital",
+      "pt:cup-sourense"
+    ],
+    [
+      "pt:cup-sp-covilha",
+      "pt:cup-mortagua"
+    ],
+    [
+      "pt:cup-alcains",
+      "pt:cup-sertanense"
+    ],
+    [
+      "pt:cup-fatima",
+      "pt:cup-benfica-castelo-branco"
+    ],
+    [
+      "pt:cup-macao",
+      "pt:cup-gavionenses"
+    ],
+    [
+      "pt:cup-nazarenos",
+      "pt:cup-v-sernache"
+    ],
+    [
+      "pt:cup-uniao-da-serra",
+      "pt:cup-uniao-pombal"
+    ],
+    [
+      "pt:cup-at-malveira",
+      "pt:cup-mafra"
+    ],
+    [
+      "pt:cup-caldas",
+      "pt:cup-sintrense"
+    ],
+    [
+      "pt:cup-fazendense",
+      "pt:cup-mocarriense"
+    ],
+    [
+      "pt:cup-o-elvas",
+      "pt:cup-sao-roque-acores"
+    ],
+    [
+      "pt:cup-portalegrense",
+      "pt:cup-santo-antonio"
+    ],
+    [
+      "pt:cup-1-o-dezembro",
+      "pt:cup-real"
+    ],
+    [
+      "pt:cup-alcochetense",
+      "pt:cup-fayal"
+    ],
+    [
+      "pt:cup-barreiro",
+      "pt:cup-madalena"
+    ],
+    [
+      "pt:cup-sacavenense",
+      "pt:cup-angrense"
+    ],
+    [
+      "pt:cup-futebol-benfica",
+      "pt:cup-sp-viana-do-alentejo"
+    ],
+    [
+      "pt:cup-lgc-alentejo",
+      "pt:cup-belenenses"
+    ],
+    [
+      "pt:cup-olimpico-do-montijo",
+      "pt:cup-atletico"
+    ],
+    [
+      "pt:cup-u-montemor",
+      "pt:cup-juventude-de-evora"
+    ],
+    [
+      "pt:cup-castrense",
+      "pt:cup-louletano"
+    ],
+    [
+      "pt:cup-ferreiras",
+      "pt:cup-aljustrelense"
+    ],
+    [
+      "pt:cup-messejanense",
+      "pt:cup-portel"
+    ],
+    [
+      "pt:cup-serpa",
+      "pt:cup-grandolense"
+    ]
+  ],
+  "byes": [
+    "pt:cup-amora",
+    "pt:cup-anca",
+    "pt:cup-bombarralense",
+    "pt:cup-brito",
+    "pt:cup-castro-daire",
+    "pt:cup-estrela-da-calheta",
+    "pt:cup-g-figueirense-c-rodrigo",
+    "pt:cup-imortal",
+    "pt:cup-juv-lajense",
+    "pt:cup-lagoa",
+    "pt:cup-lamelas",
+    "pt:cup-leca",
+    "pt:cup-olhanense",
+    "pt:cup-ovarense",
+    "pt:cup-tirsense",
+    "pt:cup-u-santarem",
+    "pt:cup-v-setubal",
+    "pt:cup-vila-pouca-de-aguiar",
+    "pt:cup-vinhais"
+  ],
+  "lateEntrants": [
+    "pt:fc-porto",
+    "pt:sporting-cp",
+    "pt:sl-benfica",
+    "pt:sc-braga",
+    "pt:scu-torreense"
+  ]
+}

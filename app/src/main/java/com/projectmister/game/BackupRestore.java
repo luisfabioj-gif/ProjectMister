@@ -34,6 +34,15 @@ public final class BackupRestore {
                 } else if(division!=null&&division.country.equals("SCO")&&(division.linked||division.splitSeason())&&round>33)throw new IllegalArgumentException("Missing split");
                 WorldMarket.restore((String)data.getOrDefault(prefix+"market_hires",""));
                 SeasonHistory.restore((String)data.getOrDefault(prefix+"season_history",""));
+                String domestic=(String)data.getOrDefault(prefix+"domestic_cup","");
+                int weeks=(Integer)data.getOrDefault(prefix+"postseason_weeks",0);
+                if(weeks<0||weeks>20)throw new IllegalArgumentException("Invalid postseason weeks");
+                if(division!=null&&division.hasCupClubs()&&domestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
+                if(!domestic.isEmpty()) {
+                    if(division==null||!division.hasCupClubs())throw new IllegalArgumentException("Missing cup registry");
+                    DomesticCup restored=DomesticCup.restore(domestic,size);restored.validateEntrants(division.reserves);
+                    restored.validateDate(LocalDate.parse((String)data.get(prefix+"date")));
+                }
                 String cup=(String)data.getOrDefault(prefix+"league_cup","");
                 if(!cup.isEmpty()) {
                     if(division==null||!division.linked||!division.country.equals("PT"))throw new IllegalArgumentException("Unexpected cup");
