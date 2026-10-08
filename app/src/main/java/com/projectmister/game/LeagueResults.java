@@ -14,7 +14,7 @@ public final class LeagueResults {
     public final boolean recordedFromStart;
     private final ArrayList<Result> results=new ArrayList<>();
     public LeagueResults(int clubs,boolean fromStart) {
-        if(clubs<2||clubs>256)throw new IllegalArgumentException("Invalid result universe");
+        if(clubs<2||clubs>768)throw new IllegalArgumentException("Invalid result universe");
         clubCount=clubs;recordedFromStart=fromStart;
     }
     /** A repeated identical delivery is harmless; conflicting/double-booked fixtures are rejected. */
