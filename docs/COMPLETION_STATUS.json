@@ -2,39 +2,296 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-08T12:35:00Z",
+  "updated_utc": "2026-10-08T23:40:00Z",
   "complete": false,
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
   "milestones": [
-    {"id":"presentation","weight":6,"status":"verified","acceptance":"Dashboard, navigation, profiles, tactics, finance and stadium readable in Android screenshots and compact landscape."},
-    {"id":"saves","weight":6,"status":"verified","acceptance":"Startup, save compatibility, three slots, backup validation, upgrade and different-key restore pass Android QA."},
-    {"id":"live_match","weight":7,"status":"verified","acceptance":"Playable 2D match, spatial passing, ball flight, tactical movement, opponent substitutions and truthful watched-team results."},
-    {"id":"tactics","weight":4,"status":"verified","acceptance":"Half-time tactics, substitutions, undo and match resume preserve the active match."},
-    {"id":"audio","weight":3,"status":"verified","acceptance":"Crowd/event audio, volume controls, lifecycle and audio-focus handling integrated."},
-    {"id":"finance_stadium","weight":3,"status":"verified","acceptance":"Existing finance, stadium and facility purchases retain accounting and saves."},
-    {"id":"management","weight":3,"status":"verified","acceptance":"Squads, player/staff profiles, training, scouting, board and inbox remain playable."},
-    {"id":"twenty_divisions","weight":6,"status":"verified","acceptance":"Ten countries, twenty real-club divisions and linked first/second tier promotion pass Android QA."},
-    {"id":"world_market","weight":3,"status":"verified","acceptance":"Recruitment from all twenty catalog divisions and free agents works from Portuguese and other careers."},
-    {"id":"history","weight":3,"status":"verified","acceptance":"Sourced real competition winners and saved career league/cup history appear in History."},
-    {"id":"artwork","weight":3,"status":"verified","acceptance":"Stable fictional photographic portraits and stadium/upgrade images are displayed."},
-    {"id":"portuguese_domestic_cup","weight":3,"status":"verified","acceptance":"Recurring Taça de Portugal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA."},
-    {"id":"german_cup","weight":3,"status":"verified","acceptance":"Recurring DFB-Pokal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA."},
-    {"id":"english_cups","weight":2,"status":"pending","acceptance":"Recurring FA Cup and League Cup connected to country careers, live/quick results, annual entrants, saves and history."},
-    {"id":"spanish_cup","weight":2,"status":"pending","acceptance":"Recurring Copa del Rey connected to country careers, live/quick results, annual entrants, saves and history."},
-    {"id":"italian_cup","weight":2,"status":"pending","acceptance":"Recurring Coppa Italia connected to country careers, live/quick results, annual entrants, saves and history."},
-    {"id":"french_cup","weight":2,"status":"pending","acceptance":"Recurring Coupe de France connected to country careers, live/quick results, annual entrants, saves and history."},
-    {"id":"dutch_cup","weight":2,"status":"pending","acceptance":"Recurring KNVB Cup connected to country careers, live/quick results, annual entrants, saves and history."},
-    {"id":"belgian_cup","weight":2,"status":"pending","acceptance":"Recurring Belgian Cup connected to country careers, live/quick results, annual entrants, saves and history."},
-    {"id":"scottish_cups","weight":2,"status":"pending","acceptance":"Recurring Scottish Cup and League Cup connected to country careers, live/quick results, annual entrants, saves and history."},
-    {"id":"turkish_cup","weight":2,"status":"pending","acceptance":"Recurring Turkish Cup connected to country careers, live/quick results, annual entrants, saves and history."},
-    {"id":"portuguese_league_cup_2027","weight":5,"status":"pending","acceptance":"Published 2027/28 format, lower promotion outcomes, European exemptions, used-player age tiebreak and annual career integration."},
-    {"id":"uefa","weight":10,"status":"pending","acceptance":"Playable recurring Champions League, Europa League and Conference League with qualification, foreign clubs, draws, live/quick fixtures, calendars, saves and history."},
-    {"id":"annual_qualification","weight":5,"status":"pending","acceptance":"Final standings and cup results determine next-year competition fields and lower-pyramid replacements with stable identities."},
-    {"id":"registration","weight":2,"status":"pending","acceptance":"Country transfer windows and free-agent exceptions are enforced and explained using verified rules."},
-    {"id":"remaining_national_rules","weight":3,"status":"pending","acceptance":"Consequential ties, reserve/parent conflicts and cup-specific eligibility/discipline resolve without deadlocking annual progression."},
-    {"id":"calendar","weight":2,"status":"pending","acceptance":"Dated league, cup and UEFA schedules advance monotonically, prevent double booking and label projected future dates."},
-    {"id":"full_game_qa","weight":2,"status":"pending","acceptance":"Full Android 35/36 navigation, live matches, long-career, expanded competitions, save/backup and release installation gates pass; screenshots reviewed; defects fixed."},
-    {"id":"finished_test_apk","weight":2,"status":"pending","acceptance":"Verified installable APK, provenance, complete change notes and real-world testing instructions delivered. Play publication and physical phone testing are outside the accessible development gate."}
+    {
+      "id": "presentation",
+      "weight": 6,
+      "status": "verified",
+      "acceptance": "Dashboard, navigation, profiles, tactics, finance and stadium readable in Android screenshots and compact landscape."
+    },
+    {
+      "id": "saves",
+      "weight": 6,
+      "status": "verified",
+      "acceptance": "Startup, save compatibility, three slots, backup validation, upgrade and different-key restore pass Android QA."
+    },
+    {
+      "id": "live_match",
+      "weight": 7,
+      "status": "verified",
+      "acceptance": "Playable 2D match, spatial passing, ball flight, tactical movement, opponent substitutions and truthful watched-team results."
+    },
+    {
+      "id": "tactics",
+      "weight": 4,
+      "status": "verified",
+      "acceptance": "Half-time tactics, substitutions, undo and match resume preserve the active match."
+    },
+    {
+      "id": "audio",
+      "weight": 3,
+      "status": "verified",
+      "acceptance": "Crowd/event audio, volume controls, lifecycle and audio-focus handling integrated."
+    },
+    {
+      "id": "finance_stadium",
+      "weight": 3,
+      "status": "verified",
+      "acceptance": "Existing finance, stadium and facility purchases retain accounting and saves."
+    },
+    {
+      "id": "management",
+      "weight": 3,
+      "status": "verified",
+      "acceptance": "Squads, player/staff profiles, training, scouting, board and inbox remain playable."
+    },
+    {
+      "id": "twenty_divisions",
+      "weight": 6,
+      "status": "verified",
+      "acceptance": "Ten countries, twenty real-club divisions and linked first/second tier promotion pass Android QA."
+    },
+    {
+      "id": "world_market",
+      "weight": 3,
+      "status": "verified",
+      "acceptance": "Recruitment from all twenty catalog divisions and free agents works from Portuguese and other careers."
+    },
+    {
+      "id": "history",
+      "weight": 3,
+      "status": "verified",
+      "acceptance": "Sourced real competition winners and saved career league/cup history appear in History."
+    },
+    {
+      "id": "artwork",
+      "weight": 3,
+      "status": "verified",
+      "acceptance": "Stable fictional photographic portraits and stadium/upgrade images are displayed."
+    },
+    {
+      "id": "portuguese_domestic_cup",
+      "weight": 3,
+      "status": "verified",
+      "acceptance": "Recurring Taça de Portugal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA."
+    },
+    {
+      "id": "german_cup",
+      "weight": 3,
+      "status": "verified",
+      "acceptance": "Recurring DFB-Pokal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA."
+    },
+    {
+      "id": "english_cups",
+      "weight": 2,
+      "status": "verified",
+      "acceptance": "Recurring FA Cup and League Cup connected to country careers, live/quick results, annual entrants, saves and history.",
+      "evidence": {
+        "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113587075914,
+          113587076236
+        ],
+        "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
+        "qa_artifact_api36": 11585283817
+      }
+    },
+    {
+      "id": "spanish_cup",
+      "weight": 2,
+      "status": "verified",
+      "acceptance": "Recurring Copa del Rey connected to country careers, live/quick results, annual entrants, saves and history.",
+      "evidence": {
+        "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113587075914,
+          113587076236
+        ],
+        "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
+        "qa_artifact_api36": 11585283817
+      }
+    },
+    {
+      "id": "italian_cup",
+      "weight": 2,
+      "status": "verified",
+      "acceptance": "Recurring Coppa Italia connected to country careers, live/quick results, annual entrants, saves and history.",
+      "evidence": {
+        "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113587075914,
+          113587076236
+        ],
+        "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
+        "qa_artifact_api36": 11585283817
+      }
+    },
+    {
+      "id": "french_cup",
+      "weight": 2,
+      "status": "verified",
+      "acceptance": "Recurring Coupe de France connected to country careers, live/quick results, annual entrants, saves and history.",
+      "evidence": {
+        "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113587075914,
+          113587076236
+        ],
+        "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
+        "qa_artifact_api36": 11585283817
+      }
+    },
+    {
+      "id": "dutch_cup",
+      "weight": 2,
+      "status": "verified",
+      "acceptance": "Recurring KNVB Cup connected to country careers, live/quick results, annual entrants, saves and history.",
+      "evidence": {
+        "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113587075914,
+          113587076236
+        ],
+        "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
+        "qa_artifact_api36": 11585283817
+      }
+    },
+    {
+      "id": "belgian_cup",
+      "weight": 2,
+      "status": "verified",
+      "acceptance": "Recurring Belgian Cup connected to country careers, live/quick results, annual entrants, saves and history.",
+      "evidence": {
+        "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113587075914,
+          113587076236
+        ],
+        "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
+        "qa_artifact_api36": 11585283817
+      }
+    },
+    {
+      "id": "scottish_cups",
+      "weight": 2,
+      "status": "verified",
+      "acceptance": "Recurring Scottish Cup and League Cup connected to country careers, live/quick results, annual entrants, saves and history.",
+      "evidence": {
+        "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113587075914,
+          113587076236
+        ],
+        "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
+        "qa_artifact_api36": 11585283817
+      }
+    },
+    {
+      "id": "turkish_cup",
+      "weight": 2,
+      "status": "verified",
+      "acceptance": "Recurring Turkish Cup connected to country careers, live/quick results, annual entrants, saves and history.",
+      "evidence": {
+        "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113587075914,
+          113587076236
+        ],
+        "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
+        "qa_artifact_api36": 11585283817
+      }
+    },
+    {
+      "id": "portuguese_league_cup_2027",
+      "weight": 5,
+      "status": "pending",
+      "acceptance": "Published 2027/28 format, lower promotion outcomes, European exemptions, used-player age tiebreak and annual career integration."
+    },
+    {
+      "id": "uefa",
+      "weight": 10,
+      "status": "pending",
+      "acceptance": "Playable recurring Champions League, Europa League and Conference League with qualification, foreign clubs, draws, live/quick fixtures, calendars, saves and history."
+    },
+    {
+      "id": "annual_qualification",
+      "weight": 5,
+      "status": "pending",
+      "acceptance": "Final standings and cup results determine next-year competition fields and lower-pyramid replacements with stable identities."
+    },
+    {
+      "id": "registration",
+      "weight": 2,
+      "status": "pending",
+      "acceptance": "Country transfer windows and free-agent exceptions are enforced and explained using verified rules."
+    },
+    {
+      "id": "remaining_national_rules",
+      "weight": 3,
+      "status": "pending",
+      "acceptance": "Consequential ties, reserve/parent conflicts and cup-specific eligibility/discipline resolve without deadlocking annual progression."
+    },
+    {
+      "id": "calendar",
+      "weight": 2,
+      "status": "pending",
+      "acceptance": "Dated league, cup and UEFA schedules advance monotonically, prevent double booking and label projected future dates."
+    },
+    {
+      "id": "full_game_qa",
+      "weight": 2,
+      "status": "pending",
+      "acceptance": "Full Android 35/36 navigation, live matches, long-career, expanded competitions, save/backup and release installation gates pass; screenshots reviewed; defects fixed."
+    },
+    {
+      "id": "finished_test_apk",
+      "weight": 2,
+      "status": "pending",
+      "acceptance": "Verified installable APK, provenance, complete change notes and real-world testing instructions delivered. Play publication and physical phone testing are outside the accessible development gate."
+    }
   ]
 }

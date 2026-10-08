@@ -2,6 +2,27 @@
 
 This is a tested development APK, not a Play Store production release. Android hardware listening and sustained performance review remain necessary.
 
+## Verified recurring cups — 8 October 2026
+
+- Source: `f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`.
+- Run: https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698
+- Android 35 job `113587075914` and Android 36 job `113587076236` succeeded.
+- England (FA/League), Spain, Italy, France, Netherlands, Belgium, Scotland
+  (Scottish/League) and Turkey each completed two native seasons. Watched and
+  quick managed-club matches produced the stored cup results and player uses.
+- Full league/cup calendars were chronological; cup games did not enter league
+  results. Every current edition, completed archive, stable world and player
+  age survived save/reload. Invalid backup edits were rejected before preferences
+  changed. Baseline upgrades, compact tactics, release installation and distinct
+  signing-key backup restoration also passed the complete gate.
+- API36 artifact `11585283817` preserves all screenshots and per-country logs.
+  English opening fixtures, French/Turkish history and future Scottish League
+  Cup empty groups were visually reviewed: readable text, dates, controls and
+  completed trophies; no score access on an unplayed fixture.
+- API36 candidate artifact `11585154802` is a tested development checkpoint.
+  This does not complete UEFA, the future Portuguese League Cup, annual
+  qualifications, remaining national rules, shared calendars or final delivery.
+
 ## Current verified gameplay checkpoint — 6 October 2026
 
 - Source: `b3e5e53481e82cd2ab12258873b929d5e635bf14`.
