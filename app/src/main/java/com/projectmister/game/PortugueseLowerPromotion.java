@@ -20,6 +20,9 @@ public final class PortugueseLowerPromotion {
         playoff=new KnockoutTie(secondHomeFirst?second[0]:third[2],secondHomeFirst?third[2]:second[0],2,second[0],false,KnockoutTie.Rule.EXTRA_TIME_PENALTIES);
     }
     public KnockoutTie current(){return complete()?null:playoff;}
+    public int[] thirdEntrants(){return third.clone();}
+    public int[] secondEntrants(){return second.clone();}
+    public KnockoutTie tie(){return playoff;}
     public boolean complete(){return playoff.winner()>=0;}
     public int[] promoted(){if(!complete())throw new IllegalStateException("Finish Liga 2 barrage");return playoff.winner()==second[0]?Arrays.copyOf(third,2):third.clone();}
     public int[] relegated(){if(!complete())throw new IllegalStateException("Finish Liga 2 barrage");return playoff.winner()==second[0]?new int[]{second[1],second[2]}:second.clone();}

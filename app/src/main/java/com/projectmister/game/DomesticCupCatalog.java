@@ -37,7 +37,7 @@ public final class DomesticCupCatalog {
             if(world.clubTiers[i]==1)upper.add(i);else if(world.clubTiers[i]==2)lower.add(i);
         }
         DomesticCup cup=new DomesticCup(world.names.length,seed,opening,rest,array(lower),array(upper),europe);
-        cup.validateEntrants(world.reserves);return cup;
+        cup.validateEntrants(world.cupExclusions());return cup;
     }
     private static int resolve(Map<String,Integer> ids,String id){Integer c=ids.get(id);if(c==null)throw new IllegalArgumentException("Missing cup club: "+id);return c;}
     private static int[] array(List<Integer> ids){int[] result=new int[ids.size()];for(int i=0;i<result.length;i++)result[i]=ids.get(i);return result;}

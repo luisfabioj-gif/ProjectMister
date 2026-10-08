@@ -39,6 +39,12 @@ public final class BackupRestore {
                 if(weeks<0||weeks>20)throw new IllegalArgumentException("Invalid postseason weeks");
                 if(division!=null&&division.country.equals("PT")&&division.hasCupClubs()&&domestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
                 int cupYear=LocalDate.parse((String)data.getOrDefault(prefix+"season_start","2026-08-09")).getYear();
+                String third=(String)data.getOrDefault(prefix+"portuguese_third",""),fourth=(String)data.getOrDefault(prefix+"portuguese_fourth","");
+                PortugueseThirdDivisionSeasons thirdSeasons=third.isEmpty()?null:PortugueseLowerCatalog.validate(third,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
+                PortugueseFourthDivisionSeasons fourthSeasons=fourth.isEmpty()?null:PortugueseLowerCatalog.validateFourth(fourth,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
+                String district=(String)data.getOrDefault(prefix+"portuguese_district","");PortugueseDistrictSeasons districtSeasons=district.isEmpty()?null:PortugueseLowerCatalog.validateDistrict(district,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
+                if(division!=null&&division.country.equals("PT")&&division.expandedWorld()&&(thirdSeasons==null||fourthSeasons==null||districtSeasons==null))throw new IllegalArgumentException("Missing lower seasons");
+                PortugueseLowerCatalog.validatePromotion((String)data.getOrDefault(prefix+"portuguese_lower_promotion",""),division,thirdSeasons,cupYear,round);
                 String national=(String)data.getOrDefault(prefix+"national_cups","");
                 if(division!=null&&!division.country.equals("PT")&&division.hasCupClubs()&&national.isEmpty())throw new IllegalArgumentException("Missing national cup");
                 if(!national.isEmpty())NationalCupCatalog.validate(national,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
@@ -50,14 +56,19 @@ public final class BackupRestore {
                 }
                 if(!domestic.isEmpty()) {
                     if(division==null||!division.country.equals("PT")||!division.hasCupClubs())throw new IllegalArgumentException("Missing cup registry");
-                    DomesticCup restored=DomesticCup.restore(domestic,size);restored.validateEntrants(division.reserves);
+                    DomesticCup restored=DomesticCup.restore(domestic,size);restored.validateEntrants(division.cupExclusions());
                     restored.validateDate(LocalDate.parse((String)data.get(prefix+"date")));
                     if(restored.season>cupYear||restored.season<cupYear&&!restored.complete())throw new IllegalArgumentException("Wrong domestic cup season");
                     cupYear=restored.season;
                 }
-                DomesticCupHistory cupHistory=DomesticCupHistory.restore((String)data.getOrDefault(prefix+"domestic_cup_history",""),size,division==null?new boolean[size]:division.reserves,cupYear);
+                DomesticCupHistory cupHistory=DomesticCupHistory.restore((String)data.getOrDefault(prefix+"domestic_cup_history",""),size,division==null?new boolean[size]:division.cupExclusions(),cupYear);
                 if(domestic.isEmpty()&&!cupHistory.editions().isEmpty())throw new IllegalArgumentException("Missing active domestic cup");
                 String cup=(String)data.getOrDefault(prefix+"league_cup","");
+                String modern=(String)data.getOrDefault(prefix+"modern_portuguese_cup","");
+                if(!modern.isEmpty()) {
+                    if(division==null||!division.linked||!division.country.equals("PT"))throw new IllegalArgumentException("Unexpected Portuguese League Cup");
+                    PortugueseLeagueCupCareer.validate(modern,division.clubIds,division.clubTiers,division.reserves,LocalDate.parse((String)data.get(prefix+"season_start")).getYear(),LocalDate.parse((String)data.get(prefix+"date")));
+                }
                 if(!cup.isEmpty()) {
                     if(division==null||!division.linked||!division.country.equals("PT"))throw new IllegalArgumentException("Unexpected cup");
                     PortugueseLeagueCup restoredCup=PortugueseLeagueCup.restore(cup,division.clubIds);

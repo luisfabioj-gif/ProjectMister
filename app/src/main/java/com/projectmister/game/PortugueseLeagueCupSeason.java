@@ -27,7 +27,7 @@ public final class PortugueseLeagueCupSeason {
     private final Map<Integer,Map<Integer,Integer>> used=new HashMap<>();
     private final ArrayList<KnockoutTie> ties=new ArrayList<>();
     private int stage,cursor;
-    private int[] leagueClubs;
+    private int[] leagueClubs,resolvedRank;
 
     /** direct is ordered by prior Liga 1 position, then domestic cup qualification.
      * preliminary contains the actual article-7 qualifiers in home/away order, or is empty for an even field.
@@ -80,6 +80,12 @@ public final class PortugueseLeagueCupSeason {
     public KnockoutTie currentTie(){Fixture f=current();return f==null||f.league?null:KnockoutTie.restore(ties.get(cursor).snapshot());}
     public boolean complete(){return current()==null;}
     public int winner(){return complete()?ties.get(0).winner():-1;}
+    public int[] clubs(){return clubs.clone();}
+    public int[] direct(){return direct.clone();}
+    public int[] preliminary(){return preliminary.clone();}
+    public List<LocalDate> calendar(){return dates;}
+    public List<String> events(){return Collections.unmodifiableList(new ArrayList<>(events));}
+    public String roundName(){Fixture f=current();return f==null?"Final":f.stage==0?"Preliminary qualifier":f.stage==1?"League phase • Matchday "+(f.index/(fixtures.size()/2)+1):f.stage==2?"Play-off":f.stage==3?"Quarter-final":f.stage==4?"Semi-final":"Final";}
     public int leagueFixtureCount(){return fixtures.size();}
     public int[] leagueFixture(int i){return fixtures.get(i).clone();}
     public int[] leagueResult(int i){return i>=results.size()?null:results.get(i).clone();}
@@ -121,10 +127,12 @@ public final class PortugueseLeagueCupSeason {
         return Long.compare(sa*pb.size(),sb*pa.size());
     }
     public int[] order() {
+        if(resolvedRank!=null)return resolvedRank.clone();
         if(leagueClubs==null)return new int[0];Map<Integer,int[]> table=metrics();Integer[] rank=new Integer[leagueClubs.length];for(int i=0;i<rank.length;i++)rank[i]=leagueClubs[i];
         Arrays.sort(rank,(a,b)->{int c=compare(a,b,table);return c!=0?c:Integer.compare(a,b);});int[] out=new int[rank.length];for(int i=0;i<out.length;i++)out[i]=rank[i];return out;
     }
     private int[] qualifiedOrder() {
+        if(resolvedRank!=null)return resolvedRank.clone();
         int[] order=order();Map<Integer,int[]> table=metrics();int limit=2*(8-direct.length);
         for(int i=0;i<Math.min(limit,order.length-1);i++)if(compare(order[i],order[i+1],table)==0)throw new IllegalStateException("League Cup ranking requires a sporting decision");return order;
     }
@@ -132,11 +140,27 @@ public final class PortugueseLeagueCupSeason {
         if(stage!=1||results.size()!=fixtures.size())return false;
         try{qualifiedOrder();return false;}catch(IllegalStateException unresolved){return true;}
     }
+    public LocalDate rankingDate(){return dates.get(2).plusDays(3);}
+    /** Article 27 imports the general LPF unresolved-ranking procedure. This is a documented
+     * interpretation: neutral decider for two; a neutral round robin for larger equal groups. */
+    public void resolveRanking(PortugueseThirdDivisionSeason.Scores scores){resolveRanking(scores,null);}
+    private void resolveRanking(PortugueseThirdDivisionSeason.Scores scores,List<String> saved){
+        if(!rankingDecisionRequired())throw new IllegalStateException("No League Cup ranking decision pending");
+        int[] rank=order();int size=0;for(int c:clubs)size=Math.max(size,c+1);
+        PortugueseThirdDivisionSeason.Participation use=new PortugueseThirdDivisionSeason.Participation(size);for(int c:leagueClubs)use.used.put(c,new TreeMap<>(used.get(c)));
+        PortugueseLowerDeciders decisions=new PortugueseLowerDeciders(seed,size);if(saved!=null)decisions.restoreEvents(saved);
+        Map<Integer,int[]> table=metrics();for(int start=0;start<rank.length;){int end=start+1;while(end<rank.length&&compare(rank[start],rank[end],table)==0)end++;if(end-start>1&&start<2*(8-direct.length)){int[] ordered=decisions.resolveClubs(Arrays.copyOfRange(rank,start,end),"L_"+start,use,scores);System.arraycopy(ordered,0,rank,start,ordered.length);}start=end;}
+        decisions.finishRestore();resolvedRank=rank;for(String result:decisions.events)events.add("D|"+Base64.getEncoder().encodeToString(result.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    }
+    private void replayEvents(String[] rows,LocalDate date){
+        for(int i=5;i<rows.length;i++){
+            if(rows[i].startsWith("D|")){if(date!=null&&rankingDate().isAfter(date))throw new IllegalArgumentException("Future League Cup neutral decision");List<String> saved=new ArrayList<>();while(i<rows.length&&rows[i].startsWith("D|")){saved.add(new String(Base64.getDecoder().decode(rows[i].substring(2)),java.nio.charset.StandardCharsets.UTF_8));i++;}i--;resolveRanking(null,saved);}
+            else{if(date!=null){Fixture f=current();if(f==null||f.date.isAfter(date))throw new IllegalArgumentException("Future League Cup result");}replay(rows[i]);}
+        }
+    }
     public void validateDate(LocalDate date) {
-        if(date==null)throw new IllegalArgumentException("Missing career date");
-        PortugueseLeagueCupSeason replay=restoreHeader(snapshot().split("\n",-1));
-        for(String event:events){Fixture f=replay.current();if(f.date.isAfter(date))throw new IllegalArgumentException("Future League Cup result");replay.replay(event);}
-        if(rankingDecisionRequired()) {if(dates.get(3).isBefore(date))throw new IllegalArgumentException("Unresolved League Cup playoff overdue");return;}
+        if(date==null)throw new IllegalArgumentException("Missing career date");String[] rows=snapshot().split("\n",-1);PortugueseLeagueCupSeason replay=restoreHeader(rows);replay.replayEvents(rows,date);
+        if(rankingDecisionRequired()){if(rankingDate().isBefore(date))throw new IllegalArgumentException("Unresolved League Cup decision overdue");return;}
         Fixture next=current();if(next!=null&&next.date.isBefore(date))throw new IllegalArgumentException("Overdue League Cup fixture");
     }
     private static String ids(int[] values){StringJoiner out=new StringJoiner(",");for(int v:values)out.add(String.valueOf(v));return values.length==0?"-":out.toString();}
@@ -163,8 +187,8 @@ public final class PortugueseLeagueCupSeason {
         else throw new IllegalArgumentException("Unknown League Cup event");
     }
     public static PortugueseLeagueCupSeason restore(String text) {
-        if(text==null||text.length()>131072)throw new IllegalArgumentException("Invalid League Cup save size");String[] rows=text.split("\n",-1);
-        if(rows.length>180)throw new IllegalArgumentException("Too many League Cup events");PortugueseLeagueCupSeason cup=restoreHeader(rows);
-        for(int i=5;i<rows.length;i++)cup.replay(rows[i]);if(!text.equals(cup.snapshot()))throw new IllegalArgumentException("Non-canonical League Cup save");return cup;
+        if(text==null||text.length()>256*1024)throw new IllegalArgumentException("Invalid League Cup save size");String[] rows=text.split("\n",-1);
+        if(rows.length>2048)throw new IllegalArgumentException("Too many League Cup events");PortugueseLeagueCupSeason cup=restoreHeader(rows);
+        cup.replayEvents(rows,null);if(!text.equals(cup.snapshot()))throw new IllegalArgumentException("Non-canonical League Cup save");return cup;
     }
 }

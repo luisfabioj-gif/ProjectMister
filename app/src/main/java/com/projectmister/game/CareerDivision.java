@@ -18,6 +18,7 @@ public final class CareerDivision {
     private int snapshotSchema(){if(!hasCupClubs())return linked?2:1;for(int t:clubTiers)if(t==4)return 5;return country.equals("DE")&&names.length==64?4:country.equals("PT")&&names.length<=256?3:5;}
     public String association(int club){return clubIds[club].substring(0,clubIds[club].indexOf(':')).toUpperCase(java.util.Locale.ROOT);}
     public int level(int club){return clubTiers[club]<=2?clubTiers[club]:clubLevels[club];}
+    public boolean[] cupExclusions(){boolean[] excluded=new boolean[clubIds.length];for(int c=0;c<excluded.length;c++)excluded[c]=reserves[c]||!association(c).equals(country);return excluded;}
     /** Append identities only while creating a new world, before player IDs exist. */
     public CareerDivision withWorldClubs(CompetitionCatalog catalog,JSONArray local,JSONArray europe) {
         if(!linked)throw new IllegalArgumentException("Linked world required");
@@ -96,6 +97,20 @@ public final class CareerDivision {
             o.put("tier",next).put("name",tierNames[next-1]).put("id",id.substring(0,id.lastIndexOf(':')+1)+next);
             return new CareerDivision(o);
         }catch(Exception error){throw new IllegalArgumentException("Invalid season transition",error);}
+    }
+    public CareerDivision moveLowerTiers(int upper,int[] up,int[] down,int managerClub) {
+        if(!linked||upper<2||upper>4||up==null||down==null||up.length!=down.length)throw new IllegalArgumentException("Unbalanced lower transition");
+        try {
+            JSONObject o=new JSONObject(snapshot());JSONArray clubs=o.getJSONArray("clubs");HashSet<Integer> seen=new HashSet<>();
+            for(int c:up){if(c<0||c>=names.length||!association(c).equals(country)||level(c)!=upper+1||!seen.add(c))throw new IllegalArgumentException("Invalid lower promotion");clubs.getJSONObject(c).put("tier",upper<=2?upper:3).put("level",upper);}
+            for(int c:down){if(c<0||c>=names.length||!association(c).equals(country)||level(c)!=upper||!seen.add(c))throw new IllegalArgumentException("Invalid lower relegation");clubs.getJSONObject(c).put("tier",3).put("level",upper+1);}
+            int next=clubs.getJSONObject(managerClub).getInt("tier");if(next<1||next>2)throw new IllegalArgumentException("Choose a club in a playable division");
+            o.put("tier",next).put("name",tierNames[next-1]).put("id",id.substring(0,id.lastIndexOf(':')+1)+next);return new CareerDivision(o);
+        }catch(Exception error){throw new IllegalArgumentException("Invalid lower transition",error);}
+    }
+    public CareerDivision withLocalLevels(int[] levels,int managerClub) {
+        if(levels==null||levels.length!=names.length||managerClub<0||managerClub>=names.length||levels[managerClub]>2)throw new IllegalArgumentException("Invalid managed division");
+        try{JSONObject o=new JSONObject(snapshot());JSONArray clubs=o.getJSONArray("clubs");for(int c=0;c<levels.length;c++)if(association(c).equals(country)){if(levels[c]<1||levels[c]>20)throw new IllegalArgumentException("Invalid local level");clubs.getJSONObject(c).put("tier",levels[c]<=2?levels[c]:3).put("level",levels[c]);}int next=levels[managerClub];o.put("tier",next).put("name",tierNames[next-1]).put("id",id.substring(0,id.lastIndexOf(':')+1)+next);return new CareerDivision(o);}catch(Exception e){throw new IllegalArgumentException("Invalid pyramid outcome",e);}
     }
     public CareerDivision(CompetitionCatalog.Division division) {
         id=division.id;country=division.countryCode;name=division.name;tier=division.tier;

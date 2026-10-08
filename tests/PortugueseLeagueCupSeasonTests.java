@@ -55,6 +55,8 @@ public final class PortugueseLeagueCupSeasonTests {
         }
         String unresolved=tied.snapshot();check(unresolved.equals(PortugueseLeagueCupSeason.restore(unresolved).snapshot()),"unresolved ranking remains saveable");rejects(tied::current);
         check(tied.rankingDecisionRequired(),"unresolved sporting decision explicitly reported");tied.validateDate(LocalDate.of(2027,8,8));
+        tied.resolveRanking(new PortugueseThirdDivisionSeason.Scores(){final Random random=new Random(9);public int goals(int h,int a,boolean advantage){return random.nextInt(4);}public PortugueseLeagueCupSeason.PlayerUse[] players(int c){return PortugueseLeagueCupSeasonTests.players(c,true,false);}});
+        String decided=tied.snapshot();check(decided.contains("\nD|")&&!tied.rankingDecisionRequired(),"neutral sporting decisions settle equal qualification ranks");PortugueseLeagueCupSeason resolved=PortugueseLeagueCupSeason.restore(decided);check(decided.equals(resolved.snapshot()),"neutral decisions replay canonically");resolved.validateDate(LocalDate.of(2027,8,11));rejects(()->resolved.validateDate(LocalDate.of(2027,8,8)));check(resolved.current().stage==2,"playoff starts after saved neutral deciding games");
         PortugueseLeagueCupSeason ages=fresh(2027,7,32,6);int younger=ages.leagueClubs()[0],other=ages.leagueClubs()[1];Map<Integer,Integer> appearances=new HashMap<>();
         while(ages.leagueResult(ages.leagueFixtureCount()-1)==null) {
             PortugueseLeagueCupSeason.Fixture game=ages.current();PortugueseLeagueCupSeason.PlayerUse[][] played=new PortugueseLeagueCupSeason.PlayerUse[2][];

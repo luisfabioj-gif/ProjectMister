@@ -17,12 +17,12 @@ public final class LeagueSchedule {
     }
     private final Pairing[][] rounds;
 
-    /** Circle rotation supports odd leagues (bye omitted) and two, three or four meetings per pair. */
+    /** Circle rotation supports odd leagues (bye omitted) and one, two, three or four meetings per pair. */
     public LeagueSchedule(int[] clubIds, int meetings) { this(clubIds, meetings, true); }
 
     /** Legacy venue order is retained only for development saves already using fixture version 1. */
     public LeagueSchedule(int[] clubIds, int meetings, boolean balancedVenues) {
-        if (clubIds.length < 2 || (meetings != 2 && meetings != 3 && meetings != 4))
+        if (clubIds.length < 2 || (meetings < 1 || meetings > 4))
             throw new IllegalArgumentException("Invalid league format");
         HashSet<Integer> unique = new HashSet<>();
         for (int id : clubIds) if (id < 0 || !unique.add(id))

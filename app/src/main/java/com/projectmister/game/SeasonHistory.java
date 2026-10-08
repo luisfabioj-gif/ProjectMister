@@ -14,7 +14,7 @@ public final class SeasonHistory {
                      int played,int won,int drawn,int lost,int gf,int ga,int points) {
             LocalDate.parse(start);
             for(String s:new String[]{start,clubId,clubName,league})if(s==null||s.isEmpty()||s.length()>128)throw new IllegalArgumentException("Invalid history text");
-            if(tier<1||tier>2||nextTier<1||nextTier>2)throw new IllegalArgumentException("Invalid history tier");
+            if(tier<1||tier>2||nextTier<1||nextTier>20)throw new IllegalArgumentException("Invalid history tier");
             for(int n:new int[]{played,won,drawn,lost,gf,ga})if(n<0||n>100000)throw new IllegalArgumentException("Invalid history statistics");
             if(won+drawn+lost!=played||points < -100000||points>100000)throw new IllegalArgumentException("Invalid history totals");
             this.start=start;this.clubId=clubId;this.clubName=clubName;this.league=league;

@@ -1,5 +1,18 @@
 # Competition expansion — checkpoint, 7 October 2026
 
+## Current checkpoint — 9 October 2026
+
+The recurring cups in all ten countries now have passing Android 35/36 evidence.
+The eight newly verified countries passed run 37858104698 at source
+`f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`; see COMPLETION_STATUS.json and
+VALIDATION.md. The fixed tracker is 69 verified points, 31 percent remaining.
+
+[V2_3_9_CHANGES.md](V2_3_9_CHANGES.md) records the newly connected Portuguese
+lower seasons and future League Cup. Its Android integration gate is pending.
+UEFA, full annual admissions, remaining rules/registration, shared calendars
+and finished APK delivery remain open. Older checkpoint descriptions below
+are retained as historical evidence.
+
 ## New League Cup format engine — 8 October 2026
 
 [PORTUGUESE_LEAGUE_CUP_2027_ENGINE.md](PORTUGUESE_LEAGUE_CUP_2027_ENGINE.md)
