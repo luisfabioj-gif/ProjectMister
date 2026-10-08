@@ -1,5 +1,14 @@
 # Competition expansion — checkpoint, 7 October 2026
 
+## New League Cup format engine — 8 October 2026
+
+[PORTUGUESE_LEAGUE_CUP_2027_ENGINE.md](PORTUGUESE_LEAGUE_CUP_2027_ENGINE.md)
+records the new league phase, conditional qualifier, seeded playoffs, Final Four,
+used-player-age tiebreak and annual archives. Core tests cover 72 tournaments and
+ten annual rollovers. This model is not connected to playable careers yet;
+Liga 3 promotion and Liga 2 relegation-playoff outcomes are a required dependency.
+The latest playable test APK remains 2.3.6 below.
+
 ## Verified recurring Taça de Portugal — 2.3.6
 
 [V2_3_6_CHANGES.md](V2_3_6_CHANGES.md) connects annual Portuguese domestic cups to
