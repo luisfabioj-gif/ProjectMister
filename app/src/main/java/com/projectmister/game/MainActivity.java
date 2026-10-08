@@ -6299,7 +6299,7 @@ public class MainActivity extends Activity {
             LinearLayout card=makePanel();card.addView(profileSectionTitle("GROUP "+(char)('A'+group)));
             for(int club:cup.groupOrder(group)){int[] row=table.get(club);card.addView(makeText(clubNames[club]+" • P "+row[6]+" • GD "+row[1]+" • Points "+row[0],14,club==selectedClub?accent:muted));}
             for(int i=0;i<cup.groupFixtureCount();i++)if((i%16)/2==group) {
-                KnockoutTie tie=cup.groupFixture(i);int[] score=tie.regulationScore(0),pen=tie.penaltyScore();
+                KnockoutTie tie=cup.groupFixture(i);int[] score=tie.playedLegs()==0?new int[]{-1,-1}:tie.regulationScore(0),pen=tie.penaltyScore();
                 card.addView(makeText(cup.groupDate(i/16).format(DATE_FORMAT)+" • "+clubNames[tie.firstHome]+" "+(score[0]<0?"v":score[0]+"–"+score[1])+" "+clubNames[tie.firstAway]+(pen[0]<0?"":" • pens "+pen[0]+"–"+pen[1]),12,muted));
             }
             page.addView(card);

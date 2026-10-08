@@ -16,6 +16,9 @@ public final class LeagueResultsTests {
         reject(()->LeagueResults.restore(r.snapshot(),5));reject(()->LeagueResults.restore(r.snapshot()+"|0,0,1,2,0",6));
         reject(()->LeagueResults.restore("2;6;1",6));reject(()->LeagueResults.restore("1;6;1|0,0,0,1,2",6));
         check(!LeagueResults.restore(new LeagueResults(6,false).snapshot(),6).recordedFromStart,"old missing history marked complete");
+        LeagueResults expanded=new LeagueResults(768,true);expanded.record(0,710,767,2,1);
+        check(LeagueResults.restore(expanded.snapshot(),768).fixture(0,710,767).homeGoals==2,"expanded world remaps high club IDs");
+        reject(()->new LeagueResults(769,true));reject(()->expanded.record(1,768,710,1,0));
         for(int n:new int[]{10,12,15,18,20,22,24}) {
             int[] ids=new int[n];for(int i=0;i<n;i++)ids[i]=i;
             LeagueSchedule schedule=new LeagueSchedule(ids,2);LeagueResults season=new LeagueResults(n,true);
