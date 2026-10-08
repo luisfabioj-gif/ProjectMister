@@ -39,6 +39,21 @@ archive rollovers. The Android application compiled locally.
 
 ## Integration still required
 
+The lower-promotion qualification bridge is now implemented separately in
+`PortugueseLowerPromotion`. Given eligible final Liga 3 and Liga 2 standings,
+it saves both playoff legs, extra time and penalties, derives promotion and
+relegation from the winner, and builds the next League Cup field and its actual
+preliminary pairing. Reserve teams are excluded after movement, so a relegated
+reserve team changes field size and preliminary-round parity correctly.
+The published 2026/27 playoff has Liga 3 at home first; later seasons take an
+explicit draw outcome. Existing club IDs are retained.
+
+Tests cover both playoff winners, both later-season venue orders, reloads during
+the tie, invalid snapshots, qualification before completion, relegated direct
+entrants, and reserve relegation changing cup eligibility. Core regressions and
+local Android compilation passed. This bridge is not yet called by MainActivity
+and does not generate Liga 3 standings or alter career divisions itself.
+
 1. Produce actual career Liga 3 promotion and Liga 2 relegation-playoff outcomes.
    Article 7's preliminary fixture uses the second promoted Liga 3 club and the
    relegation-playoff winner, with the better previous-season finisher at home.
