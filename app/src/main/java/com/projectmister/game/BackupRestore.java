@@ -40,8 +40,14 @@ public final class BackupRestore {
                 if(division!=null&&division.country.equals("PT")&&division.hasCupClubs()&&domestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
                 int cupYear=LocalDate.parse((String)data.getOrDefault(prefix+"season_start","2026-08-09")).getYear();
                 String national=(String)data.getOrDefault(prefix+"national_cups","");
-                if(division!=null&&division.country.equals("DE")&&division.hasCupClubs()&&national.isEmpty())throw new IllegalArgumentException("Missing German cup");
-                if(!national.isEmpty())GermanCupCatalog.validate(national,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
+                if(division!=null&&!division.country.equals("PT")&&division.hasCupClubs()&&national.isEmpty())throw new IllegalArgumentException("Missing national cup");
+                if(!national.isEmpty())NationalCupCatalog.validate(national,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
+                String scottish=(String)data.getOrDefault(prefix+"scottish_league_cup","");
+                if(division!=null&&division.country.equals("SCO")&&division.hasCupClubs()&&scottish.isEmpty())throw new IllegalArgumentException("Missing Scottish League Cup");
+                if(!scottish.isEmpty()) {
+                    if(division==null||!division.country.equals("SCO")||!division.hasCupClubs())throw new IllegalArgumentException("Unexpected Scottish League Cup");
+                    ScottishLeagueCupSeasons.validate(scottish,division.clubIds,division.reserves,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
+                }
                 if(!domestic.isEmpty()) {
                     if(division==null||!division.country.equals("PT")||!division.hasCupClubs())throw new IllegalArgumentException("Missing cup registry");
                     DomesticCup restored=DomesticCup.restore(domestic,size);restored.validateEntrants(division.reserves);

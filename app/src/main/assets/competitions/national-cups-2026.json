@@ -1,0 +1,4462 @@
+{
+  "schema": 1,
+  "season": 2026,
+  "verifiedOn": "2026-10-08",
+  "scope": "Real lower club identities from association publications. Lower qualifying and future membership are simulated career outcomes, not claimed real future qualifiers.",
+  "countries": {
+    "ENG": {
+      "sources": [
+        "https://www.efl.com/news/2026/august/03/carabao-cup-round-one-referee-appointments/",
+        "https://www.efl.com/news/2026/july/29/carabao-cup-preliminary-round--all-you-need-to-know/",
+        "https://www.thefa.com/news/2026/oct/02/efac-fourth-qualifying-draw-live-on-talksport-20260210"
+      ],
+      "clubs": [
+        {
+          "id": "eng:cup-afc-wimbledon",
+          "name": "AFC Wimbledon",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-accrington-stanley",
+          "name": "Accrington Stanley",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-barnet",
+          "name": "Barnet",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-barnsley",
+          "name": "Barnsley",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-blackpool",
+          "name": "Blackpool",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-bradford-city",
+          "name": "Bradford City",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-bristol-rovers",
+          "name": "Bristol Rovers",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-bromley",
+          "name": "Bromley",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-burton-albion",
+          "name": "Burton Albion",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-cambridge-united",
+          "name": "Cambridge United",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-cheltenham-town",
+          "name": "Cheltenham Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-chesterfield",
+          "name": "Chesterfield",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-colchester-united",
+          "name": "Colchester United",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-crawley-town",
+          "name": "Crawley Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-crewe-alexandra",
+          "name": "Crewe Alexandra",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-doncaster-rovers",
+          "name": "Doncaster Rovers",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-exeter-city",
+          "name": "Exeter City",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-fleetwood-town",
+          "name": "Fleetwood Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-gillingham",
+          "name": "Gillingham",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-grimsby-town",
+          "name": "Grimsby Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-huddersfield-town",
+          "name": "Huddersfield Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-leicester-city",
+          "name": "Leicester City",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-leyton-orient",
+          "name": "Leyton Orient",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-luton-town",
+          "name": "Luton Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-mansfield-town",
+          "name": "Mansfield Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-milton-keynes-dons",
+          "name": "Milton Keynes Dons",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-newport-county",
+          "name": "Newport County",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-northampton-town",
+          "name": "Northampton Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-notts-county",
+          "name": "Notts County",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-oldham-athletic",
+          "name": "Oldham Athletic",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-oxford-united",
+          "name": "Oxford United",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-peterborough-united",
+          "name": "Peterborough United",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-plymouth-argyle",
+          "name": "Plymouth Argyle",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-port-vale",
+          "name": "Port Vale",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-reading",
+          "name": "Reading",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-rochdale",
+          "name": "Rochdale",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-rotherham-united",
+          "name": "Rotherham United",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-salford-city",
+          "name": "Salford City",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-sheffield-wednesday",
+          "name": "Sheffield Wednesday",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-shrewsbury-town",
+          "name": "Shrewsbury Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-stevenage",
+          "name": "Stevenage",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-stockport-county",
+          "name": "Stockport County",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-swindon-town",
+          "name": "Swindon Town",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-tranmere-rovers",
+          "name": "Tranmere Rovers",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-walsall",
+          "name": "Walsall",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-wigan-athletic",
+          "name": "Wigan Athletic",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-wycombe-wanderers",
+          "name": "Wycombe Wanderers",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-york-city",
+          "name": "York City",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-harborough-town",
+          "name": "Harborough Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-spennymoor-town",
+          "name": "Spennymoor Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-chorley",
+          "name": "Chorley",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-worcester-city",
+          "name": "Worcester City",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-gateshead",
+          "name": "Gateshead",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-stafford-rangers",
+          "name": "Stafford Rangers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-halesowen-town",
+          "name": "Halesowen Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-fc-halifax-town",
+          "name": "FC Halifax Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-south-shields",
+          "name": "South Shields",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-leiston",
+          "name": "Leiston",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-guiseley",
+          "name": "Guiseley",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-barrow",
+          "name": "Barrow",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-gloucester-city",
+          "name": "Gloucester City",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-hartlepool-united",
+          "name": "Hartlepool United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-marine",
+          "name": "Marine",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-boston-united",
+          "name": "Boston United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-scunthorpe-united",
+          "name": "Scunthorpe United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-macclesfield",
+          "name": "Macclesfield",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-scarborough-athletic",
+          "name": "Scarborough Athletic",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-anstey-nomads",
+          "name": "Anstey Nomads",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-altrincham",
+          "name": "Altrincham",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-fc-united-of-manchester",
+          "name": "FC United of Manchester",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-bury",
+          "name": "Bury",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-harrogate-town",
+          "name": "Harrogate Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-bury-town",
+          "name": "Bury Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-spalding-united",
+          "name": "Spalding United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-alvechurch",
+          "name": "Alvechurch",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-afc-rushden-diamonds",
+          "name": "AFC Rushden & Diamonds",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-morecambe",
+          "name": "Morecambe",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-kidderminster-harriers",
+          "name": "Kidderminster Harriers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-solihull-moors",
+          "name": "Solihull Moors",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-carlisle-united",
+          "name": "Carlisle United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-tamworth",
+          "name": "Tamworth",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-afc-fylde",
+          "name": "AFC Fylde",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-trafford-fc",
+          "name": "Trafford FC",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-atherton-collieries",
+          "name": "Atherton Collieries",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-salisbury",
+          "name": "Salisbury",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-eastbourne-borough",
+          "name": "Eastbourne Borough",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-sutton-united",
+          "name": "Sutton United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-truro-city",
+          "name": "Truro City",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-chesham-united",
+          "name": "Chesham United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-forest-green-rovers",
+          "name": "Forest Green Rovers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-leatherhead",
+          "name": "Leatherhead",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-yeovil-town",
+          "name": "Yeovil Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-bedford-town",
+          "name": "Bedford Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-wingate-finchley",
+          "name": "Wingate & Finchley",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-cray-wanderers",
+          "name": "Cray Wanderers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-uxbridge",
+          "name": "Uxbridge",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-hornchurch",
+          "name": "Hornchurch",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-aldershot-town",
+          "name": "Aldershot Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-tadley-calleva",
+          "name": "Tadley Calleva",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-torquay-united",
+          "name": "Torquay United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-oxford-city",
+          "name": "Oxford City",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-wimborne-town",
+          "name": "Wimborne Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-chelmsford-city",
+          "name": "Chelmsford City",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-wealdstone",
+          "name": "Wealdstone",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-worthing",
+          "name": "Worthing",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-boreham-wood",
+          "name": "Boreham Wood",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-woking",
+          "name": "Woking",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-eastleigh",
+          "name": "Eastleigh",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-brentwood-town",
+          "name": "Brentwood Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-southend-united",
+          "name": "Southend United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-berkhamsted",
+          "name": "Berkhamsted",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-sholing",
+          "name": "Sholing",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-se-dons",
+          "name": "SE Dons",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-plymouth-parkway",
+          "name": "Plymouth Parkway",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-chertsey-town",
+          "name": "Chertsey Town",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-dover-athletic",
+          "name": "Dover Athletic",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "eng:cup-dorking-wanderers",
+          "name": "Dorking Wanderers",
+          "level": 5,
+          "reserve": false
+        }
+      ]
+    },
+    "ES": {
+      "sources": [
+        "https://rfef.es/es/noticias/conocida-la-distribucion-de-los-grupos-para-el-sorteo-de-la-primera-eliminatoria"
+      ],
+      "clubs": [
+        {
+          "id": "es:cup-cd-mirandes",
+          "name": "CD Mirandés",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-numancia-de-soria",
+          "name": "CD Numancia de Soria",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-covadonga",
+          "name": "CD Covadonga",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-salamanca-cf-uds",
+          "name": "Salamanca CF UDS",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ribadesella",
+          "name": "Ribadesella",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cyd-leonesa",
+          "name": "CyD Leonesa",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-coruxo-fc",
+          "name": "Coruxo FC",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-laredo",
+          "name": "CD Laredo",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-auriense-ca",
+          "name": "Auriense CA",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-zamora-cf",
+          "name": "Zamora CF",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-gimnastica-segoviana-cf",
+          "name": "Gimnástica Segoviana CF",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-guijuelo",
+          "name": "CD Guijuelo",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-sd-ponferradina",
+          "name": "SD Ponferradina",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-real-avila-cf",
+          "name": "Real Ávila CF",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-pontevedra-cf",
+          "name": "Pontevedra CF",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-arosa-sc",
+          "name": "Arosa SC",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-unionistas-de-salamanca-cf",
+          "name": "Unionistas de Salamanca CF",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ud-llanera",
+          "name": "UD Llanera",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ud-ourense",
+          "name": "UD Ourense",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-rs-gimnastica-de-torrelavega",
+          "name": "RS Gimnástica de Torrelavega",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-atletico-tordesillas",
+          "name": "Atlético Tordesillas",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-sd-huesca",
+          "name": "SD Huesca",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-utebo-fc",
+          "name": "Utebo FC",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-varea",
+          "name": "CD Varea",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-sestao-river-club",
+          "name": "Sestao River Club",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-atletico-calatayud",
+          "name": "Atlético Calatayud",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-real-zaragoza",
+          "name": "Real Zaragoza",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-tudelano",
+          "name": "CD Tudelano",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-pamplona",
+          "name": "CD Pamplona",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cf-san-rafael",
+          "name": "CF San Rafael",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ce-europa",
+          "name": "CE Europa",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-sd-amorebieta",
+          "name": "SD Amorebieta",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-cuarte",
+          "name": "CD Cuarte",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-anaitasuna",
+          "name": "CD Anaitasuna",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-barakaldo-cf",
+          "name": "Barakaldo CF",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-reus-fc-reddis",
+          "name": "Reus FC Reddis",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-real-union-club",
+          "name": "Real Unión Club",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-club-portugalete",
+          "name": "Club Portugalete",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ud-logrones",
+          "name": "UD Logroñés",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ce-manresa",
+          "name": "CE Manresa",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ue-sant-andreu",
+          "name": "UE Sant Andreu",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-pena-sport-fc",
+          "name": "Peña Sport FC",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cf-calamocha",
+          "name": "CF Calamocha",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-fc-cartagena",
+          "name": "FC Cartagena",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-atletico-baleares",
+          "name": "CD Atlético Baleares",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-manacor",
+          "name": "CD Manacor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ud-pinatar",
+          "name": "UD Pinatar",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-antequera-cf",
+          "name": "Antequera CF",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ud-poblense",
+          "name": "UD Poblense",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-tarancon",
+          "name": "CD Tarancón",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cp-talayuela",
+          "name": "CP Talayuela",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-aguilas-fc",
+          "name": "Águilas FC",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-alcoyano",
+          "name": "CD Alcoyano",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ud-maracena",
+          "name": "UD Maracena",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-real-jaen-cf",
+          "name": "Real Jaén CF",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-minera",
+          "name": "CD Minera",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ub-conquense",
+          "name": "UB Conquense",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ud-castellonense",
+          "name": "UD Castellonense",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cp-mijas-las-lagunas",
+          "name": "CP Mijas-Las Lagunas",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-cieza",
+          "name": "CD Cieza",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cs-puertollano-cf",
+          "name": "CS Puertollano CF",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-extremadura",
+          "name": "CD Extremadura",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-xerez-cd",
+          "name": "Xerez CD",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cf-trival-valderas-alcorcon",
+          "name": "CF Trival Valderas Alcorcón",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cda-navalcarnero",
+          "name": "CDA Navalcarnero",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ad-sporting-de-hortaleza",
+          "name": "AD Sporting de Hortaleza",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cf-rayo-majadahonda",
+          "name": "CF Rayo Majadahonda",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ud-san-sebastian-de-los-reyes",
+          "name": "UD San Sebastián de los Reyes",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-rc-recreativo-de-huelva",
+          "name": "RC Recreativo de Huelva",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-ub-lebrijana",
+          "name": "UB Lebrijana",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-coria",
+          "name": "CD Coria",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-rsd-alcala",
+          "name": "RSD Alcalá",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-ciudad-lucena",
+          "name": "CD Ciudad Lucena",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-atletico-paso",
+          "name": "CD Atlético Paso",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-don-benito",
+          "name": "CD Don Benito",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "es:cup-cd-badajoz",
+          "name": "CD Badajoz",
+          "level": 4,
+          "reserve": false
+        }
+      ]
+    },
+    "IT": {
+      "sources": [
+        "https://www.legaseriea.it/coppa-italia/news/si-parte-l-8-agosto-con-il-turno-preliminare"
+      ],
+      "clubs": [
+        {
+          "id": "it:cup-catania",
+          "name": "Catania",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "it:cup-potenza",
+          "name": "Potenza",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "it:cup-union-brescia",
+          "name": "Union Brescia",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "it:cup-ravenna",
+          "name": "Ravenna",
+          "level": 3,
+          "reserve": false
+        }
+      ]
+    },
+    "FR": {
+      "sources": [
+        "https://lfpl.fff.fr/simple/coupe-de-france-ca-les-qualifies-pour-mercredi-soir/",
+        "https://paris-idf.fff.fr/diaporama/cdf-retour-sur-les-tirages-des-5eme-et-6eme-tours/",
+        "https://laurafoot.fff.fr/simple/cdf-les-affiches-du-5eme-tour-2026/"
+      ],
+      "clubs": [
+        {
+          "id": "fr:cup-fc-le-fief-geste",
+          "name": "FC Le Fief-Gesté",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-neuville-sur-sarthe",
+          "name": "AS Neuville sur Sarthe",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-contest-saint-baudelle",
+          "name": "Contest Saint-Baudelle",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-vigilante-saint-fulgent",
+          "name": "Vigilante Saint-Fulgent",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-loireauxence-varades",
+          "name": "LoireAuxence Varades",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-guecelard",
+          "name": "US Guécélard",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-le-cellier-mauves",
+          "name": "FC Le Cellier-Mauves",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-andreze-jub-jallais",
+          "name": "Andrezé-Jub-Jallais",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-du-craonnais",
+          "name": "FC du Craonnais",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ac-chapelain",
+          "name": "AC Chapelain",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-marc-sur-mer-foot",
+          "name": "Saint-Marc sur Mer Foot",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-les-herbiers-ardelay",
+          "name": "Les Herbiers Ardelay",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-angers-sca",
+          "name": "Angers SCA",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-ambrieres-cigne",
+          "name": "FC Ambrières-Cigné",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-nantes-la-mellinet",
+          "name": "Nantes La Mellinet",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-le-mans-gazelec",
+          "name": "Le Mans Gazelec",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-vigneux-de-bretagne",
+          "name": "ES Vigneux de Bretagne",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-blain",
+          "name": "ES Blain",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-scna-derval",
+          "name": "SCNA Derval",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-monce-en-belin",
+          "name": "ES Moncé en Belin",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-andre-saint-macaire",
+          "name": "Saint-André/Saint-Macaire",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-jsc-nantes-bellevue",
+          "name": "JSC Nantes Bellevue",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ac-basse-goulaine",
+          "name": "AC Basse-Goulaine",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-segre",
+          "name": "ES Segré",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-la-suze-roeze-fc",
+          "name": "La Suze Roëzé FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-sebastien-fc",
+          "name": "Saint-Sébastien FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-change",
+          "name": "US Changé",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-la-baule-le-pouliguen",
+          "name": "US La Baule-Le Pouliguen",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-montilliers",
+          "name": "ES Montilliers",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-nazaire-af",
+          "name": "Saint-Nazaire AF",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-esof-la-roche",
+          "name": "ESOF La Roche",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-france-daizenay",
+          "name": "France d’Aizenay",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-challans",
+          "name": "FC Challans",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-les-sables-vf",
+          "name": "Les Sables VF",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-sable-fc",
+          "name": "Sablé FC",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-la-chataigneraie",
+          "name": "AS La Châtaigneraie",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fontenay-le-comte-vf",
+          "name": "Fontenay le Comte VF",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-saint-philbert-de-grandlieu",
+          "name": "US Saint-Philbert de Grandlieu",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ussa-vertou",
+          "name": "USSA Vertou",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-voltigeurs-de-chateaubriant",
+          "name": "Voltigeurs de Châteaubriant",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-les-herbiers-vf",
+          "name": "Les Herbiers VF",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-olympique-de-saumur",
+          "name": "Olympique de Saumur",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-vendee-le-poire-sur-vie",
+          "name": "Vendée Le Poiré sur Vie",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-vfc-la-roche-sur-yon",
+          "name": "VFC La Roche sur Yon",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-cergy-pontoise-fc",
+          "name": "Cergy Pontoise FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-argenteuil-rc",
+          "name": "Argenteuil RC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-brice-fc",
+          "name": "Saint-Brice FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fleury-91-fc",
+          "name": "Fleury 91 FC",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-cps-du-provinois",
+          "name": "CPS du Provinois",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-saint-ouen-laumone",
+          "name": "AS Saint-Ouen-l’Aumône",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-la-plaine-victoire",
+          "name": "La Plaine Victoire",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-poissy-fc",
+          "name": "Poissy FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-bretigny-fcs",
+          "name": "Brétigny FCS",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-aulnay-csl",
+          "name": "Aulnay CSL",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-le-mee-sports",
+          "name": "Le Mée Sports",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-sucy-fc",
+          "name": "Sucy FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-paris-13-atletico",
+          "name": "Paris 13 Atletico",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-enfants-de-la-goutte-dor",
+          "name": "Enfants de la Goutte d’Or",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-denis-united",
+          "name": "Saint-Denis United",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-groslay-fc",
+          "name": "Groslay FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-versailles-78-fc",
+          "name": "Versailles 78 FC",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-les-ulis-co",
+          "name": "Les Ulis CO",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-torcy-pvm",
+          "name": "US Torcy PVM",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-csm-clamart",
+          "name": "CSM Clamart",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-garges-les-gonesse-fcm",
+          "name": "Garges-les-Gonesse FCM",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-maisons-alfort-fc",
+          "name": "Maisons-Alfort FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-creteil-football",
+          "name": "US Créteil Football",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-velizy-asc",
+          "name": "Vélizy ASC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-goussainville-fc",
+          "name": "Goussainville FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-meudon",
+          "name": "ES Meudon",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-val-yerres-crosne",
+          "name": "Val Yerres Crosne",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-maur-lusitanos",
+          "name": "Saint-Maur Lusitanos",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ja-drancy",
+          "name": "JA Drancy",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-vga-saint-maur",
+          "name": "VGA Saint-Maur",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-lilas-fc",
+          "name": "Lilas FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-salesienne-de-paris",
+          "name": "Salésienne de Paris",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-chatou",
+          "name": "AS Chatou",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-racing-club-de-france",
+          "name": "Racing Club de France",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-cellois-cs",
+          "name": "Cellois CS",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-trappes-es",
+          "name": "Trappes ES",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-palaiseau-us",
+          "name": "Palaiseau US",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-tremblay-fc",
+          "name": "Tremblay FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ca-vitry",
+          "name": "CA Vitry",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-leu-95-fc",
+          "name": "Saint-Leu 95 FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-longjumeau-fc",
+          "name": "Longjumeau FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-melun-fc",
+          "name": "Melun FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-montreuil-fc",
+          "name": "Montreuil FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-linas-montlhery-esa",
+          "name": "Linas-Montlhéry ESA",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-sa-thiernois",
+          "name": "SA Thiernois",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-montlucon-football",
+          "name": "Montluçon Football",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-aurillac-football-club",
+          "name": "Aurillac Football Club",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-limonest-dardilly-saint-didier",
+          "name": "FC Limonest Dardilly Saint-Didier",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-esperance-ceyratoise",
+          "name": "Espérance Ceyratoise",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-riomois",
+          "name": "FC Riomois",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-montferrandaise",
+          "name": "AS Montferrandaise",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-rc-de-vichy",
+          "name": "RC de Vichy",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-blavozy",
+          "name": "US Blavozy",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-feurs",
+          "name": "US Feurs",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-entente-nord-lozere",
+          "name": "Entente Nord Lozère",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-cournon-dauvergne",
+          "name": "FC Cournon d’Auvergne",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-haut-dallier",
+          "name": "FC Haut d’Allier",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-orcines",
+          "name": "AS Orcines",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-de-veauche",
+          "name": "ES de Veauche",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-a-vergongheon-arvant",
+          "name": "A Vergongheon-Arvant",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-les-martres-de-veyre",
+          "name": "US Les Martres de Veyre",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ambert-livradois-sud-fc",
+          "name": "Ambert Livradois Sud FC",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-lignerolles-lavault-sainte-anne-premilhat",
+          "name": "US Lignerolles Lavault Sainte-Anne Prémilhat",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-moulins-yzeure-foot-03-auvergne",
+          "name": "Moulins Yzeure Foot 03 Auvergne",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-forez-roannais",
+          "name": "AS Forez Roannais",
+          "level": 11,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-le-puy-en-velay-fc",
+          "name": "Le Puy-en-Velay FC",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-cote-chaude-sportif-saint-etienne",
+          "name": "Côte Chaude Sportif Saint-Étienne",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-generation-emblavez-jeunes",
+          "name": "Génération Emblavez Jeunes",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-vendat-bellerive-brugheas",
+          "name": "US Vendat Bellerive Brugheas",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-brioude",
+          "name": "US Brioude",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-majolaine-meyzieu",
+          "name": "US Majolaine Meyzieu",
+          "level": 10,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-sucs-et-lignon",
+          "name": "US Sucs et Lignon",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-cluses",
+          "name": "FC Cluses",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-hauts-lyonnais",
+          "name": "Hauts Lyonnais",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-chassieu-decines-fc",
+          "name": "Chassieu Décines FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-annonay",
+          "name": "FC Annonay",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-lyon-football",
+          "name": "FC Lyon Football",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fco-firminy-intersport",
+          "name": "FCO Firminy Intersport",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-andrezieux-boutheon-fc",
+          "name": "Andrézieux-Bouthéon FC",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-villefranche-beaujolais",
+          "name": "FC Villefranche Beaujolais",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-muzolais",
+          "name": "FC Muzolais",
+          "level": 10,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-saint-just-saint-rambert",
+          "name": "AS Saint-Just Saint-Rambert",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-saint-just-saint-marcel",
+          "name": "US Saint-Just Saint-Marcel",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ac-seyssinet-pariset",
+          "name": "AC Seyssinet Pariset",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-boulieu-les-annonay",
+          "name": "ES Boulieu-lès-Annonay",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-rhone-crussol-foot-07",
+          "name": "Rhône Crussol Foot 07",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-montchat-lyon",
+          "name": "AS Montchat Lyon",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-saint-paul-en-jarez",
+          "name": "FC Saint-Paul-en-Jarez",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-atomsports-football-pierrelatte",
+          "name": "Atom’Sports Football Pierrelatte",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-monistrol-sur-loire",
+          "name": "US Monistrol-sur-Loire",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-la-tour-saint-clair",
+          "name": "FC La Tour Saint-Clair",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-olympique-salaise-rhodia",
+          "name": "Olympique Salaise Rhodia",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-manival-saint-ismier",
+          "name": "ES Manival Saint-Ismier",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-gerland-lyon",
+          "name": "FC Gerland Lyon",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ac-ripagerien-rive-de-gier",
+          "name": "AC Ripagérien Rive-de-Gier",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-entente-crest-aouste",
+          "name": "Entente Crest Aouste",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-valserhone-foot",
+          "name": "Valserhône Foot",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-roannais-foot-42",
+          "name": "Roannais Foot 42",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-sillingy",
+          "name": "AS Sillingy",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-so-pont-de-cheruy-chavanoz",
+          "name": "SO Pont-de-Chéruy Chavanoz",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-cernex",
+          "name": "ES Cernex",
+          "level": 10,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-venissieux-football-club",
+          "name": "Vénissieux Football Club",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-saint-chamond-foot",
+          "name": "Saint-Chamond Foot",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-du-foron",
+          "name": "FC du Foron",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-argonay",
+          "name": "US Argonay",
+          "level": 10,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-us-sassenageoise-football",
+          "name": "US Sassenageoise Football",
+          "level": 10,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-js-cellieu",
+          "name": "JS Cellieu",
+          "level": 9,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-football-bourg-en-bresse-peronnas-01",
+          "name": "Football Bourg-en-Bresse Péronnas 01",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-veyle-saone",
+          "name": "FC Veyle Saône",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-olympique-de-valence",
+          "name": "Olympique de Valence",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-cuines-la-chambre-val-darc",
+          "name": "AS Cuines La Chambre Val-d’Arc",
+          "level": 10,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-fc-colombier-satolas",
+          "name": "FC Colombier-Satolas",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-entente-sportive-revermont",
+          "name": "Entente Sportive Revermont",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-lyon-la-duchere",
+          "name": "Lyon La Duchère",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-cluses-scionzier-football-club",
+          "name": "Cluses Scionzier Football Club",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-ain-sud",
+          "name": "Ain Sud",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-menival-fc",
+          "name": "Ménival FC",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-gfa-rumilly-vallieres",
+          "name": "GFA Rumilly Vallières",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-entente-sportive-de-tarentaise",
+          "name": "Entente Sportive de Tarentaise",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-plastics-vallee-fc",
+          "name": "Plastics Vallée FC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-es-douvaine-loisin",
+          "name": "ES Douvaine-Loisin",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-chambery-savoie-football",
+          "name": "Chambéry Savoie Football",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-cs-neuvillois",
+          "name": "CS Neuvillois",
+          "level": 7,
+          "reserve": false
+        },
+        {
+          "id": "fr:cup-as-domarin",
+          "name": "AS Domarin",
+          "level": 8,
+          "reserve": false
+        },
+        {
+          "id": "fr:overseas-as-le-gosier",
+          "name": "AS Le Gosier",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:overseas-as-excelsior",
+          "name": "AS Excelsior",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:overseas-js-saint-pierroise",
+          "name": "JS Saint-Pierroise",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "fr:overseas-asc-geldar-de-kourou",
+          "name": "ASC Geldar de Kourou",
+          "level": 6,
+          "reserve": false
+        }
+      ]
+    },
+    "NL": {
+      "sources": [
+        "https://www.eurojackpotknvbbeker.nl/node/1598"
+      ],
+      "clubs": [
+        {
+          "id": "nl:cup-hoogeveen",
+          "name": "Hoogeveen",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-svzw",
+          "name": "SVZW",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-sportlust-46",
+          "name": "Sportlust '46",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-blauw-geel-38",
+          "name": "Blauw Geel '38",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-elinkwijk",
+          "name": "Elinkwijk",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-eemdijk",
+          "name": "Eemdijk",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-longa-30",
+          "name": "Longa '30",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-koninklijke-hfc",
+          "name": "Koninklijke HFC",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-nsvv",
+          "name": "NSVV",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-vv-kloetinge",
+          "name": "VV Kloetinge",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-sc-genemuiden",
+          "name": "SC Genemuiden",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-fc-lisse",
+          "name": "FC Lisse",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-be-quick-1887",
+          "name": "Be Quick 1887",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-afc",
+          "name": "AFC",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-hercules",
+          "name": "Hercules",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-evv-echt",
+          "name": "EVV Echt",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-rijnvogels",
+          "name": "Rijnvogels",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-bennekom",
+          "name": "Bennekom",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-togb",
+          "name": "TOGB",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-katwijk",
+          "name": "Katwijk",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-staphorst",
+          "name": "Staphorst",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-una",
+          "name": "UNA",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-groene-ster",
+          "name": "Groene Ster",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-heerjansdam",
+          "name": "Heerjansdam",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-afc-34",
+          "name": "AFC 34",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-scherpenzeel",
+          "name": "Scherpenzeel",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-spartaan-20",
+          "name": "Spartaan '20",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-udi-19-swiss-sense",
+          "name": "UDI'19 / Swiss Sense",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-dongen",
+          "name": "Dongen",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-jos-watergraafsmeer",
+          "name": "JOS Watergraafsmeer",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-sparta-nijkerk",
+          "name": "Sparta Nijkerk",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-sv-venray",
+          "name": "SV Venray",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-ado-20",
+          "name": "ADO '20",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-excelsior-maassluis",
+          "name": "Excelsior Maassluis",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-purmersteijn",
+          "name": "Purmersteijn",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-zwaluw-vfc",
+          "name": "Zwaluw VFC",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-mierlo-hout",
+          "name": "Mierlo Hout",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-germania",
+          "name": "Germania",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-gsv-28",
+          "name": "GSV '28",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-rbc",
+          "name": "RBC",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-tec-tiel",
+          "name": "TEC Tiel",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-almkerk",
+          "name": "Almkerk",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-fc-surhusterveen",
+          "name": "FC Surhústerveen",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-dovo",
+          "name": "DOVO",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-fc-s-gravenzande",
+          "name": "FC 's Gravenzande",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-gemert",
+          "name": "Gemert",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-hollandia",
+          "name": "Hollandia",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-halsteren",
+          "name": "Halsteren",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-vv-goes",
+          "name": "VV GOES",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-noordwijk",
+          "name": "Noordwijk",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-hzvv",
+          "name": "HZVV",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-l-a-c-frisia-1883",
+          "name": "L.A.C. Frisia 1883",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-acv-assen",
+          "name": "ACV Assen",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-westlandia",
+          "name": "Westlandia",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-achilles-veen",
+          "name": "Achilles Veen",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-sv-poortugaal",
+          "name": "SV Poortugaal",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-atc-65",
+          "name": "ATC'65",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-dvs-33-ermelo",
+          "name": "DVS'33 Ermelo",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-lierop",
+          "name": "Lierop",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-zwaluwen",
+          "name": "Zwaluwen",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-harkemase-boys",
+          "name": "Harkemase Boys",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-excelsior-31",
+          "name": "Excelsior '31",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-vvsb",
+          "name": "VVSB",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "nl:cup-ajax-amateurs",
+          "name": "Ajax (amateurs)",
+          "level": 4,
+          "reserve": false
+        }
+      ]
+    },
+    "BE": {
+      "sources": [
+        "https://static.rbfa.be/project/publiek/beker/nl/beker_PH_4.htm"
+      ],
+      "clubs": [
+        {
+          "id": "be:cup-f-c-flenu",
+          "name": "F.C. Flénu",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-u-st-ghisl-tertre-hautr",
+          "name": "U.St-Ghisl. Tertre-Hautr.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-rupel-boom-fc",
+          "name": "K.Rupel Boom FC.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-entente-acren-lessines",
+          "name": "Entente Acren Lessines",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-es-harre-manhay",
+          "name": "ES.Harre-Manhay",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-londerzeel-sk",
+          "name": "K.Londerzeel SK.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-fc-de-kempen-t-l",
+          "name": "K.FC.De Kempen T.L.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-rfc-saint-michel",
+          "name": "RFC.Saint-Michel",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-fc-vigor-wuitens-hamme",
+          "name": "K.FC.Vigor Wuitens Hamme",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-sk-munkzwalm",
+          "name": "SK.Munkzwalm",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-berg-en-dal-vv",
+          "name": "K.Berg en Dal VV.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-sportief-rotselaar",
+          "name": "Sportief Rotselaar",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-vv-zelzate",
+          "name": "K.VV.Zelzate",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-cs-brainois",
+          "name": "R.CS.Brainois",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-fc-merelbeke",
+          "name": "K.FC.Merelbeke",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-vk-ninove",
+          "name": "VK.Ninove",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-koninklijke-eendracht-aalst-lede",
+          "name": "Koninklijke Eendracht Aalst Lede",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-royale-union-hutoise",
+          "name": "Royale Union Hutoise",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-stade-vervietois",
+          "name": "Stade Verviétois",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-kvk-tienen",
+          "name": "KVK TIENEN",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-fc-dessel-sport",
+          "name": "K.FC.Dessel Sport",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-f-c-r-vise-united",
+          "name": "F.C.R. Vise United",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-royal-stockay-st-georges-s-m",
+          "name": "Royal Stockay St-Georges S/M",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-nieuwmoer-fc",
+          "name": "K.Nieuwmoer FC.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-ksk-tongeren",
+          "name": "KSK Tongeren",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-fc-kosova-schaerbeek",
+          "name": "FC.Kosova Schaerbeek",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-rsc-habay-la-neuve",
+          "name": "RSC.Habay-La-Neuve",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-fc-un-la-calamine",
+          "name": "R.FC.Un.La Calamine",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-sc-blankenberge",
+          "name": "K.SC.Blankenberge",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-f-c-houtvenne",
+          "name": "K.F.C. Houtvenne",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-koninklijke-lyra-lierse",
+          "name": "Koninklijke Lyra-Lierse",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-vk-wellen",
+          "name": "K.VK.Wellen",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-hoogstraten-vv",
+          "name": "Hoogstraten VV.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-sb-stade-mouscronnois",
+          "name": "SB Stade Mouscronnois",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-cs-onhaye",
+          "name": "CS.Onhaye",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-fc-voorde-appelterre",
+          "name": "FC Voorde Appelterre",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-u-rochefortoise",
+          "name": "U. Rochefortoise",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-cs-pays-vert-ostiches-ath",
+          "name": "CS Pays Vert Ostiches-Ath",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-crossing-schaerbeek",
+          "name": "Crossing Schaerbeek",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-racing-club-harelbeke",
+          "name": "Racing Club Harelbeke",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-fc-mu-izegem-ingelmunster",
+          "name": "FC MU Izegem-Ingelmunster",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-stade-waremmien-fc",
+          "name": "R.Stade Waremmien FC.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-fc-hoger-op-kalken",
+          "name": "K.FC.Hoger Op Kalken",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-fc-nijlen",
+          "name": "K.FC.Nijlen",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-fc-wetteren",
+          "name": "R.FC Wetteren",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-a-e-c-mons",
+          "name": "R.A.E.C. Mons",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-ws-schoonbeek-bilzen",
+          "name": "WS Schoonbeek-Bilzen",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-vv-st-denijs-sport",
+          "name": "K.VV.St-Denijs Sport",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-cs-verlaine",
+          "name": "R.CS.Verlaine",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-racing-club-gent",
+          "name": "Racing Club Gent",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-sk-heist",
+          "name": "K.SK Heist",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-sv-rumbeke",
+          "name": "K.SV.Rumbeke",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-fenixx-beigem-humbeek",
+          "name": "Fenixx Beigem Humbeek",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-tempo-overijse",
+          "name": "Tempo Overijse",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-vv-thes-sport-tessenderlo",
+          "name": "VV.Thes Sport Tessenderlo",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-km-torhout",
+          "name": "KM Torhout",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-knokke-fc",
+          "name": "R.Knokke FC.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-sc-city-pirates-antwerpen",
+          "name": "SC.City Pirates Antwerpen",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-v-diksmuide-oostende",
+          "name": "K.V. Diksmuide Oostende",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-bocholter-vv",
+          "name": "K.Bocholter VV.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-diegem-sport",
+          "name": "K.Diegem Sport",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-roc-meix-dt-virton",
+          "name": "ROC.Meix-Dt-Virton",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-belisia-bilzen-sv",
+          "name": "Belisia Bilzen SV",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-fc-lebbeke",
+          "name": "FC Lebbeke",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-s-v-oostkamp",
+          "name": "K.S.V. Oostkamp",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-cappellen-fc",
+          "name": "R.Cappellen FC.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-et-elsautoise",
+          "name": "ET. Elsautoise",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-eendracht-termien",
+          "name": "Eendracht Termien",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-ru-tubize-braine-le-comte",
+          "name": "RU.Tubize Braine-le-Comte",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-w-d-m-brussels",
+          "name": "R.W.D.M. Brussels",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-aubel-fc",
+          "name": "R.Aubel FC.",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-k-rc-mechelen",
+          "name": "K.RC.Mechelen",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-sportkring-roeselare",
+          "name": "Sportkring Roeselare",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-r-fc-meux",
+          "name": "R.FC.Meux",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "be:cup-sparta-petegem-deinze",
+          "name": "Sparta Petegem Deinze",
+          "level": 3,
+          "reserve": false
+        }
+      ]
+    },
+    "SCO": {
+      "sources": [
+        "https://assets.ctfassets.net/qu0slcxvbwp6/1BfTz9IMRE7ckhocCF5TOj/6e33387a50a820f4f86c4c1eecb10659/2026-27_Scottish_Cup_Format___Composition.pdf"
+      ],
+      "clubs": [
+        {
+          "id": "sco:cup-dundee-north-end",
+          "name": "Dundee North End",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-stonehaven",
+          "name": "Stonehaven",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-shortlees-amateurs",
+          "name": "Shortlees Amateurs",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-benburb",
+          "name": "Benburb",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-blackburn-united",
+          "name": "Blackburn United",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-bonnyton-thistle",
+          "name": "Bonnyton Thistle",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-broughty-athletic",
+          "name": "Broughty Athletic",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-burntisland-shipyard",
+          "name": "Burntisland Shipyard",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-camelon-juniors",
+          "name": "Camelon Juniors",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-carluke-rovers",
+          "name": "Carluke Rovers",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-coldstream",
+          "name": "Coldstream",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-creetown",
+          "name": "Creetown",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-dalkeith-thistle",
+          "name": "Dalkeith Thistle",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-darvel",
+          "name": "Darvel",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-drumchapel-united",
+          "name": "Drumchapel United",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-dunbar-united",
+          "name": "Dunbar United",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-dundonald-bluebell",
+          "name": "Dundonald Bluebell",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-easthouses-lily-mwfc",
+          "name": "Easthouses Lily MWFC",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-edinburgh-university",
+          "name": "Edinburgh University",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-girvan",
+          "name": "Girvan",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-glasgow-university",
+          "name": "Glasgow University",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-glenafton-athletic",
+          "name": "Glenafton Athletic",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-golspie-sutherland",
+          "name": "Golspie Sutherland",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-haddington-athletic",
+          "name": "Haddington Athletic",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-hawick-royal-albert",
+          "name": "Hawick Royal Albert",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-hutchison-vale",
+          "name": "Hutchison Vale",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-irvine-meadow-xi",
+          "name": "Irvine Meadow XI",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-jeanfield-swifts",
+          "name": "Jeanfield Swifts",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-kirkintilloch-rob-roy",
+          "name": "Kirkintilloch Rob Roy",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-newtongrange-star",
+          "name": "Newtongrange Star",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-penicuik-athletic",
+          "name": "Penicuik Athletic",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-preston-athletic",
+          "name": "Preston Athletic",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-rutherglen-glencairn",
+          "name": "Rutherglen Glencairn",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-sauchie-juniors",
+          "name": "Sauchie Juniors",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-st-andrews-united",
+          "name": "St. Andrews United",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-st-cadocs",
+          "name": "St. Cadocs",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-st-cuthbert-wanderers",
+          "name": "St. Cuthbert Wanderers",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-tayport",
+          "name": "Tayport",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-threave-rovers",
+          "name": "Threave Rovers",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-tweedmouth-rangers",
+          "name": "Tweedmouth Rangers",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-tynecastle",
+          "name": "Tynecastle",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-vale-of-leithen",
+          "name": "Vale of Leithen",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-whitehill-welfare",
+          "name": "Whitehill Welfare",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-whitletts-victoria",
+          "name": "Whitletts Victoria",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-wigtown-bladnoch",
+          "name": "Wigtown & Bladnoch",
+          "level": 6,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-banks-odee",
+          "name": "Banks O’Dee",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-brora-rangers",
+          "name": "Brora Rangers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-buckie-thistle",
+          "name": "Buckie Thistle",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-clachnacuddin",
+          "name": "Clachnacuddin",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-deveronvale",
+          "name": "Deveronvale",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-formartine-united",
+          "name": "Formartine United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-forres-mechanics",
+          "name": "Forres Mechanics",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-fraserburgh",
+          "name": "Fraserburgh",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-huntly",
+          "name": "Huntly",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-invergordon",
+          "name": "Invergordon",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-inverurie-loco-works",
+          "name": "Inverurie Loco Works",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-keith",
+          "name": "Keith",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-lossiemouth",
+          "name": "Lossiemouth",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-nairn-county",
+          "name": "Nairn County",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-rothes",
+          "name": "Rothes",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-strathspey-thistle",
+          "name": "Strathspey Thistle",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-turriff-united",
+          "name": "Turriff United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-wick-academy",
+          "name": "Wick Academy",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-berwick-rangers",
+          "name": "Berwick Rangers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-boness-united",
+          "name": "Bo’ness United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-bonnyrigg-rose",
+          "name": "Bonnyrigg Rose",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-brechin-city",
+          "name": "Brechin City",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-broxburn-athletic",
+          "name": "Broxburn Athletic",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-civil-service-strollers",
+          "name": "Civil Service Strollers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-cowdenbeath",
+          "name": "Cowdenbeath",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-dunipace",
+          "name": "Dunipace",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-east-stirlingshire",
+          "name": "East Stirlingshire",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-gala-fairydean-rovers",
+          "name": "Gala Fairydean Rovers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-hill-of-beath-hawthorn",
+          "name": "Hill of Beath Hawthorn",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-linlithgow-rose",
+          "name": "Linlithgow Rose",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-lochee-united",
+          "name": "Lochee United",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-musselburgh-athletic",
+          "name": "Musselburgh Athletic",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-tranent",
+          "name": "Tranent",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-university-of-stirling",
+          "name": "University of Stirling",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-albion-rovers",
+          "name": "Albion Rovers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-auchinleck-talbot",
+          "name": "Auchinleck Talbot",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-beith-juniors",
+          "name": "Beith Juniors",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-caledonian-braves",
+          "name": "Caledonian Braves",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-clydebank",
+          "name": "Clydebank",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-cumbernauld-colts",
+          "name": "Cumbernauld Colts",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-cumnock-juniors",
+          "name": "Cumnock Juniors",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-dalbeattie-star",
+          "name": "Dalbeattie Star",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-gretna-2008",
+          "name": "Gretna 2008",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-johnstone-burgh",
+          "name": "Johnstone Burgh",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-kilwinning-rangers",
+          "name": "Kilwinning Rangers",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-largs-thistle",
+          "name": "Largs Thistle",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-newton-stewart",
+          "name": "Newton Stewart",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-pollok",
+          "name": "Pollok",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-renfrew",
+          "name": "Renfrew",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-troon",
+          "name": "Troon",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-annan-athletic",
+          "name": "Annan Athletic",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-clyde",
+          "name": "Clyde",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-dumbarton",
+          "name": "Dumbarton",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-edinburgh-city",
+          "name": "Edinburgh City",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-elgin-city",
+          "name": "Elgin City",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-forfar-athletic",
+          "name": "Forfar Athletic",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-kelty-hearts",
+          "name": "Kelty Hearts",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-stirling-albion",
+          "name": "Stirling Albion",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-stranraer",
+          "name": "Stranraer",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-the-spartans",
+          "name": "The Spartans",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-airdrieonians",
+          "name": "Airdrieonians",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-alloa-athletic",
+          "name": "Alloa Athletic",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-cove-rangers",
+          "name": "Cove Rangers",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-east-fife",
+          "name": "East Fife",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-east-kilbride",
+          "name": "East Kilbride",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-hamilton-academical",
+          "name": "Hamilton Academical",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-montrose",
+          "name": "Montrose",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-peterhead",
+          "name": "Peterhead",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-queen-of-the-south",
+          "name": "Queen of the South",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "sco:cup-ross-county",
+          "name": "Ross County",
+          "level": 3,
+          "reserve": false
+        }
+      ]
+    },
+    "TR": {
+      "sources": [
+        "https://www.tff.org/Default.aspx?ftxtId=50787&pageId=200",
+        "https://www.tff.org/default.aspx?ftxtID=50935&pageID=439",
+        "https://www.tff.org/default.aspx?ftxtID=51255&pageID=267"
+      ],
+      "clubs": [
+        {
+          "id": "tr:cup-68-aksaray-belediyespor",
+          "name": "68 Aksaray Belediyespor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-adana-demirspor",
+          "name": "Adana Demirspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-aliaga-fk",
+          "name": "Aliağa FK",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-ankaraspor",
+          "name": "Ankaraspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-arnavutkoy-belediyespor",
+          "name": "Arnavutköy Belediyespor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-corluspor-1947",
+          "name": "Çorluspor 1947",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-elazigspor",
+          "name": "Elazığspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kastamonuspor",
+          "name": "Kastamonuspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-gebzespor",
+          "name": "Gebzespor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-hatayspor",
+          "name": "Hatayspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-isparta-32-spor",
+          "name": "Isparta 32 Spor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-inegol-kafkas-spor",
+          "name": "İnegöl Kafkas Spor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-sanliurfaspor",
+          "name": "Şanlıurfaspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-menemen-fk",
+          "name": "Menemen FK",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-erbaaspor",
+          "name": "Erbaaspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-musspor",
+          "name": "Muşspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-sebat-genclikspor",
+          "name": "Sebat Gençlikspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-somaspor",
+          "name": "Somaspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-12-bingolspor",
+          "name": "12 Bingölspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-1461-trabzon-fk",
+          "name": "1461 Trabzon FK",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-52-orduspor-fk",
+          "name": "52 Orduspor FK",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-adana-01-fk",
+          "name": "Adana 01 FK",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-24-erzincanspor",
+          "name": "24 Erzincanspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-ankara-demirspor",
+          "name": "Ankara Demirspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-beyoglu-yeni-carsi",
+          "name": "Beyoğlu Yeni Çarşı",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-fethiyespor",
+          "name": "Fethiyespor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-iskenderunspor",
+          "name": "İskenderunspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kahramanmaras-istiklalspor",
+          "name": "Kahramanmaraş İstiklalspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-karacabey-belediyespor",
+          "name": "Karacabey Belediyespor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kirklarelispor",
+          "name": "Kırklarelispor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kutahyaspor",
+          "name": "Kütahyaspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-ankaragucu",
+          "name": "Ankaragücü",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-sakaryaspor",
+          "name": "Sakaryaspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-serikspor",
+          "name": "Serikspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-sultan-su-inegolspor",
+          "name": "Sultan Su İnegölspor",
+          "level": 3,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-amasyaspor-fk",
+          "name": "Amasyaspor FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-beykoz-anadolu-spor",
+          "name": "Beykoz Anadolu Spor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-beykoz-ishakli-spor",
+          "name": "Beykoz İshaklı Spor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-bulvarspor",
+          "name": "Bulvarspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-duzcespor",
+          "name": "Düzcespor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-fatsa-belediyespor",
+          "name": "Fatsa Belediyespor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-galata-sk",
+          "name": "Galata SK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-golcukspor",
+          "name": "Gölcükspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-inkilap-futbol-sk",
+          "name": "İnkılap Futbol SK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-karabuk-idman-yurdu",
+          "name": "Karabük İdman Yurdu",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-karadeniz-eregli-belediyespor",
+          "name": "Karadeniz Ereğli Belediyespor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kucukcekmece-sinopspor",
+          "name": "Küçükçekmece Sinopspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-orduspor-1967",
+          "name": "Orduspor 1967",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-pazarspor",
+          "name": "Pazarspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-silivrispor",
+          "name": "Silivrispor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-tokat-belediye-sk",
+          "name": "Tokat Belediye SK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-yalova-fk-77",
+          "name": "Yalova FK 77",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-zonguldakspor",
+          "name": "Zonguldakspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-1922-aksehirspor",
+          "name": "1922 Akşehirspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-alanya-1221-fk",
+          "name": "Alanya 1221 FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-altay",
+          "name": "Altay",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-ayvalikgucu-belediyespor",
+          "name": "Ayvalıkgücü Belediyespor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-balikesirspor",
+          "name": "Balıkesirspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-bigaspor",
+          "name": "Bigaspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-bucaspor-1928",
+          "name": "Bucaspor 1928",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-bursa-nilufer-fk",
+          "name": "Bursa Nilüfer FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-bursa-yildirimspor",
+          "name": "Bursa Yıldırımspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-denizli-idman-yurdu-1959",
+          "name": "Denizli İdman Yurdu 1959",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-eskisehir-anadolu-spor",
+          "name": "Eskişehir Anadolu Spor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-eskisehirspor",
+          "name": "Eskişehirspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-etimesgut-sk",
+          "name": "Etimesgut SK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-karsiyaka",
+          "name": "Karşıyaka",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kepezspor",
+          "name": "Kepezspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-soke-1970-sk",
+          "name": "Söke 1970 SK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-tire-2021-fk",
+          "name": "Tire 2021 FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-usakspor",
+          "name": "Uşakspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-adanaspor",
+          "name": "Adanaspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-agri-1970-sk",
+          "name": "Ağrı 1970 SK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-bitlis-1916-fk",
+          "name": "Bitlis 1916 FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-erciyes-38-fk",
+          "name": "Erciyes 38 FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-karakopru-belediyespor",
+          "name": "Karaköprü Belediyespor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-karaman-fk",
+          "name": "Karaman FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kirikkale-fk",
+          "name": "Kırıkkale FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kirsehir-fk",
+          "name": "Kırşehir FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-malatya-yesilyurtspor",
+          "name": "Malatya Yeşilyurtspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-mazidagi-fosfatspor",
+          "name": "Mazıdağı Fosfatspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-nigde-belediyespor",
+          "name": "Niğde Belediyespor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-osmaniyespor-fk",
+          "name": "Osmaniyespor FK",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-silifke-belediyespor",
+          "name": "Silifke Belediyespor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-adaletgucuspor",
+          "name": "Adaletgücüspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-yeni-malatyaspor",
+          "name": "Yeni Malatyaspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-yeni-mersin-idman-yurdu",
+          "name": "Yeni Mersin İdman Yurdu",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-yozgat-belediyesi-bozokspor",
+          "name": "Yozgat Belediyesi Bozokspor",
+          "level": 4,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-1923-afyonkarahisar-sk",
+          "name": "1923 Afyonkarahisar SK",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-urgupspor",
+          "name": "Ürgüpspor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-osmaneli-sk",
+          "name": "Osmaneli SK",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kesapspor",
+          "name": "Keşapspor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kilis-birlikgucu",
+          "name": "Kilis Birlikgücü",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kahta-02-spor",
+          "name": "Kahta 02 Spor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-dersimspor",
+          "name": "Dersimspor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-gelecek-siirt-56-spor",
+          "name": "Gelecek Siirt 56 Spor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-cizre-belediyespor",
+          "name": "Cizre Belediyespor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-hakkari-zap-sk",
+          "name": "Hakkari Zap SK",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-golespor",
+          "name": "Gölespor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-kars-36-spor",
+          "name": "Kars 36 Spor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-bayburtspor",
+          "name": "Bayburtspor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-borckaspor",
+          "name": "Borçkaspor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-sinopspor",
+          "name": "Sinopspor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-arit-kayadibi-sk",
+          "name": "Arıt Kayadibi SK",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-uzunkopruspor",
+          "name": "Uzunköprüspor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-gaziemir-gog-spor",
+          "name": "Gaziemir GOG Spor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-bucak-belediye-oguzhanspor",
+          "name": "Bucak Belediye Oğuzhanspor",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-cankirigucu-sk",
+          "name": "Çankırıgücü SK",
+          "level": 5,
+          "reserve": false
+        },
+        {
+          "id": "tr:cup-torul-belediyespor",
+          "name": "Torul Belediyespor",
+          "level": 5,
+          "reserve": false
+        }
+      ]
+    }
+  }
+}

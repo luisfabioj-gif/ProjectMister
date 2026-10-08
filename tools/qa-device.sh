@@ -17,6 +17,11 @@ grep -q 'PASS completed match survives reload' qa-output/candidate.txt
 timeout 300s adb shell am instrument -w -e mode national-cups com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/national-cups.txt
 grep -q 'PASS German recurring cup live matches two seasons reloads history and backup rejection verified' qa-output/national-cups.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/national-cups.txt
+for country in ENG ES IT FR NL BE SCO TR; do
+    timeout 360s adb shell am instrument -w -e mode expanded-cups -e country "$country" com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee "qa-output/cups-$country.txt"
+    grep -q "PASS $country recurring cups watched and quick matches two seasons reloads history and backup rejection verified" "qa-output/cups-$country.txt"
+    ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' "qa-output/cups-$country.txt"
+done
 timeout 480s adb shell am instrument -w -e mode divisions com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/divisions.txt
 grep -q 'PASS all twenty standalone and twenty linked division careers verified' qa-output/divisions.txt
 grep -q 'PASS FR watched playoffs and season transition verified' qa-output/divisions.txt

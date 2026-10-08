@@ -323,6 +323,61 @@ public final class SmokeRunner extends Instrumentation {
         ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);});
         check(true,"German recurring cup live matches two seasons reloads history and backup rejection verified");
     }
+    private void verifyExpandedCups(String country)throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+        byte[] original=backupBytes(prefs.getAll());final int[] age={0},watched={0},quick={0};final boolean[] done={false};
+        ui(()->{
+            Object catalog=get("catalog"),data=null;
+            for(Object d:(List<?>)catalog.getClass().getField("divisions").get(catalog))if(d.getClass().getField("id").get(d).equals(country.toLowerCase(Locale.ROOT)+":1"))data=d;
+            Object world=call("newCountryCareer",new Class[]{data.getClass()},data);call("configureDivision",new Class[]{gameClass("CareerDivision")},world);
+            set("selectedSlot",2);set("selectedClub",0);((Random)get("random")).setSeed(23800+country.hashCode());
+            call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
+            String[] ids=(String[])world.getClass().getField("clubIds").get(world);boolean foreign=false;for(String id:ids)if(!id.startsWith(country.toLowerCase(Locale.ROOT)+":"))foreign=true;
+            check(foreign&&ids.length>100&&((List<?>)get("players")).size()==ids.length*20,country+" expanded world has real foreign and lower cup squads");
+            check(get("nationalCups")!=null,country+" national cup initialized");check((get("scottishLeagueCup")!=null)==country.equals("SCO"),country+" correct Scottish League Cup initialization");
+            age[0]=playerInt(((List<?>)get("players")).get(0),"age");call("saveCurrentGame",new Class[0]);checkBackupReadable();call("showCalendarTab",new Class[]{String.class},"Cup");
+        });capture("cup-"+country+"-opening");
+        for(int edition=0;edition<2;edition++) {
+            final int year=2026+edition;done[0]=false;
+            for(int event=0;event<160&&!done[0];event++) {
+                final int step=event;
+                ui(()->{
+                    java.time.LocalDate before=(java.time.LocalDate)get("currentDate");int round=(Integer)get("matchday");call("initialiseTacticsForClub",new Class[0]);
+                    if((Boolean)call("cupDue",new Class[0])) {
+                        Object results=get("leagueResults");String ledger=(String)results.getClass().getMethod("snapshot").invoke(results);
+                        if(year==2027&&quick[0]==0){int apps=0;for(int i=0;i<20;i++)apps+=playerInt(((List<?>)get("players")).get(i),"appearances");call("quickResult",new Class[0]);int after=0;for(int i=0;i<20;i++)after+=playerInt(((List<?>)get("players")).get(i),"appearances");if(after>apps)quick[0]++;}
+                        else {
+                            call("startLiveMatchday",new Class[0]);
+                            if((Boolean)get("matchInProgress")){check((Boolean)get("liveCup"),country+" watched cup flow");set("livePaused",true);set("liveHomeGoals",(Integer)get("liveHome")==0?3:0);set("liveAwayGoals",(Integer)get("liveAway")==0?3:0);call("finishLiveMatch",new Class[0]);watched[0]++;}
+                        }
+                        check(round==(Integer)get("matchday")&&ledger.equals(get("leagueResults").getClass().getMethod("snapshot").invoke(get("leagueResults"))),country+" cup does not change league results");
+                    } else if(round<(Integer)call("seasonRounds",new Class[0]))call("quickResult",new Class[0]);
+                    check(!((java.time.LocalDate)get("currentDate")).isBefore(before),country+" date never rewinds");
+                    if(step%9==0){call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),country+" cup career reloads");checkBackupReadable();}
+                    done[0]=(Integer)get("matchday")== (Integer)call("seasonRounds",new Class[0])&&(Boolean)call("cupsComplete",new Class[0]);
+                });
+            }
+            ui(()->{
+                check(done[0],country+" league and every cup completed");check(playerInt(((List<?>)get("players")).get(0),"age")==age[0]+year-2025,country+" ages players once per season");
+                Object campaign=get("nationalCups");List<?> competitions=(List<?>)campaign.getClass().getMethod("competitions").invoke(campaign);Map<String,String> completed=new HashMap<>();
+                for(Object seasons:competitions){Object cup=seasons.getClass().getMethod("active").invoke(seasons);check((Boolean)cup.getClass().getMethod("complete").invoke(cup),country+" national edition finished");completed.put((String)cup.getClass().getField("competition").get(cup),(String)cup.getClass().getMethod("snapshot").invoke(cup));}
+                String scottish="";if(get("scottishLeagueCup")!=null){Object cup=get("scottishLeagueCup").getClass().getMethod("active").invoke(get("scottishLeagueCup"));check((Boolean)cup.getClass().getMethod("complete").invoke(cup),"Scottish groups and knockout finished");scottish=(String)cup.getClass().getMethod("snapshot").invoke(cup);}
+                call("continueDivisionSeason",new Class[0]);check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==year+1,country+" season rolls forward");
+                Object next=get("nationalCups");List<?> histories=(List<?>)next.getClass().getMethod("competitions").invoke(next);
+                for(Object seasons:histories){Object active=seasons.getClass().getMethod("active").invoke(seasons);List<?> archives=(List<?>)seasons.getClass().getMethod("archives").invoke(seasons);check(archives.size()==year-2025&&archives.get(archives.size()-1).equals(completed.get(active.getClass().getField("competition").get(active))),country+" cup archive remains exact");check(!(Boolean)active.getClass().getMethod("complete").invoke(active),country+" next cup draw playable");}
+                if(!scottish.isEmpty()){Object nextScottish=get("scottishLeagueCup");List<?> archives=(List<?>)nextScottish.getClass().getMethod("archives").invoke(nextScottish);check(archives.size()==year-2025&&archives.get(archives.size()-1).equals(scottish),"Scottish League Cup exact archive");}
+                check((Boolean)call("loadSave",new Class[]{int.class},2),country+" next season and archives reload");checkBackupReadable();
+            });
+        }
+        ui(()->{check(watched[0]>0&&quick[0]>0,country+" watched and quick cup results exercised");call("showHistoryHub",new Class[0]);});capture("cup-"+country+"-history");
+        ui(()->{
+            byte[] valid=backupBytes(prefs.getAll());Map<String,Object> broken=new HashMap<>(prefs.getAll());broken.put("save_2_national_cups","broken");boolean rejected=false;
+            try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,backupBytes(broken));}catch(InvocationTargetException expected){rejected=true;}check(rejected&&Arrays.equals(valid,backupBytes(prefs.getAll())),country+" corrupt cup backup rejected atomically");
+            if(country.equals("SCO")){broken=new HashMap<>(prefs.getAll());broken.put("save_2_scottish_league_cup","broken");rejected=false;try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,backupBytes(broken));}catch(InvocationTargetException expected){rejected=true;}check(rejected&&Arrays.equals(valid,backupBytes(prefs.getAll())),"Scottish League Cup corruption preserves all careers");call("showCalendarTab",new Class[]{String.class},"League Cup");}
+        });if(country.equals("SCO"))capture("cup-SCO-league-groups");
+        ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"original career restored after "+country+" cups");});
+        check(true,country+" recurring cups watched and quick matches two seasons reloads history and backup rejection verified");
+    }
     private void verifyDomesticCupSeason()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
         byte[] original=backupBytes(prefs.getAll());final int[] initialAge={0};
@@ -903,6 +958,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(true,"release bundle upgrade and feature navigation verified");
             } else if(mode.equals("national-cups")) {
                 verifyGermanCupSeasons();
+            } else if(mode.equals("expanded-cups")) {
+                verifyExpandedCups(args.getString("country","ENG"));
             } else if(mode.equals("divisions")) {
                 verifyDivisionCareers();
                 verifyBackups();

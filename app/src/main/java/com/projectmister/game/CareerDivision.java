@@ -11,9 +11,30 @@ public final class CareerDivision {
     public final String[] clubIds, names;
     public final int[] strengths, budgets, primary, secondary;
     public final boolean[] reserves;
-    public final int[] clubTiers;
+    public final int[] clubTiers,clubLevels;
     public final String[] tierNames;
     public final boolean linked;
+    public boolean expandedWorld(){return clubIds.length>48&&snapshotSchema()==5;}
+    private int snapshotSchema(){if(!hasCupClubs())return linked?2:1;for(int t:clubTiers)if(t==4)return 5;return country.equals("DE")&&names.length==64?4:country.equals("PT")&&names.length<=256?3:5;}
+    public String association(int club){return clubIds[club].substring(0,clubIds[club].indexOf(':')).toUpperCase(java.util.Locale.ROOT);}
+    public int level(int club){return clubTiers[club]<=2?clubTiers[club]:clubLevels[club];}
+    /** Append identities only while creating a new world, before player IDs exist. */
+    public CareerDivision withWorldClubs(CompetitionCatalog catalog,JSONArray local,JSONArray europe) {
+        if(!linked)throw new IllegalArgumentException("Linked world required");
+        try {
+            JSONObject o=new JSONObject(snapshot());JSONArray clubs=o.getJSONArray("clubs");HashSet<String> seen=new HashSet<>();for(String identity:clubIds)seen.add(identity);
+            if(local!=null)for(int i=0;i<local.length();i++)appendClub(clubs,seen,local.getJSONObject(i),3);
+            for(CompetitionCatalog.Division d:catalog.divisions)if(!d.countryCode.equals(country))for(CompetitionCatalog.Club c:d.clubs)
+                appendClub(clubs,seen,new JSONObject().put("id",c.id).put("name",c.name).put("level",d.tier).put("reserve",c.reserve),4);
+            if(europe!=null)for(int i=0;i<europe.length();i++)appendClub(clubs,seen,europe.getJSONObject(i),4);
+            o.put("schema",5);return new CareerDivision(o);
+        }catch(Exception invalid){throw new IllegalArgumentException("Cannot create competition world",invalid);}
+    }
+    private static void appendClub(JSONArray clubs,HashSet<String> seen,JSONObject c,int tier)throws Exception {
+        String identity=c.getString("id");if(!seen.add(identity))return;int level=c.getInt("level"),seed=identity.hashCode()&0x7fffffff;
+        clubs.put(new JSONObject().put("id",identity).put("name",c.getString("name")).put("tier",tier).put("level",level).put("reserve",c.optBoolean("reserve",false))
+            .put("strength",(level==1?69:level==2?57:level==3?51:level==4?43:35)+seed%13).put("budget",level==1?8+seed%25:1+seed%6).put("primary",0xff28674f).put("secondary",0xfff4f5f7));
+    }
     public boolean hasCupClubs(){for(int t:clubTiers)if(t==3)return true;return false;}
     public CareerDivision withGermanCupClubs(GermanCupCatalog cup) {
         if(!linked||!country.equals("DE")||hasCupClubs())throw new IllegalArgumentException("Invalid German cup expansion");
@@ -21,7 +42,7 @@ public final class CareerDivision {
             JSONObject o=new JSONObject(snapshot());JSONArray existing=o.getJSONArray("clubs");
             for(int i=0;i<cup.clubs.length();i++) {
                 JSONObject c=cup.clubs.getJSONObject(i);String identity=c.getString("id");int level=c.getInt("level"),seed=identity.hashCode()&0x7fffffff;
-                existing.put(new JSONObject().put("id",identity).put("name",c.getString("name")).put("tier",3).put("reserve",false)
+                existing.put(new JSONObject().put("id",identity).put("name",c.getString("name")).put("tier",3).put("level",level).put("reserve",false)
                     .put("strength",(level==3?53:level==4?45:38)+seed%12).put("budget",1+seed%3).put("primary",0xff28674f).put("secondary",0xfff4f5f7));
             }
             o.put("schema",4);return new CareerDivision(o);
@@ -33,7 +54,7 @@ public final class CareerDivision {
             JSONObject o=new JSONObject(snapshot());JSONArray existing=o.getJSONArray("clubs");
             for(int i=0;i<cup.clubs.length();i++) {
                 JSONObject c=cup.clubs.getJSONObject(i);String identity=c.getString("id");int level=c.getInt("level"),seed=identity.hashCode()&0x7fffffff;
-                existing.put(new JSONObject().put("id",identity).put("name",c.getString("name")).put("tier",3).put("reserve",false)
+                existing.put(new JSONObject().put("id",identity).put("name",c.getString("name")).put("tier",3).put("level",level).put("reserve",false)
                     .put("strength",(level==3?53:level==4?45:38)+seed%12).put("budget",1+seed%3).put("primary",0xff28674f).put("secondary",0xfff4f5f7));
             }
             o.put("schema",3);return new CareerDivision(o);
@@ -79,7 +100,7 @@ public final class CareerDivision {
     public CareerDivision(CompetitionCatalog.Division division) {
         id=division.id;country=division.countryCode;name=division.name;tier=division.tier;
         linked=false;tierNames=new String[]{tier==1?name:"",tier==2?name:""};
-        int n=division.clubs.size();clubTiers=new int[n];java.util.Arrays.fill(clubTiers,tier);clubIds=new String[n];names=new String[n];reserves=new boolean[n];
+        int n=division.clubs.size();clubTiers=new int[n];clubLevels=new int[n];java.util.Arrays.fill(clubTiers,tier);java.util.Arrays.fill(clubLevels,tier);clubIds=new String[n];names=new String[n];reserves=new boolean[n];
         strengths=new int[n];budgets=new int[n];primary=new int[n];secondary=new int[n];
         int[] palette={0xffbb3038,0xff285da8,0xff237c51,0xffa87922,0xff667188,0xff763d83};
         for(int i=0;i<n;i++) {
@@ -91,18 +112,18 @@ public final class CareerDivision {
         }
     }
     private CareerDivision(JSONObject o)throws Exception {
-        int schema=o.getInt("schema");if(schema<1||schema>4)throw new IllegalArgumentException("Unsupported career database");
+        int schema=o.getInt("schema");if(schema<1||schema>5)throw new IllegalArgumentException("Unsupported career database");
         linked=schema>=2;
         id=o.getString("id");country=o.getString("country");name=o.getString("name");tier=o.getInt("tier");
         if(tier<1||tier>2)throw new IllegalArgumentException("Invalid tier");
         JSONArray a=o.getJSONArray("clubs");int n=a.length();
-        if(n<10||n>(schema>=3?256:linked?48:24)||schema==3&&!country.equals("PT")||schema==4&&(!country.equals("DE")||n!=64))throw new IllegalArgumentException("Invalid club count");
-        clubTiers=new int[n];tierNames=new String[]{tier==1?name:"",tier==2?name:""};
+        if(n<10||n>(schema==5?768:schema>=3?256:linked?48:24)||schema==3&&!country.equals("PT")||schema==4&&(!country.equals("DE")||n!=64))throw new IllegalArgumentException("Invalid club count");
+        clubTiers=new int[n];clubLevels=new int[n];tierNames=new String[]{tier==1?name:"",tier==2?name:""};
         if(linked){JSONArray labels=o.getJSONArray("tierNames");if(labels.length()!=2)throw new IllegalArgumentException("Invalid tier names");for(int i=0;i<2;i++)tierNames[i]=labels.getString(i);}
         clubIds=new String[n];names=new String[n];reserves=new boolean[n];strengths=new int[n];budgets=new int[n];primary=new int[n];secondary=new int[n];
         HashSet<String> seen=new HashSet<>();
         for(int i=0;i<n;i++) {
-            JSONObject c=a.getJSONObject(i);clubTiers[i]=c.optInt("tier",tier);if(clubTiers[i]<1||clubTiers[i]>(schema>=3?3:2))throw new IllegalArgumentException("Invalid membership");clubIds[i]=c.getString("id");names[i]=c.getString("name");
+            JSONObject c=a.getJSONObject(i);clubTiers[i]=c.optInt("tier",tier);if(clubTiers[i]<1||clubTiers[i]>(schema==5?4:schema>=3?3:2))throw new IllegalArgumentException("Invalid membership");clubLevels[i]=c.optInt("level",clubTiers[i]);if(clubLevels[i]<1||clubLevels[i]>20)throw new IllegalArgumentException("Invalid league level");clubIds[i]=c.getString("id");names[i]=c.getString("name");
             if(!seen.add(clubIds[i])||names[i].isEmpty())throw new IllegalArgumentException("Invalid club identity");
             reserves[i]=c.optBoolean("reserve",false);strengths[i]=c.getInt("strength");budgets[i]=c.getInt("budget");
             primary[i]=c.getInt("primary");secondary[i]=c.getInt("secondary");
@@ -112,10 +133,10 @@ public final class CareerDivision {
     public static CareerDivision restore(String value)throws Exception {return new CareerDivision(new JSONObject(value));}
     public String snapshot() {
         try {
-            JSONObject o=new JSONObject().put("schema",hasCupClubs()?(country.equals("DE")?4:3):linked?2:1).put("id",id).put("country",country).put("name",name).put("tier",tier);
+            JSONObject o=new JSONObject().put("schema",snapshotSchema()).put("id",id).put("country",country).put("name",name).put("tier",tier);
             if(linked)o.put("tierNames",new JSONArray(tierNames));
             JSONArray a=new JSONArray();for(int i=0;i<names.length;i++)a.put(new JSONObject().put("id",clubIds[i]).put("name",names[i])
-                    .put("tier",clubTiers[i]).put("reserve",reserves[i]).put("strength",strengths[i]).put("budget",budgets[i]).put("primary",primary[i]).put("secondary",secondary[i]));
+                    .put("tier",clubTiers[i]).put("level",level(i)).put("reserve",reserves[i]).put("strength",strengths[i]).put("budget",budgets[i]).put("primary",primary[i]).put("secondary",secondary[i]));
             return o.put("clubs",a).toString();
         }catch(Exception e){throw new IllegalStateException("Cannot encode career database",e);}
     }

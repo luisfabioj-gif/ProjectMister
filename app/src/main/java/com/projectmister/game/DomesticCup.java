@@ -18,7 +18,7 @@ public final class DomesticCup {
         this(2026,worldSize,seed,opening,byes,second,third,late);
     }
     private DomesticCup(int season,int worldSize,long seed,int[] opening,int[] byes,int[] second,int[] third,int[] late) {
-        if(season<2026||season>2200||worldSize<64||worldSize>256||opening==null||byes==null||second==null||third==null||late==null||opening.length<2||opening.length%2!=0||late.length>8)
+        if(season<2026||season>2200||worldSize<64||worldSize>768||opening==null||byes==null||second==null||third==null||late==null||opening.length<2||opening.length%2!=0||late.length>8)
             throw new IllegalArgumentException("Invalid Portuguese cup field");
         if(season==2026&&(opening.length!=94||byes.length!=19||second.length!=14||third.length!=14||late.length!=5))throw new IllegalArgumentException("Invalid initial cup field");
         this.season=season;
@@ -38,7 +38,7 @@ public final class DomesticCup {
         for(int club:europeanClubs)if(club<0||club>=tiers.length||reserves[club]||!late.add(club))throw new IllegalArgumentException("Invalid deferred entrant");
         ArrayList<Integer> lower=new ArrayList<>(),second=new ArrayList<>(),third=new ArrayList<>();
         for(int i=0;i<tiers.length;i++)if(!reserves[i]&&!late.contains(i)) {
-            if(tiers[i]==3)lower.add(i);else if(tiers[i]==2)second.add(i);else if(tiers[i]==1)third.add(i);else throw new IllegalArgumentException("Invalid cup tier");
+            if(tiers[i]==3)lower.add(i);else if(tiers[i]==2)second.add(i);else if(tiers[i]==1)third.add(i);else if(tiers[i]!=4)throw new IllegalArgumentException("Invalid cup tier");
         }
         int byes=2*(2*(2*(32-late.size())-third.size())-second.size())-lower.size();
         if(byes<0||byes>=lower.size())throw new IllegalArgumentException("Unsupported qualified lower-tier field");
