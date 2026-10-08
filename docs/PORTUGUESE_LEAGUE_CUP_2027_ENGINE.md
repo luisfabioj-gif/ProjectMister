@@ -1,7 +1,8 @@
 # Portuguese League Cup 2027/28 engine — 8 October 2026
 
 This is an engine checkpoint, not a new playable APK. The delivered 2.3.6 build
-remains the verified recurring Taça de Portugal release. MainActivity does not
+remains the verified recurring Taça de Portugal release; the later 2.3.7 APK
+adds a playable recurring German cup. MainActivity does not
 yet instantiate this new League Cup model, and its career backup fields are not
 connected to these snapshots.
 

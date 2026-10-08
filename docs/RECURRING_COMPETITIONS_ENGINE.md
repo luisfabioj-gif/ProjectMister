@@ -1,9 +1,11 @@
 # Recurring competitions engine — 7 October 2026
 
-This is a development foundation, **not a new playable competition release**.
-The latest delivered gameplay build remains 2.3.5. These classes compile into the
-application but are not called by MainActivity, its saved careers or its calendar.
-Existing careers and the two playable 2026/27 Portuguese cups are unchanged.
+This document describes the original 7 October development checkpoint. Since
+then, 2.3.6 connected recurring Taça de Portugal seasons, and 2.3.7 connected
+`SeasonCup` / `CupSeasons` to a playable recurring German cup with career saves,
+live matches, calendar and history. See `V2_3_6_CHANGES.md` and
+`V2_3_7_CHANGES.md` for the tested gameplay releases. England's cup and UEFA
+engines remain unconnected to MainActivity and playable careers.
 
 ## Implemented
 
