@@ -37,10 +37,13 @@ public final class BackupRestore {
                 String domestic=(String)data.getOrDefault(prefix+"domestic_cup","");
                 int weeks=(Integer)data.getOrDefault(prefix+"postseason_weeks",0);
                 if(weeks<0||weeks>20)throw new IllegalArgumentException("Invalid postseason weeks");
-                if(division!=null&&division.hasCupClubs()&&domestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
+                if(division!=null&&division.country.equals("PT")&&division.hasCupClubs()&&domestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
                 int cupYear=LocalDate.parse((String)data.getOrDefault(prefix+"season_start","2026-08-09")).getYear();
+                String national=(String)data.getOrDefault(prefix+"national_cups","");
+                if(division!=null&&division.country.equals("DE")&&division.hasCupClubs()&&national.isEmpty())throw new IllegalArgumentException("Missing German cup");
+                if(!national.isEmpty())GermanCupCatalog.validate(national,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
                 if(!domestic.isEmpty()) {
-                    if(division==null||!division.hasCupClubs())throw new IllegalArgumentException("Missing cup registry");
+                    if(division==null||!division.country.equals("PT")||!division.hasCupClubs())throw new IllegalArgumentException("Missing cup registry");
                     DomesticCup restored=DomesticCup.restore(domestic,size);restored.validateEntrants(division.reserves);
                     restored.validateDate(LocalDate.parse((String)data.get(prefix+"date")));
                     if(restored.season>cupYear||restored.season<cupYear&&!restored.complete())throw new IllegalArgumentException("Wrong domestic cup season");

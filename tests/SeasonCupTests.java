@@ -36,6 +36,15 @@ public final class SeasonCupTests {
             int[] stages=new int[8];for(int i=0;i<english.drawnCount();i++){int s=english.stage(i);stages[s]++;KnockoutTie t=english.at(i);if(s<2)check(t.firstHome<80&&t.firstAway<80,"English late entry");check(t.neutral==(s>=6),"English neutral semi-finals and final");}
             check(Arrays.equals(stages,new int[]{40,20,32,16,8,4,2,1}),"English full main cup structure");
         }
+        for(int year=2026;year<=2040;year++) {
+            SeasonCup cup=DomesticCupFormats.dfbPokal(year,year,german(0));ArrayList<LocalDate> cupDates=new ArrayList<>();
+            for(int i=0;i<6;i++)cupDates.add(cup.round(i).date(0));
+            List<LocalDate> leagueDates=CompetitionCalendar.cupSeason(LocalDate.of(year,8,9),34,cupDates);
+            for(int i=0;i<leagueDates.size();i++) {
+                LocalDate date=leagueDates.get(i);if(i>0)check(java.time.temporal.ChronoUnit.DAYS.between(leagueDates.get(i-1),date)>=3,"German league recovery gap");
+                for(LocalDate cupDate:cupDates)check(Math.abs(java.time.temporal.ChronoUnit.DAYS.between(date,cupDate))>=3,"German cup and league dates do not collide");
+            }
+        }
         CupSeasons seasons=new CupSeasons(finish(DomesticCupFormats.dfbPokal(2026,8,german(0)),new Random(8)));
         String first=seasons.active().snapshot();
         for(int year=2027;year<=2046;year++) {

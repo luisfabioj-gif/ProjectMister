@@ -34,3 +34,13 @@ assert len(cup['byes'])==19 and len(opening)==len(set(opening))==113 and set(ope
 assert len(cup['lateEntrants'])==len(set(cup['lateEntrants']))==5
 assert set(cup['lateEntrants']).issubset(ids)
 print('PASS: Portuguese cup opening draw, 113 lower-tier clubs, 19 byes and five late entrants')
+
+german=json.loads((p.parent/'germany-cup-2026.json').read_text())
+assert german['schema']==1 and german['season']==2026
+lower={c['id']:c for c in german['clubs']}
+professional={c['id'] for league in d['divisions'] if league['countryCode']=='DE' for c in league['clubs']}
+assert len(lower)==len(german['clubs'])==28 and not set(lower).intersection(ids)
+assert all(c['id'].startswith('de:cup-') and c['name'].strip() and c['level'] in (3,4,5) for c in lower.values())
+assert len(professional|set(lower))==64
+assert len(set(german['unseededProfessional']))==4 and set(german['unseededProfessional']).issubset(professional)
+print('PASS: German cup 64-club field, 28 additional identities and complete opening pots')

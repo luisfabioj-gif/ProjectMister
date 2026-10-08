@@ -103,6 +103,8 @@ public class MainActivity extends Activity {
     private boolean liveCup=false;
     private DomesticCup domesticCup;
     private DomesticCupHistory domesticCupHistory=new DomesticCupHistory();
+    private CupSeasons nationalCups;
+    private boolean liveNationalCup=false;
     private boolean liveDomesticCup=false,seasonAgeApplied=false;
     private int postseasonWeeksProcessed=0;
     private int liveAwayKitColour;
@@ -1401,7 +1403,7 @@ public class MainActivity extends Activity {
         }
 
         saveCurrentGame();
-        matchInProgress=true;livePlayoff=playoff;liveCup=cup;liveDomesticCup=cup&&nextCupIsDomestic();pendingContactCue=null;
+        matchInProgress=true;livePlayoff=playoff;liveCup=cup;liveDomesticCup=cup&&nextCupIsDomestic();liveNationalCup=cup&&nextCupIsNational();pendingContactCue=null;
         matchGoals.clear();matchAssists.clear();pendingGoalTeam=-1;
         int opponent = leagueOpponentForRound(matchday);
         boolean selectedHome = selectedHomeForRound(matchday);
@@ -3094,6 +3096,7 @@ public class MainActivity extends Activity {
     }
 
     private String liveTieSummary() {
+        if(liveNationalCup&&nationalCups!=null)return "DFB-POKAL • "+nationalCups.active().round(nationalCups.active().stage(nationalCups.active().currentIndex())).name.toUpperCase(Locale.ROOT);
         if(liveDomesticCup&&domesticCup!=null)return "TAÇA DE PORTUGAL • "+domesticCup.roundName(domesticCup.currentIndex()).toUpperCase(Locale.ROOT);
         if(liveCup&&leagueCup!=null)return "LEAGUE CUP • "+PortugueseLeagueCup.roundName(leagueCup.currentIndex()).toUpperCase(Locale.ROOT)+(leagueCup.current().neutral?" • LEIRIA":"");
         if(!livePlayoff||promotion==null||promotion.current()==null)return "BOSS XI • LIVE";
@@ -3404,7 +3407,7 @@ public class MainActivity extends Activity {
         prepareSplitIfNeeded();
         finalizeSeasonIfReady();
         LocalDate playedDate = currentDate;
-        advanceCareerDate(leagueCup==null&&domesticCup==null?currentDate.plusDays(7):nextCareerEventDate());
+        advanceCareerDate(leagueCup==null&&domesticCup==null&&nationalCups==null?currentDate.plusDays(7):nextCareerEventDate());
         saveCurrentGame();
         backAction = () -> showDashboard();
 
@@ -6024,6 +6027,7 @@ public class MainActivity extends Activity {
         if("Play-offs".equals(tab)){showPlayoffCalendar(page);return;}
         if("League Cup".equals(tab)&&division!=null&&division.country.equals("PT")){showLeagueCupCalendar(page);return;}
         if("Cup".equals(tab)&&domesticCup!=null){showDomesticCupCalendar(page);return;}
+        if("Cup".equals(tab)&&nationalCups!=null){showNationalCupCalendar(page);return;}
         if("League".equals(tab))page.addView(makeText("Simulated weekly dates • official match dates and postponements are not yet applied.",12,muted));
 
         ArrayList<Fixture> fixtures = buildClubFixtures(tab);
@@ -6149,15 +6153,29 @@ public class MainActivity extends Activity {
     }
     private CareerDivision newCountryCareer(CompetitionCatalog.Division active) {
         CareerDivision world=CareerDivision.countryCareer(catalog,active);
+        if(world.country.equals("DE"))return world.withGermanCupClubs(readGermanCupCatalog());
         return world.country.equals("PT")?world.withCupClubs(readDomesticCupCatalog()):world;
     }
+    private GermanCupCatalog readGermanCupCatalog() {
+        try(java.io.InputStream in=getAssets().open("competitions/germany-cup-2026.json")){return GermanCupCatalog.read(in);}
+        catch(Exception e){throw new IllegalStateException("German cup data unavailable",e);}
+    }
+    private CupSeasons newNationalCups() {
+        if(division==null||!division.country.equals("DE")||!division.hasCupClubs())return null;
+        try{return new CupSeasons(readGermanCupCatalog().create(division,random.nextLong()));}
+        catch(Exception e){throw new IllegalStateException("Cannot create German cup",e);}
+    }
     private DomesticCup newDomesticCup() {
-        if(division==null||!division.hasCupClubs()||careerSeasonStart.getYear()!=2026)return null;
+        if(division==null||!division.country.equals("PT")||!division.hasCupClubs()||careerSeasonStart.getYear()!=2026)return null;
         try{return readDomesticCupCatalog().create(division,random.nextLong());}
         catch(Exception e){throw new IllegalStateException("Cannot create Portuguese cup",e);}
     }
-    private KnockoutTie liveKnockout(){return liveDomesticCup&&domesticCup!=null?domesticCup.current():liveCup&&leagueCup!=null?leagueCup.current():livePlayoff&&promotion!=null?promotion.current():null;}
+    private KnockoutTie liveKnockout(){return liveNationalCup&&nationalCups!=null?nationalCups.active().current():liveDomesticCup&&domesticCup!=null?domesticCup.current():liveCup&&leagueCup!=null?leagueCup.current():livePlayoff&&promotion!=null?promotion.current():null;}
     private LocalDate leagueFixtureDate(int round) {
+        if(nationalCups!=null&&round<seasonRounds()) {
+            ArrayList<LocalDate> cups=new ArrayList<>();for(int i=0;i<6;i++)cups.add(nationalCups.active().round(i).date(0));
+            return CompetitionCalendar.cupSeason(careerSeasonStart,seasonRounds(),cups).get(round);
+        }
         if(fixtureVersion>=3&&round<seasonRounds())return CompetitionCalendar.portugueseCupSeason(careerSeasonStart,seasonRounds()).get(round);
         return careerSeasonStart.plusWeeks(round);
     }
@@ -6166,19 +6184,20 @@ public class MainActivity extends Activity {
     private boolean nextCupIsDomestic() {
         return domesticCup!=null&&!domesticCup.complete()&&(leagueCup==null||leagueCup.complete()||!domesticCup.nextDate().isAfter(leagueCup.nextDate()));
     }
-    private LocalDate nextCupDate(){return nextCupIsDomestic()?domesticCup.nextDate():leagueCup==null?null:leagueCup.nextDate();}
-    private KnockoutTie nextCupTie(){return nextCupIsDomestic()?domesticCup.current():leagueCup==null?null:leagueCup.current();}
-    private String nextCupName(){return nextCupIsDomestic()?"Taça de Portugal":"League Cup";}
-    private String nextCupRound(){return nextCupIsDomestic()?domesticCup.roundName(domesticCup.currentIndex()):PortugueseLeagueCup.roundName(leagueCup.currentIndex());}
+    private boolean nextCupIsNational(){return nationalCups!=null&&!nationalCups.active().complete();}
+    private LocalDate nextCupDate(){return nextCupIsNational()?nationalCups.active().nextDate():nextCupIsDomestic()?domesticCup.nextDate():leagueCup==null?null:leagueCup.nextDate();}
+    private KnockoutTie nextCupTie(){return nextCupIsNational()?nationalCups.active().current():nextCupIsDomestic()?domesticCup.current():leagueCup==null?null:leagueCup.current();}
+    private String nextCupName(){return nextCupIsNational()?"DFB-Pokal":nextCupIsDomestic()?"Taça de Portugal":"League Cup";}
+    private String nextCupRound(){return nextCupIsNational()?nationalCups.active().round(nationalCups.active().stage(nationalCups.active().currentIndex())).name:nextCupIsDomestic()?domesticCup.roundName(domesticCup.currentIndex()):PortugueseLeagueCup.roundName(leagueCup.currentIndex());}
     private LocalDate nextCareerEventDate(){
         LocalDate cup=nextCupDate();if(cup!=null&&!cup.isAfter(cupHorizon()))return cup;
         return matchday>=seasonRounds()&&currentDate.isAfter(nextLeagueDate())?currentDate:nextLeagueDate();
     }
     private boolean cupDue(){LocalDate date=nextCupDate();return date!=null&&!date.isAfter(cupHorizon());}
-    private boolean cupsComplete(){return (leagueCup==null||leagueCup.complete())&&(domesticCup==null||domesticCup.complete());}
+    private boolean cupsComplete(){return (leagueCup==null||leagueCup.complete())&&(domesticCup==null||domesticCup.complete())&&(nationalCups==null||nationalCups.active().complete());}
     private void finalizeSeasonIfReady(){if(matchday>=seasonRounds()&&cupsComplete()&&!seasonAgeApplied){processSeasonEnd();seasonAgeApplied=true;}}
     private void advanceCareerDate(LocalDate target) {
-        if(domesticCup!=null&&matchday>=seasonRounds()&&!seasonAgeApplied) {
+        if((domesticCup!=null||nationalCups!=null)&&matchday>=seasonRounds()&&!seasonAgeApplied) {
             LocalDate lastLeague=leagueFixtureDate(seasonRounds()-1);
             while(postseasonWeeksProcessed<20&&!lastLeague.plusWeeks(postseasonWeeksProcessed+1L).isAfter(target)) {
                 currentDate=lastLeague.plusWeeks(++postseasonWeeksProcessed);
@@ -6190,31 +6209,31 @@ public class MainActivity extends Activity {
     private void advanceLeagueCup() {
         if(matchInProgress)return;
         while(cupDue()) {
-            boolean domestic=nextCupIsDomestic();String competition=nextCupName();
+            boolean domestic=nextCupIsDomestic(),national=nextCupIsNational();String competition=nextCupName();
             KnockoutTie tie=nextCupTie();advanceCareerDate(nextCupDate());
             if(tie.phase()==KnockoutTie.Phase.REGULATION) {
                 if(tie.home()==selectedClub||tie.away()==selectedClub){startLiveMatchday(false,true);return;}
                 tie.recordRegulation(simulateGoals(tie.home(),tie.away(),!tie.neutral),simulateGoals(tie.away(),tie.home(),false));
             }
             settleKnockout(tie);
-            if(domestic?domesticCup.complete():leagueCup.complete())addNews("CUP",competition+" winners",clubNames[tie.winner()]+" win the trophy in your career.");
+            if(national?nationalCups.active().complete():domestic?domesticCup.complete():leagueCup.complete())addNews("CUP",competition+" winners",clubNames[tie.winner()]+" win the trophy in your career.");
             advanceCareerDate(nextCareerEventDate());finalizeSeasonIfReady();
         }
         advanceCareerDate(nextCareerEventDate());saveCurrentGame();showDashboard();
     }
     private void finishLeagueCupMatch() {
-        boolean domestic=liveDomesticCup;KnockoutTie tie=liveKnockout();
-        String competition=domestic?"Taça de Portugal":"League Cup",tab=domestic?"Cup":"League Cup";
-        String round=domestic?domesticCup.roundName(domesticCup.currentIndex()):PortugueseLeagueCup.roundName(leagueCup.currentIndex());
+        boolean domestic=liveDomesticCup,national=liveNationalCup;KnockoutTie tie=liveKnockout();
+        String competition=national?"DFB-Pokal":domestic?"Taça de Portugal":"League Cup",tab=domestic||national?"Cup":"League Cup";
+        String round=national?nationalCups.active().round(nationalCups.active().stage(nationalCups.active().currentIndex())).name:domestic?domesticCup.roundName(domesticCup.currentIndex()):PortugueseLeagueCup.roundName(leagueCup.currentIndex());
         tie.recordRegulation(liveHomeGoals,liveAwayGoals);settleKnockout(tie);
         int[] extra=tie.extraTimeScore();if(extra[0]>=0){creditSimulatedExtraTime(liveHomeLineupIds,extra[0]);creditSimulatedExtraTime(liveAwayLineupIds,extra[1]);}
         playLiveSound("whistle");stopLiveMatchTicker();stopLiveMatchAudio();setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         for(java.util.Map.Entry<Integer,Integer> e:matchGoals.entrySet()){Player p=findPlayer(e.getKey());if(p!=null)p.goals+=e.getValue();}
         for(java.util.Map.Entry<Integer,Integer> e:matchAssists.entrySet()){Player p=findPlayer(e.getKey());if(p!=null)p.assists+=e.getValue();}
         for(int id:matchParticipants){Player p=findPlayer(id);if(p!=null)p.appearances++;}
-        matchInProgress=false;liveCup=false;liveDomesticCup=false;
+        matchInProgress=false;liveCup=false;liveDomesticCup=false;liveNationalCup=false;
         addNews("CUP",round+" • "+clubNames[tie.winner()]+" win",clubNames[liveHome]+" "+liveHomeGoals+"–"+liveAwayGoals+" "+clubNames[liveAway]+(tie.penaltyScore()[0]>=0?" • Penalties "+tie.penaltyScore()[0]+"–"+tie.penaltyScore()[1]:""));
-        boolean complete=domestic?domesticCup.complete():leagueCup.complete();
+        boolean complete=national?nationalCups.active().complete():domestic?domesticCup.complete():leagueCup.complete();
         if(complete)addNews("CUP",competition+" winners",clubNames[tie.winner()]+" lift the trophy.");
         advanceCareerDate(nextCareerEventDate());finalizeSeasonIfReady();saveCurrentGame();
         backAction=()->showDashboard();LinearLayout page=createPage(competition+" • Full Time",round,true);
@@ -6244,6 +6263,34 @@ public class MainActivity extends Activity {
     private void showDomesticCupCalendar(LinearLayout page) {
         int selected=domesticCup.complete()?7:domesticCup.stage(domesticCup.currentIndex());
         renderDomesticCupRound(page,domesticCup,selected,false);
+    }
+    private void showNationalCupCalendar(LinearLayout page) {
+        SeasonCup cup=nationalCups.active();int stage=cup.complete()?5:cup.stage(cup.currentIndex());
+        renderNationalCupRound(page,cup,stage,false);
+    }
+    private void showNationalCupRound(String snapshot,int stage,boolean archive) {
+        SeasonCup cup=archive?SeasonCup.restore(snapshot):nationalCups.active();
+        backAction=archive?()->showHistoryHub():()->showCalendarTab("Cup");
+        LinearLayout page=createPage("DFB-Pokal",cup.season+"/"+(cup.season+1)+(archive?" • completed edition":" • career draw & results"),true);
+        renderNationalCupRound(page,cup,stage,archive);
+    }
+    private void renderNationalCupRound(LinearLayout page,SeasonCup cup,int stage,boolean archive) {
+        page.addView(profileSectionTitle("DFB-POKAL • "+cup.season+"/"+(cup.season+1)));
+        page.addView(makeText("64 clubs • Six knockout rounds • Extra time and penalties • Final in Berlin. Lower-league clubs receive home advantage against professional clubs.",13,muted));
+        page.addView(makeText(cup.season==2026?"Real 2026/27 entrant field. The career draw and match dates are simulated.":"Fresh career draw. The lower cup pool is retained; qualification, opening pots and future dates are simulated.",12,muted));
+        LinearLayout row=new LinearLayout(this);row.setOrientation(LinearLayout.HORIZONTAL);
+        String[] labels={"R1","R2","Last 16","QF","SF","Final"};
+        for(int i=0;i<6;i++){final int r=i;row.addView(compactButton(labels[i],v->showNationalCupRound(archive?cup.snapshot():"",r,archive)));}
+        HorizontalScrollView tabs=new HorizontalScrollView(this);tabs.addView(row);page.addView(tabs);
+        int shown=0;
+        for(int i=0;i<cup.drawnCount();i++)if(cup.stage(i)==stage) {
+            shown++;LinearLayout card=makePanel();card.addView(profileSectionTitle(cup.round(stage).name+" • "+cup.round(stage).date(0).format(DATE_FORMAT)));
+            appendKnockoutDetails(card,cup.at(i),true);page.addView(card);
+        }
+        if(shown==0)page.addView(makeText("Complete the preceding round to draw this round.",14,muted));
+        if(cup.complete())page.addView(makeText("Winners: "+clubNames[cup.winner()],20,accent));
+        else if(!archive&&cupDue())page.addView(makeAccentButton("Continue career",v->startLiveMatchday()));
+        page.addView(makeButton(archive?"History":"Dashboard",v->{if(archive)showHistoryHub();else showDashboard();}));
     }
     private void showDomesticCupRound(int stage) {
         backAction=()->showCalendarTab("Cup");LinearLayout page=createPage("Taça de Portugal",domesticCup.season+"/"+(domesticCup.season+1)+" • career draw & results",true);
@@ -6570,7 +6617,7 @@ public class MainActivity extends Activity {
 
     private void configureDivision(CareerDivision value) {
         seasonHistory=new SeasonHistory();marketHires=new ArrayList<>();
-        division=value;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;liveCup=false;liveDomesticCup=false;leagueCup=null;domesticCup=null;domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
+        division=value;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;liveCup=false;liveDomesticCup=false;leagueCup=null;domesticCup=null;nationalCups=null;liveNationalCup=false;domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
         defaultClubNames=value==null?legacyNames.clone():value.names.clone();
         strength=value==null?legacyStrength.clone():value.strengths.clone();
         budgets=value==null?legacyBudgets.clone():value.budgets.clone();
@@ -6653,7 +6700,7 @@ public class MainActivity extends Activity {
         applyTrainingSession();processFinanceWeek();advanceStadiumProject();matchday++;
         processScoutingAssignments();processInjuriesAndRecovery();prepareSplitIfNeeded();
         finalizeSeasonIfReady();
-        advanceCareerDate(leagueCup==null&&domesticCup==null?currentDate.plusDays(7):nextCareerEventDate());
+        advanceCareerDate(leagueCup==null&&domesticCup==null&&nationalCups==null?currentDate.plusDays(7):nextCareerEventDate());
         addNews("LEAGUE","Rest week completed","Your club had no league fixture this round. The other league results and your weekly club operations have been processed.");
         saveCurrentGame();showDashboard();
     }
@@ -6837,6 +6884,14 @@ public class MainActivity extends Activity {
         backAction=()->showDashboard();
         LinearLayout page=createPage("History","Real-world records and your career",true);
         if(domesticCup!=null)page.addView(makeButton("Your career • "+domesticCup.season+"/"+(domesticCup.season+1)+" Taça de Portugal",v->showCalendarTab("Cup")));
+        if(nationalCups!=null) {
+            SeasonCup active=nationalCups.active();page.addView(makeButton("Your career • "+active.season+"/"+(active.season+1)+" DFB-Pokal",v->showCalendarTab("Cup")));
+            java.util.List<String> editions=nationalCups.archives();
+            for(int i=editions.size()-1;i>=0;i--) {
+                final String saved=editions.get(i);SeasonCup cup=SeasonCup.restore(saved);
+                page.addView(makeButton(cup.season+"/"+(cup.season+1)+" • DFB-Pokal • "+clubNames[cup.winner()],v->showNationalCupRound(saved,5,true)));
+            }
+        }
         java.util.List<String> cupEditions=domesticCupHistory.editions();
         for(int i=cupEditions.size()-1;i>=0;i--) {
             final String savedEdition=cupEditions.get(i);DomesticCup edition=DomesticCup.restore(savedEdition,clubNames.length);
@@ -6896,8 +6951,9 @@ public class MainActivity extends Activity {
             }
             nextDivision=division.moveBetweenTiers(promotion.promoted(),promotion.relegated(),selectedClub);
         }
-        DomesticCup nextDomestic=domesticCup;DomesticCupHistory nextCupHistory=domesticCupHistory;
+        DomesticCup nextDomestic=domesticCup;DomesticCupHistory nextCupHistory=domesticCupHistory;CupSeasons nextNational=nationalCups;
         try {
+            if(nationalCups!=null)nextNational=nationalCups.next(GermanCupCatalog.next(nextDivision,careerSeasonStart.getYear()+1,random.nextLong(),germanStandings(2).order));
             if(domesticCup!=null) {
                 int[] ranked=iberianStandings(1).eligible(division.reserves,6);
                 java.util.LinkedHashSet<Integer> deferred=new java.util.LinkedHashSet<>();
@@ -6914,7 +6970,7 @@ public class MainActivity extends Activity {
         } catch(IllegalArgumentException|IllegalStateException invalid) {
             new BossDialog.Builder(this).setTitle("Season could not be archived").setMessage("The completed season has been kept unchanged. "+invalid.getMessage()).setPositiveButton("Back",null).show();return;
         }
-        division=nextDivision;domesticCup=nextDomestic;domesticCupHistory=nextCupHistory;
+        division=nextDivision;domesticCup=nextDomestic;domesticCupHistory=nextCupHistory;nationalCups=nextNational;
         if(promotion!=null) {
             int oldTier=previousDivision.tier;
             if(catalog!=null)for(int i=0;i<catalog.divisions.size();i++)if(catalog.divisions.get(i).id.equals(division.id))managerLeagueIndex=i+1;
@@ -7049,6 +7105,7 @@ public class MainActivity extends Activity {
                 .putString(key(selectedSlot,"league_cup"),leagueCup==null?"":leagueCup.snapshot())
                 .putString(key(selectedSlot,"domestic_cup"),domesticCup==null?"":domesticCup.snapshot())
                 .putString(key(selectedSlot,"domestic_cup_history"),domesticCupHistory.snapshot())
+                .putString(key(selectedSlot,"national_cups"),nationalCups==null?"":nationalCups.snapshot())
                 .putBoolean(key(selectedSlot,"season_age_applied"),seasonAgeApplied)
                 .putInt(key(selectedSlot,"postseason_weeks"),postseasonWeeksProcessed)
                 .putString(key(selectedSlot,"market_hires"),WorldMarket.snapshot(marketHires))
@@ -7140,9 +7197,9 @@ public class MainActivity extends Activity {
             DomesticCup restoredDomestic=null;String rawDomestic=prefs.getString(key(slot,"domestic_cup"),"");
             int restoredWeeks=prefs.getInt(key(slot,"postseason_weeks"),0);
             if(restoredWeeks<0||restoredWeeks>20)throw new IllegalArgumentException("Invalid postseason weeks");
-            if(saved!=null&&saved.hasCupClubs()&&rawDomestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
+            if(saved!=null&&saved.country.equals("PT")&&saved.hasCupClubs()&&rawDomestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
             if(!rawDomestic.isEmpty()) {
-                if(saved==null||!saved.hasCupClubs())throw new IllegalArgumentException("Missing cup world");
+                if(saved==null||!saved.country.equals("PT")||!saved.hasCupClubs())throw new IllegalArgumentException("Missing cup world");
                 restoredDomestic=DomesticCup.restore(rawDomestic,n);restoredDomestic.validateEntrants(saved.reserves);
                 restoredDomestic.validateDate(LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())));
             }
@@ -7152,12 +7209,15 @@ public class MainActivity extends Activity {
                 restoredCup.validateDate(LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())));
             }
             int savedYear=LocalDate.parse(prefs.getString(key(slot,"season_start"),SEASON_START.toString())).getYear();
+            String rawNational=prefs.getString(key(slot,"national_cups"),"");CupSeasons restoredNational=null;
+            if(saved!=null&&saved.country.equals("DE")&&saved.hasCupClubs()&&rawNational.isEmpty())throw new IllegalArgumentException("Missing German cup");
+            if(!rawNational.isEmpty())restoredNational=GermanCupCatalog.validate(rawNational,saved,savedYear,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())));
             if(restoredDomestic!=null&&(restoredDomestic.season>savedYear||restoredDomestic.season<savedYear&&!restoredDomestic.complete()))throw new IllegalArgumentException("Wrong domestic cup season");
             DomesticCupHistory restoredCupHistory=DomesticCupHistory.restore(prefs.getString(key(slot,"domestic_cup_history"),""),n,saved==null?new boolean[n]:saved.reserves,restoredDomestic==null?savedYear:restoredDomestic.season);
             if(restoredDomestic==null&&!restoredCupHistory.editions().isEmpty())throw new IllegalArgumentException("Missing active domestic cup");
             configureDivision(saved);seasonHistory=restoredHistory;marketHires=restoredMarket;domesticCupHistory=restoredCupHistory;
             leagueCup=restoredCup;
-            domesticCup=restoredDomestic;
+            domesticCup=restoredDomestic;nationalCups=restoredNational;
             seasonAgeApplied=prefs.getBoolean(key(slot,"season_age_applied"),prefs.getInt(key(slot,"matchday"),0)>=seasonRounds());
             postseasonWeeksProcessed=prefs.getInt(key(slot,"postseason_weeks"),0);
         }
@@ -8707,7 +8767,7 @@ public class MainActivity extends Activity {
 
     private void resetCareerState() {
         fixtureVersion = 2;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;
-        liveCup=false;liveDomesticCup=false;leagueCup=newPortugueseLeagueCup();domesticCup=newDomesticCup();domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;
+        liveCup=false;liveDomesticCup=false;liveNationalCup=false;leagueCup=newPortugueseLeagueCup();domesticCup=newDomesticCup();nationalCups=newNationalCups();domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;
         if(domesticCup!=null)fixtureVersion=3;
         leagueResults=new LeagueResults(clubNames.length,division!=null);
         careerSchedule = null;

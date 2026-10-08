@@ -14,6 +14,9 @@ grep -q 'PASS worldwide transfers free agents reload budget and lineup verified'
 grep -q 'PASS calendar recorded results and shootout orientation verified' qa-output/candidate.txt
 grep -q 'PASS completed match survives reload' qa-output/candidate.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/candidate.txt
+timeout 300s adb shell am instrument -w -e mode national-cups com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/national-cups.txt
+grep -q 'PASS German recurring cup live matches two seasons reloads history and backup rejection verified' qa-output/national-cups.txt
+! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/national-cups.txt
 timeout 480s adb shell am instrument -w -e mode divisions com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/divisions.txt
 grep -q 'PASS all twenty standalone and twenty linked division careers verified' qa-output/divisions.txt
 grep -q 'PASS FR watched playoffs and season transition verified' qa-output/divisions.txt

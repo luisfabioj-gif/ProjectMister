@@ -241,6 +241,88 @@ public final class SmokeRunner extends Instrumentation {
         });
         check(true,"Portuguese cup live quarter-final semi-final final and league resumption verified");
     }
+    private void verifyGermanCupSeasons()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+        byte[] original=backupBytes(prefs.getAll());final int[] age={0},managed={0};final boolean[] done={false},pendingChecked={false};
+        ui(()->{
+            Object catalog=get("catalog"),data=null;
+            for(Object d:(List<?>)catalog.getClass().getField("divisions").get(catalog))if(d.getClass().getField("id").get(d).equals("de:1"))data=d;
+            Object world=call("newCountryCareer",new Class[]{data.getClass()},data);
+            call("configureDivision",new Class[]{gameClass("CareerDivision")},world);set("selectedSlot",2);set("selectedClub",0);
+            ((Random)get("random")).setSeed(23671);
+            call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
+            call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
+            check(((String[])get("clubNames")).length==64&&((List<?>)get("players")).size()==1280,"German career includes all 64 cup clubs and their players");
+            check(get("nationalCups")!=null&&get("domesticCup")==null&&get("leagueCup")==null,"German career initializes its own cup");
+            age[0]=playerInt(((List<?>)get("players")).get(0),"age");call("saveCurrentGame",new Class[0]);checkBackupReadable();
+            call("showCalendarTab",new Class[]{String.class},"Cup");
+        });
+        capture("37-german-cup-draw");
+        for(int edition=0;edition<2;edition++) {
+            done[0]=false;final int year=2026+edition;
+            for(int event=0;event<70&&!done[0];event++) {
+                final int step=event;
+                ui(()->{
+                    java.time.LocalDate before=(java.time.LocalDate)get("currentDate");int round=(Integer)get("matchday");
+                    call("initialiseTacticsForClub",new Class[0]);
+                    if((Boolean)call("cupDue",new Class[0])) {
+                        Object history=get("leagueResults");String ledger=(String)history.getClass().getMethod("snapshot").invoke(history);
+                        if(!pendingChecked[0]) {
+                            Object cup=get("nationalCups").getClass().getMethod("active").invoke(get("nationalCups"));
+                            for(int i=0;i<(Integer)cup.getClass().getMethod("drawnCount").invoke(cup);i++) {
+                                Object tie=cup.getClass().getMethod("at",int.class).invoke(cup,i);
+                                if((Integer)tie.getClass().getField("firstHome").get(tie)==0||(Integer)tie.getClass().getField("firstAway").get(tie)==0)continue;
+                                tie.getClass().getMethod("recordRegulation",int.class,int.class).invoke(tie,1,1);
+                                tie.getClass().getMethod("recordExtraTime",int.class,int.class).invoke(tie,0,0);
+                                call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"pending German shootout reloads");checkBackupReadable();
+                                Object reloaded=get("nationalCups").getClass().getMethod("active").invoke(get("nationalCups"));
+                                Object pending=reloaded.getClass().getMethod("at",int.class).invoke(reloaded,i);
+                                check(pending.getClass().getMethod("phase").invoke(pending).toString().equals("PENALTIES"),"German shootout retained after reload");
+                                pendingChecked[0]=true;break;
+                            }
+                        }
+                        call("startLiveMatchday",new Class[0]);
+                        if((Boolean)get("matchInProgress")) {
+                            check((Boolean)get("liveCup")&&(Boolean)get("liveNationalCup"),"German cup enters watched match flow");set("livePaused",true);
+                            set("liveHomeGoals",(Integer)get("liveHome")==0?3:0);set("liveAwayGoals",(Integer)get("liveAway")==0?3:0);
+                            call("finishLiveMatch",new Class[0]);managed[0]++;
+                        }
+                        check(round==(Integer)get("matchday")&&ledger.equals(get("leagueResults").getClass().getMethod("snapshot").invoke(get("leagueResults"))),"German cup leaves league standings and round unchanged");
+                    } else if(round<34)call("quickResult",new Class[0]);
+                    check(!((java.time.LocalDate)get("currentDate")).isBefore(before),"German cup calendar never rewinds");
+                    if(step%7==0||round>=34) {call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"German cup career reloads throughout season");checkBackupReadable();}
+                    done[0]=(Integer)get("matchday")==34&&(Boolean)call("cupsComplete",new Class[0]);
+                });
+            }
+            ui(()->{
+                check(done[0],"German league and cup finish together");
+                Object seasons=get("nationalCups"),cup=seasons.getClass().getMethod("active").invoke(seasons);
+                check((Integer)cup.getClass().getMethod("drawnCount").invoke(cup)==63&&(Integer)cup.getClass().getMethod("winner").invoke(cup)==0,"German cup resolves all 63 ties and keeps managed champion");
+                check(playerInt(((List<?>)get("players")).get(0),"age")==age[0]+year-2025,"German season ages players exactly once");
+                check((Integer)get("postseasonWeeksProcessed")>0,"German postseason wages and recovery run through final");
+                String saved=(String)cup.getClass().getMethod("snapshot").invoke(cup);call("continueDivisionSeason",new Class[0]);
+                Object next=get("nationalCups"),active=next.getClass().getMethod("active").invoke(next);List<?> archives=(List<?>)next.getClass().getMethod("archives").invoke(next);
+                check(archives.size()==year-2025&&archives.get(archives.size()-1).equals(saved),"German completed edition archived without changes");
+                check((Integer)active.getClass().getField("season").get(active)==year+1&&!(Boolean)active.getClass().getMethod("complete").invoke(active),"German rollover creates fresh playable draw");
+                check((Boolean)call("loadSave",new Class[]{int.class},2),"German next season and trophy archives reload");checkBackupReadable();
+            });
+        }
+        ui(()->{
+            check(managed[0]==12&&pendingChecked[0],"two watched German cup runs and saved shootout verified");call("showHistoryHub",new Class[0]);
+        });
+        capture("38-german-cup-history");
+        ui(()->{
+            Object seasons=get("nationalCups");List<?> archives=(List<?>)seasons.getClass().getMethod("archives").invoke(seasons);
+            call("showNationalCupRound",new Class[]{String.class,int.class,boolean.class},archives.get(0),5,true);
+            Map<String,Object> invalid=new HashMap<>(prefs.getAll());invalid.put("save_2_national_cups","broken");
+            byte[] corrupt=backupBytes(invalid);boolean rejected=false;
+            try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,corrupt);}catch(java.lang.reflect.InvocationTargetException expected){rejected=true;}
+            check(rejected,"corrupt German cup backup rejected");checkBackupReadable();
+        });
+        capture("39-german-cup-archived-final");
+        ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);});
+        check(true,"German recurring cup live matches two seasons reloads history and backup rejection verified");
+    }
     private void verifyDomesticCupSeason()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
         byte[] original=backupBytes(prefs.getAll());final int[] initialAge={0};
@@ -819,6 +901,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(savedWorld!=null&&savedWorld.getClass().getField("linked").getBoolean(savedWorld),"linked country survives release upgrade");
                 page("release-linked-table","showLeagueTable",new Class[0]);
                 check(true,"release bundle upgrade and feature navigation verified");
+            } else if(mode.equals("national-cups")) {
+                verifyGermanCupSeasons();
             } else if(mode.equals("divisions")) {
                 verifyDivisionCareers();
                 verifyBackups();

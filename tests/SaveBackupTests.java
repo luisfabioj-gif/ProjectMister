@@ -8,6 +8,7 @@ public final class SaveBackupTests {
     public static void main(String[] args)throws Exception {
         Map<String,Object> values=new HashMap<>();values.put("save_0_exists",true);values.put("save_0_club",7);
         values.put("save_0_manager_first","Luís ⚽");values.put("save_0_classic_notes","first\u001Esecond\u001Fthird");
+        values.put("save_0_national_cups","CS1\nGerman cup current edition and history");
         values.put("editor_name_pt:sl-benfica","Benfica");values.put("editor_primary_pt:sl-benfica",0xffaa0033);values.put("audio_crowd",false);
         byte[] bytes=SaveBackup.encode(values);check(SaveBackup.decode(bytes).equals(values));
         check(Arrays.equals(bytes,SaveBackup.encode(new TreeMap<>(values))));
