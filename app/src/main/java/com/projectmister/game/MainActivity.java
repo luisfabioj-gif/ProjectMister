@@ -1376,6 +1376,10 @@ public class MainActivity extends Activity {
     private void quickResult() {
         if(matchInProgress)return;
         startLiveMatchday();if(!matchInProgress)return;
+        completeQuickResult();
+    }
+    private void completeQuickResult() {
+        if(!matchInProgress)return;
         stopLiveMatchTicker();liveMatchActive=true;livePaused=true;
         KnockoutTie tie=liveKnockout();boolean neutral=tie!=null&&tie.neutral;
         liveHomeGoals=quickGoals(liveHomeLineupIds,liveAwayLineupIds,!neutral);

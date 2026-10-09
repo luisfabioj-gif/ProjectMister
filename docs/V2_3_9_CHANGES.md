@@ -13,6 +13,15 @@ recovery. A bounded impossible calendar still fails explicitly. Core regressions
 cover 72 combined cup calendars across 24 years, all rest gaps and deterministic
 recalculation. This fix requires a new passing Android run before verification.
 
+Run 37951724923 confirmed that rollover no longer crashes and reached the third
+Portuguese season on both API levels. The next failure was the gate's exact
+watched/quick league-phase assertion: it inspected the opponent fixture before
+Continue simulated earlier ties and opened the manager's actual game. The gate
+now inspects that active game, requires exactly two managed league-phase games,
+and executes one through the same quick-result completion path used by the UI.
+The two-game/one-quick requirements, appearances, dates, saves and archives remain
+required. Verification awaits the subsequent Android run.
+
 ## Connected career behavior
 
 New expanded Portuguese careers include all twenty catalog professional

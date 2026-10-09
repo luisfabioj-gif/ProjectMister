@@ -496,9 +496,27 @@ public final class SmokeRunner extends Instrumentation {
             final int step=event;
             ui(()->{
                 java.time.LocalDate before=(java.time.LocalDate)get("currentDate");call("initialiseTacticsForClub",new Class[0]);int round=(Integer)get("matchday");boolean due=(Boolean)call("cupDue",new Class[0]);
-                if(due){Object active=get("modernPortugueseCup").getClass().getMethod("active").invoke(get("modernPortugueseCup"));Object f=active.getClass().getMethod("current").invoke(active);boolean modern=(Boolean)call("nextCupIsModernPortuguese",new Class[0]);boolean phase=modern&&f!=null&&(Boolean)f.getClass().getField("league").get(f);int manager=(Integer)get("selectedClub");boolean managed=phase&&((Integer)f.getClass().getField("home").get(f)==manager||(Integer)f.getClass().getField("away").get(f)==manager);
-                    if(managed&&quickPhase[0]==0){int apps=appearancesForTeam(manager);call("quickResult",new Class[0]);check(appearancesForTeam(manager)>=apps+11,"quick new-format league-phase appearances credited");leaguePhase[0]++;quickPhase[0]++;}
-                    else {call("startLiveMatchday",new Class[0]);if((Boolean)get("matchInProgress")){check((Boolean)get("liveCup"),"future cup starts live match");set("livePaused",true);if((Boolean)get("liveModernPortugueseCup")&&phase)leaguePhase[0]++;set("liveHomeGoals",(Integer)get("liveHome")==manager?3:0);set("liveAwayGoals",(Integer)get("liveAway")==manager?3:0);call("finishLiveMatch",new Class[0]);}}
+                if(due){
+                    // Continue can simulate earlier foreign cup fixtures before opening the
+                    // manager's match. Inspect the active fixture AFTER that transition.
+                    call("startLiveMatchday",new Class[0]);
+                    if((Boolean)get("matchInProgress")) {
+                        check((Boolean)get("liveCup"),"future cup starts live match");set("livePaused",true);
+                        int manager=(Integer)get("selectedClub");
+                        Object active=get("modernPortugueseCup").getClass().getMethod("active").invoke(get("modernPortugueseCup"));
+                        Object f=active.getClass().getMethod("current").invoke(active);
+                        boolean phase=(Boolean)get("liveModernPortugueseCup")&&f!=null&&(Boolean)f.getClass().getField("league").get(f);
+                        if(phase) {
+                            check(((Integer)f.getClass().getField("home").get(f)==manager||(Integer)f.getClass().getField("away").get(f)==manager),"counted league-phase fixture contains manager");
+                            leaguePhase[0]++;
+                        }
+                        if(phase&&quickPhase[0]==0) {
+                            int apps=appearancesForTeam(manager);call("completeQuickResult",new Class[0]);
+                            check(appearancesForTeam(manager)>=apps+11,"quick new-format league-phase appearances credited");quickPhase[0]++;
+                        } else {
+                            set("liveHomeGoals",(Integer)get("liveHome")==manager?3:0);set("liveAwayGoals",(Integer)get("liveAway")==manager?3:0);call("finishLiveMatch",new Class[0]);
+                        }
+                    }
                     check(round==(Integer)get("matchday"),"future cup leaves league round unchanged");
                 }else if(round<34){call("startLiveMatchday",new Class[0]);check((Boolean)get("matchInProgress"),"future league playable");set("livePaused",true);int manager=(Integer)get("selectedClub");set("liveHomeGoals",(Integer)get("liveHome")==manager?3:0);set("liveAwayGoals",(Integer)get("liveAway")==manager?3:0);call("finishLiveMatch",new Class[0]);}
                 check(!((java.time.LocalDate)get("currentDate")).isBefore(before),"future Portuguese calendar never rewinds");if(step%9==0){call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"future League Cup and lower phases reload");checkBackupReadable();}
@@ -506,7 +524,7 @@ public final class SmokeRunner extends Instrumentation {
             });
         }
         ui(()->{
-            check(done[0]&&leaguePhase[0]==2&&quickPhase[0]==1,"two actual league-phase matches exercised, watched and quick");Object cups=get("modernPortugueseCup"),active=cups.getClass().getMethod("active").invoke(cups);String edition=(String)active.getClass().getMethod("snapshot").invoke(active);completePortuguesePostseason();call("continueDivisionSeason",new Class[0]);check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==2029,"third Portuguese season rolls forward");List<?> archives=(List<?>)get("modernPortugueseCup").getClass().getMethod("archives").invoke(get("modernPortugueseCup"));check(archives.size()==2&&archives.get(1).equals(edition),"two new-format League Cups archived exactly");Object third=get("portugueseThird"),fourth=get("portugueseFourth");check(((List<?>)third.getClass().getMethod("archives").invoke(third)).size()==3&&((List<?>)fourth.getClass().getMethod("archives").invoke(fourth)).size()==3,"three complete Portuguese lower-division archives retained");check((Boolean)call("loadSave",new Class[]{int.class},2),"fourth season cup fields and promotions reload");checkBackupReadable();call("showPortugueseLowerHistory",new Class[]{boolean.class},true);
+            check(done[0]&&leaguePhase[0]==2&&quickPhase[0]==1,"two actual league-phase matches exercised, watched and quick (finished="+done[0]+", matches="+leaguePhase[0]+", quick="+quickPhase[0]+")");Object cups=get("modernPortugueseCup"),active=cups.getClass().getMethod("active").invoke(cups);String edition=(String)active.getClass().getMethod("snapshot").invoke(active);completePortuguesePostseason();call("continueDivisionSeason",new Class[0]);check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==2029,"third Portuguese season rolls forward");List<?> archives=(List<?>)get("modernPortugueseCup").getClass().getMethod("archives").invoke(get("modernPortugueseCup"));check(archives.size()==2&&archives.get(1).equals(edition),"two new-format League Cups archived exactly");Object third=get("portugueseThird"),fourth=get("portugueseFourth");check(((List<?>)third.getClass().getMethod("archives").invoke(third)).size()==3&&((List<?>)fourth.getClass().getMethod("archives").invoke(fourth)).size()==3,"three complete Portuguese lower-division archives retained");check((Boolean)call("loadSave",new Class[]{int.class},2),"fourth season cup fields and promotions reload");checkBackupReadable();call("showPortugueseLowerHistory",new Class[]{boolean.class},true);
         });
         capture("41-portuguese-lower-history");
         ui(()->{
