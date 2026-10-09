@@ -13,7 +13,7 @@ public final class CompetitionCalendar {
         return cupSeason(start,rounds,cups);
     }
     public static List<LocalDate> cupSeason(LocalDate start,int rounds,List<LocalDate> cups) {
-        if(start.getYear()<2026||start.getYear()>2200||rounds<1||rounds>50)throw new IllegalArgumentException("Unsupported cup calendar");
+        if(start==null||start.getYear()<2026||start.getYear()>2200||rounds<1||rounds>50||cups==null||cups.contains(null))throw new IllegalArgumentException("Unsupported cup calendar");
         ArrayList<LocalDate> dates=new ArrayList<>();
         for(int round=0;round<rounds;round++) {
             LocalDate target=start.plusWeeks(round),chosen=null;
@@ -23,7 +23,18 @@ public final class CompetitionCalendar {
                 boolean safe=true;for(LocalDate cup:cups)if(Math.abs(ChronoUnit.DAYS.between(candidate,cup))<3){safe=false;break;}
                 if(safe){chosen=candidate;break;}
             }
-            if(chosen==null)throw new IllegalStateException("No safe league date");dates.add(chosen);
+            // Keep established dates when possible. Consecutive cup/rank-decision windows
+            // can block the entire nine-day search above, especially at season opening.
+            // Postpone the league fixture until rest is available instead of aborting rollover.
+            if(chosen==null) {
+                LocalDate candidate=target.plusDays(5),limit=target.plusDays(35);
+                if(!dates.isEmpty()&&candidate.isBefore(dates.get(dates.size()-1).plusDays(3)))candidate=dates.get(dates.size()-1).plusDays(3);
+                for(;!candidate.isAfter(limit);candidate=candidate.plusDays(1)) {
+                    boolean safe=true;for(LocalDate cup:cups)if(Math.abs(ChronoUnit.DAYS.between(candidate,cup))<3){safe=false;break;}
+                    if(safe){chosen=candidate;break;}
+                }
+            }
+            if(chosen==null)throw new IllegalStateException("No league date with three days of recovery within the scheduling window");dates.add(chosen);
         }
         return Collections.unmodifiableList(dates);
     }

@@ -4,6 +4,15 @@ This checkpoint is pending Android validation. It earns no additional verified
 completion points. The latest passing Android build is the eight-country cups
 source `f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`, run 37858104698.
 
+The first integrated Android run, 37861517495, failed on both API levels during
+2027 rollover with `No safe league date`. The new League Cup's 8 August match
+and 11 August rank-decision window block every date in the old four-day search
+around the 9 August league opening. The calendar now preserves existing valid
+dates and searches forward when necessary, retaining at least three days of
+recovery. A bounded impossible calendar still fails explicitly. Core regressions
+cover 72 combined cup calendars across 24 years, all rest gaps and deterministic
+recalculation. This fix requires a new passing Android run before verification.
+
 ## Connected career behavior
 
 New expanded Portuguese careers include all twenty catalog professional
