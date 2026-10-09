@@ -1,8 +1,22 @@
+# Passing Android integration gate — 9 October 2026
+
+Source `d805d5a0628cebeb57b3f302caf1e0d2eb798d5f` passed both Android 35/36 jobs
+in [run 37953129633](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37953129633).
+The corrected third-season check exercises the actual managed league-phase
+fixture after earlier opponent fixtures advance. It confirms one watched and
+one quick league-phase result, at least eleven quick-match appearances, two
+exact new-format League Cup archives, three complete lower-division archives,
+chronological dates, saves, backups and corrupted-backup atomicity. Startup,
+upgrade, navigation, existing countries' cups, release installation and
+separate-key restore also pass the run. This is emulator evidence, not physical
+phone testing or a finished-game handoff. API35 screenshots 40/41 were inspected;
+the cup summary's excess spacing is a presentation follow-up.
+
 # Portuguese recurring seasons — development checkpoint, 9 October 2026
 
-This checkpoint is pending Android validation. It earns no additional verified
-completion points. The latest passing Android build is the eight-country cups
-source `f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`, run 37858104698.
+The recurring Portuguese seasons are now verified by the passing gate above.
+They add 5 points to the completion tracker (74 verified, 26 remaining).
+The UEFA draw engine is source preparation and earns no verified UEFA points.
 
 The first integrated Android run, 37861517495, failed on both API levels during
 2027 rollover with `No safe league date`. The new League Cup's 8 August match
@@ -11,7 +25,7 @@ around the 9 August league opening. The calendar now preserves existing valid
 dates and searches forward when necessary, retaining at least three days of
 recovery. A bounded impossible calendar still fails explicitly. Core regressions
 cover 72 combined cup calendars across 24 years, all rest gaps and deterministic
-recalculation. This fix requires a new passing Android run before verification.
+recalculation. The passing gate above verifies this calendar correction.
 
 Run 37951724923 confirmed that rollover no longer crashes and reached the third
 Portuguese season on both API levels. The next failure was the gate's exact

@@ -2,7 +2,7 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-08T23:40:00Z",
+  "updated_utc": "2026-10-09T16:01:00Z",
   "complete": false,
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
@@ -248,8 +248,24 @@
     {
       "id": "portuguese_league_cup_2027",
       "weight": 5,
-      "status": "pending",
-      "acceptance": "Published 2027/28 format, lower promotion outcomes, European exemptions, used-player age tiebreak and annual career integration."
+      "status": "verified",
+      "acceptance": "Published 2027/28 format, lower promotion outcomes, European exemptions, used-player age tiebreak and annual career integration.",
+      "evidence": {
+        "source": "d805d5a0628cebeb57b3f302caf1e0d2eb798d5f",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37953129633",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          113896775841,
+          113896775690
+        ],
+        "checks": "Three native Portuguese seasons; two recurring new-format League Cups; actual managed watched/quick league-phase matches, used-player appearances, chronological calendars, Liga 2/3 promotion and lower replacements, canonical reloads, exact archives and atomic corrupt-backup rejection. API35 cup and lower-history screenshots reviewed.",
+        "qa_artifact_api35": 11627194622,
+        "qa_artifact_api36": 11628076367,
+        "limitation": "Full UEFA admissions/titleholders/performance places remain in the separate pending UEFA and annual-qualification milestones; the tested Portuguese exemptions use the provisional base allocation. Excess spacing in the cup summary is a presentation follow-up."
+      }
     },
     {
       "id": "uefa",

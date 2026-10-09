@@ -4,7 +4,7 @@ The machine-readable source is [COMPLETION_STATUS.json](COMPLETION_STATUS.json).
 It measures estimated feature scope, not elapsed time or predicted hours.
 The weights total 100. Only `verified` milestones contribute to completion;
 source-only engines and untested integrations contribute zero. The current
-checkpoint has 69 verified points and **31% of the tracked work left**.
+checkpoint has 74 verified points and **26% of the tracked work left**.
 
 On 8 October 2026, source `f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`
 passed [Android 35/36 QA](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698).
@@ -14,10 +14,20 @@ league ledgers, exact archives and atomic corrupted-backup rejection. England
 and Scotland each include their separate League Cup. Four API36 cup/history
 screenshots were reviewed; the Scottish fresh-season group calendar is readable.
 
-Remaining: future Portuguese League Cup (5), UEFA (10), annual qualification (5),
+On 9 October 2026, source `d805d5a0628cebeb57b3f302caf1e0d2eb798d5f` passed
+[Android 35/36 QA](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37953129633).
+The recurring Portuguese League Cup milestone adds 5 verified points. Three
+native seasons include two new-format League Cups, actual watched/quick managed
+league-phase matches, used-player appearance checks, chronological dates, lower
+promotion outcomes, exact archives and atomic backup rejection. API35 cup and
+lower-history screenshots were reviewed. The cup summary has excess spacing to
+correct; full UEFA admissions are still a separate unfinished milestone.
+
+Remaining: UEFA (10), annual qualification (5),
 registration (2), remaining national rules (3), shared calendar (2), final Android
-QA (2) and finished APK delivery (2). Portuguese lower-division integration is
-in development and has not earned verified points.
+QA (2) and finished APK delivery (2). Portuguese lower-division outcomes are
+verified with the recurring League Cup gate; complete annual UEFA qualification
+has not earned its separate 5 points.
 
 Completion means a polished, integrated Android build for the user's real-world
 test: existing management and matchday systems, recurring national cups, the
