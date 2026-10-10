@@ -45,6 +45,8 @@ public final class BackupRestore {
                 String district=(String)data.getOrDefault(prefix+"portuguese_district","");PortugueseDistrictSeasons districtSeasons=district.isEmpty()?null:PortugueseLowerCatalog.validateDistrict(district,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
                 if(division!=null&&division.country.equals("PT")&&division.expandedWorld()&&(thirdSeasons==null||fourthSeasons==null||districtSeasons==null))throw new IllegalArgumentException("Missing lower seasons");
                 PortugueseLowerCatalog.validatePromotion((String)data.getOrDefault(prefix+"portuguese_lower_promotion",""),division,thirdSeasons,cupYear,round);
+                String european=(String)data.getOrDefault(prefix+"european_campaign","");
+                if(!european.isEmpty()){if(division==null||!division.linked)throw new IllegalArgumentException("Unexpected UEFA career");EuropeanCampaign.restore(european).validate(division.clubIds,division.reserves,cupYear,LocalDate.parse((String)data.get(prefix+"date")));}
                 String national=(String)data.getOrDefault(prefix+"national_cups","");
                 if(division!=null&&!division.country.equals("PT")&&division.hasCupClubs()&&national.isEmpty())throw new IllegalArgumentException("Missing national cup");
                 if(!national.isEmpty())NationalCupCatalog.validate(national,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));

@@ -23,6 +23,12 @@ promotion outcomes, exact archives and atomic backup rejection. API35 cup and
 lower-history screenshots were reviewed. The cup summary has excess spacing to
 correct; full UEFA admissions are still a separate unfinished milestone.
 
+The 10 October development checkpoint connects all three UEFA competitions,
+annual admissions and two-leg qualifying to expanded careers, saves and History.
+Its combined ten-country Android gate is awaiting emulator evidence. See
+[UEFA_CAREER_INTEGRATION.md](UEFA_CAREER_INTEGRATION.md). This source work adds no
+verified points.
+
 Remaining: UEFA (10), annual qualification (5),
 registration (2), remaining national rules (3), shared calendar (2), final Android
 QA (2) and finished APK delivery (2). Portuguese lower-division outcomes are

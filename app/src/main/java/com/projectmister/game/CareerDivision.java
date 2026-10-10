@@ -15,7 +15,7 @@ public final class CareerDivision {
     public final String[] tierNames;
     public final boolean linked;
     public boolean expandedWorld(){return clubIds.length>48&&snapshotSchema()==5;}
-    private int snapshotSchema(){if(!hasCupClubs())return linked?2:1;for(int t:clubTiers)if(t==4)return 5;return country.equals("DE")&&names.length==64?4:country.equals("PT")&&names.length<=256?3:5;}
+    private int snapshotSchema(){for(int t:clubTiers)if(t==4)return 5;if(!hasCupClubs())return linked?2:1;return country.equals("DE")&&names.length==64?4:country.equals("PT")&&names.length<=256?3:5;}
     public String association(int club){return clubIds[club].substring(0,clubIds[club].indexOf(':')).toUpperCase(java.util.Locale.ROOT);}
     public int level(int club){return clubTiers[club]<=2?clubTiers[club]:clubLevels[club];}
     public boolean[] cupExclusions(){boolean[] excluded=new boolean[clubIds.length];for(int c=0;c<excluded.length;c++)excluded[c]=reserves[c]||!association(c).equals(country);return excluded;}

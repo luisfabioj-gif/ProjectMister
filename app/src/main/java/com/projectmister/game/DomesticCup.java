@@ -84,6 +84,7 @@ public final class DomesticCup {
         return date;
     }
     public LocalDate nextDate(){return complete()?null:date(cursor);}
+    public List<LocalDate> calendar(){ArrayList<LocalDate> out=new ArrayList<>();for(String date:DATES)out.add(LocalDate.parse(date).plusYears(season-2026));out.add(LocalDate.parse(DATES[6]).plusYears(season-2026).plusDays(1));return Collections.unmodifiableList(out);}
     public boolean due(LocalDate horizon){return !complete()&&!nextDate().isAfter(horizon);}
     private static String ids(int[] values){StringJoiner out=new StringJoiner(",");for(int i:values)out.add(String.valueOf(i));return out.toString();}
     private static int[] ids(String text){if(text.length()>2048)throw new IllegalArgumentException("Oversized cup field");String[] words=text.split(",",-1);int[] out=new int[words.length];for(int i=0;i<out.length;i++)out[i]=Integer.parseInt(words[i]);return out;}

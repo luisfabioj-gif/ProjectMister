@@ -58,6 +58,7 @@ public final class EuropeanLeaguePhase {
         results=new int[fixtures.size()][];
     }
     public int fixtureCount(){return fixtures.size();}
+    public List<Club> clubs(){return clubs;}
     public Fixture fixture(int i){return fixtures.get(i);}
     public int[] result(int i){return results[i]==null?null:results[i].clone();}
     public LocalDate date(int round){return dates.get(round);}

@@ -36,13 +36,27 @@ public final class EuropeanAccess {
             case "ES": case "IT": case "DE":
                 return new Profile(country, new Berth[]{cl("League phase"),cl("League phase"),cl("League phase"),cl("League phase"),el("League phase"),co("Play-off")},el("League phase"),false);
             case "FR": return new Profile(country, new Berth[]{cl("League phase"),cl("League phase"),cl("League phase"),cl("Q3 · league path"),el("League phase"),co("Play-off")},el("League phase"),false);
-            case "PT": return new Profile(country, new Berth[]{cl("League phase"),cl("League phase"),cl("Q3 · league path"),el("Q2"),co("Q2")},el("Play-off"),false);
+            case "PT": return new Profile(country, new Berth[]{cl("League phase"),cl("League phase"),cl("Q3 · league path"),el("Q2"),co("Q2")},el("League phase"),false);
             case "NL": return new Profile(country, new Berth[]{cl("League phase"),cl("Q3 · league path"),el("Q2"),co("Q2 · domestic play-off")},el("League phase"),false);
-            case "BE": case "TR": return new Profile(country, new Berth[]{cl("League phase"),cl("Q3 · league path"),el("Q2"),co("Q2")},el("Q3"),false);
+            case "BE": case "TR": return new Profile(country, new Berth[]{cl("League phase"),cl("Q3 · league path"),el("Q2"),co("Q2")},el("Play-off"),false);
             case "SCO": return new Profile(country, new Berth[]{cl("Q2 · champions path"),co("Q2"),co("Q2")},el("Q1"),false);
-            default: throw new IllegalArgumentException("No verified UEFA access profile: " + country);
+            default:
+                int rank=rank(country);if(rank<1||country.equals("RU"))throw new IllegalArgumentException("No admitted UEFA access profile: "+country);
+                if(country.equals("LI"))return new Profile(country,new Berth[0],co("Q1"),false);
+                ArrayList<Berth> places=new ArrayList<>();places.add(cl(rank<=10?"League phase":rank<=14?"Play-off · champions path":rank<=22?"Q2 · champions path":"Q1 · champions path"));
+                if(rank<=15)places.add(cl(rank<=9?"Q3 · league path":"Q2 · league path"));
+                if(rank<=12){places.add(el("Q2"));places.add(co("Q2"));}
+                else if(rank<=15){places.add(co("Q2"));places.add(co("Q2"));}
+                else if(rank<=29){places.add(co("Q2"));places.add(co("Q2"));}
+                else if(rank<=33){places.add(co("Q2"));places.add(co("Q1"));}
+                else if(rank<=50){places.add(co("Q1"));places.add(co("Q1"));}
+                else places.add(co("Q1"));
+                Berth cup=rank<=7?el("League phase"):rank<=12?el("Play-off"):rank<=15?el("Q3"):rank<=33?el("Q1"):co(rank<=38?"Q2":"Q1");
+                return new Profile(country,places.toArray(new Berth[0]),cup,false);
         }
     }
+    /** Provisional rank fixed for projected future career access; not a forecast of UEFA's next circular. */
+    public static int rank(String country){String[] order={"ENG","IT","ES","DE","FR","PT","NL","BE","TR","CZ","GR","PL","DK","NO","CY","CH","AT","SCO","SE","HR","IL","HU","UA","RS","RO","SI","AZ","RU","SK","BG","IE","IS","AM","MD","FI","KV","KZ","BA","LV","FO","MT","LI","EE","AL","MK","LT","NI","GI","AD","BY","LU","ME","GE","WAL","SM"};for(int i=0;i<order.length;i++)if(order[i].equals(country))return i+1;return -1;}
     /** Baseline projections only: a cup berth is not automatically awarded to a league position. */
     public static String positionLabel(String country, int position) {
         Profile p = profile(country);

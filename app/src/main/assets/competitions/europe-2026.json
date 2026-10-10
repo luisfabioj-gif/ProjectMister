@@ -1,0 +1,1911 @@
+{
+  "schema": 1,
+  "season": 2026,
+  "verifiedOn": "2026-10-10",
+  "scope": "Published league-phase participants and pots. Match pairings and coefficients are fictional career simulations. Future participants come from career qualification.",
+  "openingPerformanceScope": "The opening career begins after the published qualifiers. Performance places use points from career matches and the full admitted denominator; qualifying points from before the career are not invented. Recurring editions include all played qualifiers.",
+  "openingAdmittedCounts": {"AD":3,"AL":4,"AM":4,"AT":5,"AZ":4,"BA":4,"BE":5,"BG":4,"BY":3,"CH":4,"CY":4,"CZ":5,"DE":7,"DK":4,"EE":4,"ENG":9,"ES":8,"FI":4,"FO":4,"FR":7,"GE":4,"GI":3,"GR":5,"HR":4,"HU":4,"IE":4,"IL":4,"IS":4,"IT":7,"KV":4,"KZ":4,"LI":1,"LT":4,"LU":4,"LV":4,"MD":4,"ME":4,"MK":3,"MT":4,"NI":4,"NL":6,"NO":5,"PL":5,"PT":5,"RO":4,"RS":4,"SCO":5,"SE":4,"SI":4,"SK":4,"SM":3,"TR":5,"UA":4,"WAL":4},
+  "sources": {
+    "CHAMPIONS": "https://www.uefa.com/uefachampionsleague/news/02a8-21717d0c6cb5-03a9a5ff1552-1000--champions-league-league-phase-draw-pots-confirmed/",
+    "EUROPA": "https://pt.uefa.com/uefaeuropaleague/news/02a8-2173733662ed-43de705879f7-1000--europa-league-potes-para-o-sorteio-da-fase-de-liga-confir/",
+    "CONFERENCE": "https://www.uefa.com/uefaconferenceleague/news/02a8-21737b647a3a-5340384ad5f6-1000--conference-league-league-phase-draw-pots-confirmed/",
+    "CLUB_POOL": "https://www.uefa.com/nationalassociations/uefarankings/accesslist/allcompetitions/",
+    "CLUB_DIRECTORY": "https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"
+  },
+  "clubs": [
+    {
+      "id": "no:bod-glimt",
+      "name": "Bodø/Glimt",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59333"
+    },
+    {
+      "id": "ua:shakhtar",
+      "name": "Shakhtar",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52707"
+    },
+    {
+      "id": "cz:slavia-praha",
+      "name": "Slavia Praha",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52498"
+    },
+    {
+      "id": "sk:s-bratislava",
+      "name": "S. Bratislava",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52797"
+    },
+    {
+      "id": "gr:aek-athens",
+      "name": "AEK Athens",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50129"
+    },
+    {
+      "id": "at:lask",
+      "name": "LASK",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "63405"
+    },
+    {
+      "id": "no:viking",
+      "name": "Viking",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52319"
+    },
+    {
+      "id": "az:sabah",
+      "name": "Sabah",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2609356"
+    },
+    {
+      "id": "gr:olympiacos",
+      "name": "Olympiacos",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2610"
+    },
+    {
+      "id": "hu:ferencvaros",
+      "name": "Ferencváros",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52298"
+    },
+    {
+      "id": "cz:viktoria-plzen",
+      "name": "Viktoria Plzeň",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64388"
+    },
+    {
+      "id": "hr:gnk-dinamo",
+      "name": "GNK Dinamo",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50164"
+    },
+    {
+      "id": "at:salzburg",
+      "name": "Salzburg",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50030"
+    },
+    {
+      "id": "cz:sparta-praha",
+      "name": "Sparta Praha",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50033"
+    },
+    {
+      "id": "at:sturm-graz",
+      "name": "Sturm Graz",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50111"
+    },
+    {
+      "id": "pl:lech-poznan",
+      "name": "Lech Poznań",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64227"
+    },
+    {
+      "id": "si:celje",
+      "name": "Celje",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59030"
+    },
+    {
+      "id": "pl:jagiellonia",
+      "name": "Jagiellonia",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2600277"
+    },
+    {
+      "id": "cy:omonia",
+      "name": "Omonia",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50077"
+    },
+    {
+      "id": "il:h-beer-sheva",
+      "name": "H. Beer-Sheva",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59340"
+    },
+    {
+      "id": "gr:ofi-crete",
+      "name": "OFI Crete",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52953"
+    },
+    {
+      "id": "no:lillestrm",
+      "name": "Lillestrøm",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52314"
+    },
+    {
+      "id": "bg:levski-sofia",
+      "name": "Levski Sofia",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50044"
+    },
+    {
+      "id": "am:ararat-armenia",
+      "name": "Ararat-Armenia",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2610304"
+    },
+    {
+      "id": "dk:copenhagen",
+      "name": "Copenhagen",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52709"
+    },
+    {
+      "id": "dk:midtjylland",
+      "name": "Midtjylland",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "75795"
+    },
+    {
+      "id": "rs:crvena-zvezda",
+      "name": "Crvena Zvezda",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50069"
+    },
+    {
+      "id": "gr:panathinaikos",
+      "name": "Panathinaikos",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50084"
+    },
+    {
+      "id": "cy:pafos",
+      "name": "Pafos",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2609532"
+    },
+    {
+      "id": "ch:lugano",
+      "name": "Lugano",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "8538"
+    },
+    {
+      "id": "fi:kups-kuopio",
+      "name": "KuPS Kuopio",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52350"
+    },
+    {
+      "id": "gi:l-red-imps",
+      "name": "L. Red Imps",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2605572"
+    },
+    {
+      "id": "ba:borac",
+      "name": "Borac",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50104"
+    },
+    {
+      "id": "no:brann",
+      "name": "Brann",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52770"
+    },
+    {
+      "id": "kz:kairat-almaty",
+      "name": "Kairat Almaty",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "79970"
+    },
+    {
+      "id": "ro:universitatea-craiova",
+      "name": "Universitatea Craiova",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2606501"
+    },
+    {
+      "id": "lv:riga",
+      "name": "Riga",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2607924"
+    },
+    {
+      "id": "hr:hajduk-split",
+      "name": "Hajduk Split",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52359"
+    },
+    {
+      "id": "cz:jablonec",
+      "name": "Jablonec",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "62169"
+    },
+    {
+      "id": "dk:nordsjlland",
+      "name": "Nordsjælland",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "79940"
+    },
+    {
+      "id": "dk:aarhus",
+      "name": "Aarhus",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50019"
+    },
+    {
+      "id": "ad:inter-escaldes",
+      "name": "Inter Escaldes",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "63401"
+    },
+    {
+      "id": "ch:thun",
+      "name": "Thun",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "80409"
+    },
+    {
+      "id": "bg:cska-sofia",
+      "name": "CSKA Sofia",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2608297"
+    },
+    {
+      "id": "lt:kauno-zalgiris",
+      "name": "Kauno Žalgiris",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2605907"
+    },
+    {
+      "id": "se:mjallby",
+      "name": "Mjällby",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "74233"
+    },
+    {
+      "id": "ge:iberia-tbilisi",
+      "name": "Iberia Tbilisi",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2605905"
+    },
+    {
+      "id": "al:egnatia",
+      "name": "Egnatia",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "88148"
+    },
+    {
+      "id": "hu:uefa-52287",
+      "name": "ETO FC Győr",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52287"
+    },
+    {
+      "id": "ie:uefa-52381",
+      "name": "Shamrock Rovers FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52381"
+    },
+    {
+      "id": "md:uefa-2607112",
+      "name": "FC Petrocub",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2607112"
+    },
+    {
+      "id": "is:uefa-52697",
+      "name": "Víkingur Reykjavík",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52697"
+    },
+    {
+      "id": "kv:uefa-2608290",
+      "name": "FC Drita",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2608290"
+    },
+    {
+      "id": "fo:uefa-57475",
+      "name": "KÍ Klaksvík",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "57475"
+    },
+    {
+      "id": "mt:uefa-50092",
+      "name": "Floriana FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50092"
+    },
+    {
+      "id": "ni:uefa-85009",
+      "name": "Larne FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "85009"
+    },
+    {
+      "id": "ee:uefa-59341",
+      "name": "FC Flora Tallinn",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59341"
+    },
+    {
+      "id": "me:uefa-73936",
+      "name": "FK Sutjeska-Nikšić",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "73936"
+    },
+    {
+      "id": "lu:uefa-2605351",
+      "name": "FC Atert Bissen",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2605351"
+    },
+    {
+      "id": "wal:uefa-60457",
+      "name": "The New Saints FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "60457"
+    },
+    {
+      "id": "mk:uefa-53080",
+      "name": "FC Vardar",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "53080"
+    },
+    {
+      "id": "by:uefa-2613945",
+      "name": "ML Vitebsk",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2613945"
+    },
+    {
+      "id": "sm:uefa-64514",
+      "name": "S.S. Tre Fiori F.C.",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64514"
+    },
+    {
+      "id": "pl:uefa-50063",
+      "name": "Górnik Zabrze",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50063"
+    },
+    {
+      "id": "cz:uefa-59878",
+      "name": "FC Hradec Králové",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59878"
+    },
+    {
+      "id": "no:uefa-53001",
+      "name": "Tromsø IL",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "53001"
+    },
+    {
+      "id": "gr:uefa-50130",
+      "name": "PAOK FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50130"
+    },
+    {
+      "id": "is:uefa-2610384",
+      "name": "Vestri",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2610384"
+    },
+    {
+      "id": "ch:uefa-51151",
+      "name": "FC St. Gallen 1879",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "51151"
+    },
+    {
+      "id": "il:uefa-57477",
+      "name": "Maccabi Tel-Aviv FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "57477"
+    },
+    {
+      "id": "se:uefa-52343",
+      "name": "Hammarby IF",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52343"
+    },
+    {
+      "id": "rs:uefa-52810",
+      "name": "FK Vojvodina",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52810"
+    },
+    {
+      "id": "ie:uefa-50086",
+      "name": "Derry City FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50086"
+    },
+    {
+      "id": "ua:uefa-52723",
+      "name": "FC Dynamo Kyiv",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52723"
+    },
+    {
+      "id": "ro:uefa-53025",
+      "name": "FC Universitatea Cluj",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "53025"
+    },
+    {
+      "id": "sk:uefa-61601",
+      "name": "MŠK Žilina",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "61601"
+    },
+    {
+      "id": "si:uefa-77916",
+      "name": "NK Aluminij",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "77916"
+    },
+    {
+      "id": "az:uefa-60609",
+      "name": "Qarabağ FK",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "60609"
+    },
+    {
+      "id": "md:uefa-69606",
+      "name": "FC Sheriff Tiraspol",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "69606"
+    },
+    {
+      "id": "at:uefa-50110",
+      "name": "FK Austria Wien",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50110"
+    },
+    {
+      "id": "pl:uefa-60566",
+      "name": "Raków Częstochowa",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "60566"
+    },
+    {
+      "id": "at:uefa-50042",
+      "name": "SK Rapid",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50042"
+    },
+    {
+      "id": "pl:uefa-50145",
+      "name": "GKS Katowice",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50145"
+    },
+    {
+      "id": "bg:uefa-2610262",
+      "name": "FC CSKA 1948",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2610262"
+    },
+    {
+      "id": "bg:uefa-2603104",
+      "name": "PFC Ludogorets 1945",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2603104"
+    },
+    {
+      "id": "az:uefa-59890",
+      "name": "Neftçi PFK",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59890"
+    },
+    {
+      "id": "is:uefa-50057",
+      "name": "Valur",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50057"
+    },
+    {
+      "id": "ba:uefa-73390",
+      "name": "HŠK Zrinjski Mostar",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "73390"
+    },
+    {
+      "id": "fi:uefa-50052",
+      "name": "HJK Helsinki",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50052"
+    },
+    {
+      "id": "am:uefa-2609987",
+      "name": "FC Noah",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2609987"
+    },
+    {
+      "id": "lv:uefa-79556",
+      "name": "FK Auda",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "79556"
+    },
+    {
+      "id": "kv:uefa-2608311",
+      "name": "KF Dukagjini",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2608311"
+    },
+    {
+      "id": "ie:uefa-53020",
+      "name": "Shelbourne FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "53020"
+    },
+    {
+      "id": "md:uefa-59036",
+      "name": "FC Zimbru Chisinau",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59036"
+    },
+    {
+      "id": "il:uefa-59034",
+      "name": "Beitar Jerusalem FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59034"
+    },
+    {
+      "id": "cy:uefa-54191",
+      "name": "AEK Larnaca FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "54191"
+    },
+    {
+      "id": "se:uefa-91862",
+      "name": "GAIS Göteborg",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "91862"
+    },
+    {
+      "id": "hr:uefa-60514",
+      "name": "NK Varaždin",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "60514"
+    },
+    {
+      "id": "rs:uefa-50162",
+      "name": "FK Partizan Beograd",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50162"
+    },
+    {
+      "id": "ua:uefa-2612107",
+      "name": "LNZ Cherkasy",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2612107"
+    },
+    {
+      "id": "hu:uefa-93452",
+      "name": "Paksi FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "93452"
+    },
+    {
+      "id": "ro:uefa-88131",
+      "name": "CFR 1907 Cluj",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "88131"
+    },
+    {
+      "id": "sk:uefa-50156",
+      "name": "FC DAC 1904",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50156"
+    },
+    {
+      "id": "si:uefa-69617",
+      "name": "FC Koper",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "69617"
+    },
+    {
+      "id": "ch:uefa-52824",
+      "name": "FC Sion",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52824"
+    },
+    {
+      "id": "il:uefa-59869",
+      "name": "Hapoel Tel-Aviv FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59869"
+    },
+    {
+      "id": "cy:uefa-52741",
+      "name": "Apollon Limassol FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52741"
+    },
+    {
+      "id": "se:uefa-50066",
+      "name": "IFK Göteborg",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50066"
+    },
+    {
+      "id": "hr:uefa-52356",
+      "name": "HNK Rijeka",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52356"
+    },
+    {
+      "id": "rs:uefa-77924",
+      "name": "FK Zeleznicar",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "77924"
+    },
+    {
+      "id": "ua:uefa-2613172",
+      "name": "FC Polissya",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2613172"
+    },
+    {
+      "id": "hu:uefa-52958",
+      "name": "Debreceni VSC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52958"
+    },
+    {
+      "id": "ro:uefa-50065",
+      "name": "Fotbal Club FCSB",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50065"
+    },
+    {
+      "id": "sk:uefa-52904",
+      "name": "FC Spartak Trnava",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52904"
+    },
+    {
+      "id": "si:uefa-2607248",
+      "name": "NK Bravo",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2607248"
+    },
+    {
+      "id": "az:uefa-2607480",
+      "name": "PFC Zire",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2607480"
+    },
+    {
+      "id": "is:uefa-52308",
+      "name": "Stjarnan",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52308"
+    },
+    {
+      "id": "ie:uefa-52375",
+      "name": "Bohemian FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52375"
+    },
+    {
+      "id": "md:uefa-2600714",
+      "name": "FC Milsami Orhei",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2600714"
+    },
+    {
+      "id": "ba:uefa-64378",
+      "name": "FK Sarajevo",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64378"
+    },
+    {
+      "id": "fi:uefa-64161",
+      "name": "FC Inter Turku",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64161"
+    },
+    {
+      "id": "ba:uefa-50163",
+      "name": "FK Velež",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50163"
+    },
+    {
+      "id": "fi:uefa-2602511",
+      "name": "Ilves Tampere",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2602511"
+    },
+    {
+      "id": "am:uefa-77431",
+      "name": "FC Pyunik",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "77431"
+    },
+    {
+      "id": "lv:uefa-2609104",
+      "name": "FC RFS",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2609104"
+    },
+    {
+      "id": "kv:uefa-2611789",
+      "name": "FC Malisheva",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2611789"
+    },
+    {
+      "id": "am:uefa-2605268",
+      "name": "Alashkert FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2605268"
+    },
+    {
+      "id": "lv:uefa-2606320",
+      "name": "FK Liepāja",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2606320"
+    },
+    {
+      "id": "kv:uefa-2609552",
+      "name": "FC Ballkani",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2609552"
+    },
+    {
+      "id": "kz:uefa-79969",
+      "name": "FC Tobol",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "79969"
+    },
+    {
+      "id": "fo:uefa-59025",
+      "name": "Havnar Bóltfelag",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59025"
+    },
+    {
+      "id": "ni:uefa-52377",
+      "name": "Coleraine FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52377"
+    },
+    {
+      "id": "mt:uefa-52641",
+      "name": "Valletta FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52641"
+    },
+    {
+      "id": "lt:uefa-2608927",
+      "name": "FK Panevėžys",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2608927"
+    },
+    {
+      "id": "ee:uefa-77482",
+      "name": "FCI Levadia Tallinn",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "77482"
+    },
+    {
+      "id": "al:uefa-52792",
+      "name": "FC Dinamo City",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52792"
+    },
+    {
+      "id": "me:uefa-89562",
+      "name": "FK Mornar",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "89562"
+    },
+    {
+      "id": "lu:uefa-52309",
+      "name": "FC Differdange 03",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52309"
+    },
+    {
+      "id": "li:uefa-57482",
+      "name": "FC Vaduz",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "57482"
+    },
+    {
+      "id": "wal:uefa-53071",
+      "name": "Caernarfon Town FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "53071"
+    },
+    {
+      "id": "ge:uefa-64467",
+      "name": "FC Dila Gori",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64467"
+    },
+    {
+      "id": "mk:uefa-59871",
+      "name": "FC Sileks",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59871"
+    },
+    {
+      "id": "by:uefa-66168",
+      "name": "FC BATE Borisov",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "66168"
+    },
+    {
+      "id": "ad:uefa-88371",
+      "name": "Atlètic Club d'Escaldes",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "88371"
+    },
+    {
+      "id": "gi:uefa-2605575",
+      "name": "St Joseph's FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2605575"
+    },
+    {
+      "id": "sm:uefa-64508",
+      "name": "La Fiorita 1967",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64508"
+    },
+    {
+      "id": "kz:uefa-2600605",
+      "name": "FC Astana",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2600605"
+    },
+    {
+      "id": "sm:uefa-64516",
+      "name": "Virtus A.C. 1964",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64516"
+    },
+    {
+      "id": "fo:uefa-64150",
+      "name": "NSÍ Runavík",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64150"
+    },
+    {
+      "id": "mt:uefa-79948",
+      "name": "Marsaxlokk FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "79948"
+    },
+    {
+      "id": "ni:uefa-50056",
+      "name": "Glentoran FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50056"
+    },
+    {
+      "id": "lt:uefa-2607108",
+      "name": "FC Hegelmann",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2607108"
+    },
+    {
+      "id": "ee:uefa-2600371",
+      "name": "Nõmme Kalju FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2600371"
+    },
+    {
+      "id": "al:uefa-50048",
+      "name": "AF Elbasani",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50048"
+    },
+    {
+      "id": "me:uefa-2600104",
+      "name": "OFK Petrovac",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2600104"
+    },
+    {
+      "id": "lu:uefa-2603085",
+      "name": "US Mondorf-les-Bains",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2603085"
+    },
+    {
+      "id": "wal:uefa-64275",
+      "name": "Connah's Quay Nomads FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64275"
+    },
+    {
+      "id": "ge:uefa-64471",
+      "name": "FC Torpedo Kutaisi",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "64471"
+    },
+    {
+      "id": "mk:uefa-75807",
+      "name": "KF Shkëndija",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "75807"
+    },
+    {
+      "id": "by:uefa-50161",
+      "name": "FC Dinamo-Minsk",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50161"
+    },
+    {
+      "id": "ad:uefa-62180",
+      "name": "FC Santa Coloma",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "62180"
+    },
+    {
+      "id": "gi:uefa-2606416",
+      "name": "Europa FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2606416"
+    },
+    {
+      "id": "kz:uefa-79966",
+      "name": "FC Yelimai Semei",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "79966"
+    },
+    {
+      "id": "fo:uefa-59325",
+      "name": "Víkingur",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59325"
+    },
+    {
+      "id": "mt:uefa-50060",
+      "name": "Hamrun Spartans F.C.",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50060"
+    },
+    {
+      "id": "lt:uefa-2602334",
+      "name": "FK Žalgiris",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2602334"
+    },
+    {
+      "id": "ni:uefa-50134",
+      "name": "Linfield FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50134"
+    },
+    {
+      "id": "ee:uefa-2600598",
+      "name": "Paide Linnameeskond",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2600598"
+    },
+    {
+      "id": "ge:uefa-52705",
+      "name": "FC Dinamo Tbilisi",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52705"
+    },
+    {
+      "id": "al:uefa-52878",
+      "name": "KF Vllaznia",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "52878"
+    },
+    {
+      "id": "lu:uefa-2603092",
+      "name": "FC UNA Strassen",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2603092"
+    },
+    {
+      "id": "wal:uefa-2606314",
+      "name": "Penybont FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2606314"
+    },
+    {
+      "id": "me:uefa-2600105",
+      "name": "FK Dečić",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2600105"
+    },
+    {
+      "id": "dk:uefa-50021",
+      "name": "Brøndby IF",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50021",
+      "source": "https://www.uefa.com/nationalassociations/teams/50021/"
+    },
+    {
+      "id": "cy:uefa-50118",
+      "name": "APOEL FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "50118",
+      "source": "https://www.uefa.com/nationalassociations/teams/50118/"
+    },
+    {
+      "id": "gi:uefa-2605577",
+      "name": "Lynx FC",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2605577",
+      "source": "https://www.uefa.com/nationalassociations/teams/2605577/"
+    },
+    {
+      "id": "by:uefa-59024",
+      "name": "FC Neman Grodno",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "59024",
+      "source": "https://www.uefa.com/nationalassociations/teams/59024/"
+    },
+    {
+      "id": "ad:uefa-2605362",
+      "name": "FC Ordino",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "2605362",
+      "source": "https://www.uefa.com/nationalassociations/teams/2605362/"
+    },
+    {
+      "id": "mk:uefa-69601",
+      "name": "FK Rabotnicki",
+      "level": 1,
+      "reserve": false,
+      "uefaId": "69601",
+      "source": "https://www.uefa.com/nationalassociations/teams/69601/"
+    },
+    {"id":"al:kf-tirana","name":"KF Tirana","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"al:fk-partizani","name":"FK Partizani","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ad:ue-santa-coloma","name":"UE Santa Coloma","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ad:fc-pas-de-la-casa","name":"FC Pas de la Casa","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"am:fc-ararat","name":"FC Ararat","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"am:fc-urartu","name":"FC Urartu","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"at:scr-altach","name":"SCR Altach","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"at:fc-blau-weiss-linz","name":"FC Blau Weiss Linz","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"az:sumqay-t-fk","name":"Sumqayıt FK","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"az:gabala","name":"Gabala","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ba:fk-zeljeznicar","name":"FK Željezničar","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ba:nk-siroki-brijeg","name":"NK Široki Brijeg","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"bg:pfc-dobrudzha","name":"PFC Dobrudzha","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"bg:pfc-slavia-sofia","name":"PFC Slavia Sofia","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"by:fc-minsk","name":"FC Minsk","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"by:fc-gomel","name":"FC Gomel","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ch:fc-basel","name":"FC Basel","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ch:bsc-young-boys","name":"BSC Young Boys","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"cy:aris-limassol","name":"Aris Limassol","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"cy:anorthosis","name":"Anorthosis","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"cz:fc-slovan-liberec","name":"FC Slovan Liberec","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"cz:fk-mlada-boleslav","name":"FK Mladá Boleslav","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"dk:randers-fc","name":"Randers FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"dk:viborg-ff","name":"Viborg FF","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ee:jk-trans-narva","name":"JK Trans Narva","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ee:parnu-jk-vaprus","name":"Pärnu JK Vaprus","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"fi:vps-vaasa","name":"VPS Vaasa","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"fi:ac-oulu","name":"AC Oulu","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"fo:b36-torshavn","name":"B36 Tórshavn","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"fo:eb-streymur","name":"EB/Streymur","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ge:fc-dinamo-batumi","name":"FC Dinamo Batumi","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ge:fc-gagra","name":"FC Gagra","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"gi:fc-magpies","name":"FC Magpies","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"gi:manchester-62","name":"Manchester 62","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"gr:aris-fc","name":"Aris FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"gr:atromitos-fc","name":"Atromitos FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"hr:nk-osijek","name":"NK Osijek","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"hr:nk-istra-1961","name":"NK Istra 1961","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"hu:mtk-budapest","name":"MTK Budapest","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"hu:ujpest-fc","name":"Újpest FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ie:sligo-rovers","name":"Sligo Rovers","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ie:drogheda-united-fc","name":"Drogheda United FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"il:maccabi-haifa","name":"Maccabi Haifa","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"il:bnei-sakhnin","name":"Bnei Sakhnin","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"is:fram-reykjavik","name":"Fram Reykjavík","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"is:kr-reykjavik","name":"KR Reykjavík","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"kv:fc-prishtina","name":"FC Prishtina","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"kv:kf-llapi","name":"KF Llapi","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"kz:fc-ordabasy","name":"FC Ordabasy","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"kz:fc-aktobe","name":"FC Aktobe","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"lt:fa-siauliai","name":"FA Šiauliai","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"lt:fk-banga","name":"FK Banga","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"lu:fc-swift-hesper","name":"FC Swift Hesper","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"lu:fc-progres-niederkorn","name":"FC Progrès Niederkorn","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"lv:fs-metta","name":"FS Metta","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"lv:bfc-daugavpils","name":"BFC Daugavpils","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"md:csf-balti","name":"CSF Bălți","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"md:fc-dacia-buiucani","name":"FC Dacia Buiucani","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"me:fk-buducnost","name":"FK Budućnost","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"me:fk-arsenal-tivat","name":"FK Arsenal Tivat","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"mk:fc-struga","name":"FC Struga","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"mk:fk-brera-strumica","name":"FK Brera Strumica","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"mt:birkirkara-fc","name":"Birkirkara FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"mt:hibernians-fc","name":"Hibernians FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ni:crusaders-fc","name":"Crusaders FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ni:ballymena-united","name":"Ballymena United","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"no:molde-fk","name":"Molde FK","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"no:rosenborg-bk","name":"Rosenborg BK","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"pl:pogon-szczecin","name":"Pogoń Szczecin","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"pl:widzew-lodz","name":"Widzew Łódź","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ro:fc-rapid","name":"FC Rapid","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ro:fc-dinamo-bucuresti","name":"FC Dinamo Bucureşti","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"rs:fk-cukaricki","name":"FK Čukarički","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"rs:ofk-beograd","name":"OFK Beograd","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"se:if-elfsborg","name":"IF Elfsborg","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"se:malmo-ff","name":"Malmö FF","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"si:nk-maribor","name":"NK Maribor","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"si:nk-olimpija","name":"NK Olimpija","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"sk:as-trencin","name":"AS Trenčín","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"sk:mfk-ruzomberok","name":"MFK Ružomberok","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"sm:sp-tre-penne","name":"SP Tre Penne","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"sm:fc-domagnano","name":"FC Domagnano","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ua:fc-zorya","name":"FC Zorya","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"ua:fc-karpaty","name":"FC Karpaty","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"wal:bala-town-fc","name":"Bala Town FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"},
+    {"id":"wal:cardiff-met-fc","name":"Cardiff Met FC","level":1,"reserve":false,"source":"https://editorial.uefa.com/resources/02a2-2004c8d438c3-b03724f6d21e-1000/uefa_european_football_directory_2025-26_march_edition.pdf.pdf"}
+  ],
+  "fields": {
+    "CHAMPIONS": [
+      {
+        "id": "fr:paris-saint-germain",
+        "pot": 0,
+        "simulationCoefficient": 100000
+      },
+      {
+        "id": "de:fc-bayern-munchen",
+        "pot": 0,
+        "simulationCoefficient": 98000
+      },
+      {
+        "id": "es:real-madrid",
+        "pot": 0,
+        "simulationCoefficient": 96000
+      },
+      {
+        "id": "eng:liverpool",
+        "pot": 0,
+        "simulationCoefficient": 94000
+      },
+      {
+        "id": "it:inter",
+        "pot": 0,
+        "simulationCoefficient": 92000
+      },
+      {
+        "id": "eng:manchester-city",
+        "pot": 0,
+        "simulationCoefficient": 90000
+      },
+      {
+        "id": "eng:arsenal",
+        "pot": 0,
+        "simulationCoefficient": 88000
+      },
+      {
+        "id": "es:fc-barcelona",
+        "pot": 0,
+        "simulationCoefficient": 86000
+      },
+      {
+        "id": "es:atletico-de-madrid",
+        "pot": 0,
+        "simulationCoefficient": 84000
+      },
+      {
+        "id": "de:borussia-dortmund",
+        "pot": 1,
+        "simulationCoefficient": 82000
+      },
+      {
+        "id": "it:roma",
+        "pot": 1,
+        "simulationCoefficient": 80000
+      },
+      {
+        "id": "pt:sporting-cp",
+        "pot": 1,
+        "simulationCoefficient": 78000
+      },
+      {
+        "id": "eng:aston-villa",
+        "pot": 1,
+        "simulationCoefficient": 76000
+      },
+      {
+        "id": "pt:fc-porto",
+        "pot": 1,
+        "simulationCoefficient": 74000
+      },
+      {
+        "id": "eng:manchester-united",
+        "pot": 1,
+        "simulationCoefficient": 72000
+      },
+      {
+        "id": "be:club-brugge",
+        "pot": 1,
+        "simulationCoefficient": 70000
+      },
+      {
+        "id": "es:real-betis",
+        "pot": 1,
+        "simulationCoefficient": 68000
+      },
+      {
+        "id": "nl:psv",
+        "pot": 1,
+        "simulationCoefficient": 66000
+      },
+      {
+        "id": "nl:feyenoord",
+        "pot": 2,
+        "simulationCoefficient": 64000
+      },
+      {
+        "id": "fr:losc-lille",
+        "pot": 2,
+        "simulationCoefficient": 62000
+      },
+      {
+        "id": "no:bod-glimt",
+        "pot": 2,
+        "simulationCoefficient": 60000
+      },
+      {
+        "id": "it:napoli",
+        "pot": 2,
+        "simulationCoefficient": 58000
+      },
+      {
+        "id": "de:rb-leipzig",
+        "pot": 2,
+        "simulationCoefficient": 56000
+      },
+      {
+        "id": "es:villarreal-cf",
+        "pot": 2,
+        "simulationCoefficient": 54000
+      },
+      {
+        "id": "tr:fenerbahce",
+        "pot": 2,
+        "simulationCoefficient": 52000
+      },
+      {
+        "id": "ua:shakhtar",
+        "pot": 2,
+        "simulationCoefficient": 50000
+      },
+      {
+        "id": "tr:galatasaray",
+        "pot": 2,
+        "simulationCoefficient": 48000
+      },
+      {
+        "id": "cz:slavia-praha",
+        "pot": 3,
+        "simulationCoefficient": 46000
+      },
+      {
+        "id": "sk:s-bratislava",
+        "pot": 3,
+        "simulationCoefficient": 44000
+      },
+      {
+        "id": "de:vfb-stuttgart",
+        "pot": 3,
+        "simulationCoefficient": 42000
+      },
+      {
+        "id": "gr:aek-athens",
+        "pot": 3,
+        "simulationCoefficient": 40000
+      },
+      {
+        "id": "at:lask",
+        "pot": 3,
+        "simulationCoefficient": 38000
+      },
+      {
+        "id": "it:como",
+        "pot": 3,
+        "simulationCoefficient": 36000
+      },
+      {
+        "id": "fr:rc-lens",
+        "pot": 3,
+        "simulationCoefficient": 34000
+      },
+      {
+        "id": "no:viking",
+        "pot": 3,
+        "simulationCoefficient": 32000
+      },
+      {
+        "id": "az:sabah",
+        "pot": 3,
+        "simulationCoefficient": 30000
+      }
+    ],
+    "EUROPA": [
+      {
+        "id": "de:bayer-04-leverkusen",
+        "pot": 0,
+        "simulationCoefficient": 100000
+      },
+      {
+        "id": "pt:sl-benfica",
+        "pot": 0,
+        "simulationCoefficient": 98000
+      },
+      {
+        "id": "it:juventus",
+        "pot": 0,
+        "simulationCoefficient": 96000
+      },
+      {
+        "id": "it:milan",
+        "pot": 0,
+        "simulationCoefficient": 94000
+      },
+      {
+        "id": "fr:olympique-lyonnais",
+        "pot": 0,
+        "simulationCoefficient": 92000
+      },
+      {
+        "id": "nl:az",
+        "pot": 0,
+        "simulationCoefficient": 90000
+      },
+      {
+        "id": "gr:olympiacos",
+        "pot": 0,
+        "simulationCoefficient": 88000
+      },
+      {
+        "id": "es:real-sociedad",
+        "pot": 0,
+        "simulationCoefficient": 86000
+      },
+      {
+        "id": "fr:olympique-de-marseille",
+        "pot": 0,
+        "simulationCoefficient": 84000
+      },
+      {
+        "id": "hu:ferencvaros",
+        "pot": 1,
+        "simulationCoefficient": 82000
+      },
+      {
+        "id": "cz:viktoria-plzen",
+        "pot": 1,
+        "simulationCoefficient": 80000
+      },
+      {
+        "id": "be:royale-union-saint-gilloise",
+        "pot": 1,
+        "simulationCoefficient": 78000
+      },
+      {
+        "id": "hr:gnk-dinamo",
+        "pot": 1,
+        "simulationCoefficient": 76000
+      },
+      {
+        "id": "at:salzburg",
+        "pot": 1,
+        "simulationCoefficient": 74000
+      },
+      {
+        "id": "sco:celtic",
+        "pot": 1,
+        "simulationCoefficient": 72000
+      },
+      {
+        "id": "cz:sparta-praha",
+        "pot": 1,
+        "simulationCoefficient": 70000
+      },
+      {
+        "id": "fr:stade-rennais-fc",
+        "pot": 1,
+        "simulationCoefficient": 68000
+      },
+      {
+        "id": "be:rsc-anderlecht",
+        "pot": 1,
+        "simulationCoefficient": 66000
+      },
+      {
+        "id": "at:sturm-graz",
+        "pot": 2,
+        "simulationCoefficient": 64000
+      },
+      {
+        "id": "pl:lech-poznan",
+        "pot": 2,
+        "simulationCoefficient": 62000
+      },
+      {
+        "id": "eng:crystal-palace",
+        "pot": 2,
+        "simulationCoefficient": 60000
+      },
+      {
+        "id": "eng:afc-bournemouth",
+        "pot": 2,
+        "simulationCoefficient": 58000
+      },
+      {
+        "id": "eng:sunderland",
+        "pot": 2,
+        "simulationCoefficient": 56000
+      },
+      {
+        "id": "si:celje",
+        "pot": 2,
+        "simulationCoefficient": 54000
+      },
+      {
+        "id": "pl:jagiellonia",
+        "pot": 2,
+        "simulationCoefficient": 52000
+      },
+      {
+        "id": "cy:omonia",
+        "pot": 2,
+        "simulationCoefficient": 50000
+      },
+      {
+        "id": "es:celta",
+        "pot": 2,
+        "simulationCoefficient": 48000
+      },
+      {
+        "id": "de:tsg-hoffenheim",
+        "pot": 3,
+        "simulationCoefficient": 46000
+      },
+      {
+        "id": "tr:besiktas",
+        "pot": 3,
+        "simulationCoefficient": 44000
+      },
+      {
+        "id": "pt:scu-torreense",
+        "pot": 3,
+        "simulationCoefficient": 42000
+      },
+      {
+        "id": "il:h-beer-sheva",
+        "pot": 3,
+        "simulationCoefficient": 40000
+      },
+      {
+        "id": "nl:n-e-c-nijmegen",
+        "pot": 3,
+        "simulationCoefficient": 38000
+      },
+      {
+        "id": "gr:ofi-crete",
+        "pot": 3,
+        "simulationCoefficient": 36000
+      },
+      {
+        "id": "no:lillestrm",
+        "pot": 3,
+        "simulationCoefficient": 34000
+      },
+      {
+        "id": "bg:levski-sofia",
+        "pot": 3,
+        "simulationCoefficient": 32000
+      },
+      {
+        "id": "am:ararat-armenia",
+        "pot": 3,
+        "simulationCoefficient": 30000
+      }
+    ],
+    "CONFERENCE": [
+      {
+        "id": "it:atalanta",
+        "pot": 0,
+        "simulationCoefficient": 100000
+      },
+      {
+        "id": "pt:sc-braga",
+        "pot": 0,
+        "simulationCoefficient": 98000
+      },
+      {
+        "id": "nl:ajax",
+        "pot": 0,
+        "simulationCoefficient": 96000
+      },
+      {
+        "id": "de:sc-freiburg",
+        "pot": 0,
+        "simulationCoefficient": 94000
+      },
+      {
+        "id": "fr:as-monaco",
+        "pot": 0,
+        "simulationCoefficient": 92000
+      },
+      {
+        "id": "dk:copenhagen",
+        "pot": 0,
+        "simulationCoefficient": 90000
+      },
+      {
+        "id": "dk:midtjylland",
+        "pot": 1,
+        "simulationCoefficient": 88000
+      },
+      {
+        "id": "rs:crvena-zvezda",
+        "pot": 1,
+        "simulationCoefficient": 86000
+      },
+      {
+        "id": "be:kaa-gent",
+        "pot": 1,
+        "simulationCoefficient": 84000
+      },
+      {
+        "id": "gr:panathinaikos",
+        "pot": 1,
+        "simulationCoefficient": 82000
+      },
+      {
+        "id": "cy:pafos",
+        "pot": 1,
+        "simulationCoefficient": 80000
+      },
+      {
+        "id": "eng:brighton-hove-albion",
+        "pot": 1,
+        "simulationCoefficient": 78000
+      },
+      {
+        "id": "ch:lugano",
+        "pot": 2,
+        "simulationCoefficient": 76000
+      },
+      {
+        "id": "es:getafe-cf",
+        "pot": 2,
+        "simulationCoefficient": 74000
+      },
+      {
+        "id": "fi:kups-kuopio",
+        "pot": 2,
+        "simulationCoefficient": 72000
+      },
+      {
+        "id": "nl:fc-twente",
+        "pot": 2,
+        "simulationCoefficient": 70000
+      },
+      {
+        "id": "gi:l-red-imps",
+        "pot": 2,
+        "simulationCoefficient": 68000
+      },
+      {
+        "id": "ba:borac",
+        "pot": 2,
+        "simulationCoefficient": 66000
+      },
+      {
+        "id": "be:stvv",
+        "pot": 3,
+        "simulationCoefficient": 64000
+      },
+      {
+        "id": "no:brann",
+        "pot": 3,
+        "simulationCoefficient": 62000
+      },
+      {
+        "id": "sco:heart-of-midlothian",
+        "pot": 3,
+        "simulationCoefficient": 60000
+      },
+      {
+        "id": "kz:kairat-almaty",
+        "pot": 3,
+        "simulationCoefficient": 58000
+      },
+      {
+        "id": "tr:trabzonspor",
+        "pot": 3,
+        "simulationCoefficient": 56000
+      },
+      {
+        "id": "ro:universitatea-craiova",
+        "pot": 3,
+        "simulationCoefficient": 54000
+      },
+      {
+        "id": "lv:riga",
+        "pot": 4,
+        "simulationCoefficient": 52000
+      },
+      {
+        "id": "hr:hajduk-split",
+        "pot": 4,
+        "simulationCoefficient": 50000
+      },
+      {
+        "id": "cz:jablonec",
+        "pot": 4,
+        "simulationCoefficient": 48000
+      },
+      {
+        "id": "dk:nordsjlland",
+        "pot": 4,
+        "simulationCoefficient": 46000
+      },
+      {
+        "id": "dk:aarhus",
+        "pot": 4,
+        "simulationCoefficient": 44000
+      },
+      {
+        "id": "ad:inter-escaldes",
+        "pot": 4,
+        "simulationCoefficient": 42000
+      },
+      {
+        "id": "ch:thun",
+        "pot": 5,
+        "simulationCoefficient": 40000
+      },
+      {
+        "id": "bg:cska-sofia",
+        "pot": 5,
+        "simulationCoefficient": 38000
+      },
+      {
+        "id": "lt:kauno-zalgiris",
+        "pot": 5,
+        "simulationCoefficient": 36000
+      },
+      {
+        "id": "se:mjallby",
+        "pot": 5,
+        "simulationCoefficient": 34000
+      },
+      {
+        "id": "ge:iberia-tbilisi",
+        "pot": 5,
+        "simulationCoefficient": 32000
+      },
+      {
+        "id": "al:egnatia",
+        "pot": 5,
+        "simulationCoefficient": 30000
+      }
+    ]
+  },
+  "poolScope": "Real clubs from UEFA’s published 2026/27 access list, including qualifying entrants. Foreign domestic results are career simulations among the available clubs."
+}

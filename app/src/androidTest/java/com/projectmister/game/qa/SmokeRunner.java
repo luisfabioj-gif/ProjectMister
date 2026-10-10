@@ -241,6 +241,53 @@ public final class SmokeRunner extends Instrumentation {
         });
         check(true,"Portuguese cup live quarter-final semi-final final and league resumption verified");
     }
+    private void verifyEuropeanCareer(String country)throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
+        final int[] watched={0},quick={0},qualifying={0};final boolean[] finished={false};final java.time.LocalDate[] lastManaged={null};
+        ui(()->{
+            Object data=null;for(Object d:(List<?>)get("catalog").getClass().getField("divisions").get(get("catalog")))if(d.getClass().getField("id").get(d).equals(country.toLowerCase(Locale.ROOT)+":1"))data=d;
+            Object world=call("newCountryCareer",new Class[]{data.getClass()},data);call("configureDivision",new Class[]{gameClass("CareerDivision")},world);set("selectedSlot",2);set("selectedClub",0);((Random)get("random")).setSeed(23931+country.hashCode());
+            call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);Object europe=get("europeanCampaign");check(europe!=null,country+" playable UEFA campaign initialized");
+            int managed=-1;for(Object editions:(List<?>)europe.getClass().getMethod("competitions").invoke(europe)){Object season=editions.getClass().getMethod("active").invoke(editions),phase=season.getClass().getMethod("leaguePhase").invoke(season);for(Object club:(List<?>)phase.getClass().getMethod("clubs").invoke(phase))if(club.getClass().getField("association").get(club).equals(country)){managed=club.getClass().getField("id").getInt(club);break;}if(managed>=0)break;}
+            check(managed>=0,country+" real local participant is available");set("selectedClub",managed);call("generatePlayers",new Class[0]);call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);call("saveCurrentGame",new Class[0]);checkBackupReadable();call("showCalendarTab",new Class[]{String.class},"Europe");
+        });capture("europe-"+country+"-opening");
+        for(int edition=0;edition<2;edition++){
+            final int year=2026+edition,iteration=edition;finished[0]=false;lastManaged[0]=null;
+            for(int step=0;step<240&&!finished[0];step++){
+                final int index=step;
+                ui(()->{
+                    java.time.LocalDate before=(java.time.LocalDate)get("currentDate");int round=(Integer)get("matchday");String ledger=(String)get("leagueResults").getClass().getMethod("snapshot").invoke(get("leagueResults"));call("initialiseTacticsForClub",new Class[0]);call("startLiveMatchday",new Class[0]);
+                    if((Boolean)get("matchInProgress")){
+                        java.time.LocalDate date=(java.time.LocalDate)get("currentDate");check(lastManaged[0]==null||date.isAfter(lastManaged[0]),country+" managed club is never double booked");lastManaged[0]=date;
+                        boolean euro=(Boolean)get("liveEuropean"),cup=(Boolean)get("liveCup");Object event=euro?get("liveEuropeanEvent"):null;int leg=euro&&event.getClass().getField("tie").get(event)!=null?(Integer)event.getClass().getField("tie").get(event).getClass().getMethod("playedLegs").invoke(event.getClass().getField("tie").get(event)):0;
+                        set("livePaused",true);
+                        if(euro&&(watched[0]+quick[0])%3==0){call("completeQuickResult",new Class[0]);quick[0]++;}
+                        else{set("liveHomeGoals",get("liveHome").equals(get("selectedClub"))?5:0);set("liveAwayGoals",get("liveAway").equals(get("selectedClub"))?5:0);call("finishLiveMatch",new Class[0]);if(euro)watched[0]++;}
+                        if(cup)check(round==(Integer)get("matchday")&&ledger.equals(get("leagueResults").getClass().getMethod("snapshot").invoke(get("leagueResults"))),country+" cup results preserve the league ledger");
+                        if(euro){int fixture=event.getClass().getField("fixture").getInt(event);int[] recorded;
+                            if(fixture>=0){Object season=get("europeanCampaign").getClass().getMethod("season",event.getClass().getField("competition").getType()).invoke(get("europeanCampaign"),event.getClass().getField("competition").get(event));Object phase=season.getClass().getMethod("leaguePhase").invoke(season);recorded=(int[])phase.getClass().getMethod("result",int.class).invoke(phase,fixture);}
+                            else{Object tie=event.getClass().getField("tie").get(event);recorded=(int[])tie.getClass().getMethod("regulationScore",int.class).invoke(tie,leg);if(event.getClass().getField("qualifying").get(event)!=null)qualifying[0]++;}
+                            check(recorded[0]==(Integer)get("liveHomeGoals")&&recorded[1]==(Integer)get("liveAwayGoals"),country+" actual watched/quick UEFA score stored");
+                        }
+                    }
+                    check(!((java.time.LocalDate)get("currentDate")).isBefore(before),country+" combined calendar never rewinds");
+                    if(index%17==0){call("saveCurrentGame",new Class[0]);String saved=(String)get("europeanCampaign").getClass().getMethod("snapshot").invoke(get("europeanCampaign"));check((Boolean)call("loadSave",new Class[]{int.class},2),country+" combined career reloads");check(saved.equals(get("europeanCampaign").getClass().getMethod("snapshot").invoke(get("europeanCampaign"))),country+" exact UEFA state after reload");checkBackupReadable();}
+                    finished[0]=(Integer)get("matchday")== (Integer)call("seasonRounds",new Class[0])&&(Boolean)call("cupsComplete",new Class[0]);
+                });
+            }
+            ui(()->{
+                check(finished[0],country+" domestic and all three UEFA editions complete");Object europe=get("europeanCampaign");List<?> editions=(List<?>)europe.getClass().getMethod("competitions").invoke(europe);Map<String,String> completed=new HashMap<>();for(Object seasons:editions){Object season=seasons.getClass().getMethod("active").invoke(seasons),phase=season.getClass().getMethod("leaguePhase").invoke(season);check((Boolean)season.getClass().getMethod("complete").invoke(season),country+" UEFA final completed");completed.put(phase.getClass().getField("competition").get(phase).toString(),(String)season.getClass().getMethod("snapshot").invoke(season));}
+                check((Boolean)call("preparePromotion",new Class[0]),country+" domestic sporting outcomes resolved");while(!(Boolean)get("promotion").getClass().getMethod("complete").invoke(get("promotion")))call("simulatePromotionLeg",new Class[0]);if(country.equals("PT"))completePortuguesePostseason();call("continueDivisionSeason",new Class[0]);
+                check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==year+1,country+" annual admissions roll forward");Object next=get("europeanCampaign"),q=next.getClass().getMethod("qualifying").invoke(next);check(q!=null,country+" fresh qualifying campaign created");
+                for(Object seasons:(List<?>)next.getClass().getMethod("competitions").invoke(next)){Object season=seasons.getClass().getMethod("active").invoke(seasons),phase=season.getClass().getMethod("leaguePhase").invoke(season);check(completed.get(phase.getClass().getField("competition").get(phase).toString()).equals(season.getClass().getMethod("snapshot").invoke(season)),country+" completed UEFA edition preserved exactly before qualifying draw");}
+                if(iteration==0){Object admissions=q.getClass().getMethod("admissions").invoke(q),world=get("division");int[] tiers=(int[])world.getClass().getField("clubTiers").get(world);String[] ids=(String[])world.getClass().getField("clubIds").get(world);int managed=-1;for(Object entry:(List<?>)admissions.getClass().getMethod("entries").invoke(admissions)){int club=entry.getClass().getField("club").getInt(entry);if(entry.getClass().getField("round").getInt(entry)<5&&tiers[club]==1&&ids[club].startsWith(country.toLowerCase(Locale.ROOT)+":")){managed=club;break;}}check(managed>=0,country+" local qualifier can be managed in the next edition");set("selectedClub",managed);call("initialiseTacticsForClub",new Class[0]);}
+                call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),country+" next annual campaign reloads");checkBackupReadable();call("showHistoryHub",new Class[0]);
+            });capture("europe-"+country+"-history-"+year);
+        }
+        ui(()->{
+            check(watched[0]>0&&quick[0]>0&&qualifying[0]>=2,country+" watched, quick and two-leg qualifying matches exercised");byte[] valid=backupBytes(prefs.getAll());Map<String,Object> broken=new HashMap<>(prefs.getAll());broken.put("save_2_european_campaign","broken");boolean rejected=false;try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,backupBytes(broken));}catch(InvocationTargetException expected){rejected=true;}check(rejected&&Arrays.equals(valid,backupBytes(prefs.getAll())),country+" corrupt UEFA backup rejected atomically");gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"original career restored after UEFA test");
+        });check(true,country+" combined UEFA qualifying domestic calendars two seasons watched quick matches exact archives and backups verified");
+    }
     private void verifyGermanCupSeasons()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
         byte[] original=backupBytes(prefs.getAll());final int[] age={0},managed={0};final boolean[] done={false},pendingChecked={false};
@@ -252,7 +299,9 @@ public final class SmokeRunner extends Instrumentation {
             ((Random)get("random")).setSeed(23671);
             call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
             call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
-            check(((String[])get("clubNames")).length==64&&((List<?>)get("players")).size()==1280,"German career includes all 64 cup clubs and their players");
+            String[] clubs=(String[])get("clubNames");int local=0;for(String id:(String[])world.getClass().getField("clubIds").get(world))if(id.startsWith("de:"))local++;
+            check(local==64&&((List<?>)get("players")).size()==clubs.length*20,"German career includes all 64 cup clubs, foreign clubs and their players");
+            set("europeanCampaign",null);set("fixtureVersion",4); // This gate isolates the recurring domestic cups; the UEFA gate checks the combined career.
             check(get("nationalCups")!=null&&get("domesticCup")==null&&get("leagueCup")==null,"German career initializes its own cup");
             age[0]=playerInt(((List<?>)get("players")).get(0),"age");call("saveCurrentGame",new Class[0]);checkBackupReadable();
             call("showCalendarTab",new Class[]{String.class},"Cup");
@@ -335,6 +384,7 @@ public final class SmokeRunner extends Instrumentation {
             String[] ids=(String[])world.getClass().getField("clubIds").get(world);boolean foreign=false;for(String id:ids)if(!id.startsWith(country.toLowerCase(Locale.ROOT)+":"))foreign=true;
             check(foreign&&ids.length>100&&((List<?>)get("players")).size()==ids.length*20,country+" expanded world has real foreign and lower cup squads");
             check(get("nationalCups")!=null,country+" national cup initialized");check((get("scottishLeagueCup")!=null)==country.equals("SCO"),country+" correct Scottish League Cup initialization");
+            set("europeanCampaign",null);set("fixtureVersion",4);
             age[0]=playerInt(((List<?>)get("players")).get(0),"age");call("saveCurrentGame",new Class[0]);checkBackupReadable();call("showCalendarTab",new Class[]{String.class},"Cup");
         });capture("cup-"+country+"-opening");
         for(int edition=0;edition<2;edition++) {
@@ -394,7 +444,8 @@ public final class SmokeRunner extends Instrumentation {
             call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
             call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
             ((Random)get("random")).setSeed(73451);
-            check(((String[])get("clubNames")).length==483&&((List<?>)get("players")).size()==9660,"expanded Portuguese world retains 483 clubs and 9660 players");
+            check(((String[])get("clubNames")).length>483&&((List<?>)get("players")).size()==((String[])get("clubNames")).length*20,"expanded Portuguese world retains local and foreign clubs and their players");
+            set("europeanCampaign",null);set("fixtureVersion",3);
             check(get("domesticCup")!=null&&get("leagueCup")!=null&&get("portugueseThird")!=null&&get("portugueseFourth")!=null&&get("portugueseDistrict")!=null,"Portuguese cups and lower seasons initialized");
             initialAge[0]=playerInt(((List<?>)get("players")).get(0),"age");
             call("saveCurrentGame",new Class[0]);checkBackupReadable();
@@ -1008,6 +1059,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(savedWorld!=null&&savedWorld.getClass().getField("linked").getBoolean(savedWorld),"linked country survives release upgrade");
                 page("release-linked-table","showLeagueTable",new Class[0]);
                 check(true,"release bundle upgrade and feature navigation verified");
+            } else if(mode.equals("europe")) {
+                verifyEuropeanCareer(args.getString("country","PT"));
             } else if(mode.equals("national-cups")) {
                 verifyGermanCupSeasons();
             } else if(mode.equals("expanded-cups")) {

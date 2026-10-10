@@ -13,14 +13,18 @@ public final class CompetitionCalendar {
         return cupSeason(start,rounds,cups);
     }
     public static List<LocalDate> cupSeason(LocalDate start,int rounds,List<LocalDate> cups) {
+        return cupSeason(start,rounds,cups,3);
+    }
+    public static List<LocalDate> cupSeason(LocalDate start,int rounds,List<LocalDate> cups,int restDays) {
         if(start==null||start.getYear()<2026||start.getYear()>2200||rounds<1||rounds>50||cups==null||cups.contains(null))throw new IllegalArgumentException("Unsupported cup calendar");
+        if(restDays<2||restDays>3)throw new IllegalArgumentException("Invalid recovery interval");
         ArrayList<LocalDate> dates=new ArrayList<>();
         for(int round=0;round<rounds;round++) {
             LocalDate target=start.plusWeeks(round),chosen=null;
             for(int offset:new int[]{0,-1,1,-2,2,-3,3,-4,4}) {
                 LocalDate candidate=target.plusDays(offset);
-                if(candidate.isBefore(start)||!dates.isEmpty()&&ChronoUnit.DAYS.between(dates.get(dates.size()-1),candidate)<3)continue;
-                boolean safe=true;for(LocalDate cup:cups)if(Math.abs(ChronoUnit.DAYS.between(candidate,cup))<3){safe=false;break;}
+                if(candidate.isBefore(start)||!dates.isEmpty()&&ChronoUnit.DAYS.between(dates.get(dates.size()-1),candidate)<restDays)continue;
+                boolean safe=true;for(LocalDate cup:cups)if(Math.abs(ChronoUnit.DAYS.between(candidate,cup))<restDays){safe=false;break;}
                 if(safe){chosen=candidate;break;}
             }
             // Keep established dates when possible. Consecutive cup/rank-decision windows
@@ -28,13 +32,13 @@ public final class CompetitionCalendar {
             // Postpone the league fixture until rest is available instead of aborting rollover.
             if(chosen==null) {
                 LocalDate candidate=target.plusDays(5),limit=target.plusDays(35);
-                if(!dates.isEmpty()&&candidate.isBefore(dates.get(dates.size()-1).plusDays(3)))candidate=dates.get(dates.size()-1).plusDays(3);
+                if(!dates.isEmpty()&&candidate.isBefore(dates.get(dates.size()-1).plusDays(restDays)))candidate=dates.get(dates.size()-1).plusDays(restDays);
                 for(;!candidate.isAfter(limit);candidate=candidate.plusDays(1)) {
-                    boolean safe=true;for(LocalDate cup:cups)if(Math.abs(ChronoUnit.DAYS.between(candidate,cup))<3){safe=false;break;}
+                    boolean safe=true;for(LocalDate cup:cups)if(Math.abs(ChronoUnit.DAYS.between(candidate,cup))<restDays){safe=false;break;}
                     if(safe){chosen=candidate;break;}
                 }
             }
-            if(chosen==null)throw new IllegalStateException("No league date with three days of recovery within the scheduling window");dates.add(chosen);
+            if(chosen==null)throw new IllegalStateException("No league date with required recovery within the scheduling window");dates.add(chosen);
         }
         return Collections.unmodifiableList(dates);
     }

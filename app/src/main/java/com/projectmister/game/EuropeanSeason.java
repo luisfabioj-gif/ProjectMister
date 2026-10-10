@@ -18,6 +18,7 @@ public final class EuropeanSeason {
         this.phase=phase;this.seed=seed;this.dates=Collections.unmodifiableList(new ArrayList<>(dates));this.simulatedDates=simulatedDates;
     }
     public EuropeanLeaguePhase leaguePhase(){return phase;}
+    public List<LocalDate> calendar(){ArrayList<LocalDate> all=new ArrayList<>();for(int i=0;i<(phase.competition==EuropeanLeaguePhase.Competition.CONFERENCE?6:8);i++)all.add(phase.date(i));all.addAll(dates);return Collections.unmodifiableList(all);}
     public EuropeanKnockout knockout(){if(knockout==null&&phase.complete())knockout=new EuropeanKnockout(phase,seed,dates,simulatedDates);return knockout;}
     public boolean complete(){EuropeanKnockout cup=knockout();return cup!=null&&cup.complete();}
     public int winner(){return complete()?knockout.winner():-1;}

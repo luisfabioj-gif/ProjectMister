@@ -45,16 +45,18 @@ public final class GermanCupCatalog {
         return create(world,year,seed,lower);
     }
     private static SeasonCup create(CareerDivision world,int year,long seed,Set<Integer> lower) {
-        if(world==null||!world.linked||!world.country.equals("DE")||world.names.length!=64||lower.size()!=4)throw new IllegalArgumentException("German cup requires complete career field");
+        if(world==null||!world.linked||!world.country.equals("DE")||lower.size()!=4)throw new IllegalArgumentException("German cup requires complete career field");
         ArrayList<SeasonCup.Entrant> field=new ArrayList<>();
         for(int i=0;i<world.names.length;i++) {
+            if(!world.association(i).equals("DE"))continue;
             if(world.reserves[i])throw new IllegalArgumentException("Reserve team in German cup");
             field.add(new SeasonCup.Entrant(i,0,world.clubTiers[i]==3,world.clubTiers[i]!=3&&!lower.contains(i)));
         }
+        if(field.size()!=64)throw new IllegalArgumentException("German cup requires 64 local clubs");
         return DomesticCupFormats.dfbPokal(year,seed,field);
     }
     public static CupSeasons validate(String text,CareerDivision world,int year,LocalDate date) {
-        if(world==null||!world.linked||!world.country.equals("DE")||world.names.length!=64||!world.hasCupClubs())throw new IllegalArgumentException("Missing German cup world");
+        if(world==null||!world.linked||!world.country.equals("DE")||!world.hasCupClubs())throw new IllegalArgumentException("Missing German cup world");
         CupSeasons seasons=CupSeasons.restore(text);
         if(seasons.active().season!=year)throw new IllegalArgumentException("Wrong German cup season");
         validateEdition(seasons.active(),world);seasons.active().validateDate(date);
@@ -65,7 +67,7 @@ public final class GermanCupCatalog {
         if(!cup.competition.equals("DE_POKAL")||!cup.simulatedDates)throw new IllegalArgumentException("Unexpected German cup format");
         SeasonCup expected=DomesticCupFormats.dfbPokal(cup.season,0,cup.entrants());
         Set<Integer> ids=new HashSet<>();
-        for(SeasonCup.Entrant e:cup.entrants())if(e.club>=world.names.length||world.reserves[e.club]||e.amateur!=(world.clubTiers[e.club]==3)||!ids.add(e.club))throw new IllegalArgumentException("Invalid German cup registry");
+        for(SeasonCup.Entrant e:cup.entrants())if(e.club>=world.names.length||!world.association(e.club).equals("DE")||world.reserves[e.club]||e.amateur!=(world.clubTiers[e.club]==3)||!ids.add(e.club))throw new IllegalArgumentException("Invalid German cup registry");
         for(int i=0;i<6;i++) {
             SeasonCup.Round a=cup.round(i),b=expected.round(i);
             if(!a.name.equals(b.name)||a.legs!=b.legs||a.neutral!=b.neutral||a.rule!=b.rule||a.draw!=b.draw||!a.date(0).equals(b.date(0)))throw new IllegalArgumentException("Changed German cup round");

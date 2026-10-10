@@ -6,7 +6,7 @@ trap 'rm -rf "$out"' EXIT
 javac -d "$out" app/src/main/java/com/projectmister/game/{SeasonCup,CupSeasons,ScottishLeagueCupSeason,ScottishLeagueCupSeasons,ScottishLeagueCupFactory,NationalCupCampaign,NationalCupFactory,NationalCupFormats,DomesticCupFormats,EuropeanLeaguePhase,EuropeanKnockout,EuropeanSeason,EuropeanSeasons,SubstitutionLedger,MatchMath,MatchMotion,KitColours,LeagueSchedule,LeagueResults,KnockoutTie,PortugueseLeagueCup,PortugueseLeagueCupSeason,PortugueseLeagueCupSeasons,PortugueseLeagueCupCareer,PortugueseLowerPromotion,PortugueseThirdDivisionSeason,PortugueseThirdDivisionStandings,PortugueseThirdDivisionSeasons,PortugueseFourthDivisionSeason,PortugueseFourthDivisionSeasons,PortugueseLowerDeciders,PortugueseDistrictSeason,PortugueseDistrictSeasons,PortuguesePyramidOutcome,DomesticCup,DomesticCupHistory,CompetitionCalendar,PromotionCampaign,ScotlandPromotion,ScottishStandings,GermanyPromotion,GermanStandings,TurkeyPromotion,TurkishStandings,IberianPromotion,IberianStandings,BelgianPromotion,BelgianStandings,FrenchPromotion,FrenchStandings,EnglishPromotion,EnglishStandings,ItalianPromotion,ItalianStandings,DutchPromotion,DutchStandings,DutchQualification,ReserveEligibility,SeasonHistory,WorldMarket,SaveBackup,RegistrationWindow,EuropeanAccess}.java tests/ScottishLeagueCupTests.java tests/NationalCupTests.java tests/SeasonCupTests.java tests/EuropeanLeaguePhaseTests.java tests/EuropeanKnockoutTests.java tests/DomesticCupTests.java tests/PortugueseLeagueCupTests.java tests/PortugueseLeagueCupSeasonTests.java tests/PortugueseLowerPromotionTests.java tests/PortugueseThirdDivisionTests.java tests/PortugueseFourthDivisionTests.java tests/PortuguesePyramidTests.java tests/WorldMarketTests.java tests/SeasonHistoryTests.java tests/RegressionTests.java tests/CompetitionTests.java tests/LeagueResultsTests.java tests/KnockoutTieTests.java tests/ScotlandPromotionTests.java tests/ScottishStandingsTests.java tests/GermanyPromotionTests.java tests/GermanStandingsTests.java tests/TurkeyPromotionTests.java tests/TurkishStandingsTests.java tests/IberianTests.java tests/SaveBackupTests.java tests/BelgianTests.java tests/FrenchTests.java tests/EnglishTests.java tests/ItalianTests.java tests/DutchTests.java
 javac -cp "$out" -d "$out" tests/CompetitionCalendarTests.java
 java -cp "$out" com.projectmister.game.CompetitionCalendarTests
-javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/EuropeanDraw.java tests/EuropeanDrawTests.java
+javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{EuropeanDraw,EuropeanCalendar,EuropeanCampaign,EuropeanPerformance,EuropeanDomesticSeason,EuropeanAdmissions,EuropeanQualifying}.java tests/EuropeanDrawTests.java tests/EuropeanCampaignTests.java
 java -cp "$out" com.projectmister.game.EuropeanDrawTests
 java -cp "$out" com.projectmister/game/RegressionTests
 java -cp "$out" com.projectmister.game.CompetitionTests
@@ -62,3 +62,9 @@ java -cp "$out" com.projectmister.game.PortugueseThirdDivisionTests
 java -cp "$out" com.projectmister.game.PortugueseFourthDivisionTests
 
 java -cp "$out" com.projectmister.game.PortuguesePyramidTests
+
+java -cp "$out" com.projectmister.game.EuropeanCampaignTests
+
+javac -cp "$out:tools/test-deps/json.jar" -d "$out" app/src/main/java/com/projectmister/game/{CompetitionCatalog,CareerDivision,GermanCupCatalog,DomesticCupCatalog,EuropeanCatalog}.java tests/EuropeanAdmissionsTests.java tests/RecurringEuropeanTests.java
+java -cp "$out:tools/test-deps/json.jar" com.projectmister.game.EuropeanAdmissionsTests
+java -cp "$out:tools/test-deps/json.jar" com.projectmister.game.RecurringEuropeanTests
