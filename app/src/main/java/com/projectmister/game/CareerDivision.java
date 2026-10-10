@@ -132,7 +132,7 @@ public final class CareerDivision {
         id=o.getString("id");country=o.getString("country");name=o.getString("name");tier=o.getInt("tier");
         if(tier<1||tier>2)throw new IllegalArgumentException("Invalid tier");
         JSONArray a=o.getJSONArray("clubs");int n=a.length();
-        if(n<10||n>(schema==5?768:schema>=3?256:linked?48:24)||schema==3&&!country.equals("PT")||schema==4&&(!country.equals("DE")||n!=64))throw new IllegalArgumentException("Invalid club count");
+        if(n<10||n>(schema==5?CareerLimits.MAX_CLUBS:schema>=3?256:linked?48:24)||schema==3&&!country.equals("PT")||schema==4&&(!country.equals("DE")||n!=64))throw new IllegalArgumentException("Invalid club count");
         clubTiers=new int[n];clubLevels=new int[n];tierNames=new String[]{tier==1?name:"",tier==2?name:""};
         if(linked){JSONArray labels=o.getJSONArray("tierNames");if(labels.length()!=2)throw new IllegalArgumentException("Invalid tier names");for(int i=0;i<2;i++)tierNames[i]=labels.getString(i);}
         clubIds=new String[n];names=new String[n];reserves=new boolean[n];strengths=new int[n];budgets=new int[n];primary=new int[n];secondary=new int[n];

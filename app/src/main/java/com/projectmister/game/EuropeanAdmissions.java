@@ -26,7 +26,7 @@ public final class EuropeanAdmissions {
             EuropeanAccess.Profile profile=EuropeanAccess.profile(country);int[] order=domestic.order(country);ArrayList<EuropeanAccess.Berth> lower=new ArrayList<>();
             for(EuropeanAccess.Berth berth:profile.league)if(berth.competition.equals("Champions League"))put(first(order),entry(berth,false));else lower.add(berth);
             int winner=domestic.cup(country);if(winner<0)throw new IllegalArgumentException("Missing domestic cup outcome: "+country);if(!entries.containsKey(winner))put(winner,entry(profile.cup,true));else put(first(order),entry(profile.cup,true));
-            for(EuropeanAccess.Berth berth:lower)put(first(order),entry(berth,false));
+            for(EuropeanAccess.Berth berth:lower){int club=country.equals("NL")&&berth.competition.equals("Conference League")&&domestic.dutchPlayoff()!=null?domestic.dutchPlayoff().winner():first(order);put(club,entry(berth,false));}
             if(profile.conferenceFromLeagueCup){int leagueWinner=domestic.leagueCup(country);put(entries.containsKey(leagueWinner)?first(order):leagueWinner,new Entry(-1,Path.CO_MP,4,true));}
         }
         holder(championsHolder,Path.CL_CH,true);holder(europaHolder,Path.CL_CH,false);
@@ -88,7 +88,7 @@ public final class EuropeanAdmissions {
     private void rebalance(Path path,int target) {
         if(target<0)throw new IllegalStateException("Invalid UEFA access vacancy");int attempts=0;
         while(project().fields[path.ordinal()][4]<target) {
-            if(++attempts>768)throw new IllegalStateException("UEFA access rebalance did not converge");ArrayList<Entry> candidates=new ArrayList<>();
+            if(++attempts>CareerLimits.MAX_CLUBS)throw new IllegalStateException("UEFA access rebalance did not converge");ArrayList<Entry> candidates=new ArrayList<>();
             for(Entry e:entries.values())if(e.path==path&&e.round<4)candidates.add(e);
             candidates.sort((a,b)->{int c=Integer.compare(b.round,a.round);if(c!=0)return c;if(path==Path.CL_CH||path==Path.CL_LP)return Integer.compare(coefficients[b.club],coefficients[a.club]);c=Boolean.compare(b.cup,a.cup);if(c!=0)return c;c=Integer.compare(EuropeanAccess.rank(association(a.club)),EuropeanAccess.rank(association(b.club)));return c!=0?c:Integer.compare(coefficients[b.club],coefficients[a.club]);});
             if(candidates.isEmpty())throw new IllegalStateException("Missing UEFA qualifying replacement: "+path);Entry e=candidates.get(0);entries.put(e.club,new Entry(e.club,e.path,e.round+1,e.cup));
@@ -105,7 +105,7 @@ public final class EuropeanAdmissions {
     private static String encode(String value){return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));}
     public String snapshot(){StringBuilder out=new StringBuilder("UA1|").append(championsHolder).append('|').append(europaHolder).append('|').append(conferenceHolder).append('|').append(performance[0]).append('|').append(performance[1]);for(int club=0;club<identities.length;club++)out.append("\nC|").append(identities[club]).append('|').append(reserves[club]?1:0).append('|').append(coefficients[club]);return out.append("\nD|").append(encode(domestic.snapshot())).toString();}
     public static EuropeanAdmissions restore(String text){
-        if(text==null||text.length()>512*1024)throw new IllegalArgumentException("Oversized UEFA admissions");String[] rows=text.split("\n",-1),h=rows[0].split("\\|",-1);if(h.length!=6||!h[0].equals("UA1")||rows.length<110||rows.length>770||!rows[rows.length-1].startsWith("D|"))throw new IllegalArgumentException("Invalid UEFA admissions");int size=rows.length-2;String[] ids=new String[size];boolean[] reserves=new boolean[size];int[] coefficients=new int[size];
+        if(text==null||text.length()>512*1024)throw new IllegalArgumentException("Oversized UEFA admissions");String[] rows=text.split("\n",-1),h=rows[0].split("\\|",-1);if(h.length!=6||!h[0].equals("UA1")||rows.length<110||rows.length>CareerLimits.MAX_CLUBS+2||!rows[rows.length-1].startsWith("D|"))throw new IllegalArgumentException("Invalid UEFA admissions");int size=rows.length-2;String[] ids=new String[size];boolean[] reserves=new boolean[size];int[] coefficients=new int[size];
         for(int club=0;club<size;club++){String[] c=rows[club+1].split("\\|",-1);if(c.length!=4||!c[0].equals("C")||(!c[2].equals("0")&&!c[2].equals("1")))throw new IllegalArgumentException("Invalid UEFA admission club");ids[club]=c[1];reserves[club]=c[2].equals("1");coefficients[club]=Integer.parseInt(c[3]);}
         EuropeanDomesticSeason domestic=EuropeanDomesticSeason.restore(new String(Base64.getDecoder().decode(rows[rows.length-1].substring(2)),StandardCharsets.UTF_8),ids,reserves);EuropeanAdmissions out=new EuropeanAdmissions(domestic,ids,reserves,coefficients,Integer.parseInt(h[1]),Integer.parseInt(h[2]),Integer.parseInt(h[3]),new String[]{h[4],h[5]});if(!text.equals(out.snapshot()))throw new IllegalArgumentException("Non-canonical UEFA admissions");return out;
     }

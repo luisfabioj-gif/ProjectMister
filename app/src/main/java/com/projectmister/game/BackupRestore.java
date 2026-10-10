@@ -50,6 +50,12 @@ public final class BackupRestore {
                 String national=(String)data.getOrDefault(prefix+"national_cups","");
                 if(division!=null&&!division.country.equals("PT")&&division.hasCupClubs()&&national.isEmpty())throw new IllegalArgumentException("Missing national cup");
                 if(!national.isEmpty())NationalCupCatalog.validate(national,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
+                String dutch=(String)data.getOrDefault(prefix+"dutch_european_playoff","");
+                if(!dutch.isEmpty()) {
+                    if(division==null||!division.country.equals("NL")||european.isEmpty()||round<division.rounds(1)||national.isEmpty())throw new IllegalArgumentException("Unexpected Dutch European playoff");
+                    DutchEuropeanPlayoff playoff=DutchEuropeanPlayoff.restore(dutch);playoff.validate(division.clubIds,division.reserves,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
+                    NationalCupCampaign cups=NationalCupCampaign.restore(national);if(!cups.complete()||playoff.cupWinner!=cups.active().winner()||!Arrays.equals(Arrays.stream(playoff.leagueOrder()).sorted().toArray(),Arrays.stream(division.members(1)).sorted().toArray()))throw new IllegalArgumentException("Changed Dutch playoff inputs");
+                }
                 String scottish=(String)data.getOrDefault(prefix+"scottish_league_cup","");
                 if(division!=null&&division.country.equals("SCO")&&division.hasCupClubs()&&scottish.isEmpty())throw new IllegalArgumentException("Missing Scottish League Cup");
                 if(!scottish.isEmpty()) {
