@@ -4,6 +4,7 @@ import java.util.*;
 /** Version-one deterministic fictional recruits; source identity survives catalog changes. */
 public final class WorldMarket {
     public static final int MAX_HIRES=512;
+    public static final java.time.LocalDate FREE_AGENT_CONTRACT_END=java.time.LocalDate.of(2026,6,30);
     public static final class Candidate {
         public final String key,name,position;
         public final int age,overall,fee,wage;

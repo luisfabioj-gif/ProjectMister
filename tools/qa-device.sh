@@ -14,6 +14,11 @@ grep -q 'PASS worldwide transfers free agents reload budget and lineup verified'
 grep -q 'PASS calendar recorded results and shootout orientation verified' qa-output/candidate.txt
 grep -q 'PASS completed match survives reload' qa-output/candidate.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/candidate.txt
+for country in ES PT DE ENG IT FR NL BE SCO TR; do
+    timeout 600s adb shell am instrument -w -e mode europe -e country "$country" com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee "qa-output/europe-$country.txt"
+    grep -q "PASS $country combined UEFA qualifying domestic calendars two seasons watched quick matches exact archives and backups verified" "qa-output/europe-$country.txt"
+    ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' "qa-output/europe-$country.txt"
+done
 timeout 300s adb shell am instrument -w -e mode national-cups com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/national-cups.txt
 grep -q 'PASS German recurring cup live matches two seasons reloads history and backup rejection verified' qa-output/national-cups.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/national-cups.txt
@@ -30,11 +35,7 @@ grep -q 'PASS IT watched playoffs and season transition verified' qa-output/divi
 grep -q 'PASS ENG watched playoffs and season transition verified' qa-output/divisions.txt
 grep -q 'PASS career backup export, validation, cancellation, restore and load verified' qa-output/divisions.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/divisions.txt
-for country in PT DE ENG ES IT FR NL BE SCO TR; do
-    timeout 600s adb shell am instrument -w -e mode europe -e country "$country" com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee "qa-output/europe-$country.txt"
-    grep -q "PASS $country combined UEFA qualifying domestic calendars two seasons watched quick matches exact archives and backups verified" "qa-output/europe-$country.txt"
-    ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' "qa-output/europe-$country.txt"
-done
+
 adb shell wm size 720x1280
 adb shell wm density 320
 timeout 120s adb shell am instrument -w -e mode compact com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/compact.txt

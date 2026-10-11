@@ -132,8 +132,10 @@ public final class SmokeRunner extends Instrumentation {
             check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~4")==-1,"duplicate free-agent signing rejected");
             set("currentTransferBudget",0);check((Integer)call("signMarketPlayer",new Class[]{String.class},"eng:arsenal~1~18")==-1,"unaffordable worldwide transfer rejected");
             set("wageBudgetK",0);check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~5")==-1,"unaffordable free-agent wages rejected");
-            set("wageBudgetK",1000000);set("currentDate",java.time.LocalDate.of(2026,10,15));check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~6")==-1,"registration gate checked at signing");
-            call("loadSave",new Class[]{int.class},0);check(((java.util.List<?>)get("players")).size()==base+21,"all worldwide recruits survive reload once");
+            set("wageBudgetK",1000000);set("currentDate",java.time.LocalDate.of(2026,10,15));int offWindow=(Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~6");check(offWindow==base+21,"eligible Portuguese free agent joins outside the ordinary window");
+            set("currentTransferBudget",1000);check((Integer)call("signMarketPlayer",new Class[]{String.class},"eng:arsenal~1~18")==-1,"contracted players remain blocked outside the ordinary window");
+            set("currentDate",java.time.LocalDate.of(2027,3,2));check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~8")==-1,"Portuguese free-agent final deadline enforced");
+            call("loadSave",new Class[]{int.class},0);check(((java.util.List<?>)get("players")).size()==base+22,"all worldwide and off-window free-agent recruits survive reload once");
             check(playerInt(call("findPlayer",new Class[]{int.class},first[0]),"team")==0,"overseas recruit belongs to managed club after reload");
             checkBackupReadable();
             int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");

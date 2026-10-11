@@ -10,8 +10,8 @@ android {
         applicationId "com.projectmister.game"
         minSdk 26
         targetSdk 36
-        versionCode 34
-        versionName "2.3.9-dev"
+        versionCode 35
+        versionName "2.3.10-dev"
     }
 
     signingConfigs {

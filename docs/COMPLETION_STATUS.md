@@ -25,9 +25,11 @@ correct; full UEFA admissions are still a separate unfinished milestone.
 
 The 10 October development checkpoint connects all three UEFA competitions,
 annual admissions and two-leg qualifying to expanded careers, saves and History.
-Its combined ten-country Android gate is awaiting emulator evidence. See
-[UEFA_CAREER_INTEGRATION.md](UEFA_CAREER_INTEGRATION.md). This source work adds no
-verified points.
+The Android 35/36 run 38094113766 failed Spain's annual-admissions rollover.
+The following candidate handles forced reserve relegation with stable, eligible
+lower replacements from simulated qualification results and adds country free-agent
+registration decisions. Its Android evidence is still pending; this work adds no
+verified points. See [UEFA_CAREER_INTEGRATION.md](UEFA_CAREER_INTEGRATION.md).
 
 Remaining: UEFA (10), annual qualification (5),
 registration (2), remaining national rules (3), shared calendar (2), final Android

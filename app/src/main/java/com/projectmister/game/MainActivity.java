@@ -5105,19 +5105,24 @@ public class MainActivity extends Activity {
         page.addView(profileInfoRow("Overall",String.valueOf(c.overall)));
         page.addView(profileInfoRow("Transfer fee",c.free?"€0 • Unattached":"€"+c.fee+"m"));
         page.addView(profileInfoRow("Contract terms","3 years • €"+c.wage+"k/week"));
-        page.addView(makeText("Recruitment is available during your league's registration window. Free agents have no transfer fee; this build applies the same registration-window gate to them.",13,muted));
-        page.addView(makeAccentButton("Agree terms & sign",v->new BossDialog.Builder(this).setTitle("Confirm signing")
+        PlayerRegistration.Decision registration=marketRegistration(c);
+        if(c.free)page.addView(profileInfoRow("Contract history","Expired 30 June 2026 • no later registration"));
+        page.addView(makeText(registration.explanation,13,registration.permitted()?muted:accent));
+        if(!registration.source.isEmpty())page.addView(makeButton("Registration rule source",v->openHistorySource(registration.source)));
+        page.addView(makeAccentButton(registration.requiresApproval()?"Request exemption & sign":"Agree terms & sign",v->new BossDialog.Builder(this).setTitle("Confirm signing")
             .setMessage(c.name+" • fee €"+c.fee+"m • €"+c.wage+"k/week for 3 years. This adds the player to your squad.")
             .setPositiveButton("Sign player",(d,w)->{int player=signMarketPlayer(c.key);if(player>=0)showPlayerProfile(player,selectedClub);})
             .setNegativeButton("Cancel",null).show()));
     }
     private int signMarketPlayer(String key) {
         WorldMarket.Candidate c=new WorldMarket.Candidate(key);
-        String issue=matchInProgress?"Finish the current match before signing players":marketLocalClub(key.split("~")[0])>=0?"Use the existing club squad to negotiate this transfer":!isTransferWindowOpen(currentDate)?"Registration window is closed":marketHires.contains(key)?"Player already recruited":marketHires.size()>=WorldMarket.MAX_HIRES?"Recruitment capacity reached":currentTransferBudget<c.fee?"Insufficient transfer budget":totalPlayerWagesK()+totalStaffWagesK()+c.wage>wageBudgetK?"Insufficient wage budget":null;
+        PlayerRegistration.Decision registration=marketRegistration(c);
+        String issue=matchInProgress?"Finish the current match before signing players":marketLocalClub(key.split("~")[0])>=0?"Use the existing club squad to negotiate this transfer":!registration.permitted()?registration.explanation:marketHires.contains(key)?"Player already recruited":marketHires.size()>=WorldMarket.MAX_HIRES?"Recruitment capacity reached":currentTransferBudget<c.fee?"Insufficient transfer budget":totalPlayerWagesK()+totalStaffWagesK()+c.wage>wageBudgetK?"Insufficient wage budget":null;
         if(issue!=null){Toast.makeText(this,issue,Toast.LENGTH_LONG).show();return -1;}
         marketHires.add(key);Player p=appendMarketPlayer(c);currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
-        scoutKnowledge[p.id]=4;addNews("TRANSFER",c.name+" signs",(c.free?"Free agent":"Worldwide transfer")+" • €"+c.wage+"k/week • 3 years");saveCurrentGame();return p.id;
+        scoutKnowledge[p.id]=4;addNews("TRANSFER",c.name+" signs",(c.free?"Free agent":"Worldwide transfer")+" • €"+c.wage+"k/week • 3 years"+(registration.requiresApproval()?" • career exemption approved":""));saveCurrentGame();return p.id;
     }
+    private PlayerRegistration.Decision marketRegistration(WorldMarket.Candidate candidate){return PlayerRegistration.decide(division==null?"PT":division.country,division==null?1:division.tier,careerSeasonStart.getYear(),currentDate,candidate.free,candidate.free?WorldMarket.FREE_AGENT_CONTRACT_END:null,false);}
     private Player appendMarketPlayer(WorldMarket.Candidate c) {
         int old=players.size();Player p=new Player(old,Math.max(0,selectedClub));
         p.name=c.name;p.position=c.position;p.age=c.age;p.overall=c.overall;
@@ -7309,15 +7314,16 @@ public class MainActivity extends Activity {
         }
     }
     private void showProfessionalVacancies(int[] levels) {
-        backAction=this::showSeasonReview;LinearLayout page=createPage("Choose your next club","Your club has left the playable professional divisions",true);
-        page.addView(makeText(clubNames[selectedClub]+" has been relegated to Liga 3. Its squad, results and career history remain in your world. Continue your managerial career at another professional club.",14,muted));
-        for(int tier=1;tier<=2;tier++){page.addView(profileSectionTitle(division.nameFor(tier)));for(int c=0;c<clubNames.length;c++)if(division.association(c).equals("PT")&&levels[c]==tier){final int club=c;page.addView(makeButton("Manage "+clubNames[c],v->{nextManagerClub=club;continueDivisionSeason();}));}}
+        backAction=this::showSeasonReview;LinearLayout page=createPage("Choose your next club","Your club has left the playable divisions",true);
+        page.addView(makeText(clubNames[selectedClub]+" will compete below the two playable divisions. Its squad, results and career history remain in your world. Continue your career at another club.",14,muted));
+        for(int tier=1;tier<=2;tier++){page.addView(profileSectionTitle(division.nameFor(tier)));for(int c=0;c<clubNames.length;c++)if(division.association(c).equals(division.country)&&levels[c]==tier){final int club=c;page.addView(makeButton("Manage "+clubNames[c],v->{nextManagerClub=club;continueDivisionSeason();}));}}
     }
     private void continueDivisionSeason() {
         if(division==null||matchday<seasonRounds()||!unreadablePromotion.isEmpty())return;
         if(!cupsComplete()){if(nextCupDate()==null)showSeasonReview();else advanceLeagueCup();return;}
         if(portugueseThird!=null){if(!lowerLeaguesComplete()){LocalDate lowerFinal=portugueseFourth.active().finalDate();advanceCareerDate(lowerFinal.isBefore(currentDate)?currentDate:lowerFinal);}finalizeSeasonIfReady();if(!prepareLowerPromotion()){showSeasonReview();return;}if(!lowerPromotion.complete()){advanceLowerPromotion(false);if(!lowerPromotion.complete())return;}}
         CareerDivision previousDivision=division,nextDivision=division;int previousClub=selectedClub,nextClub=selectedClub;
+        ReserveTierOutcome reserveOutcome=null;
         PortuguesePyramidOutcome pyramid=null;
         try {
             if(promotion!=null&&!promotion.complete())return;
@@ -7327,12 +7333,14 @@ public class MainActivity extends Activity {
                 if(pyramid.levels[selectedClub]>2){if(nextManagerClub<0){showProfessionalVacancies(pyramid.levels);return;}nextClub=nextManagerClub;}
                 nextDivision=division.withLocalLevels(pyramid.levels,nextClub);
             } else if(promotion!=null) {
-                if(ReserveEligibility.parentRelegationConflict(division.clubIds,division.reserves,promotion.relegated())) {
-                    new BossDialog.Builder(this).setTitle("Reserve-team relegation required").setMessage("A relegated parent club cannot share its division with its reserve team. The completed season has been kept until ranked lower-tier replacements are available.").setPositiveButton("Back",(dialog,which)->showSeasonReview()).show();return;
-                }
-                nextDivision=division.moveBetweenTiers(promotion.promoted(),promotion.relegated(),selectedClub);
+                if(ReserveEligibility.parentRelegationConflict(division.clubIds,division.reserves,promotion.relegated())&&division.expandedWorld()) {
+                    int[] levels=new int[clubNames.length];for(int c=0;c<levels.length;c++)levels[c]=division.level(c);
+                    reserveOutcome=new ReserveTierOutcome(division.country,division.clubIds,levels,division.reserves,strength,promotion.promoted(),promotion.relegated(),random.nextLong());
+                    if(reserveOutcome.levels[selectedClub]>2){if(nextManagerClub<0){showProfessionalVacancies(reserveOutcome.levels);return;}nextClub=nextManagerClub;}
+                    nextDivision=division.withLocalLevels(reserveOutcome.levels,nextClub);
+                } else nextDivision=division.moveBetweenTiers(promotion.promoted(),promotion.relegated(),selectedClub);
             }
-        } catch(IllegalArgumentException|IllegalStateException invalid){new BossDialog.Builder(this).setTitle("Season transition needs attention").setMessage(invalid.getMessage()).setPositiveButton("Back",null).show();return;}
+        } catch(IllegalArgumentException|IllegalStateException invalid){android.util.Log.e("BOSSXI_SEASON","Season transition failed",invalid);new BossDialog.Builder(this).setTitle("Season transition needs attention").setMessage(invalid.getMessage()).setPositiveButton("Back",null).show();return;}
         DomesticCup nextDomestic=domesticCup;DomesticCupHistory nextCupHistory=domesticCupHistory;NationalCupCampaign nextNational=nationalCups;EuropeanCampaign nextEurope=europeanCampaign;
         ScottishLeagueCupSeasons nextScottish=scottishLeagueCup;PortugueseLeagueCupSeasons nextModern=modernPortugueseCup;
         PortugueseThirdDivisionSeasons nextThird=portugueseThird;PortugueseFourthDivisionSeasons nextFourth=portugueseFourth;PortugueseDistrictSeasons nextDistrict=portugueseDistrict;
@@ -7353,11 +7361,12 @@ public class MainActivity extends Activity {
             if(portugueseThird!=null){nextThird=portugueseThird.next(PortugueseLowerCatalog.create(nextDivision,nextYear,random.nextLong()));nextFourth=portugueseFourth.next(new PortugueseFourthDivisionSeason(nextYear,random.nextLong(),clubNames.length,PortugueseLowerCatalog.groups(nextDivision,4,4,nextYear)));nextDistrict=portugueseDistrict.next(PortugueseLowerCatalog.createDistrict(nextDivision,nextYear,random.nextLong()));}
             if(admissions!=null)nextEurope=europeanCampaign.next(admissions,random.nextLong(),domesticCalendar(nextYear,nextDomestic,nextNational,nextScottish,nextModern));
             nextHistory=seasonHistory.append(new SeasonHistory.Entry(careerSeasonStart.toString(),previousDivision.clubIds[previousClub],clubNames[previousClub],previousDivision.name,previousDivision.tier,pyramid==null?nextDivision.tier:pyramid.levels[previousClub],played[previousClub],won[previousClub],drawn[previousClub],lost[previousClub],goalsFor[previousClub],goalsAgainst[previousClub],points[previousClub]));
-        }catch(IllegalArgumentException|IllegalStateException invalid){new BossDialog.Builder(this).setTitle("Season could not be archived").setMessage("The completed season has been kept unchanged. "+invalid.getMessage()).setPositiveButton("Back",null).show();return;}
+        }catch(IllegalArgumentException|IllegalStateException invalid){android.util.Log.e("BOSSXI_SEASON","Season archive failed",invalid);new BossDialog.Builder(this).setTitle("Season could not be archived").setMessage("The completed season has been kept unchanged. "+invalid.getMessage()).setPositiveButton("Back",null).show();return;}
         division=nextDivision;selectedClub=nextClub;seasonHistory=nextHistory;domesticCup=nextDomestic;domesticCupHistory=nextCupHistory;nationalCups=nextNational;scottishLeagueCup=nextScottish;modernPortugueseCup=nextModern;portugueseThird=nextThird;portugueseFourth=nextFourth;portugueseDistrict=nextDistrict;europeanCampaign=nextEurope;
         if(selectedClub!=previousClub){int reputation=managerReputation;currentTransferBudget=budgets[selectedClub];initialiseClassicCareerSystems();managerReputation=reputation;initialiseTacticsForClub();resetFinanceStadiumState();}
         if(catalog!=null)for(int i=0;i<catalog.divisions.size();i++)if(catalog.divisions.get(i).id.equals(division.id))managerLeagueIndex=i+1;
         addNews("SEASON",selectedClub!=previousClub?"New club appointment":previousDivision.tier==division.tier?"Next season confirmed":division.tier==1?"Promotion secured":"Club relegated",clubNames[selectedClub]+" will compete in "+division.name+" next season. World club identities, squads and contracts have been retained.");
+        if(reserveOutcome!=null)for(String ruling:reserveOutcome.rulings){for(int c=0;c<clubNames.length;c++)ruling=ruling.replace(division.clubIds[c],clubNames[c]);addNews("COMPETITION","Reserve-team membership ruling",ruling);}
         if(pyramid!=null)for(String ruling:pyramid.rulings){Integer[] clubs=new Integer[clubNames.length];for(int c=0;c<clubs.length;c++)clubs[c]=c;java.util.Arrays.sort(clubs,(a,b)->Integer.compare(division.clubIds[b].length(),division.clubIds[a].length()));for(int c:clubs)ruling=ruling.replace(division.clubIds[c],clubNames[c]);addNews("COMPETITION","Portuguese pyramid ruling",ruling);}
         promotion=null;lowerPromotion=null;nextManagerClub=-1;unreadablePromotion="";scottishSplitProvisional=false;
         dutchEuropeanPlayoff=null;liveDutchEuropean=false;
