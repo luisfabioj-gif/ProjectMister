@@ -101,6 +101,10 @@ public final class BackupRestore {
                     for(int i:p.upperEntrants())if(i>=size||division.clubTiers[i]!=1)throw new IllegalArgumentException("Invalid upper entrant");
                 }
                 String teams=(String)data.getOrDefault(prefix+"p_team","");
+                String discipline=(String)data.getOrDefault(prefix+"match_discipline","");
+                int disciplineVersion=(Integer)data.getOrDefault(prefix+"discipline_version",0);
+                if(disciplineVersion<0||disciplineVersion>1||disciplineVersion==1&&discipline.isEmpty())throw new IllegalArgumentException("Missing or unsupported player discipline");
+                if(!discipline.isEmpty())MatchDiscipline.restore(discipline).validate(LocalDate.parse((String)data.getOrDefault(prefix+"season_start","2026-08-09")).getYear(),teams.isEmpty()?size*20+WorldMarket.restore((String)data.getOrDefault(prefix+"market_hires","")).size():teams.split(",",-1).length,LocalDate.parse((String)data.get(prefix+"date")));
                 if(!teams.isEmpty())for(String team:teams.split(",",-1)){int i=Integer.parseInt(team);if(i<0||i>=size)throw new IllegalArgumentException("Invalid player club");}
             }
             if(!career)throw new IllegalArgumentException("No saved careers in this backup");

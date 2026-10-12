@@ -29,6 +29,7 @@ final class SubstitutionLedger {
         current.remove(off); current.add(on); return true;
     }
     boolean isReturn(int on) { return baseline.contains(on) && !current.contains(on); }
+    void dismiss(int id) { baseline.remove(id);current.remove(id);departed.add(id); }
     boolean hasDeparted(int id) { return departed.contains(id); }
     void commit() {
         int net = used();

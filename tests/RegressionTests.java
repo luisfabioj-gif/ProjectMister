@@ -20,6 +20,10 @@ public final class RegressionTests {
         s.reset(Arrays.asList(1,2,3)); s.change(1,4); s.commit();
         check(s.change(4,5) && s.used()==2, "substitute can be substituted in later stoppage");
         check(!s.canChange(2,1), "departed player cannot return via different pair");
+        s.reset(Arrays.asList(1,2,3));s.dismiss(2);
+        check(s.used()==0&&!s.canChange(1,2),"sending-off consumes no substitution and cannot be reversed");
+        check(s.change(1,4)&&s.used()==1,"normal substitution still works with one player dismissed");
+        s.commit();s.dismiss(4);check(s.used()==1&&!s.canChange(3,4),"dismissed replacement retains used substitution and cannot return");
         check(MatchMath.mobility(90,100)>MatchMath.mobility(45,100), "pace matters");
         check(MatchMath.mobility(80,95)>MatchMath.mobility(80,55), "fitness matters");
         check(MatchMath.playbackRate(0)<MatchMath.playbackRate(1)&&MatchMath.playbackRate(1)<MatchMath.playbackRate(2),"three ordered playback rates");

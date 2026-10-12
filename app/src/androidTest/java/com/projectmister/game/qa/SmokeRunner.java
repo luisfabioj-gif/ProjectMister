@@ -476,6 +476,60 @@ public final class SmokeRunner extends Instrumentation {
         ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"original career restored after "+country+" cups");});
         check(true,country+" recurring cups watched and quick matches two seasons reloads history and backup rejection verified");
     }
+    private void verifyCupPlayers()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
+        final int[] dismissed={-1};final boolean[] sawBan={false};
+        for(int scenario=0;scenario<2;scenario++) {
+            final boolean transfer=scenario==0;
+            ui(()->{
+                Object data=null;for(Object d:(List<?>)get("catalog").getClass().getField("divisions").get(get("catalog")))if(d.getClass().getField("id").get(d).equals("de:1"))data=d;
+                Object world=call("newCountryCareer",new Class[]{data.getClass()},data);call("configureDivision",new Class[]{gameClass("CareerDivision")},world);set("selectedSlot",2);set("selectedClub",0);((Random)get("random")).setSeed(24117);
+                call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);set("europeanCampaign",null);call("generatePlayers",new Class[0]);call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);call("saveCurrentGame",new Class[0]);
+            });
+            dismissed[0]=-1;sawBan[0]=false;final boolean[] complete={false};
+            for(int step=0;step<120&&!complete[0];step++)ui(()->{
+                for(Object p:(List<?>)get("players")){Field injury=p.getClass().getDeclaredField("injuredWeeks");injury.setAccessible(true);injury.setInt(p,0);}
+                call("initialiseTacticsForClub",new Class[0]);
+                if(dismissed[0]>=0&&(Boolean)call("cupDue",new Class[0])&&(Boolean)call("nextCupIsNational",new Class[0])) {
+                    Object tie=call("nextCupTie",new Class[0]);int h=(Integer)tie.getClass().getMethod("home").invoke(tie),a=(Integer)tie.getClass().getMethod("away").invoke(tie);
+                    if(h==0||a==0) {
+                        int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");int slot=-1;
+                        for(Object p:(List<?>)get("players"))if(playerInt(p,"team")==0&&roles[playerInt(p,"id")]==2){int id=playerInt(p,"id");slot=slots[id];roles[id]=0;slots[id]=-1;break;}
+                        roles[dismissed[0]]=2;slots[dismissed[0]]=slot;
+                        call("startLiveMatchday",new Class[0]);check(!(Boolean)get("matchInProgress"),"Actual cup blocks suspended selected starter");sawBan[0]=true;
+                        call("initialiseTacticsForClub",new Class[0]);check(((int[])get("playerRoleStatus"))[dismissed[0]]!=2,"Assistant selects eligible replacement");
+                    }
+                }
+                call("startLiveMatchday",new Class[0]);if(!(Boolean)get("matchInProgress"))return;set("livePaused",true);
+                boolean cup=(Boolean)get("liveNationalCup");
+                if(cup&&dismissed[0]<0) {
+                    List<?> xi=(List<?>)get("liveXIIds");dismissed[0]=(Integer)xi.get(2);Object player=call("findPlayer",new Class[]{int.class},dismissed[0]);
+                    call("recordLiveYellow",new Class[]{player.getClass()},player);call("recordLiveYellow",new Class[]{player.getClass()},player);
+                    check(((Set<?>)get("matchDismissals")).contains(dismissed[0]),"Actual second yellow dismisses player");check(!((List<?>)get("liveHomeLineupIds")).contains(dismissed[0])&&!((List<?>)get("liveAwayLineupIds")).contains(dismissed[0]),"Dismissed player leaves pitch without repacking other slots");
+                    check((Integer)get("liveSubsUsed")==0,"Sending-off consumes no substitution");
+                } else if(cup&&dismissed[0]>=0) {
+                    check(!((Set<?>)get("matchParticipants")).contains(dismissed[0]),"Suspended player is absent from actual cup appearances");complete[0]=true;
+                }
+                set("liveHomeGoals",(Integer)get("liveHome")==0?4:0);set("liveAwayGoals",(Integer)get("liveAway")==0?4:0);call("finishLiveMatch",new Class[0]);
+                if(cup) {
+                    String saved=(String)get("matchDiscipline").getClass().getMethod("snapshot").invoke(get("matchDiscipline"));check((Boolean)call("loadSave",new Class[]{int.class},2),"Player disciplinary career reloads");check(saved.equals(get("matchDiscipline").getClass().getMethod("snapshot").invoke(get("matchDiscipline"))),"Player disciplinary state is exact after reload");checkBackupReadable();
+                    if(transfer&&!complete[0]) {
+                        set("selectedClub",1);set("currentTransferBudget",1000);set("wageBudgetK",1000000);Object player=call("findPlayer",new Class[]{int.class},dismissed[0]);Field ambition=player.getClass().getDeclaredField("ambition");ambition.setAccessible(true);ambition.setInt(player,10);((Random)get("random")).setSeed(1);
+                        call("resolveContractOffer",new Class[]{player.getClass(),int.class,int.class,int.class,int.class,String.class},player,1,0,playerInt(player,"weeklyWageK")*10,3,"Star Player");check(playerInt(player,"team")==1,"Actual contract transfer changes club with stable player identity");check((Boolean)call("loadSave",new Class[]{int.class},2),"Transfer with pending cup ban reloads");
+                        call("showPlayerProfile",new Class[]{int.class,int.class},dismissed[0],1);StringBuilder screen=new StringBuilder();collectScreenText(activity.getWindow().getDecorView(),screen);check(screen.toString().contains("suspended"),"Transferred player profile explains retained ban");checkBackupReadable();complete[0]=true;
+                    }
+                }
+            });
+            check(complete[0]&&(transfer||sawBan[0]),"Actual cup player scenario completes");capture(transfer?"cup-player-transfer-ban":"cup-player-ban-served");
+            ui(()->{
+                if(!transfer){List<?> descriptions=(List<?>)get("matchDiscipline").getClass().getMethod("playerSummary",int.class).invoke(get("matchDiscipline"),dismissed[0]);check(descriptions.stream().noneMatch(x->x.toString().contains("suspended")),"Eligible cup fixture serves pending ban exactly once");}
+                Map<String,?> previous=new HashMap<>(prefs.getAll());Map<String,Object> broken=new HashMap<>(previous);broken.remove("save_2_match_discipline");boolean rejected=false;
+                try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,backupBytes(broken));}catch(InvocationTargetException expected){rejected=expected.getCause() instanceof IOException;}check(rejected&&prefs.getAll().equals(previous),"Missing disciplinary state rejected without replacing any career");
+                gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"Original career restored after cup-player scenario");
+            });
+        }
+        check(true,"actual cup dismissal, eligible lineup, ban service, transfer persistence and atomic backup rejection verified");
+    }
     private void completeProfessionalPostseason(String country)throws Exception {
         check((Boolean)call("preparePromotion",new Class[0]),country+" final standings resolve required promotion field");
         String ledger=(String)get("leagueResults").getClass().getMethod("snapshot").invoke(get("leagueResults"));
@@ -1145,6 +1199,8 @@ public final class SmokeRunner extends Instrumentation {
                 verifyExpandedCups(args.getString("country","ENG"));
             } else if(mode.equals("rules")) {
                 verifyRules();
+            } else if(mode.equals("cup-players")) {
+                verifyCupPlayers();
             } else if(mode.equals("divisions")) {
                 verifyDivisionCareers();
                 verifyBackups();

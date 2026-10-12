@@ -7,6 +7,8 @@ javac -d "$out" app/src/main/java/com/projectmister/game/{CareerLimits,SeasonCup
 javac -cp "$out" -d "$out" tests/CompetitionCalendarTests.java tests/PostseasonCalendarTests.java
 java -cp "$out" com.projectmister.game.CompetitionCalendarTests
 java -cp "$out" com.projectmister.game.PostseasonCalendarTests
+javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/MatchDiscipline.java tests/MatchDisciplineTests.java
+java -cp "$out" com.projectmister.game.MatchDisciplineTests
 javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{EuropeanDraw,EuropeanCalendar,EuropeanCampaign,EuropeanPerformance,EuropeanDomesticSeason,EuropeanAdmissions,EuropeanQualifying,DutchEuropeanPlayoff}.java tests/EuropeanDrawTests.java tests/EuropeanCampaignTests.java tests/DutchEuropeanPlayoffTests.java
 java -cp "$out" com.projectmister.game.DutchEuropeanPlayoffTests
 java -cp "$out" com.projectmister.game.EuropeanDrawTests

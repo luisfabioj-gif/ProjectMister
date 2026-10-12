@@ -1,8 +1,13 @@
-# Player cup restrictions — research checkpoint, 12 October 2026
+# Player cup restrictions — implementation checkpoint, 12 October 2026
 
-These are verified implementation inputs. They do not claim that player cup
-eligibility or suspension enforcement is finished. The national-rules milestone
-remains pending even after final league decisions pass Android QA.
+The new player disciplinary ledger is connected to actual watched and background
+fixtures, stable player identities, automatic team selection, substitutions,
+transfers, profiles, annual saves and atomic backup validation. Ninety-two host
+checks and app/QA compilation pass. The added Android cup-player scenario still
+needs to pass; the national-rules milestone remains pending. Competition player
+participation limits, match-sheet restrictions and UEFA registration lists are
+separate unfinished integration work. Earlier cards are not fabricated when an
+existing career is upgraded.
 
 ## Verified current inputs
 
@@ -13,11 +18,15 @@ remains pending even after final league decisions pass Android QA.
 | DFB-Pokal | Fifth caution suspends for the next cup match. A sending-off suspension carries to the next edition | DFB official competition format, section 7 |
 | Copa del Rey | Third caution suspends. Reset caution cycles after quarter-finals; do not erase an already incurred suspension | RFEF March 2026 disciplinary code, article 119 |
 | KNVB Cup, professional players | Second caution suspends; third does not; fourth and every further caution suspend. Counts and suspensions belong to the cup category | KNVB paid-football regulations, July 2026, article 31 |
-| Coppa Italia, published 2025 code | Each two cautions incur one cup match of suspension; cup penalties are separate from ordinary league penalties. Confirm against the latest revision before treating this as 2026/27 enforcement | FIGC sporting-justice code, article 19 |
+| Coppa Italia | Each two cautions incur one cup match of suspension; cup penalties are separate from ordinary league penalties and pending bans follow a transfer / next edition | FIGC sporting-justice code, article 19/21, latest version linked by FIGC checked 12 October: 22 December 2025 |
 | Portugal, professional league yellow-card accumulation | Fifth, ninth, twelfth, fourteenth and each next even caution incur a league match of suspension. Taça de Portugal / Taça da Liga cautions do **not** enter this league count | Liga Portugal July 2026 disciplinary regulations, articles 164–165 |
 | FA Cup | Up to two clubs in an edition; only one club in any round. Unused substitutes do not count as having played. Match registration deadlines still apply | FA Cup 2026/27 rules 95–103 |
 | Carabao Cup | Winter movers may play for the new club in the final; may not represent different clubs in the two semi-final legs. Loans are allowed unless the parent explicitly refuses | EFL official 6 August 2026 rule-change notice; full current cup document still to be read |
 | Coupe de France | In the competition proper, the match sheet needs at least seven players who appeared in one of the first team's last two official matches, except during the stated FIFA senior international period. Match sheets allow 16 / 18 / 20 players depending on round | FFF Coupe de France 2026/27, article 7.3 |
+| French professional first teams | Five cautions across league / Coupe de France / Trophée des Champions incur a ban. A firm commission sanction clears cautions up to the decision; subsequent cautions remain. Yellow bans begin the following Tuesday | LFP disciplinary rules 2026/27, articles 11/12/14; the career projects weekly Wednesday commission dates |
+| Belgian Cup | Two cautions through round four; **three** from round five. Before round five, clear earlier cautions and pending yellow bans. An unserved cup yellow / double-yellow ban does not carry into the next season | Current RBFA Book B, articles B11.184/188/193 |
+| Scottish Cup / League Cup | Each two cautions suspend. Scottish Cup resets before rounds one and four; League Cup resets before round two. Accumulation ceases before semi-finals; an already incurred ban remains. Repeated sending-off offences add a match per previous offence in that cup | Scottish FA JPP 2026/27, annex C, sections 2/3 |
+| FA Cup / Carabao Cup | Current FA Cup competition-proper caution threshold is **two**, regardless of entry at first or third round, with further bans every two. Carabao thresholds two and four. Both stop accumulating after quarter-finals. Domestic sending-off recurrence adds a match per earlier offence | FA Handbook 2026/27, on-field regulations 24–34 and tables 1/2 |
 
 The old three-caution UEFA league-phase rule is superseded in the retrieved
 2026/27 regulations. Do not implement it from an older explainer. Qualification
@@ -39,10 +48,18 @@ unused benches, and watched fixtures must use the players who really appeared.
 - https://media.fff.fr/uploads/documents/reglement-coupe-de-france-credit-agricole-2026-2027.pdf
 - https://assets.ctfassets.net/qu0slcxvbwp6/4TZlz8yWaTibtBRSUk8Ai0/48f87db2a4679b5ad04a0039fe8683a5/Men-s_Scottish_Cup_Rules_2026-27.pdf
 - https://www.tff.org/Resources/TFF/Auto/dd8f8b54192c42de80c71cd95068f530.pdf
+- https://assets.ctfassets.net/qu0slcxvbwp6/4noZMOOZQZFerq3dDvCLzx/5e1f7f86c9c860d6d283eac5aad90dc1/JPP_2026-27.pdf
+- https://belgianfootball.s3.eu-central-1.amazonaws.com/s3fs-public/rbfa/docs/pdf/reglement/bondsreglement_reglement_federal/KBVB_bondsreglement_Boek_B.pdf
+- https://www.lfp.fr/assets/26_27_Reglement_Disciplinaire_25_06_2026_1decd7a4a3.pdf
+- https://www.thefa.com/-/media/files/thefaportal/governance-docs/rules-of-the-association/2026-27/the-fa-handbook-2026-27.ashx
+- https://www.figc.it/it/federazione/norme/codice-di-giustizia-sportiva
 
-Still to finish verifying: the latest FIGC and French professional disciplinary revisions,
-Belgian cup penalties, current Scottish Judicial Panel rules, current Turkish
-article 93 and the complete 2026/27 Carabao Cup eligibility text. Older summaries
-do not establish their current rule versions. Special administrative hearings,
+Still to finish: the complete 2026/27 Carabao Cup eligibility text and integration
+of actual participation / registration histories. Turkish article 93 was checked
+against the current TFF PDF: four cautions per category; a sending-off removes
+that match's cautions from accumulation; yellow cards and pending yellow bans
+expire at season end. Spanish article 119.4 exempts the caution that would complete
+a cycle in the club's final game in that competition; add this result-dependent
+exception before national-rules sign-off. Special administrative hearings,
 medical exceptions and sanctions for incidents the game cannot generate should
 remain explicitly outside the ordinary simulated match model.
