@@ -346,7 +346,7 @@ public final class SmokeRunner extends Instrumentation {
             call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
             String[] clubs=(String[])get("clubNames");int local=0;for(String id:(String[])world.getClass().getField("clubIds").get(world))if(id.startsWith("de:"))local++;
             check(local==64&&((List<?>)get("players")).size()==clubs.length*20,"German career includes all 64 cup clubs, foreign clubs and their players");
-            set("europeanCampaign",null);set("fixtureVersion",4); // This gate isolates the recurring domestic cups; the UEFA gate checks the combined career.
+            set("europeanCampaign",null); // Isolate domestic cups while retaining the new career's saved calendar and league decisions.
             check(get("nationalCups")!=null&&get("domesticCup")==null&&get("leagueCup")==null,"German career initializes its own cup");
             age[0]=playerInt(((List<?>)get("players")).get(0),"age");call("saveCurrentGame",new Class[0]);checkBackupReadable();
             call("showCalendarTab",new Class[]{String.class},"Cup");
@@ -393,8 +393,11 @@ public final class SmokeRunner extends Instrumentation {
                 Object seasons=get("nationalCups"),cup=seasons.getClass().getMethod("active").invoke(seasons);
                 check((Integer)cup.getClass().getMethod("drawnCount").invoke(cup)==63&&(Integer)cup.getClass().getMethod("winner").invoke(cup)==0,"German cup resolves all 63 ties and keeps managed champion");
                 check(playerInt(((List<?>)get("players")).get(0),"age")==age[0]+year-2025,"German season ages players exactly once");
-                check((Integer)get("postseasonWeeksProcessed")>0,"German postseason wages and recovery run through final");
-                String saved=(String)cup.getClass().getMethod("snapshot").invoke(cup);call("continueDivisionSeason",new Class[0]);
+                check((Integer)get("careerWeeksProcessed")>0,"German calendar-week wages and recovery run through final");
+                String saved=(String)cup.getClass().getMethod("snapshot").invoke(cup);completeProfessionalPostseason("DE");
+                check(saved.equals(get("nationalCups").getClass().getMethod("active").invoke(get("nationalCups")).getClass().getMethod("snapshot").invoke(get("nationalCups").getClass().getMethod("active").invoke(get("nationalCups")))),"German completed cup remains exact through promotion playoffs");
+                call("continueDivisionSeason",new Class[0]);
+                check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==year+1,"German season rolls forward after all sporting outcomes");
                 Object next=get("nationalCups"),active=next.getClass().getMethod("active").invoke(next);List<?> archives=(List<?>)next.getClass().getMethod("archives").invoke(next);
                 check(archives.size()==year-2025&&archives.get(archives.size()-1).equals(saved),"German completed edition archived without changes");
                 check((Integer)active.getClass().getField("season").get(active)==year+1&&!(Boolean)active.getClass().getMethod("complete").invoke(active),"German rollover creates fresh playable draw");
@@ -429,7 +432,7 @@ public final class SmokeRunner extends Instrumentation {
             String[] ids=(String[])world.getClass().getField("clubIds").get(world);boolean foreign=false;for(String id:ids)if(!id.startsWith(country.toLowerCase(Locale.ROOT)+":"))foreign=true;
             check(foreign&&ids.length>100&&((List<?>)get("players")).size()==ids.length*20,country+" expanded world has real foreign and lower cup squads");
             check(get("nationalCups")!=null,country+" national cup initialized");check((get("scottishLeagueCup")!=null)==country.equals("SCO"),country+" correct Scottish League Cup initialization");
-            set("europeanCampaign",null);set("fixtureVersion",4);
+            set("europeanCampaign",null);
             age[0]=playerInt(((List<?>)get("players")).get(0),"age");call("saveCurrentGame",new Class[0]);checkBackupReadable();call("showCalendarTab",new Class[]{String.class},"Cup");
         });capture("cup-"+country+"-opening");
         for(int edition=0;edition<2;edition++) {
@@ -457,7 +460,7 @@ public final class SmokeRunner extends Instrumentation {
                 Object campaign=get("nationalCups");List<?> competitions=(List<?>)campaign.getClass().getMethod("competitions").invoke(campaign);Map<String,String> completed=new HashMap<>();
                 for(Object seasons:competitions){Object cup=seasons.getClass().getMethod("active").invoke(seasons);check((Boolean)cup.getClass().getMethod("complete").invoke(cup),country+" national edition finished");completed.put((String)cup.getClass().getField("competition").get(cup),(String)cup.getClass().getMethod("snapshot").invoke(cup));}
                 String scottish="";if(get("scottishLeagueCup")!=null){Object cup=get("scottishLeagueCup").getClass().getMethod("active").invoke(get("scottishLeagueCup"));check((Boolean)cup.getClass().getMethod("complete").invoke(cup),"Scottish groups and knockout finished");scottish=(String)cup.getClass().getMethod("snapshot").invoke(cup);}
-                call("continueDivisionSeason",new Class[0]);check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==year+1,country+" season rolls forward");
+                completeProfessionalPostseason(country);call("continueDivisionSeason",new Class[0]);check(((java.time.LocalDate)get("careerSeasonStart")).getYear()==year+1,country+" season rolls forward");
                 Object next=get("nationalCups");List<?> histories=(List<?>)next.getClass().getMethod("competitions").invoke(next);
                 for(Object seasons:histories){Object active=seasons.getClass().getMethod("active").invoke(seasons);List<?> archives=(List<?>)seasons.getClass().getMethod("archives").invoke(seasons);check(archives.size()==year-2025&&archives.get(archives.size()-1).equals(completed.get(active.getClass().getField("competition").get(active))),country+" cup archive remains exact");check(!(Boolean)active.getClass().getMethod("complete").invoke(active),country+" next cup draw playable");}
                 if(!scottish.isEmpty()){Object nextScottish=get("scottishLeagueCup");List<?> archives=(List<?>)nextScottish.getClass().getMethod("archives").invoke(nextScottish);check(archives.size()==year-2025&&archives.get(archives.size()-1).equals(scottish),"Scottish League Cup exact archive");}
@@ -472,6 +475,20 @@ public final class SmokeRunner extends Instrumentation {
         });if(country.equals("SCO"))capture("cup-SCO-league-groups");
         ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"original career restored after "+country+" cups");});
         check(true,country+" recurring cups watched and quick matches two seasons reloads history and backup rejection verified");
+    }
+    private void completeProfessionalPostseason(String country)throws Exception {
+        check((Boolean)call("preparePromotion",new Class[0]),country+" final standings resolve required promotion field");
+        String ledger=(String)get("leagueResults").getClass().getMethod("snapshot").invoke(get("leagueResults"));
+        for(int leg=0;leg<32&&!(Boolean)get("promotion").getClass().getMethod("complete").invoke(get("promotion"));leg++) {
+            java.time.LocalDate before=(java.time.LocalDate)get("currentDate");call("simulatePromotionLeg",new Class[0]);
+            check(!((java.time.LocalDate)get("currentDate")).isBefore(before),country+" isolated domestic promotion calendar never rewinds");
+            call("saveCurrentGame",new Class[0]);String saved=(String)get("promotion").getClass().getMethod("snapshot").invoke(get("promotion"));
+            String dates=(String)get("promotionDates").getClass().getMethod("snapshot").invoke(get("promotionDates"));
+            check((Boolean)call("loadSave",new Class[]{int.class},(Integer)get("selectedSlot")),country+" domestic promotion result reloads");
+            check(saved.equals(get("promotion").getClass().getMethod("snapshot").invoke(get("promotion")))&&dates.equals(get("promotionDates").getClass().getMethod("snapshot").invoke(get("promotionDates"))),country+" domestic promotion result and dates retained exactly");checkBackupReadable();
+        }
+        check((Boolean)get("promotion").getClass().getMethod("complete").invoke(get("promotion")),country+" promotion completes before annual cup archive");
+        check(ledger.equals(get("leagueResults").getClass().getMethod("snapshot").invoke(get("leagueResults"))),country+" promotion preserves regular league ledger");
     }
     private void completePortuguesePostseason()throws Exception {
         check((Boolean)call("preparePromotion",new Class[0]),"Portuguese upper promotion field resolved");Object upper=get("promotion");while(!(Boolean)upper.getClass().getMethod("complete").invoke(upper))call("simulatePromotionLeg",new Class[0]);
