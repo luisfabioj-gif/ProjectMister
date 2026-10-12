@@ -475,8 +475,14 @@ public final class SmokeRunner extends Instrumentation {
     }
     private void completePortuguesePostseason()throws Exception {
         check((Boolean)call("preparePromotion",new Class[0]),"Portuguese upper promotion field resolved");Object upper=get("promotion");while(!(Boolean)upper.getClass().getMethod("complete").invoke(upper))call("simulatePromotionLeg",new Class[0]);
-        call("advanceCareerDate",new Class[]{java.time.LocalDate.class},java.time.LocalDate.of(((java.time.LocalDate)get("careerSeasonStart")).getYear()+1,6,20));
+        Object fourth=get("portugueseFourth"),activeFourth=fourth.getClass().getMethod("active").invoke(fourth);
+        java.time.LocalDate lowerFinal=(java.time.LocalDate)activeFourth.getClass().getMethod("finalDate").invoke(activeFourth),current=(java.time.LocalDate)get("currentDate");
+        call("advanceCareerDate",new Class[]{java.time.LocalDate.class},lowerFinal.isBefore(current)?current:lowerFinal);
+        check((Boolean)call("lowerLeaguesComplete",new Class[0]),"Portuguese lower qualification results complete before barrage");
+        java.time.LocalDate before=(java.time.LocalDate)get("currentDate");
         check((Boolean)call("prepareLowerPromotion",new Class[0]),"Liga 3 merit and Liga 2 bottom places determine barrage");call("advanceLowerPromotion",new Class[]{boolean.class},false);check(!(Boolean)get("matchInProgress"),"managed club has no outstanding lower barrage");Object lower=get("lowerPromotion");check((Boolean)lower.getClass().getMethod("complete").invoke(lower),"saved Liga 2 / Liga 3 barrage completed");
+        check(!((java.time.LocalDate)get("currentDate")).isBefore(before),"Portuguese lower barrage never rewinds the promotion calendar");
+        if((Integer)get("fixtureVersion")>=6){Object dates=get("lowerPromotionDates");check(dates!=null&&((List<?>)dates.getClass().getMethod("fixtures").invoke(dates)).size()==2,"Both lower barrage legs have saved dates");String saved=(String)dates.getClass().getMethod("snapshot").invoke(dates);call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},(Integer)get("selectedSlot")),"Dated Portuguese lower barrage reloads");check(saved.equals(get("lowerPromotionDates").getClass().getMethod("snapshot").invoke(get("lowerPromotionDates"))),"Exact Portuguese lower barrage dates retained");checkBackupReadable();}
     }
     private void verifyDomesticCupSeason()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
