@@ -2,8 +2,11 @@
 
 The new player disciplinary ledger is connected to actual watched and background
 fixtures, stable player identities, automatic team selection, substitutions,
-transfers, profiles, annual saves and atomic backup validation. Ninety-two host
-checks and app/QA compilation pass. The added Android cup-player scenario still
+transfers, profiles, annual saves and atomic backup validation. One hundred host
+checks and app/QA compilation pass. Run 38296369629 exposed that the outer backup
+schema did not yet allow the two new discipline fields. The following checkpoint
+adds their strict string/integer types and verifies actual pending bans through
+typed backups in all three slots. The added Android cup-player scenario still
 needs to pass; the national-rules milestone remains pending. Competition player
 participation limits, match-sheet restrictions and UEFA registration lists are
 separate unfinished integration work. Earlier cards are not fabricated when an
@@ -59,7 +62,7 @@ of actual participation / registration histories. Turkish article 93 was checked
 against the current TFF PDF: four cautions per category; a sending-off removes
 that match's cautions from accumulation; yellow cards and pending yellow bans
 expire at season end. Spanish article 119.4 exempts the caution that would complete
-a cycle in the club's final game in that competition; add this result-dependent
-exception before national-rules sign-off. Special administrative hearings,
+a cycle in the club's final game in that competition; this result-dependent
+exception is connected to completed ties and covered by host tests. Special administrative hearings,
 medical exceptions and sanctions for incidents the game cannot generate should
 remain explicitly outside the ordinary simulated match model.
