@@ -6368,7 +6368,7 @@ public class MainActivity extends Activity {
     private boolean cupsComplete(){prepareLeagueDecisions();prepareDutchEuropeanPlayoff();return (leagueDecisions==null||leagueDecisions.complete())&&(division==null||!division.country.equals("NL")||europeanCampaign==null||dutchEuropeanPlayoff!=null&&dutchEuropeanPlayoff.complete())&&(europeanCampaign==null||europeanCampaign.complete())&&(leagueCup==null||leagueCup.complete())&&(domesticCup==null||domesticCup.complete())&&(nationalCups==null||nationalCups.complete())&&(scottishLeagueCup==null||scottishLeagueCup.active().complete())&&(modernPortugueseCup==null||modernPortugueseCup.active().complete());}
     private void finalizeSeasonIfReady(){if(matchday>=seasonRounds()&&cupsComplete()&&lowerLeaguesComplete()&&!seasonAgeApplied){processSeasonEnd();seasonAgeApplied=true;}}
     private void advanceCareerDate(LocalDate target) {
-        if(target==null||target.isBefore(currentDate))throw new IllegalStateException("Career event would move the date backwards");
+        if(target==null||target.isBefore(currentDate))throw new IllegalStateException("Career event would move the date backwards: current="+currentDate+", requested="+target);
         if(fixtureVersion>=6) {
             while(careerWeeksProcessed<80&&!careerSeasonStart.plusWeeks(careerWeeksProcessed+1L).isAfter(target)) {
                 currentDate=careerSeasonStart.plusWeeks(++careerWeeksProcessed);processFinanceEntries(false,true);advanceStadiumProject();applyTrainingSession();processInjuriesAndRecovery();processScoutingAssignments();

@@ -44,6 +44,14 @@ stored bounded league/postseason calendars and accounting by elapsed calendar
 weeks. These changes have passing host tests and compile, but still require their
 own Android integration run. They earn no additional milestone weight yet.
 
+The 12 October run 38254535799 passes all twenty registration cases, calendar-week
+accounting and ten isolated final league decisions on both Android versions. It
+then fails in the Portuguese postseason QA helper, which requests its former
+fixed 20 June date after the newly dated upper playoffs have passed that date.
+The next checkpoint follows the current saved career date and checks both dated
+lower-barrage legs and their exact reload. The complete calendar and final QA
+milestones remain pending until the full country-career gate passes.
+
 Remaining: registration (2), remaining national rules (3), shared calendar (2), final Android
 QA (2) and finished APK delivery (2). Portuguese lower-division outcomes are
 verified with the recurring League Cup gate; recurring annual UEFA qualification
