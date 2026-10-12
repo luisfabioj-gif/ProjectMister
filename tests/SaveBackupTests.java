@@ -9,6 +9,10 @@ public final class SaveBackupTests {
         Map<String,Object> values=new HashMap<>();values.put("save_0_exists",true);values.put("save_0_club",7);
         values.put("save_0_manager_first","Luís ⚽");values.put("save_0_classic_notes","first\u001Esecond\u001Fthird");
         values.put("save_0_national_cups","CS1\nGerman cup current edition and history");
+        for(int slot=0;slot<3;slot++) {
+            values.put("save_"+slot+"_discipline_version",1);
+            values.put("save_"+slot+"_match_discipline","MD1|2026|2026-07-01");
+        }
         values.put("editor_name_pt:sl-benfica","Benfica");values.put("editor_primary_pt:sl-benfica",0xffaa0033);values.put("audio_crowd",false);
         byte[] bytes=SaveBackup.encode(values);check(SaveBackup.decode(bytes).equals(values));
         check(Arrays.equals(bytes,SaveBackup.encode(new TreeMap<>(values))));
@@ -20,6 +24,9 @@ public final class SaveBackupTests {
         Map<String,Object> bad=new HashMap<>(values);bad.put("save_0_club","7");reject(()->SaveBackup.encode(bad));
         bad.put("save_0_club",7);bad.put("save_9_exists",true);reject(()->SaveBackup.encode(bad));
         bad.remove("save_9_exists");bad.put("save_0_unknown",true);reject(()->SaveBackup.encode(bad));
+        Map<String,Object> wrongDiscipline=new HashMap<>(values);
+        wrongDiscipline.put("save_0_discipline_version","1");reject(()->SaveBackup.encode(wrongDiscipline));
+        wrongDiscipline.put("save_0_discipline_version",1);wrongDiscipline.put("save_0_match_discipline",1);reject(()->SaveBackup.encode(wrongDiscipline));
         reject(()->SaveBackup.read(new ByteArrayInputStream(new byte[SaveBackup.MAX_BYTES+1])));
         check(SaveBackup.decode(SaveBackup.encode(Collections.emptyMap())).isEmpty());
         System.out.println("PASS: backup types, Unicode, deterministic round trips, checksum, truncation, unknown fields and size limits");

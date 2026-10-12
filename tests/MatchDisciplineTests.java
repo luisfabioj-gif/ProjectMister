@@ -77,5 +77,16 @@ public final class MatchDisciplineTests {
         check(d.suspendedMatches(fixture("ES_COPA",2,3,LocalDate.of(2026,12,1)),0)==0,"Spanish final club appearance does not incur a cycle ban");
         d=fresh();for(int i=0;i<3;i++)played(d,fixture("UEFA_CHAMPIONS",1,i,LocalDate.of(2026,7,1).plusDays(i*7)),1);d.beginEuropeanLeaguePhase();check(d.playerSummary(0).stream().noneMatch(x->x.contains("suspended")||x.contains("caution")),"Qualifying cautions and pending bans expire for eliminated players too");
     }
-    public static void main(String[] args){ordinaryCups();cyclesAndSeparation();europe();stageAndYearResets();franceAndValidation();repeatedDismissals();lastAppearanceAndGlobalExpiry();System.out.println("PASS "+checks+" disciplinary thresholds, cup separation, stage/season resets, transfer bans, service, delayed French decisions and exact saves");}
+    private static void backupRoundTrip()throws Exception {
+        MatchDiscipline d=fresh();played(d,fixture("DE_POKAL",1,0,LocalDate.of(2026,9,1)),2);
+        for(int slot=0;slot<3;slot++) {
+            String prefix="save_"+slot+"_";Map<String,Object> fields=new HashMap<>();
+            fields.put(prefix+"discipline_version",1);fields.put(prefix+"match_discipline",d.snapshot());
+            Map<String,Object> restored=SaveBackup.decode(SaveBackup.encode(fields));
+            MatchDiscipline loaded=MatchDiscipline.restore((String)restored.get(prefix+"match_discipline"));
+            check(restored.equals(fields)&&loaded.snapshot().equals(d.snapshot()),"actual dismissal ledger survives typed backup in every slot");
+            check(loaded.suspendedMatches(fixture("DE_POKAL",2,1,LocalDate.of(2026,10,1)),0)==1,"restored backup preserves pending automatic suspension");
+        }
+    }
+    public static void main(String[] args)throws Exception {ordinaryCups();cyclesAndSeparation();europe();stageAndYearResets();franceAndValidation();repeatedDismissals();lastAppearanceAndGlobalExpiry();backupRoundTrip();System.out.println("PASS "+checks+" disciplinary thresholds, cup separation, stage/season resets, transfer bans, service, delayed French decisions and exact saves/backups");}
 }
