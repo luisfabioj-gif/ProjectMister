@@ -512,7 +512,7 @@ public final class SmokeRunner extends Instrumentation {
                 }
                 set("liveHomeGoals",(Integer)get("liveHome")==0?4:0);set("liveAwayGoals",(Integer)get("liveAway")==0?4:0);call("finishLiveMatch",new Class[0]);
                 if(cup) {
-                    String saved=(String)get("matchDiscipline").getClass().getMethod("snapshot").invoke(get("matchDiscipline"));check((Boolean)call("loadSave",new Class[]{int.class},2),"Player disciplinary career reloads");check(saved.equals(get("matchDiscipline").getClass().getMethod("snapshot").invoke(get("matchDiscipline"))),"Player disciplinary state is exact after reload");checkBackupReadable();
+                    String saved=(String)get("matchDiscipline").getClass().getMethod("snapshot").invoke(get("matchDiscipline")),participation=(String)get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"));check((Boolean)call("loadSave",new Class[]{int.class},2),"Player disciplinary career reloads");check(saved.equals(get("matchDiscipline").getClass().getMethod("snapshot").invoke(get("matchDiscipline"))),"Player disciplinary state is exact after reload");check(participation.equals(get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"))),"Actual participant and registration history is exact after reload");check(((Set<?>)get("cupEligibility").getClass().getMethod("playedClubs",int.class).invoke(get("cupEligibility"),dismissed[0])).contains(0),"Dismissed actual player retains original club appearance");checkBackupReadable();
                     if(transfer&&!complete[0]) {
                         set("selectedClub",1);set("currentTransferBudget",1000);set("wageBudgetK",1000000);Object player=call("findPlayer",new Class[]{int.class},dismissed[0]);Field ambition=player.getClass().getDeclaredField("ambition");ambition.setAccessible(true);ambition.setInt(player,10);((Random)get("random")).setSeed(1);
                         call("resolveContractOffer",new Class[]{player.getClass(),int.class,int.class,int.class,int.class,String.class},player,1,0,playerInt(player,"weeklyWageK")*10,3,"Star Player");check(playerInt(player,"team")==1,"Actual contract transfer changes club with stable player identity");check((Boolean)call("loadSave",new Class[]{int.class},2),"Transfer with pending cup ban reloads");
@@ -525,10 +525,44 @@ public final class SmokeRunner extends Instrumentation {
                 if(!transfer){List<?> descriptions=(List<?>)get("matchDiscipline").getClass().getMethod("playerSummary",int.class).invoke(get("matchDiscipline"),dismissed[0]);check(descriptions.stream().noneMatch(x->x.toString().contains("suspended")),"Eligible cup fixture serves pending ban exactly once");}
                 Map<String,?> previous=new HashMap<>(prefs.getAll());Map<String,Object> broken=new HashMap<>(previous);broken.remove("save_2_match_discipline");boolean rejected=false;
                 try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,backupBytes(broken));}catch(InvocationTargetException expected){rejected=expected.getCause() instanceof IOException;}check(rejected&&prefs.getAll().equals(previous),"Missing disciplinary state rejected without replacing any career");
+                broken=new HashMap<>(previous);broken.remove("save_2_cup_participation");rejected=false;
+                try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,backupBytes(broken));}catch(InvocationTargetException expected){rejected=expected.getCause() instanceof IOException;}check(rejected&&prefs.getAll().equals(previous),"Missing participation state rejected without replacing any career");
                 gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"Original career restored after cup-player scenario");
             });
         }
         check(true,"actual cup dismissal, eligible lineup, ban service, transfer persistence and atomic backup rejection verified");
+        verifyScottishCupTransfer();
+    }
+    private void verifyScottishCupTransfer()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());final int[] moved={-1};final boolean[] tested={false};
+        ui(()->{
+            Object data=null;for(Object d:(List<?>)get("catalog").getClass().getField("divisions").get(get("catalog")))if(d.getClass().getField("id").get(d).equals("sco:1"))data=d;
+            check(data!=null,"Scottish player-rule career is available");Object world=call("newCountryCareer",new Class[]{data.getClass()},data);call("configureDivision",new Class[]{gameClass("CareerDivision")},world);set("selectedSlot",2);set("selectedClub",0);((Random)get("random")).setSeed(27311);
+            call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);set("europeanCampaign",null);call("generatePlayers",new Class[0]);call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);call("saveCurrentGame",new Class[0]);
+        });
+        for(int step=0;step<400&&!tested[0];step++)ui(()->{
+            for(Object p:(List<?>)get("players")){Field injury=p.getClass().getDeclaredField("injuredWeeks");injury.setAccessible(true);injury.setInt(p,0);}call("initialiseTacticsForClub",new Class[0]);
+            if(moved[0]>=0&&(Boolean)call("cupDue",new Class[0])&&(Boolean)call("nextCupIsNational",new Class[0])) {
+                Object tie=call("nextCupTie",new Class[0]);int home=(Integer)tie.getClass().getMethod("home").invoke(tie),away=(Integer)tie.getClass().getMethod("away").invoke(tie),club=(Integer)get("selectedClub");
+                if(home==club||away==club) {
+                    Object p=call("findPlayer",new Class[]{int.class},moved[0]),fixture=call("cupDisciplineFixture",new Class[0]);String reason=(String)call("cupPlayerReason",new Class[]{fixture.getClass(),p.getClass()},fixture,p);
+                    check(reason.contains("another club"),"Actual Scottish Cup fixture explains the transferred player's restriction");int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");
+                    check(roles[moved[0]]!=2,"Assistant excludes cup-tied transfer");for(Object teammate:(List<?>)get("players"))if(playerInt(teammate,"team")==club&&roles[playerInt(teammate,"id")]==2){int id=playerInt(teammate,"id");roles[id]=0;slots[id]=-1;break;}roles[moved[0]]=2;
+                    call("startLiveMatchday",new Class[0]);check(!(Boolean)get("matchInProgress"),"Actual watched Scottish Cup rejects manually selected cup-tied transfer");call("initialiseTacticsForClub",new Class[0]);call("startLiveMatchday",new Class[0]);check((Boolean)get("matchInProgress")&&(Boolean)get("liveNationalCup"),"Eligible replacement allows actual Scottish Cup progression");set("livePaused",true);check(!((Set<?>)get("matchParticipants")).contains(moved[0]),"Cup-tied footballer has no actual new-club cup appearance");set("liveHomeGoals",home==club?4:0);set("liveAwayGoals",away==club?4:0);call("finishLiveMatch",new Class[0]);
+                    String saved=(String)get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"));check((Boolean)call("loadSave",new Class[]{int.class},2),"Scottish player-rule career reloads after actual result");check(saved.equals(get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"))),"Cup-tied transfer and actual eligible result reload exactly");checkBackupReadable();tested[0]=true;return;
+                }
+            }
+            call("startLiveMatchday",new Class[0]);if(!(Boolean)get("matchInProgress"))return;set("livePaused",true);boolean ownCup=(Boolean)get("liveNationalCup");int club=(Integer)get("selectedClub"),candidate=-1;
+            if(ownCup&&moved[0]<0)for(Object id:(List<?>)get("liveXIIds")){Object p=call("findPlayer",new Class[]{int.class},(Integer)id);Field position=p.getClass().getDeclaredField("position");position.setAccessible(true);if(!position.get(p).equals("GK")){candidate=(Integer)id;break;}}
+            set("liveHomeGoals",(Integer)get("liveHome")==club?4:0);set("liveAwayGoals",(Integer)get("liveAway")==club?4:0);call("finishLiveMatch",new Class[0]);
+            if(candidate>=0) {
+                Object cup=get("nationalCups").getClass().getMethod("active").invoke(get("nationalCups")),world=get("division");int drawn=(Integer)cup.getClass().getMethod("drawnCount").invoke(cup),destination=-1;
+                for(int index=0;index<drawn&&destination<0;index++){Object tie=cup.getClass().getMethod("at",int.class).invoke(cup,index);if((Integer)tie.getClass().getMethod("winner").invoke(tie)<0)for(String side:new String[]{"home","away"}){int team=(Integer)tie.getClass().getMethod(side).invoke(tie);if(team!=club&&(Boolean)world.getClass().getMethod("contains",int.class).invoke(world,team)){destination=team;break;}}}
+                check(destination>=0,"Another playable Scottish top-division club has an actual remaining cup tie");Object p=call("findPlayer",new Class[]{int.class},candidate);set("selectedClub",destination);set("currentTransferBudget",1000);set("wageBudgetK",1000000);Field ambition=p.getClass().getDeclaredField("ambition");ambition.setAccessible(true);ambition.setInt(p,10);((Random)get("random")).setSeed(1);
+                call("resolveContractOffer",new Class[]{p.getClass(),int.class,int.class,int.class,int.class,String.class},p,1,club,playerInt(p,"weeklyWageK")*10,3,"Star Player");check(playerInt(p,"team")==destination,"Actual Scottish contract moves footballer with unchanged identity");check((Boolean)call("loadSave",new Class[]{int.class},2),"Actual Scottish transfer registration reloads");moved[0]=candidate;
+            }
+        });
+        check(tested[0],"Scottish actual cup transfer scenario completes");capture("cup-player-scottish-transfer-restriction");ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"Original careers retained after Scottish eligibility scenario");});check(true,"Scottish Cup transfer restriction blocks an actual ineligible lineup and preserves playable progression and exact saves");
     }
     private void completeProfessionalPostseason(String country)throws Exception {
         check((Boolean)call("preparePromotion",new Class[0]),country+" final standings resolve required promotion field");

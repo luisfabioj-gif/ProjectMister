@@ -17,7 +17,7 @@ public final class MatchDiscipline {
         public final boolean roundEnd;
         public final LocalDate date;
         public Fixture(int year,String competition,int phase,int round,int leg,boolean roundEnd,int home,int away,LocalDate date) {
-            if(year<2026||year>2200||competition==null||!competition.matches("(?:UEFA|ENG|PT|ES|FR|IT|NL|DE|BE|SCO|TR)_[A-Z][A-Z0-9_]{0,29}")||competition.startsWith("UEFA_")&&!(phase>=1&&phase<=4||phase>=UEFA_LEAGUE&&phase<=UEFA_FINAL)||phase<0||phase>99||round<0||round>99||leg<0||leg>1||home<0||away<0||home==away||date==null||date.isBefore(LocalDate.of(year,7,1))||date.isAfter(LocalDate.of(year+1,7,31)))throw new IllegalArgumentException("Invalid disciplinary fixture");
+            if(year<2026||year>2200||competition==null||!competition.matches("(?:UEFA|ENG|PT|ES|FR|IT|NL|DE|BE|SCO|TR)_[A-Z][A-Z0-9_]{0,29}")||competition.startsWith("UEFA_")&&!(phase>=1&&phase<=4||phase>=UEFA_LEAGUE&&phase<=UEFA_FINAL)||phase<0||phase>99||round<0||round>=CareerLimits.MAX_CLUBS*2||leg<0||leg>1||home<0||home>=CareerLimits.MAX_CLUBS||away<0||away>=CareerLimits.MAX_CLUBS||home==away||date==null||date.isBefore(LocalDate.of(year,7,1))||date.isAfter(LocalDate.of(year+1,7,31)))throw new IllegalArgumentException("Invalid disciplinary fixture");
             this.year=year;this.competition=competition;this.phase=phase;this.round=round;this.leg=leg;this.roundEnd=roundEnd;this.home=home;this.away=away;this.date=date;
         }
         String key(){return competition+":"+phase+":"+round+":"+leg+":"+home+":"+away+":"+date;}

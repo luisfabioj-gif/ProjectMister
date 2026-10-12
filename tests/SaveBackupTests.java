@@ -12,6 +12,8 @@ public final class SaveBackupTests {
         for(int slot=0;slot<3;slot++) {
             values.put("save_"+slot+"_discipline_version",1);
             values.put("save_"+slot+"_match_discipline","MD1|2026|2026-07-01");
+            values.put("save_"+slot+"_participation_version",1);
+            values.put("save_"+slot+"_cup_participation","CE1|2026|2026-07-01");
         }
         values.put("editor_name_pt:sl-benfica","Benfica");values.put("editor_primary_pt:sl-benfica",0xffaa0033);values.put("audio_crowd",false);
         byte[] bytes=SaveBackup.encode(values);check(SaveBackup.decode(bytes).equals(values));

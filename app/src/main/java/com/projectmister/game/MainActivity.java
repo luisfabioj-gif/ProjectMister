@@ -174,6 +174,8 @@ public class MainActivity extends Activity {
     private final java.util.HashMap<Integer,Integer> matchMissedPasses=new java.util.HashMap<>();
     private final java.util.HashMap<Integer,Integer> matchYellows=new java.util.HashMap<>();
     private MatchDiscipline matchDiscipline;
+    private CupEligibility cupEligibility;
+    private int cupEligibilitySize=-1;
     private MatchDiscipline.Fixture liveDisciplineFixture;
     private final java.util.HashSet<Integer> matchDismissals=new java.util.HashSet<>();
     private java.util.Map<Integer,ArrayList<Player>> rulesSquads;
@@ -1394,6 +1396,28 @@ public class MainActivity extends Activity {
     private void ensureMatchDiscipline() {
         if(matchDiscipline==null)matchDiscipline=new MatchDiscipline(careerSeasonStart.getYear(),currentDate);
         if(matchDiscipline.year!=careerSeasonStart.getYear())throw new IllegalStateException("Wrong player disciplinary edition");
+        ensureCupEligibility();
+    }
+    private void ensureCupEligibility() {
+        if(cupEligibility==null)cupEligibility=new CupEligibility(careerSeasonStart.getYear(),currentDate);
+        if(cupEligibility.year!=careerSeasonStart.getYear())throw new IllegalStateException("Wrong player participation edition");
+        if(cupEligibilitySize!=players.size()){for(Player p:players)cupEligibility.seed(p.id,p.team);cupEligibilitySize=players.size();}
+    }
+    private LocalDate cupPlayerDeadline(MatchDiscipline.Fixture f,Player p) {
+        if(nationalCups==null||!f.competition.equals("ENG_FA_CUP")&&!(f.competition.equals("SCO_CUP")&&f.phase==8&&!p.position.equals("GK")))return null;
+        for(CupSeasons seasons:nationalCups.competitions())if(seasons.active().competition.equals(f.competition)) {
+            SeasonCup cup=seasons.active();int index=cup.stage(cup.currentIndex());
+            if(f.competition.equals("ENG_FA_CUP")){if(cup.round(index).name.equals("Final"))index--;return cup.round(index).date(0).with(java.time.temporal.TemporalAdjusters.previous(java.time.DayOfWeek.FRIDAY));}
+            return cup.round(index-1).date(0);
+        }
+        return null;
+    }
+    private String cupPlayerReason(MatchDiscipline.Fixture f,Player p) {
+        if(f==null||cupEligibility==null)return "";
+        return cupEligibility.reason(f,p.id,p.team,p.age,p.position.equals("GK"),cupPlayerDeadline(f,p),false);
+    }
+    private void recordCupParticipation(MatchDiscipline.Fixture f,java.util.Collection<Integer> participants) {
+        java.util.Map<Integer,Integer> clubs=new java.util.HashMap<>();for(int id:participants){Player p=findPlayer(id);if(p==null)throw new IllegalArgumentException("Unknown match participant");clubs.put(id,p.team);}cupEligibility.record(f,clubs);
     }
     private ArrayList<Player> rulesSquad(int team) {
         if(rulesSquads==null||rulesSquadSize!=players.size()) {
@@ -1403,9 +1427,10 @@ public class MainActivity extends Activity {
     }
     private ArrayList<Integer> registeredRulePlayers(int team){ArrayList<Integer> ids=new ArrayList<>();for(Player p:rulesSquad(team))ids.add(p.id);return ids;}
     private ArrayList<Integer> registeredRulePlayers(MatchDiscipline.Fixture f){ArrayList<Integer> ids=registeredRulePlayers(f.home);ids.addAll(registeredRulePlayers(f.away));return ids;}
+    private ArrayList<Integer> eligibleRulePlayers(MatchDiscipline.Fixture f){ArrayList<Integer> ids=new ArrayList<>();for(int team:new int[]{f.home,f.away})for(Player p:rulesSquad(team))if(cupPlayerReason(f,p).isEmpty())ids.add(p.id);return ids;}
     private void prepareDiscipline(MatchDiscipline.Fixture f) {
         ensureMatchDiscipline();
-        for(int team:new int[]{f.home,f.away})matchDiscipline.prepare(f,registeredRulePlayers(team));
+        matchDiscipline.prepare(f,eligibleRulePlayers(f));
     }
     private MatchDiscipline.Fixture leagueDisciplineFixture(int home,int away){return new MatchDiscipline.Fixture(careerSeasonStart.getYear(),(division==null?"PT":division.country)+"_LEAGUE",0,matchday,0,false,home,away,currentDate);}
     private MatchDiscipline.Fixture cupDisciplineFixture() {
@@ -1425,7 +1450,7 @@ public class MainActivity extends Activity {
             if(code.equals("BE_CUP"))phase=round+5;
             if(code.equals("FR_COUPE"))phase=round+7;
             if(code.equals("ENG_LEAGUE_CUP")){String name=cup.round(round).name;phase=name.startsWith("Preliminary")?0:name.equals("First round")?1:name.equals("Second round")?2:name.equals("Third round")?3:name.equals("Fourth round")?4:name.equals("Quarter-final")?5:name.equals("Semi-final")?6:7;}
-        } else {code=nextCupIsDomestic()?"PT_CUP":"PT_LEAGUE_CUP";round=nextCupIsDomestic()?domesticCup.currentIndex():leagueCup.currentIndex();phase=round;}
+        } else {boolean domestic=nextCupIsDomestic();code=domestic?"PT_CUP":"PT_LEAGUE_CUP";round=domestic?domesticCup.currentIndex():leagueCup.currentIndex();phase=domestic?domesticCup.stage(round)+1:round;}
         return new MatchDiscipline.Fixture(careerSeasonStart.getYear(),code,phase,round,leg,end,home,away,nextCupDate());
     }
     private MatchDiscipline.Fixture promotionDisciplineFixture(KnockoutTie tie,boolean lower) {
@@ -1437,13 +1462,13 @@ public class MainActivity extends Activity {
         if(f.competition.endsWith("_LEAGUE"))backgroundLeagueParticipants.addAll(appeared);
         java.util.Map<Integer,Integer> cards=new java.util.HashMap<>();Random bookings=new Random(f.key().hashCode()*73831L);
         for(int team=0;team<2;team++){ArrayList<Integer> ids=new ArrayList<>(team==0?home:away);Collections.shuffle(ids,bookings);int total=Math.min(ids.size(),team==0?homeCards:awayCards);for(int i=0;i<total;i++)cards.put(ids.get(i),1);}
-        matchDiscipline.record(f,registeredRulePlayers(f),appeared,cards,java.util.Collections.emptySet());return new int[]{Math.min(home.size(),homeCards),Math.min(away.size(),awayCards)};
+        matchDiscipline.record(f,eligibleRulePlayers(f),appeared,cards,java.util.Collections.emptySet());recordCupParticipation(f,appeared);return new int[]{Math.min(home.size(),homeCards),Math.min(away.size(),awayCards)};
     }
     private void recordBackgroundDiscipline(MatchDiscipline.Fixture f){Random r=new Random(f.key().hashCode()*117L);recordBackgroundDiscipline(f,r.nextInt(5),r.nextInt(5));}
     private void recordManagedDiscipline() {
         if(liveDisciplineFixture==null)return;
         disciplineBeforeMatch.clear();for(int id:matchParticipants)disciplineBeforeMatch.put(id,matchDiscipline.playerSummary(id));
-        matchDiscipline.record(liveDisciplineFixture,registeredRulePlayers(liveDisciplineFixture),matchParticipants,matchYellows,matchDismissals);
+        matchDiscipline.record(liveDisciplineFixture,eligibleRulePlayers(liveDisciplineFixture),matchParticipants,matchYellows,matchDismissals);recordCupParticipation(liveDisciplineFixture,matchParticipants);
         disciplinaryNewsPending=true;
     }
     private void announceManagedSuspensions(){if(!disciplinaryNewsPending)return;disciplinaryNewsPending=false;for(int id:disciplineBeforeMatch.keySet()){Player p=findPlayer(id);if(p!=null)for(String item:matchDiscipline.playerSummary(id))if(item.contains("suspended")&&!disciplineBeforeMatch.get(id).contains(item))addNews("DISCIPLINE",p.name+" suspended",item+". Only an eligible fixture serves the ban.");}disciplineBeforeMatch.clear();}
@@ -1538,6 +1563,8 @@ public class MainActivity extends Activity {
         prepareDiscipline(liveDisciplineFixture);
         for(Player p:rulesSquad(selectedClub))if(playerRoleStatus[p.id]==2) {
             String reason=matchDiscipline.reason(liveDisciplineFixture,p.id);
+            if(reason.isEmpty())reason=cupPlayerReason(liveDisciplineFixture,p);
+            if(reason.isEmpty()&&p.injuredWeeks>0)reason="Injured for "+p.injuredWeeks+" week(s)";
             if(!reason.isEmpty()){matchInProgress=false;liveCup=false;livePlayoff=false;Toast.makeText(this,p.name+": "+reason+". Select a replacement in Tactics.",Toast.LENGTH_LONG).show();showTactics();return;}
         }
         liveAwayKitColour=KitColours.away(primaryColours[liveHome],primaryColours[liveAway],secondaryColours[liveAway]);
@@ -3055,7 +3082,7 @@ public class MainActivity extends Activity {
     }
     private ArrayList<Integer> bestElevenForTeam(int team,MatchDiscipline.Fixture fixture) {
         ArrayList<Player> squad = new ArrayList<>();
-        for (Player p : rulesSquad(team)) if(p.injuredWeeks==0&&(fixture==null||matchDiscipline==null||matchDiscipline.suspendedMatches(fixture,p.id)==0)) squad.add(p);
+        for (Player p : rulesSquad(team)) if(p.injuredWeeks==0&&cupPlayerReason(fixture,p).isEmpty()&&(fixture==null||matchDiscipline==null||matchDiscipline.suspendedMatches(fixture,p.id)==0)) squad.add(p);
         ArrayList<Player> chosen = new ArrayList<>();
         Player keeper = null;
         for (Player p : squad) if ("GK".equals(p.position) && (keeper == null || p.overall > keeper.overall)) keeper = p;
@@ -3379,7 +3406,7 @@ public class MainActivity extends Activity {
         for (Player p : players) {
             if (p.team != selectedClub) continue;
             if (playerRoleStatus[p.id] == 2) liveXIIds.add(p.id);
-            else if (playerRoleStatus[p.id] == 1&&p.injuredWeeks==0&&matchDiscipline.suspendedMatches(liveDisciplineFixture,p.id)==0) liveBenchIds.add(p.id);
+            else if (playerRoleStatus[p.id] == 1&&p.injuredWeeks==0&&cupPlayerReason(liveDisciplineFixture,p).isEmpty()&&matchDiscipline.suspendedMatches(liveDisciplineFixture,p.id)==0) liveBenchIds.add(p.id);
         }
 
         // The match can only start with exactly 11 selected starters.
@@ -4536,6 +4563,7 @@ public class MainActivity extends Activity {
         overview.addView(profileInfoRow("Appearances", String.valueOf(p.appearances)));
         overview.addView(profileInfoRow("Goals / Assists", p.goals + " / " + p.assists));
         if(matchDiscipline!=null){List<String> ledger=matchDiscipline.playerSummary(p.id);overview.addView(profileInfoRow("Discipline",ledger.isEmpty()?"No recorded cautions or pending bans":android.text.TextUtils.join("\n",ledger)));overview.addView(makeText("Cards tracked from "+matchDiscipline.recordedFrom,11,muted));}
+        if(cupEligibility!=null){java.util.StringJoiner clubs=new java.util.StringJoiner(", ");for(int club:cupEligibility.playedClubs(p.id))clubs.add(clubNames[club]);overview.addView(profileInfoRow("Official clubs this season",clubs.length()==0?"No recorded first-team appearances":clubs.toString()));MatchDiscipline.Fixture next=upcomingDisciplineFixture();if(next!=null&&p.team==selectedClub){String reason=cupPlayerReason(next,p);overview.addView(profileInfoRow("Next-match eligibility",reason.isEmpty()?"Eligible for "+next.competition.replace('_',' '):reason));}overview.addView(makeText("Participation tracked from "+cupEligibility.recordedFrom+"; unrecorded earlier matches are not inferred.",11,muted));}
         page.addView(overview);
 
         LinearLayout attributes = makePanel();
@@ -5097,6 +5125,7 @@ public class MainActivity extends Activity {
     }
 
     private void resolveContractOffer(Player p, int fee, int oldTeam, int wageK, int years, String role) {
+        ensureCupEligibility();String registrationIssue=cupEligibility.transferReason(p.id,selectedClub);if(!registrationIssue.isEmpty()){Toast.makeText(this,registrationIssue,Toast.LENGTH_LONG).show();return;}
         double wageRatio = wageK / (double)Math.max(1, p.weeklyWageK);
         double chance = 0.24 + Math.min(0.44, wageRatio * 0.24);
         if ("Important Player".equals(role)) chance += 0.10;
@@ -5107,6 +5136,7 @@ public class MainActivity extends Activity {
         chance = Math.max(0.12, Math.min(0.94, chance));
 
         if (random.nextDouble() < chance) {
+            cupEligibility.register(p.id,selectedClub,currentDate,-1);
             currentTransferBudget -= fee;
             recordTransferPurchase(fee);
             p.team = selectedClub;
@@ -5138,6 +5168,7 @@ public class MainActivity extends Activity {
     }
 
     private void resolveLoanOffer(Player p, int fee) {
+        ensureCupEligibility();String registrationIssue=cupEligibility.transferReason(p.id,selectedClub);if(!registrationIssue.isEmpty()){Toast.makeText(this,registrationIssue,Toast.LENGTH_LONG).show();return;}
         if (fee > currentTransferBudget) {
             Toast.makeText(this, "You do not have enough transfer budget.", Toast.LENGTH_LONG).show();
             return;
@@ -5150,6 +5181,7 @@ public class MainActivity extends Activity {
 
         if (random.nextDouble() < chance) {
             int oldTeam = p.team;
+            cupEligibility.register(p.id,selectedClub,currentDate,oldTeam);
             currentTransferBudget -= fee;
             recordTransferLoanFee(fee);
             p.team = selectedClub;
@@ -5238,11 +5270,12 @@ public class MainActivity extends Activity {
             .setNegativeButton("Cancel",null).show()));
     }
     private int signMarketPlayer(String key) {
+        ensureCupEligibility();
         WorldMarket.Candidate c=new WorldMarket.Candidate(key);
         PlayerRegistration.Decision registration=marketRegistration(c);
         String issue=matchInProgress?"Finish the current match before signing players":marketLocalClub(key.split("~")[0])>=0?"Use the existing club squad to negotiate this transfer":!registration.permitted()?registration.explanation:marketHires.contains(key)?"Player already recruited":marketHires.size()>=WorldMarket.MAX_HIRES?"Recruitment capacity reached":currentTransferBudget<c.fee?"Insufficient transfer budget":totalPlayerWagesK()+totalStaffWagesK()+c.wage>wageBudgetK?"Insufficient wage budget":null;
         if(issue!=null){Toast.makeText(this,issue,Toast.LENGTH_LONG).show();return -1;}
-        marketHires.add(key);Player p=appendMarketPlayer(c);currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
+        marketHires.add(key);Player p=appendMarketPlayer(c);cupEligibility.register(p.id,selectedClub,currentDate,-1);cupEligibilitySize=players.size();currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
         scoutKnowledge[p.id]=4;addNews("TRANSFER",c.name+" signs",(c.free?"Free agent":"Worldwide transfer")+" • €"+c.wage+"k/week • 3 years"+(registration.requiresApproval()?" • career exemption approved":""));saveCurrentGame();return p.id;
     }
     private PlayerRegistration.Decision marketRegistration(WorldMarket.Candidate candidate){return PlayerRegistration.decide(division==null?"PT":division.country,division==null?1:division.tier,careerSeasonStart.getYear(),currentDate,candidate.free,candidate.free?WorldMarket.FREE_AGENT_CONTRACT_END:null,false);}
@@ -5980,7 +6013,7 @@ public class MainActivity extends Activity {
         MatchDiscipline.Fixture next=upcomingDisciplineFixture();
         for (Player p : players) {
             if (p.team != selectedClub) continue;
-            if(p.injuredWeeks>0||next!=null&&matchDiscipline.suspendedMatches(next,p.id)>0)continue;
+            if(p.injuredWeeks>0||!cupPlayerReason(next,p).isEmpty()||next!=null&&matchDiscipline.suspendedMatches(next,p.id)>0)continue;
             squad.add(p);
             if (p.position.equals("GK") && (bestGK == null || p.overall > bestGK.overall)) bestGK = p;
         }
@@ -7587,6 +7620,7 @@ public class MainActivity extends Activity {
         dutchEuropeanPlayoff=null;liveDutchEuropean=false;
         careerSeasonStart=modernPortugueseCup==null&&europeanCampaign==null?careerSeasonStart.plusYears(1):LocalDate.of(nextYear,7,1);if(modernPortugueseCup!=null)fixtureVersion=4;if(europeanCampaign!=null)fixtureVersion=6;
         if(matchDiscipline!=null)matchDiscipline=matchDiscipline.nextSeason(nextYear,careerSeasonStart);
+        if(cupEligibility!=null)cupEligibility=cupEligibility.nextSeason(nextYear,careerSeasonStart);
         currentDate=careerSeasonStart;reserveTransitionSeed=null;matchday=0;splitOrder=new int[0];leagueDates=java.util.Collections.emptyList();leagueDatesKey="";promotionDates=null;lowerPromotionDates=null;careerSchedule=null;seasonAgeApplied=false;postseasonWeeksProcessed=0;careerWeeksProcessed=0;
         resetLeagueStandings();saveCurrentGame();showDashboard();
     }
@@ -7725,6 +7759,8 @@ public class MainActivity extends Activity {
         prefs.edit()
                 .putInt(key(selectedSlot,"discipline_version"),1)
                 .putString(key(selectedSlot,"match_discipline"),matchDiscipline.snapshot())
+                .putInt(key(selectedSlot,"participation_version"),1)
+                .putString(key(selectedSlot,"cup_participation"),cupEligibility.snapshot())
                 .putString(key(selectedSlot,"reserve_transition_seed"),reserveTransitionSeed==null?"":reserveTransitionSeed.toString())
                 .putString(key(selectedSlot,"league_decisions"),leagueDecisions==null?"":leagueDecisions.snapshot())
                 .putString(key(selectedSlot,"league_dates"),fixtureVersion>=6?CompetitionCalendar.snapshot(leagueDates):"")
@@ -7882,6 +7918,10 @@ public class MainActivity extends Activity {
             if(prefs.getInt(key(slot,"discipline_version"),0)>=1&&rawDiscipline.isEmpty())throw new IllegalArgumentException("Missing saved player discipline");
             MatchDiscipline restoredDiscipline=rawDiscipline.isEmpty()?new MatchDiscipline(savedYear,savedDate):MatchDiscipline.restore(rawDiscipline);
             String savedPlayerTeams=prefs.getString(key(slot,"p_team"),"");restoredDiscipline.validate(savedYear,savedPlayerTeams.isEmpty()?n*20+restoredMarket.size():savedPlayerTeams.split(",",-1).length,savedDate);
+            String rawParticipation=prefs.getString(key(slot,"cup_participation"),"");int participationVersion=prefs.getInt(key(slot,"participation_version"),0);
+            if(participationVersion<0||participationVersion>1||participationVersion==1&&rawParticipation.isEmpty())throw new IllegalArgumentException("Missing or unsupported player participation");
+            CupEligibility restoredParticipation=rawParticipation.isEmpty()?null:CupEligibility.restore(rawParticipation);
+            if(restoredParticipation!=null){restoredParticipation.validate(savedYear,savedPlayerTeams.isEmpty()?n*20+restoredMarket.size():savedPlayerTeams.split(",",-1).length,n,savedDate);if(!savedPlayerTeams.isEmpty())restoredParticipation.validateTeams(java.util.Arrays.stream(savedPlayerTeams.split(",",-1)).mapToInt(Integer::parseInt).toArray());}
             String rawDecisions=prefs.getString(key(slot,"league_decisions"),"");LeagueDecisions restoredDecisions=rawDecisions.isEmpty()?null:LeagueDecisions.restore(rawDecisions);
             if(prefs.getInt(key(slot,"fixture_version"),0)>=6&&restoredDecisions==null)throw new IllegalArgumentException("Missing saved league decisions");
             if(restoredDecisions!=null)restoredDecisions.validate(savedYear,n,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())),LeagueResults.restore(prefs.getString(key(slot,"league_results"),""),n));
@@ -7893,7 +7933,7 @@ public class MainActivity extends Activity {
             String rawLowerDates=prefs.getString(key(slot,"lower_promotion_dates"),"");PostseasonCalendar restoredLowerDates=rawLowerDates.isEmpty()?null:PostseasonCalendar.restore(rawLowerDates);
             if(restoredLowerDates!=null)restoredLowerDates.validate(restoredLower,savedYear,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())),n);
             configureDivision(saved);reserveTransitionSeed=restoredReserveSeed;leagueDecisions=restoredDecisions;lowerPromotionDates=restoredLowerDates;leagueDates=restoredDates;promotionDates=restoredPromotionDates;europeanCampaign=restoredEuropean;seasonHistory=restoredHistory;marketHires=restoredMarket;domesticCupHistory=restoredCupHistory;
-            matchDiscipline=restoredDiscipline;liveDisciplineFixture=null;rulesSquads=null;disciplinaryNewsPending=false;disciplineBeforeMatch.clear();
+            matchDiscipline=restoredDiscipline;cupEligibility=restoredParticipation;cupEligibilitySize=-1;liveDisciplineFixture=null;rulesSquads=null;disciplinaryNewsPending=false;disciplineBeforeMatch.clear();
             dutchEuropeanPlayoff=restoredDutch;
             leagueCup=restoredCup;
             modernPortugueseCup=restoredModern;portugueseThird=restoredThird;portugueseFourth=restoredFourth;portugueseDistrict=restoredDistrict;lowerPromotion=restoredLower;
@@ -8014,7 +8054,7 @@ public class MainActivity extends Activity {
     private void clearSave(int slot) {
         SharedPreferences.Editor editor = prefs.edit();
         String[] fields = {
-                "discipline_version", "match_discipline", "reserve_transition_seed", "league_decisions", "league_dates", "promotion_dates", "lower_promotion_dates", "career_world", "season_start", "season_history", "market_hires", "league_cup", "modern_portuguese_cup", "portuguese_third", "portuguese_fourth", "portuguese_district", "portuguese_lower_promotion", "domestic_cup", "domestic_cup_history", "national_cups", "scottish_league_cup", "european_campaign", "dutch_european_playoff", "season_age_applied", "career_weeks", "postseason_weeks", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
+                "participation_version", "cup_participation", "discipline_version", "match_discipline", "reserve_transition_seed", "league_decisions", "league_dates", "promotion_dates", "lower_promotion_dates", "career_world", "season_start", "season_history", "market_hires", "league_cup", "modern_portuguese_cup", "portuguese_third", "portuguese_fourth", "portuguese_district", "portuguese_lower_promotion", "domestic_cup", "domestic_cup_history", "national_cups", "scottish_league_cup", "european_campaign", "dutch_european_playoff", "season_age_applied", "career_weeks", "postseason_weeks", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
                 "manager_wage", "manager_contract_years", "manager_tactical", "manager_motivating", "manager_discipline", "manager_player_knowledge", "manager_youth", "manager_negotiating",
                 "matchday", "date", "training", "formation", "playstyle", "budget", "roles", "role_slots", "role_pos",
                 "staff_am_name", "staff_am_rating", "staff_coach_name", "staff_coach_rating", "staff_scout_name", "staff_scout_rating",
@@ -9447,7 +9487,7 @@ public class MainActivity extends Activity {
     }
 
     private void resetCareerState() {
-        matchDiscipline=null;liveDisciplineFixture=null;rulesSquads=null;matchDismissals.clear();disciplinaryNewsPending=false;disciplineBeforeMatch.clear();
+        matchDiscipline=null;cupEligibility=null;cupEligibilitySize=-1;liveDisciplineFixture=null;rulesSquads=null;matchDismissals.clear();disciplinaryNewsPending=false;disciplineBeforeMatch.clear();
         dutchEuropeanPlayoff=null;liveDutchEuropean=false;reserveTransitionSeed=null;
         fixtureVersion = 2;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;
         if(division!=null&&division.hasCupClubs()&&!division.country.equals("DE")&&!division.country.equals("PT")){careerSeasonStart=LocalDate.of(2026,7,1);fixtureVersion=4;}

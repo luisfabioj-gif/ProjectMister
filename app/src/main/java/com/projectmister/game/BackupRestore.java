@@ -105,6 +105,9 @@ public final class BackupRestore {
                 int disciplineVersion=(Integer)data.getOrDefault(prefix+"discipline_version",0);
                 if(disciplineVersion<0||disciplineVersion>1||disciplineVersion==1&&discipline.isEmpty())throw new IllegalArgumentException("Missing or unsupported player discipline");
                 if(!discipline.isEmpty())MatchDiscipline.restore(discipline).validate(LocalDate.parse((String)data.getOrDefault(prefix+"season_start","2026-08-09")).getYear(),teams.isEmpty()?size*20+WorldMarket.restore((String)data.getOrDefault(prefix+"market_hires","")).size():teams.split(",",-1).length,LocalDate.parse((String)data.get(prefix+"date")));
+                String participation=(String)data.getOrDefault(prefix+"cup_participation","");int participationVersion=(Integer)data.getOrDefault(prefix+"participation_version",0);
+                if(participationVersion<0||participationVersion>1||participationVersion==1&&participation.isEmpty())throw new IllegalArgumentException("Missing or unsupported player participation");
+                if(!participation.isEmpty()){CupEligibility ledger=CupEligibility.restore(participation);ledger.validate(LocalDate.parse((String)data.getOrDefault(prefix+"season_start","2026-08-09")).getYear(),teams.isEmpty()?size*20+WorldMarket.restore((String)data.getOrDefault(prefix+"market_hires","")).size():teams.split(",",-1).length,size,LocalDate.parse((String)data.get(prefix+"date")));if(!teams.isEmpty())ledger.validateTeams(Arrays.stream(teams.split(",",-1)).mapToInt(Integer::parseInt).toArray());}
                 if(!teams.isEmpty())for(String team:teams.split(",",-1)){int i=Integer.parseInt(team);if(i<0||i>=size)throw new IllegalArgumentException("Invalid player club");}
             }
             if(!career)throw new IllegalArgumentException("No saved careers in this backup");

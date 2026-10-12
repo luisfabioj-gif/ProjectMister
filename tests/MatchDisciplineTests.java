@@ -88,5 +88,13 @@ public final class MatchDisciplineTests {
             check(loaded.suspendedMatches(fixture("DE_POKAL",2,1,LocalDate.of(2026,10,1)),0)==1,"restored backup preserves pending automatic suspension");
         }
     }
-    public static void main(String[] args)throws Exception {ordinaryCups();cyclesAndSeparation();europe();stageAndYearResets();franceAndValidation();repeatedDismissals();lastAppearanceAndGlobalExpiry();backupRoundTrip();System.out.println("PASS "+checks+" disciplinary thresholds, cup separation, stage/season resets, transfer bans, service, delayed French decisions and exact saves/backups");}
+    private static int[] range(int first,int count){int[] ids=new int[count];for(int i=0;i<count;i++)ids[i]=first+i;return ids;}
+    private static void fullPortugueseCup(){
+        MatchDiscipline d=fresh();DomesticCup cup=new DomesticCup(146,73451,range(0,94),range(94,19),range(113,14),range(127,14),range(141,5));int games=0,lastIndex=0;
+        while(!cup.complete()){int index=cup.currentIndex();KnockoutTie tie=cup.current();MatchDiscipline.Fixture f=new MatchDiscipline.Fixture(2026,"PT_CUP",cup.stage(index)+1,index,0,true,tie.home(),tie.away(),cup.nextDate());List<Integer> players=Arrays.asList(tie.home(),tie.away());d.record(f,players,players,Collections.emptyMap(),Collections.emptySet());tie.recordRegulation(1,0);games++;lastIndex=index;}
+        check(games>100&&lastIndex>99,"complete expanded Portuguese cup exceeds one hundred fixture identities without treating them as stages");
+        check(d.snapshot().equals(MatchDiscipline.restore(d.snapshot()).snapshot()),"complete Portuguese cup disciplinary history reloads exactly");
+        try{new MatchDiscipline.Fixture(2026,"PT_CUP",1,CareerLimits.MAX_CLUBS*2,0,true,0,1,LocalDate.of(2026,9,1));throw new AssertionError("Unbounded fixture index accepted");}catch(IllegalArgumentException expected){checks++;}
+    }
+    public static void main(String[] args)throws Exception {ordinaryCups();cyclesAndSeparation();europe();stageAndYearResets();franceAndValidation();repeatedDismissals();lastAppearanceAndGlobalExpiry();backupRoundTrip();fullPortugueseCup();System.out.println("PASS "+checks+" disciplinary thresholds, cup separation, stage/season resets, transfer bans, service, delayed French decisions and exact saves/backups");}
 }
