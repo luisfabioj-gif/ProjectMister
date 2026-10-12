@@ -52,6 +52,14 @@ The next checkpoint follows the current saved career date and checks both dated
 lower-barrage legs and their exact reload. The complete calendar and final QA
 milestones remain pending until the full country-career gate passes.
 
+Run 38278541188 then completes all ten combined UEFA/domestic country careers
+on Android 35/36, including the dated Portuguese lower barrage. Its later
+isolated German cup check tries annual rollover without completing promotion;
+the game correctly keeps the season open. The next QA checkpoint finishes and
+reloads the required playoffs before asserting exact annual cup archives, and
+keeps new domestic test careers on their saved modern calendar. No extra
+milestone weight is assigned before that full gate passes.
+
 Remaining: registration (2), remaining national rules (3), shared calendar (2), final Android
 QA (2) and finished APK delivery (2). Portuguese lower-division outcomes are
 verified with the recurring League Cup gate; recurring annual UEFA qualification
