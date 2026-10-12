@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 /** Liga 3 -> Liga 2 transition from supplied final eligible standings, including the saved barrage. */
-public final class PortugueseLowerPromotion {
+public final class PortugueseLowerPromotion implements PromotionCampaign {
     public final int season;
     private final int[] third,second;
     private final boolean secondHomeFirst;
@@ -19,6 +19,13 @@ public final class PortugueseLowerPromotion {
         if(season==2026&&secondHomeFirst)throw new IllegalArgumentException("2026/27 published barrage has Liga 3 at home first");
         playoff=new KnockoutTie(secondHomeFirst?second[0]:third[2],secondHomeFirst?third[2]:second[0],2,second[0],false,KnockoutTie.Rule.EXTRA_TIME_PENALTIES);
     }
+    public String country(){return "PT";}
+    public int[] automaticPromoted(){return Arrays.copyOf(third,2);}
+    public int[] automaticRelegated(){return new int[]{second[1],second[2]};}
+    public int[] upperEntrants(){return secondEntrants();}
+    public int[] lowerEntrants(){return thirdEntrants();}
+    public String roundName(int index){return "Liga 2 / Liga 3 barrage";}
+    public List<KnockoutTie> ties(){return Collections.singletonList(playoff);}
     public KnockoutTie current(){return complete()?null:playoff;}
     public int[] thirdEntrants(){return third.clone();}
     public int[] secondEntrants(){return second.clone();}

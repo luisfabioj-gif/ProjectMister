@@ -4,7 +4,7 @@ The machine-readable source is [COMPLETION_STATUS.json](COMPLETION_STATUS.json).
 It measures estimated feature scope, not elapsed time or predicted hours.
 The weights total 100. Only `verified` milestones contribute to completion;
 source-only engines and untested integrations contribute zero. The current
-checkpoint has 74 verified points and **26% of the tracked work left**.
+checkpoint has 89 verified points and **11% of the tracked work left**.
 
 On 8 October 2026, source `f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`
 passed [Android 35/36 QA](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698).
@@ -28,14 +28,26 @@ annual admissions and two-leg qualifying to expanded careers, saves and History.
 The Android 35/36 run 38094113766 failed Spain's annual-admissions rollover.
 The following candidate handles forced reserve relegation with stable, eligible
 lower replacements from simulated qualification results and adds country free-agent
-registration decisions. Its Android evidence is still pending; this work adds no
-verified points. See [UEFA_CAREER_INTEGRATION.md](UEFA_CAREER_INTEGRATION.md).
+registration decisions.
 
-Remaining: UEFA (10), annual qualification (5),
-registration (2), remaining national rules (3), shared calendar (2), final Android
+Source `b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5` passed
+[Android 35/36 QA](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38181845865)
+on 11 October UTC (12 October UK time). Both logs show two complete combined
+UEFA/domestic seasons for each of ten country careers, watched and quick results,
+annual admissions, exact archives, reloads and backups. Four API36 European
+calendar/history screenshots were reviewed on 12 October. UEFA and annual
+qualification now add 15 verified points. The Spanish rollover failure is resolved.
+See [UEFA_CAREER_INTEGRATION.md](UEFA_CAREER_INTEGRATION.md).
+
+The next candidate adds final league decisions, country registration refinements,
+stored bounded league/postseason calendars and accounting by elapsed calendar
+weeks. These changes have passing host tests and compile, but still require their
+own Android integration run. They earn no additional milestone weight yet.
+
+Remaining: registration (2), remaining national rules (3), shared calendar (2), final Android
 QA (2) and finished APK delivery (2). Portuguese lower-division outcomes are
-verified with the recurring League Cup gate; complete annual UEFA qualification
-has not earned its separate 5 points.
+verified with the recurring League Cup gate; recurring annual UEFA qualification
+is now verified separately. No physical phone testing or final APK delivery is claimed.
 
 Completion means a polished, integrated Android build for the user's real-world
 test: existing management and matchday systems, recurring national cups, the

@@ -34,5 +34,6 @@ public final class GermanStandings {
         }
     }
     public int rankAt(int position){if(position<0||position>=order.length)throw new IllegalArgumentException("Invalid position");while(position>0&&tiedAt(position-1))position--;return position+1;}
+    public GermanStandings decisions(LeagueDecisions decisions,String stage){if(decisions!=null)decisions.apply(stage,order,tiedWithNext);return this;}
     public boolean tiedAt(int leftPosition){return leftPosition>=0&&leftPosition<tiedWithNext.length&&tiedWithNext[leftPosition];}
 }

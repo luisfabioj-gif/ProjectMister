@@ -35,6 +35,7 @@ public final class BackupRestore {
                 WorldMarket.restore((String)data.getOrDefault(prefix+"market_hires",""));
                 SeasonHistory.restore((String)data.getOrDefault(prefix+"season_history",""));
                 String domestic=(String)data.getOrDefault(prefix+"domestic_cup","");
+                int calendarWeeks=(Integer)data.getOrDefault(prefix+"career_weeks",0);if(calendarWeeks<0||calendarWeeks>80)throw new IllegalArgumentException("Invalid calendar weeks");
                 int weeks=(Integer)data.getOrDefault(prefix+"postseason_weeks",0);
                 if(weeks<0||weeks>20)throw new IllegalArgumentException("Invalid postseason weeks");
                 if(division!=null&&division.country.equals("PT")&&division.hasCupClubs()&&domestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
@@ -44,7 +45,8 @@ public final class BackupRestore {
                 PortugueseFourthDivisionSeasons fourthSeasons=fourth.isEmpty()?null:PortugueseLowerCatalog.validateFourth(fourth,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
                 String district=(String)data.getOrDefault(prefix+"portuguese_district","");PortugueseDistrictSeasons districtSeasons=district.isEmpty()?null:PortugueseLowerCatalog.validateDistrict(district,division,cupYear,LocalDate.parse((String)data.get(prefix+"date")));
                 if(division!=null&&division.country.equals("PT")&&division.expandedWorld()&&(thirdSeasons==null||fourthSeasons==null||districtSeasons==null))throw new IllegalArgumentException("Missing lower seasons");
-                PortugueseLowerCatalog.validatePromotion((String)data.getOrDefault(prefix+"portuguese_lower_promotion",""),division,thirdSeasons,cupYear,round);
+                PortugueseLowerPromotion lowerPromotion=PortugueseLowerCatalog.validatePromotion((String)data.getOrDefault(prefix+"portuguese_lower_promotion",""),division,thirdSeasons,cupYear,round);
+                String lowerDates=(String)data.getOrDefault(prefix+"lower_promotion_dates","");if(!lowerDates.isEmpty())PostseasonCalendar.restore(lowerDates).validate(lowerPromotion,cupYear,LocalDate.parse((String)data.get(prefix+"date")),size);
                 String european=(String)data.getOrDefault(prefix+"european_campaign","");
                 if(!european.isEmpty()){if(division==null||!division.linked)throw new IllegalArgumentException("Unexpected UEFA career");EuropeanCampaign.restore(european).validate(division.clubIds,division.reserves,cupYear,LocalDate.parse((String)data.get(prefix+"date")));}
                 String national=(String)data.getOrDefault(prefix+"national_cups","");
@@ -84,7 +86,13 @@ public final class BackupRestore {
                 }
                 String history=(String)data.getOrDefault(prefix+"league_results","");
                 if(!history.isEmpty())LeagueResults.restore(history,size);
+                ReserveTierOutcome.restoreSeed((String)data.getOrDefault(prefix+"reserve_transition_seed",""));
+                String decisions=(String)data.getOrDefault(prefix+"league_decisions","");if(!decisions.isEmpty())LeagueDecisions.restore(decisions).validate(cupYear,size,LocalDate.parse((String)data.get(prefix+"date")),LeagueResults.restore(history,size));
+                String dates=(String)data.getOrDefault(prefix+"league_dates","");int fixtureVersion=(Integer)data.getOrDefault(prefix+"fixture_version",0);
+                if(!dates.isEmpty()){if(division==null||fixtureVersion<6)throw new IllegalArgumentException("Unexpected league dates");CompetitionCalendar.restore(dates,cupYear,maxRound);}else if(fixtureVersion>=6)throw new IllegalArgumentException("Missing saved league dates");
                 String promotion=(String)data.getOrDefault(prefix+"promotion","");
+                String promotionDates=(String)data.getOrDefault(prefix+"promotion_dates","");
+                if(!promotionDates.isEmpty()){if(fixtureVersion<6||promotion.isEmpty())throw new IllegalArgumentException("Unexpected postseason dates");PostseasonCalendar.restore(promotionDates).validate(PromotionCampaign.restore(promotion),cupYear,LocalDate.parse((String)data.get(prefix+"date")),size);}
                 if(!promotion.isEmpty()) {
                     PromotionCampaign p=PromotionCampaign.restore(promotion);
                     if(division==null||!division.linked||!division.country.equals(p.country())||round<maxRound)throw new IllegalArgumentException("Invalid playoff season");

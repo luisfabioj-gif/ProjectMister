@@ -6,7 +6,8 @@ import java.util.*;
 public final class FrenchStandings {
     public final Integer[] order;
     private final boolean[] tied;
-    public FrenchStandings(Integer[] clubs,int[] points,int[] gf,int[] ga,int[] wins,LeagueResults ledger,boolean finished) {
+    public FrenchStandings(Integer[] clubs,int[] points,int[] gf,int[] ga,int[] wins,LeagueResults ledger,boolean finished) {this(clubs,points,gf,ga,wins,ledger,finished,null);}
+    public FrenchStandings(Integer[] clubs,int[] points,int[] gf,int[] ga,int[] wins,LeagueResults ledger,boolean finished,int[] discipline) {
         order=clubs.clone();tied=new boolean[Math.max(0,clubs.length-1)];int[][] away=ledger.awayTable();
         Comparator<Integer> initial=(a,b)->{int c=Integer.compare(points[b],points[a]);return c!=0?c:Integer.compare(gf[b]-ga[b],gf[a]-ga[a]);};
         Arrays.sort(order,initial);
@@ -25,7 +26,7 @@ public final class FrenchStandings {
                     }
                     c=Integer.compare(gf[b],gf[a]);if(c!=0)return c;
                     c=Integer.compare(wins[b],wins[a]);if(c!=0)return c;
-                    return ledger.recordedFromStart?Integer.compare(away[b][0],away[a][0]):0;
+                    c=ledger.recordedFromStart?Integer.compare(away[b][0],away[a][0]):0;if(c!=0)return c;return discipline==null?0:Integer.compare(discipline[a],discipline[b]);
                 };
                 Arrays.sort(order,start,end,(a,b)->{int c=sporting.compare(a,b);return c==0?Integer.compare(a,b):c;});
                 for(int i=start;i<end-1;i++)tied[i]=sporting.compare(order[i],order[i+1])==0;
@@ -33,6 +34,7 @@ public final class FrenchStandings {
             start=end;
         }
     }
+    public FrenchStandings decisions(LeagueDecisions decisions,String stage){if(decisions!=null)decisions.apply(stage,order,tied);return this;}
     public boolean tiedAt(int left){return left>=0&&left<tied.length&&tied[left];}
     public int rankAt(int index){if(index<0||index>=order.length)throw new IllegalArgumentException("Invalid position");while(index>0&&tiedAt(index-1))index--;return index+1;}
 }

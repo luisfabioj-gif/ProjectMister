@@ -29,6 +29,7 @@ public final class TurkishStandings {
         }
     }
     // The simulation has no forfeiture events. No fake fair-play ranking is substituted.
+    public TurkishStandings decisions(LeagueDecisions decisions,String stage){if(decisions!=null)decisions.apply(stage,order,tied);return this;}
     public boolean tiedAt(int position){return position>=0&&position<tied.length&&tied[position];}
     public int rankAt(int position){if(position<0||position>=order.length)throw new IllegalArgumentException("Invalid position");while(position>0&&tiedAt(position-1))position--;return position+1;}
 }

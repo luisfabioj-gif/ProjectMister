@@ -32,9 +32,10 @@ UEFA dates follow the opening published windows, with deterministic saved
 reschedules around local national cups. Subsequent editions project those
 windows. Admitted clubs reserve their potential qualifying and phase dates
 before results are played, so qualification cannot silently move their league
-schedule. League dates preserve at least two days between dated fixtures. The
-calendar still needs the remaining postseason-decider integration before its
-separate completion milestone can be verified.
+schedule. League dates preserve at least two days between dated fixtures. New candidates store those league dates and date promotion/barrage legs after
+the regular season, retaining recovery gaps around the reserved competitions.
+Their separate calendar milestone remains pending Android evidence. Consequential
+final-rank deciders remain a separate unfinished rule milestone.
 
 Saved qualification inputs, draws, scores, dates and exact completed editions
 survive reload and backup. Past league phases and qualifying draws appear in
@@ -46,9 +47,12 @@ countries: two complete careers per country, managed watched and quick UEFA
 results, two-leg qualifiers, domestic-ledger isolation, no managed double
 booking, monotonic dates, exact season history, reloads and atomic rejection of
 corrupted backups. Existing national-only gates remain focused on their already
-verified cup formats. Compilation is not passing emulator evidence. UEFA and
-annual-qualification milestones stay pending until the required integrated
-Android checks pass and remaining allocation details are finished.
+verified cup formats. Source `b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5` passed
+both Android 35/36 jobs in run 38181845865 on 11 October UTC. The logs verify
+these combined careers and both annual rollovers in every country. Four API36
+European calendar/history screenshots were reviewed on 12 October. The UEFA and
+annual-qualification milestones are now verified; the newer calendar and final
+ranking checkpoint still requires its own integrated Android evidence.
 
 Host checks pass 80 annual admission/qualifying campaigns and 34,260 two-leg
 events across all 54 associations. The recurring career check also passes three

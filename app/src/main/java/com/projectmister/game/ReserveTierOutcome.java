@@ -33,6 +33,7 @@ public final class ReserveTierOutcome {
         for(int tier=1;tier<=2;tier++){int before=0,after=0;for(int c=0;c<n;c++)if(local(ids[c],country)){if(original[c]==tier)before++;if(levels[c]==tier)after++;}if(before!=after)throw new IllegalStateException("Unbalanced reserve transition");}
         rulings=Collections.unmodifiableList(notes);
     }
+    public static Long restoreSeed(String text){if(text==null||text.isEmpty())return null;if(text.length()>20)throw new IllegalArgumentException("Invalid reserve draw seed");long seed=Long.parseLong(text);if(!Long.toString(seed).equals(text))throw new IllegalArgumentException("Non-canonical reserve draw seed");return seed;}
     private static boolean local(String id,String country){return id.startsWith(country.toLowerCase(Locale.ROOT)+":");}
     private static int goals(Random random,int advantage){int count=0;double chance=Math.max(.10,Math.min(.45,.22+advantage*.003));for(int i=0;i<6;i++)if(random.nextDouble()<chance)count++;return count;}
 }

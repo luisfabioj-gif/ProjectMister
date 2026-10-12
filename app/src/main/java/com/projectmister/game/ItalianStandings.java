@@ -34,6 +34,7 @@ public final class ItalianStandings {
             start=end;
         }
     }
+    public ItalianStandings decisions(LeagueDecisions decisions,String stage){if(decisions!=null)decisions.apply(stage,order,tied);return this;}
     public boolean tiedAt(int left){return left>=0&&left<tied.length&&tied[left];}
     public int rankAt(int index){if(index<0||index>=order.length)throw new IllegalArgumentException("Invalid position");while(index>0&&tiedAt(index-1))index--;return index+1;}
 }

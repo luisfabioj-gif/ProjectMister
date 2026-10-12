@@ -31,6 +31,7 @@ public final class LeagueResults {
         results.add(new Result(round,home,away,homeGoals,awayGoals));return true;
     }
     public int size(){return results.size();}
+    public List<Result> results(){return Collections.unmodifiableList(results);}
     public List<Result> round(int round) {
         ArrayList<Result> list=new ArrayList<>();for(Result r:results)if(r.round==round)list.add(r);
         return Collections.unmodifiableList(list);

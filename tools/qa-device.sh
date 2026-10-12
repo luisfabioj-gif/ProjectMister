@@ -14,6 +14,9 @@ grep -q 'PASS worldwide transfers free agents reload budget and lineup verified'
 grep -q 'PASS calendar recorded results and shootout orientation verified' qa-output/candidate.txt
 grep -q 'PASS completed match survives reload' qa-output/candidate.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/candidate.txt
+timeout 480s adb shell am instrument -w -e mode rules com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/rules.txt
+grep -q 'PASS twenty registration cases, calendar-week accounting and ten isolated final league decisions verified' qa-output/rules.txt
+! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/rules.txt
 for country in ES PT DE ENG IT FR NL BE SCO TR; do
     timeout 600s adb shell am instrument -w -e mode europe -e country "$country" com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee "qa-output/europe-$country.txt"
     grep -q "PASS $country combined UEFA qualifying domestic calendars two seasons watched quick matches exact archives and backups verified" "qa-output/europe-$country.txt"

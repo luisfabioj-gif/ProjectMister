@@ -117,6 +117,11 @@ public class MainActivity extends Activity {
     private boolean liveDutchEuropean=false;
     private String leagueDatesKey="";
     private List<LocalDate> leagueDates=java.util.Collections.emptyList();
+    private PostseasonCalendar promotionDates,lowerPromotionDates;
+    private LeagueDecisions leagueDecisions;
+    private Long reserveTransitionSeed;
+    private boolean liveLeagueDecision=false;
+    private LeagueDecisions.Event liveDecisionEvent;
     private boolean liveEuropean=false;
     private EuropeanCampaign.Event liveEuropeanEvent;
     private ScottishLeagueCupSeasons scottishLeagueCup;
@@ -124,6 +129,7 @@ public class MainActivity extends Activity {
     private boolean liveNationalCup=false;
     private boolean liveDomesticCup=false,seasonAgeApplied=false;
     private int postseasonWeeksProcessed=0;
+    private int careerWeeksProcessed=0;
     private int liveAwayKitColour;
     private boolean scottishSplitProvisional=false;
     private LeagueResults leagueResults = new LeagueResults(18,false);
@@ -1414,8 +1420,11 @@ public class MainActivity extends Activity {
     private void startLiveMatchday(boolean playoff,boolean cup) {
         if(matchInProgress)return;
         if(cup&&(!cupDue()||nextCupTie()==null))return;
+        if(playoff&&fixtureVersion>=6&&liveLowerPlayoff&&lowerPromotion!=null&&!lowerPromotion.complete()){if(!cupsComplete()){advanceLeagueCup();return;}advanceCareerDate(lowerPromotionFixtureDate());}
+        if(playoff&&fixtureVersion>=6&&!liveLowerPlayoff&&promotion!=null&&!promotion.complete()){if(!cupsComplete()){advanceLeagueCup();return;}advanceCareerDate(promotionFixtureDate());}
         if (playoff && activePromotionTie()==null) {showSeasonReview();return;}
         if (!playoff && !cup && division!=null && matchday>=seasonRounds()) { showSeasonReview(); return; }
+        if(!playoff&&!cup&&division!=null&&division.country.equals("SCO")&&matchday==33&&splitOrder.length!=12&&leagueDecisions!=null){advanceLeagueCup();return;}
         if (!playoff && !cup && division!=null && leagueOpponentForRound(matchday)<0) { advanceByeRound(); return; }
         if (countRole(2) != 11) {
             Toast.makeText(this, "Select exactly 11 starters in Tactics before the match.", Toast.LENGTH_LONG).show();
@@ -1424,7 +1433,7 @@ public class MainActivity extends Activity {
         }
 
         saveCurrentGame();
-        matchInProgress=true;livePlayoff=playoff;liveCup=cup;liveDutchEuropean=cup&&nextCupIsDutchEuropean();liveEuropean=cup&&!liveDutchEuropean&&nextCupIsEuropean();liveEuropeanEvent=liveEuropean?europeanCampaign.next(selectedClub):null;liveDomesticCup=cup&&!liveDutchEuropean&&!liveEuropean&&nextCupIsDomestic();liveNationalCup=cup&&!liveDutchEuropean&&!liveEuropean&&nextCupIsNational();liveScottishCup=cup&&!liveDutchEuropean&&!liveEuropean&&nextCupIsScottish();liveModernPortugueseCup=cup&&!liveDutchEuropean&&!liveEuropean&&nextCupIsModernPortuguese();pendingContactCue=null;
+        matchInProgress=true;livePlayoff=playoff;liveCup=cup;liveLeagueDecision=cup&&nextCupIsLeagueDecision();liveDecisionEvent=liveLeagueDecision?leagueDecisions.next(selectedClub):null;liveDutchEuropean=cup&&!liveLeagueDecision&&nextCupIsDutchEuropean();liveEuropean=cup&&!liveLeagueDecision&&!liveDutchEuropean&&nextCupIsEuropean();liveEuropeanEvent=liveEuropean?europeanCampaign.next(selectedClub):null;liveDomesticCup=cup&&!liveLeagueDecision&&!liveDutchEuropean&&!liveEuropean&&nextCupIsDomestic();liveNationalCup=cup&&!liveLeagueDecision&&!liveDutchEuropean&&!liveEuropean&&nextCupIsNational();liveScottishCup=cup&&!liveLeagueDecision&&!liveDutchEuropean&&!liveEuropean&&nextCupIsScottish();liveModernPortugueseCup=cup&&!liveLeagueDecision&&!liveDutchEuropean&&!liveEuropean&&nextCupIsModernPortuguese();pendingContactCue=null;
         matchGoals.clear();matchAssists.clear();pendingGoalTeam=-1;
         int opponent = leagueOpponentForRound(matchday);
         boolean selectedHome = selectedHomeForRound(matchday);
@@ -3117,6 +3126,8 @@ public class MainActivity extends Activity {
     }
 
     private String liveTieSummary() {
+        if(liveLeagueDecision&&liveDecisionEvent!=null&&liveDecisionEvent.series)return "Neutral deciding series • league points retained";
+        if(liveLeagueDecision)return "LEAGUE DECIDING MATCH";
         if(liveDutchEuropean&&dutchEuropeanPlayoff!=null)return "DUTCH EUROPEAN TICKET • "+dutchEuropeanPlayoff.roundName().toUpperCase(Locale.ROOT);
         if(liveEuropean&&liveEuropeanEvent!=null)return EuropeanCampaign.name(liveEuropeanEvent.competition).toUpperCase(Locale.ROOT)+" • "+europeanCampaign.round(liveEuropeanEvent).toUpperCase(Locale.ROOT);
         if(liveModernPortugueseCup&&modernPortugueseCup!=null)return "TAÇA DA LIGA • "+modernPortugueseCup.active().roundName().toUpperCase(Locale.ROOT);
@@ -3382,6 +3393,7 @@ public class MainActivity extends Activity {
     private void finishLiveMatch() {
         if (!liveMatchActive) return;
         if(pendingGoalTeam>=0)completePendingGoal();
+        if(fixtureVersion>=6&&(liveCup||livePlayoff))processFinanceWeek(true);
         if(liveCup){finishLeagueCupMatch();return;}
         if(livePlayoff){finishPromotionMatch();return;}
         playLiveSound("whistle");
@@ -3400,7 +3412,7 @@ public class MainActivity extends Activity {
             }
         }
 
-        updateTable(liveHome, liveAway, liveHomeGoals, liveAwayGoals);
+        updateTable(liveHome,liveAway,liveHomeGoals,liveAwayGoals,liveHomeYellows,liveAwayYellows);
 
         StringBuilder results = new StringBuilder();
         results.append(clubNames[liveHome]).append("  ").append(liveHomeGoals)
@@ -3420,15 +3432,14 @@ public class MainActivity extends Activity {
         for(java.util.Map.Entry<Integer,Integer> e:matchAssists.entrySet()) {Player p=findPlayer(e.getKey());if(p!=null)p.assists+=e.getValue();}
         updatePlayerMatchStats();
         matchInProgress=false;
-        applyTrainingSession();
+        if(fixtureVersion<6)applyTrainingSession();
         updateBoardAfterMatch();
         processFinanceWeek();
-        advanceStadiumProject();
+        if(fixtureVersion<6)advanceStadiumProject();
         addNews("MATCH", "Full-time: " + clubNames[liveHome] + " " + liveHomeGoals + "-" + liveAwayGoals + " " + clubNames[liveAway],
                 "Possession " + liveHomePossession + "-" + liveAwayPossession + " • Shots " + liveHomeShots + "-" + liveAwayShots);
         matchday++;
-        processScoutingAssignments();
-        processInjuriesAndRecovery();
+        if(fixtureVersion<6){processScoutingAssignments();processInjuriesAndRecovery();}
         prepareSplitIfNeeded();
         finalizeSeasonIfReady();
         LocalDate playedDate = currentDate;
@@ -4015,8 +4026,10 @@ public class MainActivity extends Activity {
         return Math.min(goals, 6);
     }
 
-    private void updateTable(int home, int away, int homeGoals, int awayGoals) {
+    private void updateTable(int home,int away,int homeGoals,int awayGoals){Random cards=new Random(careerSeasonStart.getYear()*73831L+matchday*371L+home*117L+away);updateTable(home,away,homeGoals,awayGoals,cards.nextInt(5),cards.nextInt(5));}
+    private void updateTable(int home, int away, int homeGoals, int awayGoals,int homeCards,int awayCards) {
         if(division!=null && !leagueResults.record(matchday,home,away,homeGoals,awayGoals))return;
+        if(leagueDecisions!=null)leagueDecisions.recordDiscipline(matchday,home,away,homeCards,awayCards,0,0);
         played[home]++;
         played[away]++;
         goalsFor[home] += homeGoals;
@@ -6061,7 +6074,7 @@ public class MainActivity extends Activity {
         if("League Cup".equals(tab)&&division!=null&&division.country.equals("PT")){showLeagueCupCalendar(page);return;}
         if("Cup".equals(tab)&&domesticCup!=null){showDomesticCupCalendar(page);return;}
         if("Cup".equals(tab)&&nationalCups!=null){showNationalCupCalendar(page);return;}
-        if("League".equals(tab))page.addView(makeText("Simulated weekly dates • official match dates and postponements are not yet applied.",12,muted));
+        if("League".equals(tab))page.addView(makeText("Simulated dated fixtures • career draws and recovery gaps are saved with your season.",12,muted));
 
         ArrayList<Fixture> fixtures = buildClubFixtures(tab);
         if (fixtures.isEmpty()) {
@@ -6268,14 +6281,39 @@ public class MainActivity extends Activity {
     }
     private void advanceLowerPromotion(){advanceLowerPromotion(true);}
     private void advanceLowerPromotion(boolean showReview) {
-        if(!prepareLowerPromotion())return;while(!lowerPromotion.complete()) {
+        if(!prepareLowerPromotion())return;
+        if(fixtureVersion>=6&&!cupsComplete()){advanceLeagueCup();return;}
+        while(!lowerPromotion.complete()) {
+            if(fixtureVersion>=6)advanceCareerDate(lowerPromotionFixtureDate());
             KnockoutTie tie=lowerPromotion.current();liveLowerPlayoff=true;
             if(tie.home()==selectedClub||tie.away()==selectedClub){startLiveMatchday(true);return;}
             tie.recordRegulation(simulateGoals(tie.home(),tie.away(),true),simulateGoals(tie.away(),tie.home(),false));settleKnockout(tie);liveLowerPlayoff=false;
         }saveCurrentGame();if(showReview)showSeasonReview();
     }
-    private KnockoutTie liveKnockout(){return liveDutchEuropean&&dutchEuropeanPlayoff!=null?dutchEuropeanPlayoff.current():liveEuropean&&liveEuropeanEvent!=null?europeanMatch(liveEuropeanEvent):liveModernPortugueseCup&&modernPortugueseCup!=null?modernPortugueseMatch():liveScottishCup&&scottishLeagueCup!=null?scottishLeagueCup.active().current():liveNationalCup&&nationalCups!=null?nationalCups.active().current():liveDomesticCup&&domesticCup!=null?domesticCup.current():liveCup&&leagueCup!=null?leagueCup.current():livePlayoff?activePromotionTie():null;}
+    private KnockoutTie liveKnockout(){return liveLeagueDecision&&liveDecisionEvent!=null?liveDecisionEvent.tie:liveDutchEuropean&&dutchEuropeanPlayoff!=null?dutchEuropeanPlayoff.current():liveEuropean&&liveEuropeanEvent!=null?europeanMatch(liveEuropeanEvent):liveModernPortugueseCup&&modernPortugueseCup!=null?modernPortugueseMatch():liveScottishCup&&scottishLeagueCup!=null?scottishLeagueCup.active().current():liveNationalCup&&nationalCups!=null?nationalCups.active().current():liveDomesticCup&&domesticCup!=null?domesticCup.current():liveCup&&leagueCup!=null?leagueCup.current():livePlayoff?activePromotionTie():null;}
+    private List<LocalDate> seasonReservedDates() {
+        ArrayList<LocalDate> dates=new ArrayList<>(domesticCalendar(careerSeasonStart.getYear(),domesticCup,nationalCups,scottishLeagueCup,modernPortugueseCup));
+        if(europeanCampaign!=null)for(int club=0;club<clubNames.length;club++)if(division.association(club).equals(division.country)&&division.clubTiers[club]<=2)dates.addAll(europeanCampaign.calendarForClub(club));
+        if(leagueDecisions!=null)dates.addAll(leagueDecisions.dates());
+        return new ArrayList<>(new java.util.TreeSet<>(dates));
+    }
+    private LocalDate lowerPromotionFixtureDate() {
+        if(lowerPromotion==null||lowerPromotion.complete())return null;if(fixtureVersion<6)return currentDate;
+        if(lowerPromotionDates==null)lowerPromotionDates=new PostseasonCalendar(careerSeasonStart.getYear());
+        LocalDate last=leagueFixtureDate(seasonRounds()-1);if(promotionDates!=null&&!promotionDates.fixtures().isEmpty())last=promotionDates.fixtures().get(promotionDates.fixtures().size()-1).date;
+        return lowerPromotionDates.next(lowerPromotion,currentDate,last,seasonReservedDates());
+    }
+    private LocalDate promotionFixtureDate() {
+        if(promotion==null||promotion.complete())return null;
+        if(fixtureVersion<6)return currentDate;
+        if(promotionDates==null)promotionDates=new PostseasonCalendar(careerSeasonStart.getYear());
+        return promotionDates.next(promotion,currentDate,leagueFixtureDate(seasonRounds()-1),seasonReservedDates());
+    }
     private LocalDate leagueFixtureDate(int round) {
+        if(fixtureVersion>=6) {
+            if(leagueDates.isEmpty())leagueDates=CompetitionCalendar.boundedSeason(LocalDate.of(careerSeasonStart.getYear(),8,9),LocalDate.of(careerSeasonStart.getYear()+1,5,10),seasonRounds(),seasonReservedDates());
+            return round<leagueDates.size()?leagueDates.get(Math.max(0,round)):leagueDates.get(leagueDates.size()-1).plusDays(2);
+        }
         if(fixtureVersion>=5&&europeanCampaign!=null&&round<seasonRounds()) {
             ArrayList<LocalDate> dates=new ArrayList<>(europeanCampaign.calendarForClub(selectedClub));
             if(domesticCup!=null)dates.addAll(domesticCup.calendar());
@@ -6310,14 +6348,16 @@ public class MainActivity extends Activity {
     private boolean nextCupIsScottish(){return scottishLeagueCup!=null&&!scottishLeagueCup.active().complete()&&(nationalCups==null||nationalCups.complete()||!scottishLeagueCup.active().nextDate().isAfter(nationalCups.active().nextDate()));}
     private boolean nextCupIsNational(){return nationalCups!=null&&!nationalCups.complete()&&!nextCupIsScottish();}
     private LocalDate nextDomesticCupDate(){return nextCupIsModernPortuguese()?modernPortugueseCup.active().current().date:nextCupIsScottish()?scottishLeagueCup.active().nextDate():nextCupIsNational()?nationalCups.active().nextDate():nextCupIsDomestic()?domesticCup.nextDate():leagueCup==null?null:leagueCup.nextDate();}
-    private KnockoutTie nextCupTie(){if(nextCupIsDutchEuropean())return dutchEuropeanPlayoff.current();if(nextCupIsEuropean())return europeanMatch(europeanCampaign.next(selectedClub));return nextCupIsModernPortuguese()?modernPortugueseMatch():nextCupIsScottish()?scottishLeagueCup.active().current():nextCupIsNational()?nationalCups.active().current():nextCupIsDomestic()?domesticCup.current():leagueCup==null?null:leagueCup.current();}
-    private String nextCupName(){if(nextCupIsDutchEuropean())return "Dutch European ticket";if(nextCupIsEuropean())return EuropeanCampaign.name(europeanCampaign.next(selectedClub).competition);return nextCupIsModernPortuguese()?"Taça da Liga":nextCupIsScottish()?"Scottish League Cup":nextCupIsNational()?NationalCupCampaign.name(nationalCups.active().competition):nextCupIsDomestic()?"Taça de Portugal":"League Cup";}
-    private String nextCupRound(){if(nextCupIsDutchEuropean())return dutchEuropeanPlayoff.roundName();if(nextCupIsEuropean())return europeanCampaign.round(europeanCampaign.next(selectedClub));return nextCupIsModernPortuguese()?modernPortugueseCup.active().roundName():nextCupIsScottish()?scottishLeagueCup.active().roundName():nextCupIsNational()?nationalCups.active().round(nationalCups.active().stage(nationalCups.active().currentIndex())).name:nextCupIsDomestic()?domesticCup.roundName(domesticCup.currentIndex()):PortugueseLeagueCup.roundName(leagueCup.currentIndex());}
+    private KnockoutTie nextCupTie(){if(nextCupIsLeagueDecision())return leagueDecisions.next(selectedClub).tie;if(nextCupIsDutchEuropean())return dutchEuropeanPlayoff.current();if(nextCupIsEuropean())return europeanMatch(europeanCampaign.next(selectedClub));return nextCupIsModernPortuguese()?modernPortugueseMatch():nextCupIsScottish()?scottishLeagueCup.active().current():nextCupIsNational()?nationalCups.active().current():nextCupIsDomestic()?domesticCup.current():leagueCup==null?null:leagueCup.current();}
+    private String nextCupName(){if(nextCupIsLeagueDecision())return "League deciding match";if(nextCupIsDutchEuropean())return "Dutch European ticket";if(nextCupIsEuropean())return EuropeanCampaign.name(europeanCampaign.next(selectedClub).competition);return nextCupIsModernPortuguese()?"Taça da Liga":nextCupIsScottish()?"Scottish League Cup":nextCupIsNational()?NationalCupCampaign.name(nationalCups.active().competition):nextCupIsDomestic()?"Taça de Portugal":"League Cup";}
+    private String nextCupRound(){if(nextCupIsLeagueDecision())return leagueDecisions.next(selectedClub).series?"Neutral deciding series":"Neutral league decider";if(nextCupIsDutchEuropean())return dutchEuropeanPlayoff.roundName();if(nextCupIsEuropean())return europeanCampaign.round(europeanCampaign.next(selectedClub));return nextCupIsModernPortuguese()?modernPortugueseCup.active().roundName():nextCupIsScottish()?scottishLeagueCup.active().roundName():nextCupIsNational()?nationalCups.active().round(nationalCups.active().stage(nationalCups.active().currentIndex())).name:nextCupIsDomestic()?domesticCup.roundName(domesticCup.currentIndex()):PortugueseLeagueCup.roundName(leagueCup.currentIndex());}
     private boolean europeanBeforeDomestic(){EuropeanCampaign.Event event=europeanCampaign==null?null:europeanCampaign.next(selectedClub);LocalDate domestic=nextDomesticCupDate();return event!=null&&(domestic==null||event.date.isBefore(domestic));}
     private LocalDate nextNonDutchCupDate(){return europeanBeforeDomestic()?europeanCampaign.next(selectedClub).date:nextDomesticCupDate();}
     private boolean nextCupIsDutchEuropean(){prepareDutchEuropeanPlayoff();LocalDate other=nextNonDutchCupDate();return dutchEuropeanPlayoff!=null&&!dutchEuropeanPlayoff.complete()&&(other==null||!dutchEuropeanPlayoff.nextDate().isAfter(other));}
     private boolean nextCupIsEuropean(){return !nextCupIsDutchEuropean()&&europeanBeforeDomestic();}
-    private LocalDate nextCupDate(){return nextCupIsDutchEuropean()?dutchEuropeanPlayoff.nextDate():nextNonDutchCupDate();}
+    private LocalDate nextCupDate(){prepareLeagueDecisions();return nextCupIsLeagueDecision()?leagueDecisions.next(selectedClub).date:nextOrdinaryCupDate();}
+    private LocalDate nextOrdinaryCupDate(){return nextCupIsDutchEuropean()?dutchEuropeanPlayoff.nextDate():nextNonDutchCupDate();}
+    private boolean nextCupIsLeagueDecision(){prepareLeagueDecisions();LeagueDecisions.Event event=leagueDecisions==null?null:leagueDecisions.next(selectedClub);LocalDate other=nextOrdinaryCupDate();return event!=null&&(other==null||!event.date.isAfter(other));}
     private KnockoutTie europeanMatch(EuropeanCampaign.Event event){return event.tie!=null?event.tie:new KnockoutTie(event.home,event.away,1,event.home,false,KnockoutTie.Rule.EXTRA_TIME_PENALTIES);}
     private LocalDate nextCareerEventDate(){
         LocalDate cup=nextCupDate();if(cup!=null&&!cup.isAfter(cupHorizon()))return cup;
@@ -6325,11 +6365,15 @@ public class MainActivity extends Activity {
         return matchday>=seasonRounds()&&currentDate.isAfter(nextLeagueDate())?currentDate:nextLeagueDate();
     }
     private boolean cupDue(){LocalDate date=nextCupDate();return date!=null&&!date.isAfter(cupHorizon());}
-    private boolean cupsComplete(){prepareDutchEuropeanPlayoff();return (division==null||!division.country.equals("NL")||europeanCampaign==null||dutchEuropeanPlayoff!=null&&dutchEuropeanPlayoff.complete())&&(europeanCampaign==null||europeanCampaign.complete())&&(leagueCup==null||leagueCup.complete())&&(domesticCup==null||domesticCup.complete())&&(nationalCups==null||nationalCups.complete())&&(scottishLeagueCup==null||scottishLeagueCup.active().complete())&&(modernPortugueseCup==null||modernPortugueseCup.active().complete());}
+    private boolean cupsComplete(){prepareLeagueDecisions();prepareDutchEuropeanPlayoff();return (leagueDecisions==null||leagueDecisions.complete())&&(division==null||!division.country.equals("NL")||europeanCampaign==null||dutchEuropeanPlayoff!=null&&dutchEuropeanPlayoff.complete())&&(europeanCampaign==null||europeanCampaign.complete())&&(leagueCup==null||leagueCup.complete())&&(domesticCup==null||domesticCup.complete())&&(nationalCups==null||nationalCups.complete())&&(scottishLeagueCup==null||scottishLeagueCup.active().complete())&&(modernPortugueseCup==null||modernPortugueseCup.active().complete());}
     private void finalizeSeasonIfReady(){if(matchday>=seasonRounds()&&cupsComplete()&&lowerLeaguesComplete()&&!seasonAgeApplied){processSeasonEnd();seasonAgeApplied=true;}}
     private void advanceCareerDate(LocalDate target) {
         if(target==null||target.isBefore(currentDate))throw new IllegalStateException("Career event would move the date backwards");
-        if((domesticCup!=null||nationalCups!=null)&&matchday>=seasonRounds()&&!seasonAgeApplied) {
+        if(fixtureVersion>=6) {
+            while(careerWeeksProcessed<80&&!careerSeasonStart.plusWeeks(careerWeeksProcessed+1L).isAfter(target)) {
+                currentDate=careerSeasonStart.plusWeeks(++careerWeeksProcessed);processFinanceEntries(false,true);advanceStadiumProject();applyTrainingSession();processInjuriesAndRecovery();processScoutingAssignments();
+            }
+        } else if((domesticCup!=null||nationalCups!=null)&&matchday>=seasonRounds()&&!seasonAgeApplied) {
             LocalDate lastLeague=leagueFixtureDate(seasonRounds()-1);
             while(postseasonWeeksProcessed<20&&!lastLeague.plusWeeks(postseasonWeeksProcessed+1L).isAfter(target)) {
                 LocalDate financeDate=lastLeague.plusWeeks(++postseasonWeeksProcessed);if(financeDate.isAfter(currentDate))currentDate=financeDate;
@@ -6344,6 +6388,7 @@ public class MainActivity extends Activity {
     private void advanceLeagueCup() {
         if(matchInProgress)return;
         while(cupDue()) {
+            if(nextCupIsLeagueDecision()){if(advanceLeagueDecision())return;continue;}
             if(nextCupIsDutchEuropean()){if(advanceDutchEuropeanPlayoff())return;continue;}
             if(nextCupIsEuropean()){if(advanceEuropeanEvent())return;continue;}
             if(nextCupIsModernPortuguese()){if(advanceModernPortugueseCup())return;continue;}
@@ -6361,6 +6406,7 @@ public class MainActivity extends Activity {
         advanceCareerDate(nextCareerEventDate());finalizeSeasonIfReady();saveCurrentGame();showDashboard();
     }
     private void finishLeagueCupMatch() {
+        if(liveLeagueDecision){finishLeagueDecision();return;}
         if(liveDutchEuropean){finishDutchEuropeanPlayoff();return;}
         if(liveEuropean){finishEuropeanMatch();return;}
         if(liveModernPortugueseCup){finishModernPortugueseCupMatch();return;}
@@ -6971,7 +7017,7 @@ public class MainActivity extends Activity {
     private void configureDivision(CareerDivision value) {
         dutchEuropeanPlayoff=null;liveDutchEuropean=false;
         seasonHistory=new SeasonHistory();marketHires=new ArrayList<>();
-        division=value;europeanCampaign=null;liveEuropean=false;liveEuropeanEvent=null;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;liveCup=false;liveDomesticCup=false;leagueCup=null;modernPortugueseCup=null;liveModernPortugueseCup=false;portugueseThird=null;portugueseFourth=null;portugueseDistrict=null;lowerPromotion=null;liveLowerPlayoff=false;nextManagerClub=-1;domesticCup=null;nationalCups=null;liveNationalCup=false;scottishLeagueCup=null;liveScottishCup=false;domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
+        division=value;reserveTransitionSeed=null;leagueDecisions=null;liveLeagueDecision=false;liveDecisionEvent=null;leagueDates=java.util.Collections.emptyList();leagueDatesKey="";promotionDates=null;lowerPromotionDates=null;europeanCampaign=null;liveEuropean=false;liveEuropeanEvent=null;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;liveCup=false;liveDomesticCup=false;leagueCup=null;modernPortugueseCup=null;liveModernPortugueseCup=false;portugueseThird=null;portugueseFourth=null;portugueseDistrict=null;lowerPromotion=null;liveLowerPlayoff=false;nextManagerClub=-1;domesticCup=null;nationalCups=null;liveNationalCup=false;scottishLeagueCup=null;liveScottishCup=false;domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;careerWeeksProcessed=0;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
         defaultClubNames=value==null?legacyNames.clone():value.names.clone();
         strength=value==null?legacyStrength.clone():value.strengths.clone();
         budgets=value==null?legacyBudgets.clone():value.budgets.clone();
@@ -7044,15 +7090,14 @@ public class MainActivity extends Activity {
     private void prepareSplitIfNeeded() {
         if(division==null||!division.country.equals("SCO")||(!division.linked&&!division.splitSeason())||matchday!=33||splitOrder.length==12)return;
         ScottishStandings ranking=scottishStandings(1);
-        Integer[] order=ranking.order;
-        scottishSplitProvisional=ranking.tiedAt(5);
-        splitOrder=new int[order.length];for(int i=0;i<order.length;i++)splitOrder[i]=order[i];
-        addNews("LEAGUE",scottishSplitProvisional?"League split provisional":"League split confirmed",scottishSplitProvisional?"The sixth-place tie requires a deciding match which is not yet implemented. The displayed split remains provisional; no promotion places will be awarded from it.":"The top six and bottom six now play five further matches within their group. League points are retained.");
+        if(ranking.tiedAt(5)&&leagueDecisions!=null){ensureLeagueDecisionGroups("SPLIT1",1,true);ranking=scottishStandings(1);if(ranking.tiedAt(5)){scottishSplitProvisional=true;return;}}
+        Integer[] order=ranking.order;scottishSplitProvisional=ranking.tiedAt(5);splitOrder=new int[order.length];for(int i=0;i<order.length;i++)splitOrder[i]=order[i];
+        if(fixtureVersion>=6&&leagueDecisions!=null){LocalDate earliest=currentDate.plusDays(2);List<LocalDate> remaining=CompetitionCalendar.boundedSeason(earliest,LocalDate.of(careerSeasonStart.getYear()+1,5,10),seasonRounds()-33,seasonReservedDates());ArrayList<LocalDate> dates=new ArrayList<>(leagueDates.subList(0,33));dates.addAll(remaining);leagueDates=dates;}
+        addNews("LEAGUE",scottishSplitProvisional?"League split provisional":"League split confirmed","The top six and bottom six play five further matches within their group. Regular-season points are retained; any required deciding results are saved separately.");
     }
     private void advanceByeRound() {
         for(LeagueSchedule.Pairing f:fixturesForRound(matchday))updateTable(f.home,f.away,simulateGoals(f.home,f.away,true),simulateGoals(f.away,f.home,false));
-        applyTrainingSession();processFinanceWeek();advanceStadiumProject();matchday++;
-        processScoutingAssignments();processInjuriesAndRecovery();prepareSplitIfNeeded();
+        if(fixtureVersion<6){applyTrainingSession();processFinanceWeek(false);advanceStadiumProject();processScoutingAssignments();processInjuriesAndRecovery();}matchday++;prepareSplitIfNeeded();
         finalizeSeasonIfReady();
         advanceCareerDate(leagueCup==null&&domesticCup==null&&nationalCups==null?currentDate.plusDays(7):nextCareerEventDate());
         addNews("LEAGUE","Rest week completed","Your club had no league fixture this round. The other league results and your weekly club operations have been processed.");
@@ -7062,6 +7107,7 @@ public class MainActivity extends Activity {
         for(int[] array:new int[][]{played,won,drawn,lost,goalsFor,goalsAgainst,points})Arrays.fill(array,0);
         Arrays.fill(clubMatchGF,-1);Arrays.fill(clubMatchGA,-1);
         leagueResults=new LeagueResults(clubNames.length,division!=null);
+        if(fixtureVersion>=6){if(leagueDecisions==null||leagueDecisions.year!=careerSeasonStart.getYear())leagueDecisions=new LeagueDecisions(careerSeasonStart.getYear(),clubNames.length);}else leagueDecisions=null;
     }
     private void showLeagueResults(int requestedRound) {showLeagueResults(requestedRound,division==null?1:division.tier);}
     private void showLeagueResults(int requestedRound,int tableTier) {
@@ -7087,33 +7133,61 @@ public class MainActivity extends Activity {
         if(fixtures.length>0 && division!=null && tableTier==division.tier && leagueOpponentForRound(round)<0)page.addView(makeText("Your club has a bye this round.",14,accent));
         page.addView(makeButton("League table",v->showLeagueTable(tableTier)));
     }
+    private String decisionStage(int tier){return division.country.equals("SCO")&&tier==1&&matchday==33?"SPLIT1":"FINAL"+tier;}
     private ScottishStandings scottishStandings(int tier) {
         int[] groups=new int[clubNames.length];for(int i=0;i<groups.length;i++)groups[i]=splitGroup(i);
-        return new ScottishStandings(tableMembers(tier),groups,points,goalsFor,goalsAgainst,leagueResults);
+        return new ScottishStandings(tableMembers(tier),groups,points,goalsFor,goalsAgainst,leagueResults).decisions(leagueDecisions,decisionStage(tier));
     }
     private GermanStandings germanStandings(int tier) {
-        return new GermanStandings(tableMembers(tier),points,goalsFor,goalsAgainst,leagueResults);
+        return new GermanStandings(tableMembers(tier),points,goalsFor,goalsAgainst,leagueResults).decisions(leagueDecisions,decisionStage(tier));
     }
     private TurkishStandings turkishStandings(int tier) {
-        return new TurkishStandings(tableMembers(tier),points,goalsFor,goalsAgainst,leagueResults,matchday>=division.rounds(tier));
+        return new TurkishStandings(tableMembers(tier),points,goalsFor,goalsAgainst,leagueResults,matchday>=division.rounds(tier)).decisions(leagueDecisions,decisionStage(tier));
     }
     private DutchStandings dutchStandings(int tier) {
-        return new DutchStandings(tableMembers(tier),points,played,goalsFor,goalsAgainst,clubNames,leagueResults,matchday>=division.rounds(tier));
+        return new DutchStandings(tableMembers(tier),points,played,goalsFor,goalsAgainst,clubNames,leagueResults,matchday>=division.rounds(tier)).decisions(leagueDecisions,decisionStage(tier));
     }
     private ItalianStandings italianStandings(int tier) {
-        return new ItalianStandings(tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier));
+        return new ItalianStandings(tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier)).decisions(leagueDecisions,decisionStage(tier));
     }
     private EnglishStandings englishStandings(int tier) {
-        return new EnglishStandings(tier,tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier));
+        return new EnglishStandings(tier,tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier),europeanCampaign==null||tier!=1?0:10).decisions(leagueDecisions,decisionStage(tier));
     }
     private FrenchStandings frenchStandings(int tier) {
-        return new FrenchStandings(tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier));
+        return new FrenchStandings(tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier),leagueDecisions==null?null:leagueDecisions.disciplinaryPoints(leagueResults)).decisions(leagueDecisions,decisionStage(tier));
     }
     private BelgianStandings belgianStandings(int tier) {
-        return new BelgianStandings(tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults);
+        return new BelgianStandings(tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults).decisions(leagueDecisions,decisionStage(tier));
     }
     private IberianStandings iberianStandings(int tier) {
-        return new IberianStandings(division.country,tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier));
+        return new IberianStandings(division.country,tableMembers(tier),points,goalsFor,goalsAgainst,won,leagueResults,matchday>=division.rounds(tier),leagueDecisions==null?null:leagueDecisions.disciplinaryPoints(leagueResults)).decisions(leagueDecisions,decisionStage(tier));
+    }
+    private Integer[] countryOrder(int tier){switch(division.country){case "PT":case "ES":return iberianStandings(tier).order;case "SCO":return scottishStandings(tier).order;case "DE":return germanStandings(tier).order;case "TR":return turkishStandings(tier).order;case "NL":return dutchStandings(tier).order;case "IT":return italianStandings(tier).order;case "ENG":return englishStandings(tier).order;case "FR":return frenchStandings(tier).order;default:return belgianStandings(tier).order;}}
+    private boolean countryTie(int tier,int at){switch(division.country){case "PT":case "ES":return iberianStandings(tier).tiedAt(at);case "SCO":return scottishStandings(tier).tiedAt(at);case "DE":return germanStandings(tier).tiedAt(at);case "TR":return turkishStandings(tier).tiedAt(at);case "NL":return dutchStandings(tier).tiedAt(at);case "IT":return italianStandings(tier).tiedAt(at);case "ENG":return englishStandings(tier).tiedAt(at);case "FR":return frenchStandings(tier).tiedAt(at);default:return belgianStandings(tier).tiedAt(at);}}
+    private void prepareLeagueDecisions(){if(leagueDecisions==null||division==null||matchday<seasonRounds()||!leagueResults.recordedFromStart)return;for(int tier=1;tier<=2;tier++)ensureLeagueDecisionGroups("FINAL"+tier,tier,false);}
+    private void ensureLeagueDecisionGroups(String stage,int tier,boolean split) {
+        Integer[] order=countryOrder(tier);boolean[] tied=new boolean[Math.max(0,order.length-1)];for(int i=0;i<tied.length;i++)tied[i]=countryTie(tier,i);
+        for(int start=0;start<order.length;){int end=start+1;while(end<order.length&&tied[end-1])end++;
+            boolean consequential=!split||start<=5&&end>6;if(division.country.equals("ENG")&&tier==1&&start>=10&&end<=order.length-3)consequential=false;
+            if(end-start>1&&consequential){int[] clubs=new int[end-start];for(int i=start;i<end;i++)clubs[i-start]=order[i];
+                boolean lots=division.country.equals("FR")||division.country.equals("IT");
+                if(lots&&division.country.equals("FR")&&leagueDecisions.disciplinaryPoints(leagueResults)==null){start=end;continue;}
+                LocalDate earliest=currentDate.plusDays(2);if(!split){LocalDate leagueEnd=leagueFixtureDate(seasonRounds()-1).plusDays(2);if(earliest.isBefore(leagueEnd))earliest=leagueEnd;}
+                if(!leagueDecisions.contains(stage,clubs)&&leagueDecisions.ensure(stage,clubs,lots,random.nextLong(),earliest,seasonReservedDates()))addNews("COMPETITION",lots?"Final ranking draw":"League deciding fixtures",clubList(clubs)+(lots?" remain equal after the recorded sporting/disciplinary criteria. The saved career draw fixes their order.":" remain equal after the sporting criteria. A neutral deciding match/series will resolve their positions; its results do not alter regular league points."));
+            }start=end;
+        }
+    }
+    private boolean advanceLeagueDecision() {
+        LeagueDecisions.Event event=leagueDecisions.next(selectedClub);advanceCareerDate(event.date);
+        if(event.contains(selectedClub)){startLiveMatchday(false,true);return true;}
+        event.tie.recordRegulation(simulateGoals(event.tie.firstHome,event.tie.firstAway,false),simulateGoals(event.tie.firstAway,event.tie.firstHome,false));if(!event.series)settleKnockout(event.tie);leagueDecisions.resolveSeries();prepareSplitIfNeeded();advanceCareerDate(nextCareerEventDate());finalizeSeasonIfReady();return false;
+    }
+    private void finishLeagueDecision() {
+        LeagueDecisions.Event event=liveDecisionEvent;event.tie.recordRegulation(liveHomeGoals,liveAwayGoals);if(!event.series)settleKnockout(event.tie);leagueDecisions.resolveSeries();
+        playLiveSound("whistle");stopLiveMatchTicker();stopLiveMatchAudio();setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        for(java.util.Map.Entry<Integer,Integer> e:matchGoals.entrySet()){Player p=findPlayer(e.getKey());if(p!=null)p.goals+=e.getValue();}for(int id:matchParticipants){Player p=findPlayer(id);if(p!=null)p.appearances++;}
+        matchInProgress=false;liveCup=false;liveLeagueDecision=false;liveDecisionEvent=null;prepareSplitIfNeeded();advanceCareerDate(nextCareerEventDate());finalizeSeasonIfReady();saveCurrentGame();
+        backAction=this::showDashboard;LinearLayout page=createPage("League decision • Full Time","Regular league totals retained",true);page.addView(makeText(clubNames[liveHome]+" "+liveHomeGoals+" – "+liveAwayGoals+" "+clubNames[liveAway],21,accent));page.addView(makeButton("League tables",v->showLeagueTable()));page.addView(makeAccentButton("Continue",v->showDashboard()));
     }
     private boolean hasPromotionRules() {
         return division!=null&&division.linked&&java.util.Arrays.asList("SCO","DE","TR","PT","ES","BE","FR","ENG","IT","NL").contains(division.country);
@@ -7202,6 +7276,7 @@ public class MainActivity extends Activity {
     private void showSeasonReview() {
         backAction=this::showDashboard;
         LinearLayout page=createPage("Season review",leagueName()+" • Season complete",true);
+        prepareLeagueDecisions();
         boolean upperReady=preparePromotion();
         prepareDutchEuropeanPlayoff();if(dutchEuropeanPlayoff!=null)page.addView(makeButton("Dutch European ticket • fixtures & results",v->showDutchEuropeanPlayoff(dutchEuropeanPlayoff,false)));
         if(portugueseThird!=null) {
@@ -7215,6 +7290,7 @@ public class MainActivity extends Activity {
             int index=0;
             for(KnockoutTie tie:promotion.ties()) {
                 LinearLayout card=makePanel();card.addView(profileSectionTitle(promotion.roundName(index++)));
+                if(promotionDates!=null)for(PostseasonCalendar.Fixture f:promotionDates.fixtures())if(f.tie==index-1)card.addView(makeText("Leg "+(f.leg+1)+" • "+f.date.format(DATE_FORMAT)+" • projected career date",12,muted));
                 appendKnockoutDetails(card,tie,false);
                 page.addView(card);
             }
@@ -7228,12 +7304,15 @@ public class MainActivity extends Activity {
             if(!promotion.complete())page.addView(makeAccentButton("Continue play-offs",v->advancePromotion()));
             else page.addView(makeAccentButton("Apply promotion & start next season",v->continueDivisionSeason()));
         } else {
-            String reason=!unreadablePromotion.isEmpty()?"Saved playoff data could not be read. It has been kept; league progress remains available.":
+            boolean pendingDecisions=leagueDecisions!=null&&!leagueDecisions.complete();
+            String reason=!unreadablePromotion.isEmpty()?"Saved playoff data could not be read. It has been kept; league progress remains available.":pendingDecisions?"Complete the dated league deciding fixtures before promotion places are awarded.":
                 hasPromotionRules()?"The split or final league places need verified historical results or the remaining official tiebreak process before playoff places can be awarded. This case is not implemented yet; no club has been promoted or relegated.":
                 "Promotion, relegation and European admissions are awaiting this competition's implementation. This development career retains its division.";
             page.addView(makeText(reason,14,muted));
-            if(unreadablePromotion.isEmpty())page.addView(makeButton("Next season — retain divisions",v->continueDivisionSeason()));
+            if(pendingDecisions)page.addView(makeAccentButton("Continue deciding fixtures",v->advanceLeagueCup()));
+            else if(unreadablePromotion.isEmpty())page.addView(makeButton("Continue season transition",v->continueDivisionSeason()));
         }
+        page.addView(makeButton("League deciding results & draws",v->showLeagueDecisionHistory()));
         page.addView(makeText("Future seasons use simulated dates based on 2026/27, not newly verified official calendars.",12,muted));
         page.addView(makeButton("Final league table",v->showLeagueTable()));
     }
@@ -7244,6 +7323,7 @@ public class MainActivity extends Activity {
     private void showHistoryHub() {
         backAction=()->showDashboard();
         LinearLayout page=createPage("History","Real-world records and your career",true);
+        page.addView(makeButton("League decisions & final draws",v->showLeagueDecisionHistory()));
         if(europeanCampaign!=null){
             page.addView(makeButton("Your career • European competitions",v->showCalendarTab("Europe")));
             for(EuropeanSeasons editions:europeanCampaign.competitions()){
@@ -7300,6 +7380,11 @@ public class MainActivity extends Activity {
             }
         } catch(Exception invalid){page.addView(makeText("History archive unavailable.",14,muted));}
     }
+    private void showLeagueDecisionHistory() {
+        backAction=this::showHistoryHub;LinearLayout page=createPage("League decisions","Saved final equality and split decisions",true);
+        if(leagueDecisions==null){page.addView(makeText("This older career did not store league decision results.",14,muted));return;}
+        for(LeagueDecisions edition:leagueDecisions.editions())page.addView(makeButton(edition.year+"/"+(edition.year+1)+" • "+edition.fixtures().size()+" fixtures",v->{backAction=this::showLeagueDecisionHistory;LinearLayout detail=createPage("League decisions",edition.year+"/"+(edition.year+1),true);for(int[] order:edition.lotResults())detail.addView(profileInfoRow("Saved final draw",clubList(order)));for(LeagueDecisions.Event event:edition.fixtures()){LinearLayout card=makePanel();card.addView(makeText(event.date.format(DATE_FORMAT)+" • "+clubNames[event.tie.firstHome]+" v "+clubNames[event.tie.firstAway],14,text));if(event.series){int[] score=event.tie.playedLegs()==0?null:event.tie.regulationScore(0);card.addView(makeText(score==null?"Scheduled":score[0]+" – "+score[1]+" after 90 minutes",14,muted));}else appendKnockoutDetails(card,event.tie,false);detail.addView(card);}for(KnockoutTie session:edition.shootoutSessions())detail.addView(profileInfoRow("Series shootout",clubNames[session.firstHome]+" "+session.penaltyScore()[0]+"–"+session.penaltyScore()[1]+" "+clubNames[session.firstAway]));if(edition.fixtures().isEmpty()&&edition.lotResults().isEmpty())detail.addView(makeText("The sporting criteria settled all league places in this edition.",14,muted));}));
+    }
     private void showSeasonHistory() {
         backAction=()->showHistoryHub();
         LinearLayout page=createPage("Season history","Completed seasons with your club",true);
@@ -7321,6 +7406,7 @@ public class MainActivity extends Activity {
     private void continueDivisionSeason() {
         if(division==null||matchday<seasonRounds()||!unreadablePromotion.isEmpty())return;
         if(!cupsComplete()){if(nextCupDate()==null)showSeasonReview();else advanceLeagueCup();return;}
+        if(!preparePromotion()){showSeasonReview();return;}
         if(portugueseThird!=null){if(!lowerLeaguesComplete()){LocalDate lowerFinal=portugueseFourth.active().finalDate();advanceCareerDate(lowerFinal.isBefore(currentDate)?currentDate:lowerFinal);}finalizeSeasonIfReady();if(!prepareLowerPromotion()){showSeasonReview();return;}if(!lowerPromotion.complete()){advanceLowerPromotion(false);if(!lowerPromotion.complete())return;}}
         CareerDivision previousDivision=division,nextDivision=division;int previousClub=selectedClub,nextClub=selectedClub;
         ReserveTierOutcome reserveOutcome=null;
@@ -7335,8 +7421,8 @@ public class MainActivity extends Activity {
             } else if(promotion!=null) {
                 if(ReserveEligibility.parentRelegationConflict(division.clubIds,division.reserves,promotion.relegated())&&division.expandedWorld()) {
                     int[] levels=new int[clubNames.length];for(int c=0;c<levels.length;c++)levels[c]=division.level(c);
-                    reserveOutcome=new ReserveTierOutcome(division.country,division.clubIds,levels,division.reserves,strength,promotion.promoted(),promotion.relegated(),random.nextLong());
-                    if(reserveOutcome.levels[selectedClub]>2){if(nextManagerClub<0){showProfessionalVacancies(reserveOutcome.levels);return;}nextClub=nextManagerClub;}
+                    reserveOutcome=new ReserveTierOutcome(division.country,division.clubIds,levels,division.reserves,strength,promotion.promoted(),promotion.relegated(),reserveTransitionSeed==null?(reserveTransitionSeed=random.nextLong()):reserveTransitionSeed);
+                    if(reserveOutcome.levels[selectedClub]>2){if(nextManagerClub<0){saveCurrentGame();showProfessionalVacancies(reserveOutcome.levels);return;}nextClub=nextManagerClub;}
                     nextDivision=division.withLocalLevels(reserveOutcome.levels,nextClub);
                 } else nextDivision=division.moveBetweenTiers(promotion.promoted(),promotion.relegated(),selectedClub);
             }
@@ -7344,8 +7430,9 @@ public class MainActivity extends Activity {
         DomesticCup nextDomestic=domesticCup;DomesticCupHistory nextCupHistory=domesticCupHistory;NationalCupCampaign nextNational=nationalCups;EuropeanCampaign nextEurope=europeanCampaign;
         ScottishLeagueCupSeasons nextScottish=scottishLeagueCup;PortugueseLeagueCupSeasons nextModern=modernPortugueseCup;
         PortugueseThirdDivisionSeasons nextThird=portugueseThird;PortugueseFourthDivisionSeasons nextFourth=portugueseFourth;PortugueseDistrictSeasons nextDistrict=portugueseDistrict;
-        SeasonHistory nextHistory=seasonHistory;int nextYear=careerSeasonStart.getYear()+1;
+        SeasonHistory nextHistory=seasonHistory;int nextYear=careerSeasonStart.getYear()+1;LeagueDecisions nextDecisions=leagueDecisions;
         try {
+            if(leagueDecisions!=null)nextDecisions=leagueDecisions.nextSeason(nextYear);
             EuropeanAdmissions admissions=europeanCampaign==null?null:annualEuropeanAdmissions();
             int[] qualified=admissions==null?null:admissions.entries().stream().filter(e->division.association(e.club).equals(division.country)).mapToInt(e->e.club).toArray();
             if(scottishLeagueCup!=null)nextScottish=scottishLeagueCup.next(newScottishLeagueCup(nextDivision,nextYear,nationalSportingOrder(),qualified).active());
@@ -7362,7 +7449,8 @@ public class MainActivity extends Activity {
             if(admissions!=null)nextEurope=europeanCampaign.next(admissions,random.nextLong(),domesticCalendar(nextYear,nextDomestic,nextNational,nextScottish,nextModern));
             nextHistory=seasonHistory.append(new SeasonHistory.Entry(careerSeasonStart.toString(),previousDivision.clubIds[previousClub],clubNames[previousClub],previousDivision.name,previousDivision.tier,pyramid==null?nextDivision.tier:pyramid.levels[previousClub],played[previousClub],won[previousClub],drawn[previousClub],lost[previousClub],goalsFor[previousClub],goalsAgainst[previousClub],points[previousClub]));
         }catch(IllegalArgumentException|IllegalStateException invalid){android.util.Log.e("BOSSXI_SEASON","Season archive failed",invalid);new BossDialog.Builder(this).setTitle("Season could not be archived").setMessage("The completed season has been kept unchanged. "+invalid.getMessage()).setPositiveButton("Back",null).show();return;}
-        division=nextDivision;selectedClub=nextClub;seasonHistory=nextHistory;domesticCup=nextDomestic;domesticCupHistory=nextCupHistory;nationalCups=nextNational;scottishLeagueCup=nextScottish;modernPortugueseCup=nextModern;portugueseThird=nextThird;portugueseFourth=nextFourth;portugueseDistrict=nextDistrict;europeanCampaign=nextEurope;
+        if(fixtureVersion>=6){advanceCareerDate(LocalDate.of(nextYear,6,30));rollFinanceSeason();}
+        division=nextDivision;selectedClub=nextClub;leagueDecisions=nextDecisions;seasonHistory=nextHistory;domesticCup=nextDomestic;domesticCupHistory=nextCupHistory;nationalCups=nextNational;scottishLeagueCup=nextScottish;modernPortugueseCup=nextModern;portugueseThird=nextThird;portugueseFourth=nextFourth;portugueseDistrict=nextDistrict;europeanCampaign=nextEurope;
         if(selectedClub!=previousClub){int reputation=managerReputation;currentTransferBudget=budgets[selectedClub];initialiseClassicCareerSystems();managerReputation=reputation;initialiseTacticsForClub();resetFinanceStadiumState();}
         if(catalog!=null)for(int i=0;i<catalog.divisions.size();i++)if(catalog.divisions.get(i).id.equals(division.id))managerLeagueIndex=i+1;
         addNews("SEASON",selectedClub!=previousClub?"New club appointment":previousDivision.tier==division.tier?"Next season confirmed":division.tier==1?"Promotion secured":"Club relegated",clubNames[selectedClub]+" will compete in "+division.name+" next season. World club identities, squads and contracts have been retained.");
@@ -7370,8 +7458,8 @@ public class MainActivity extends Activity {
         if(pyramid!=null)for(String ruling:pyramid.rulings){Integer[] clubs=new Integer[clubNames.length];for(int c=0;c<clubs.length;c++)clubs[c]=c;java.util.Arrays.sort(clubs,(a,b)->Integer.compare(division.clubIds[b].length(),division.clubIds[a].length()));for(int c:clubs)ruling=ruling.replace(division.clubIds[c],clubNames[c]);addNews("COMPETITION","Portuguese pyramid ruling",ruling);}
         promotion=null;lowerPromotion=null;nextManagerClub=-1;unreadablePromotion="";scottishSplitProvisional=false;
         dutchEuropeanPlayoff=null;liveDutchEuropean=false;
-        careerSeasonStart=modernPortugueseCup==null&&europeanCampaign==null?careerSeasonStart.plusYears(1):LocalDate.of(nextYear,7,1);if(modernPortugueseCup!=null)fixtureVersion=4;if(europeanCampaign!=null)fixtureVersion=5;
-        currentDate=careerSeasonStart;matchday=0;splitOrder=new int[0];careerSchedule=null;seasonAgeApplied=false;postseasonWeeksProcessed=0;
+        careerSeasonStart=modernPortugueseCup==null&&europeanCampaign==null?careerSeasonStart.plusYears(1):LocalDate.of(nextYear,7,1);if(modernPortugueseCup!=null)fixtureVersion=4;if(europeanCampaign!=null)fixtureVersion=6;
+        currentDate=careerSeasonStart;reserveTransitionSeed=null;matchday=0;splitOrder=new int[0];leagueDates=java.util.Collections.emptyList();leagueDatesKey="";promotionDates=null;lowerPromotionDates=null;careerSchedule=null;seasonAgeApplied=false;postseasonWeeksProcessed=0;careerWeeksProcessed=0;
         resetLeagueStandings();saveCurrentGame();showDashboard();
     }
     private EuropeanAdmissions annualEuropeanAdmissions() {
@@ -7386,6 +7474,7 @@ public class MainActivity extends Activity {
     }
     private void advancePromotion() {
         if(promotion==null)return;
+        if(fixtureVersion>=6&&!cupsComplete()){advanceLeagueCup();return;}
         while(!promotion.complete()) {
             KnockoutTie tie=promotion.current();
             if(tie.home()==selectedClub||tie.away()==selectedClub){startLiveMatchday(true);return;}
@@ -7395,6 +7484,7 @@ public class MainActivity extends Activity {
     }
     private void simulatePromotionLeg() {
         if(promotion==null||promotion.current()==null)return;
+        if(fixtureVersion>=6)advanceCareerDate(promotionFixtureDate());
         KnockoutTie tie=promotion.current();int home=tie.home(),away=tie.away();
         tie.recordRegulation(simulateGoals(home,away,!tie.neutral),simulateGoals(away,home,false));
         settleKnockout(tie);saveCurrentGame();
@@ -7500,7 +7590,13 @@ public class MainActivity extends Activity {
 
         if (selectedSlot < 0 || selectedClub < 0) return;
 
+        if(fixtureVersion>=6&&leagueDates.isEmpty())leagueFixtureDate(0);
         prefs.edit()
+                .putString(key(selectedSlot,"reserve_transition_seed"),reserveTransitionSeed==null?"":reserveTransitionSeed.toString())
+                .putString(key(selectedSlot,"league_decisions"),leagueDecisions==null?"":leagueDecisions.snapshot())
+                .putString(key(selectedSlot,"league_dates"),fixtureVersion>=6?CompetitionCalendar.snapshot(leagueDates):"")
+                .putString(key(selectedSlot,"lower_promotion_dates"),lowerPromotionDates==null?"":lowerPromotionDates.snapshot())
+                .putString(key(selectedSlot,"promotion_dates"),promotionDates==null?"":promotionDates.snapshot())
                 .putBoolean(key(selectedSlot, "exists"), true)
                 .putInt(key(selectedSlot, "club"), selectedClub)
                 .putString(key(selectedSlot,"career_world"),division==null?"":division.snapshot())
@@ -7519,6 +7615,7 @@ public class MainActivity extends Activity {
                 .putString(key(selectedSlot,"european_campaign"),europeanCampaign==null?"":europeanCampaign.snapshot())
                 .putString(key(selectedSlot,"dutch_european_playoff"),dutchEuropeanPlayoff==null?"":dutchEuropeanPlayoff.snapshot())
                 .putBoolean(key(selectedSlot,"season_age_applied"),seasonAgeApplied)
+                .putInt(key(selectedSlot,"career_weeks"),careerWeeksProcessed)
                 .putInt(key(selectedSlot,"postseason_weeks"),postseasonWeeksProcessed)
                 .putString(key(selectedSlot,"market_hires"),WorldMarket.snapshot(marketHires))
                 .putString(key(selectedSlot,"split_order"),encode(splitOrder))
@@ -7607,6 +7704,7 @@ public class MainActivity extends Activity {
             String rawCup=prefs.getString(key(slot,"league_cup"),"");
             PortugueseLeagueCup restoredCup=null;
             DomesticCup restoredDomestic=null;String rawDomestic=prefs.getString(key(slot,"domestic_cup"),"");
+            int restoredCareerWeeks=prefs.getInt(key(slot,"career_weeks"),0);if(restoredCareerWeeks<0||restoredCareerWeeks>80)throw new IllegalArgumentException("Invalid calendar weeks");
             int restoredWeeks=prefs.getInt(key(slot,"postseason_weeks"),0);
             if(restoredWeeks<0||restoredWeeks>20)throw new IllegalArgumentException("Invalid postseason weeks");
             if(saved!=null&&saved.country.equals("PT")&&saved.hasCupClubs()&&rawDomestic.isEmpty())throw new IllegalArgumentException("Missing domestic cup");
@@ -7645,13 +7743,23 @@ public class MainActivity extends Activity {
             if(restoredEuropean!=null){if(saved==null||!saved.linked)throw new IllegalArgumentException("Unexpected UEFA career");restoredEuropean.validate(saved.clubIds,saved.reserves,savedYear,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())));}
             String rawDutch=prefs.getString(key(slot,"dutch_european_playoff"),"");DutchEuropeanPlayoff restoredDutch=rawDutch.isEmpty()?null:DutchEuropeanPlayoff.restore(rawDutch);
             if(restoredDutch!=null){if(saved==null||!saved.country.equals("NL")||restoredEuropean==null||prefs.getInt(key(slot,"matchday"),0)<saved.rounds(1)||restoredNational==null||!restoredNational.complete())throw new IllegalArgumentException("Unexpected Dutch European playoff");restoredDutch.validate(saved.clubIds,saved.reserves,savedYear,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())));if(restoredDutch.cupWinner!=restoredNational.active().winner()||!java.util.Arrays.equals(java.util.Arrays.stream(restoredDutch.leagueOrder()).sorted().toArray(),java.util.Arrays.stream(saved.members(1)).sorted().toArray()))throw new IllegalArgumentException("Changed Dutch playoff qualification inputs");}
-            configureDivision(saved);europeanCampaign=restoredEuropean;seasonHistory=restoredHistory;marketHires=restoredMarket;domesticCupHistory=restoredCupHistory;
+            Long restoredReserveSeed=ReserveTierOutcome.restoreSeed(prefs.getString(key(slot,"reserve_transition_seed"),""));
+            String rawDecisions=prefs.getString(key(slot,"league_decisions"),"");LeagueDecisions restoredDecisions=rawDecisions.isEmpty()?null:LeagueDecisions.restore(rawDecisions);
+            if(restoredDecisions!=null)restoredDecisions.validate(savedYear,n,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())),LeagueResults.restore(prefs.getString(key(slot,"league_results"),""),n));
+            String rawDates=prefs.getString(key(slot,"league_dates"),"");List<LocalDate> restoredDates=java.util.Collections.emptyList();
+            if(!rawDates.isEmpty()){if(saved==null||prefs.getInt(key(slot,"fixture_version"),0)<6)throw new IllegalArgumentException("Unexpected saved league dates");restoredDates=CompetitionCalendar.restore(rawDates,savedYear,Math.max(saved.rounds(1),saved.rounds(2)));}
+            else if(prefs.getInt(key(slot,"fixture_version"),0)>=6)throw new IllegalArgumentException("Missing saved league dates");
+            String rawPromotionDates=prefs.getString(key(slot,"promotion_dates"),"");PostseasonCalendar restoredPromotionDates=rawPromotionDates.isEmpty()?null:PostseasonCalendar.restore(rawPromotionDates);
+            if(restoredPromotionDates!=null)restoredPromotionDates.validate(PromotionCampaign.restore(prefs.getString(key(slot,"promotion"),"")),savedYear,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())),n);
+            String rawLowerDates=prefs.getString(key(slot,"lower_promotion_dates"),"");PostseasonCalendar restoredLowerDates=rawLowerDates.isEmpty()?null:PostseasonCalendar.restore(rawLowerDates);
+            if(restoredLowerDates!=null)restoredLowerDates.validate(restoredLower,savedYear,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())),n);
+            configureDivision(saved);reserveTransitionSeed=restoredReserveSeed;leagueDecisions=restoredDecisions;lowerPromotionDates=restoredLowerDates;leagueDates=restoredDates;promotionDates=restoredPromotionDates;europeanCampaign=restoredEuropean;seasonHistory=restoredHistory;marketHires=restoredMarket;domesticCupHistory=restoredCupHistory;
             dutchEuropeanPlayoff=restoredDutch;
             leagueCup=restoredCup;
             modernPortugueseCup=restoredModern;portugueseThird=restoredThird;portugueseFourth=restoredFourth;portugueseDistrict=restoredDistrict;lowerPromotion=restoredLower;
             domesticCup=restoredDomestic;nationalCups=restoredNational;scottishLeagueCup=restoredScottish;
             seasonAgeApplied=prefs.getBoolean(key(slot,"season_age_applied"),prefs.getInt(key(slot,"matchday"),0)>=seasonRounds());
-            postseasonWeeksProcessed=prefs.getInt(key(slot,"postseason_weeks"),0);
+            careerWeeksProcessed=restoredCareerWeeks;postseasonWeeksProcessed=prefs.getInt(key(slot,"postseason_weeks"),0);
         }
         catch(Exception invalid) {
             new BossDialog.Builder(this).setTitle("Career could not be loaded").setMessage("The saved competition data could not be read. Your save has been kept.").setPositiveButton("OK",null).show();return false;
@@ -7766,7 +7874,7 @@ public class MainActivity extends Activity {
     private void clearSave(int slot) {
         SharedPreferences.Editor editor = prefs.edit();
         String[] fields = {
-                "career_world", "season_start", "season_history", "market_hires", "league_cup", "modern_portuguese_cup", "portuguese_third", "portuguese_fourth", "portuguese_district", "portuguese_lower_promotion", "domestic_cup", "domestic_cup_history", "national_cups", "scottish_league_cup", "european_campaign", "dutch_european_playoff", "season_age_applied", "postseason_weeks", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
+                "reserve_transition_seed", "league_decisions", "league_dates", "promotion_dates", "lower_promotion_dates", "career_world", "season_start", "season_history", "market_hires", "league_cup", "modern_portuguese_cup", "portuguese_third", "portuguese_fourth", "portuguese_district", "portuguese_lower_promotion", "domestic_cup", "domestic_cup_history", "national_cups", "scottish_league_cup", "european_campaign", "dutch_european_playoff", "season_age_applied", "career_weeks", "postseason_weeks", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
                 "manager_wage", "manager_contract_years", "manager_tactical", "manager_motivating", "manager_discipline", "manager_player_knowledge", "manager_youth", "manager_negotiating",
                 "matchday", "date", "training", "formation", "playstyle", "budget", "roles", "role_slots", "role_pos",
                 "staff_am_name", "staff_am_rating", "staff_coach_name", "staff_coach_rating", "staff_scout_name", "staff_scout_rating",
@@ -8428,28 +8536,29 @@ public class MainActivity extends Activity {
     }
 
     private void processFinanceWeek() {processFinanceWeek(true);}
-    private void processFinanceWeek(boolean matchPlayed) {
+    private void processFinanceWeek(boolean matchPlayed){processFinanceEntries(matchPlayed,fixtureVersion<6);}
+    private void processFinanceEntries(boolean matchPlayed,boolean recurring) {
         if (selectedClub < 0) return;
         rollFinanceMonthIfNeeded();
 
-        boolean home = matchPlayed && liveHome == selectedClub;
+        boolean home = matchPlayed && liveHome == selectedClub && (!(liveCup||livePlayoff)||liveKnockout()==null||!liveKnockout().neutral);
         int attendance = home ? calculateHomeAttendance() : 0;
         int ticketPrice = 20 + Math.max(0, strength[selectedClub] - 60) / 3 + stadiumHospitalityLevel;
         int gate = home ? attendance * ticketPrice / 1000 : 0;
         int broadcast = matchPlayed?135 + strength[selectedClub] * 3 + (liveHomeGoals + liveAwayGoals > 4 ? 25 : 0):0;
-        int sponsorship = 105 + strength[selectedClub] * 2 + stadiumMediaLevel * 24;
-        int merchandise = 35 + strength[selectedClub] + stadiumShopLevel * 24
+        int sponsorship = recurring?105 + strength[selectedClub] * 2 + stadiumMediaLevel * 24:0;
+        int merchandise = (recurring?35 + strength[selectedClub] + stadiumShopLevel * 24:0)
                 + (home ? attendance * Math.max(1, stadiumFanZoneLevel) / 2500 : 0);
-        int otherIncome = stadiumMuseumLevel * 14
+        int otherIncome = (recurring?stadiumMuseumLevel * 14:0)
                 + (home ? attendance * (stadiumBarsLevel + stadiumRestaurantsLevel + stadiumHospitalityLevel) / 2200 : 0);
 
-        int playerWages = totalPlayerWagesK();
-        int staffWages = totalStaffWagesK() + managerWeeklyWageK;
-        int maintenance = 35 + stadiumCapacity / 210 + stadiumTrainingLevel * 8
-                + stadiumMedicalLevel * 7 + stadiumGymLevel * 6;
+        int playerWages = recurring?totalPlayerWagesK():0;
+        int staffWages = recurring?totalStaffWagesK() + managerWeeklyWageK:0;
+        int maintenance = recurring?35 + stadiumCapacity / 210 + stadiumTrainingLevel * 8
+                + stadiumMedicalLevel * 7 + stadiumGymLevel * 6:0;
         int travel = !matchPlayed?0:home ? 24 : 90 + Math.max(0, stadiumParkingLevel - 2) * 2;
-        int youthScouting = 35 + stadiumYouthLevel * 12 + chiefScoutRating / 5;
-        int otherExpense = financeBalanceK < 0 ? Math.max(15, Math.abs(financeBalanceK) / 400) : 8;
+        int youthScouting = recurring?35 + stadiumYouthLevel * 12 + chiefScoutRating / 5:0;
+        int otherExpense = !recurring?0:financeBalanceK < 0 ? Math.max(15, Math.abs(financeBalanceK) / 400) : 8;
 
         int weeklyIncome = gate + broadcast + sponsorship + merchandise + otherIncome;
         int weeklyExpense = playerWages + staffWages + maintenance + travel + youthScouting + otherExpense;
@@ -9185,8 +9294,8 @@ public class MainActivity extends Activity {
     }
 
     private void processSeasonEnd() {
-        rollFinanceSeason();
-        addNews("SEASON", "Season complete", "Player ages, development and the season finances have been updated.");
+        if(fixtureVersion<6)rollFinanceSeason();
+        addNews("SEASON", "Season complete", "Player ages and development have been updated.");
         for (Player p : players) {
             p.age++;
             if (p.age <= 24 && p.currentAbility < p.potentialAbility && random.nextDouble() < 0.45) {
@@ -9198,14 +9307,16 @@ public class MainActivity extends Activity {
     }
 
     private void resetCareerState() {
-        dutchEuropeanPlayoff=null;liveDutchEuropean=false;
+        dutchEuropeanPlayoff=null;liveDutchEuropean=false;reserveTransitionSeed=null;
         fixtureVersion = 2;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;
         if(division!=null&&division.hasCupClubs()&&!division.country.equals("DE")&&!division.country.equals("PT")){careerSeasonStart=LocalDate.of(2026,7,1);fixtureVersion=4;}
         modernPortugueseCup=null;liveModernPortugueseCup=false;lowerPromotion=null;liveLowerPlayoff=false;nextManagerClub=-1;portugueseThird=newPortugueseThird();portugueseFourth=newPortugueseFourth();portugueseDistrict=expandedPortugueseLower()?new PortugueseDistrictSeasons(PortugueseLowerCatalog.createDistrict(division,careerSeasonStart.getYear(),random.nextLong())):null;
-        liveCup=false;liveDomesticCup=false;liveNationalCup=false;liveScottishCup=false;leagueCup=newPortugueseLeagueCup();domesticCup=newDomesticCup();nationalCups=newNationalCups();scottishLeagueCup=newScottishLeagueCup(division,careerSeasonStart.getYear(),null,null);domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;
+        liveCup=false;liveDomesticCup=false;liveNationalCup=false;liveScottishCup=false;leagueCup=newPortugueseLeagueCup();domesticCup=newDomesticCup();nationalCups=newNationalCups();scottishLeagueCup=newScottishLeagueCup(division,careerSeasonStart.getYear(),null,null);domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;careerWeeksProcessed=0;
         if(domesticCup!=null)fixtureVersion=3;
-        europeanCampaign=newEuropeanCampaign();liveEuropean=false;liveEuropeanEvent=null;if(europeanCampaign!=null)fixtureVersion=5;
+        leagueDates=java.util.Collections.emptyList();leagueDatesKey="";promotionDates=null;lowerPromotionDates=null;
+        europeanCampaign=newEuropeanCampaign();liveEuropean=false;liveEuropeanEvent=null;if(europeanCampaign!=null)fixtureVersion=6;
         leagueResults=new LeagueResults(clubNames.length,division!=null);
+        if(fixtureVersion>=6){if(leagueDecisions==null||leagueDecisions.year!=careerSeasonStart.getYear())leagueDecisions=new LeagueDecisions(careerSeasonStart.getYear(),clubNames.length);}else leagueDecisions=null;
         careerSchedule = null;
         matchday = 0;
         currentDate = careerSeasonStart;

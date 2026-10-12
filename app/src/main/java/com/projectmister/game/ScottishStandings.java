@@ -37,5 +37,6 @@ public final class ScottishStandings {
         while(position>0&&tiedAt(position-1))position--;
         return position+1;
     }
+    public ScottishStandings decisions(LeagueDecisions decisions,String stage){if(decisions!=null)decisions.apply(stage,order,tiedWithNext);return this;}
     public boolean tiedAt(int leftPosition){return leftPosition>=0&&leftPosition<tiedWithNext.length&&tiedWithNext[leftPosition];}
 }

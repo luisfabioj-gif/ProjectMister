@@ -42,6 +42,11 @@ public final class EnglishTests {
         check(new EnglishStandings(2,pair,pts,gf,ga,wins,ledger,true).order[0]==1); // season away GF
         check(new EnglishStandings(2,pair,pts,gf,ga,wins,new LeagueResults(3,false),true).tiedAt(0));
         gf[0]=41;ga[0]=21;check(new EnglishStandings(2,pair,pts,gf,ga,wins,ledger,true).order[0]==0); // overall GF first
+        Integer[] full=new Integer[20];int[] qpts=new int[20],qgf=new int[20],qga=new int[20],qwins=new int[20];for(int i=0;i<20;i++){full[i]=i;qpts[i]=100-i;}
+        qpts[7]=qpts[6];LeagueResults qualification=new LeagueResults(20,true);qualification.record(0,7,6,2,0);qualification.record(1,6,7,0,0);
+        check(new EnglishStandings(1,full,qpts,qgf,qga,qwins,qualification,true).tiedAt(6));
+        check(new EnglishStandings(1,full,qpts,qgf,qga,qwins,qualification,true,10).order[6]==7&&!new EnglishStandings(1,full,qpts,qgf,qga,qwins,qualification,true,10).tiedAt(6));
+        check(new EnglishStandings(1,full,qpts,qgf,qga,qwins,qualification,false,10).tiedAt(6));
         System.out.println("PASS: English 32 paths, quarter-final reseeding, seven fixtures, neutral final, saved phases and tier-specific ranking");
     }
 }

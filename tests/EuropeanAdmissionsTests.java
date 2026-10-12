@@ -14,6 +14,13 @@ public final class EuropeanAdmissionsTests {
         for(CompetitionCatalog.Division active:catalog.divisions)if(active.tier==1) {
             CareerDivision world=CareerDivision.countryCareer(catalog,active);
             if(world.country.equals("PT"))world=world.withCupClubs(portuguese).withWorldClubs(catalog,PortugueseLowerCatalog.reserves(),europe.clubs());else if(world.country.equals("DE"))world=world.withGermanCupClubs(german).withWorldClubs(catalog,null,europe.clubs());else world=world.withWorldClubs(catalog,national.clubs(world.country),europe.clubs());
+            ArrayList<LocalDate> calendar=new ArrayList<>();
+            if(world.country.equals("PT")){calendar.addAll(portuguese.create(world,21L).calendar());for(int i=0;i<7;i++)calendar.add(PortugueseLeagueCup.date(i));}
+            else {NationalCupCampaign cups=new NationalCupCampaign(world.country.equals("DE")?Collections.singletonList(german.create(world,21L)):NationalCupCatalog.create(world,2026,21L,null,null));calendar.addAll(cups.calendar());if(world.country.equals("SCO"))for(LocalDate date:ScottishLeagueCupFactory.create(2026,21L,world.clubIds,world.clubTiers,world.clubLevels,world.reserves,null,null).calendar())if(!date.isBefore(LocalDate.of(2026,8,1)))calendar.add(date);}
+            if(world.country.equals("NL")){calendar.add(LocalDate.of(2027,5,27));calendar.add(LocalDate.of(2027,5,30));}
+            EuropeanCampaign opening=europe.first(world,71L,calendar);for(int c=0;c<world.names.length;c++)if(world.association(c).equals(world.country)&&world.clubTiers[c]<=2)calendar.addAll(opening.calendarForClub(c));
+            int rounds=Math.max(world.rounds(1),world.rounds(2));List<LocalDate> dated=CompetitionCalendar.boundedSeason(LocalDate.of(2026,8,9),LocalDate.of(2027,5,10),rounds,calendar);
+            check(dated.size()==rounds&&!dated.get(rounds-1).isAfter(LocalDate.of(2027,5,10)),"All real-country league calendars leave postseason room");for(LocalDate date:dated)for(LocalDate other:calendar)check(Math.abs(java.time.temporal.ChronoUnit.DAYS.between(date,other))>=2,"Every local club avoids national and UEFA reservations");
             final CareerDivision registry=world;int[] order=Arrays.stream(world.members(1)).filter(c->!registry.reserves[c]).toArray(),levels=new int[world.names.length],coefficients=new int[world.names.length];for(int club=0;club<levels.length;club++){levels[club]=world.level(club);coefficients[club]=world.strengths[club]*1000+levels.length-club;}
             if(world.country.equals("FR"))check(world.names.length==802,"Full French domestic and European world opens above the old cap");
             System.out.println("World "+world.country+": "+world.names.length+" real clubs, stable roster indexes");

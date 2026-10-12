@@ -2,7 +2,7 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-09T16:01:00Z",
+  "updated_utc": "2026-10-12T12:59:00Z",
   "complete": false,
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
@@ -270,14 +270,31 @@
     {
       "id": "uefa",
       "weight": 10,
-      "status": "pending",
-      "acceptance": "Playable recurring Champions League, Europa League and Conference League with qualification, foreign clubs, draws, live/quick fixtures, calendars, saves and history."
+      "status": "verified",
+      "acceptance": "Playable recurring Champions League, Europa League and Conference League with qualification, foreign clubs, draws, live/quick fixtures, calendars, saves and history.",
+      "evidence": {
+        "source": "b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38181845865",
+        "android_api": [35, 36],
+        "jobs": [114595885720, 114595885898],
+        "qa_artifact_api36": 11719341458,
+        "checks": "Each of ten native country careers completed two combined UEFA/domestic seasons with actual managed watched and quick results, qualifying, exact archives, canonical reloads and backups. Four API36 European calendar/history screenshots reviewed on 12 October. Host gates cover all three league/knockout formats and recurring editions.",
+        "limitation": "Saved bounded league and postseason calendars are a separate pending calendar milestone; future editions and career draws remain labelled projections."
+      }
     },
     {
       "id": "annual_qualification",
       "weight": 5,
-      "status": "pending",
-      "acceptance": "Final standings and cup results determine next-year competition fields and lower-pyramid replacements with stable identities."
+      "status": "verified",
+      "acceptance": "Final standings and cup results determine next-year competition fields and lower-pyramid replacements with stable identities.",
+      "evidence": {
+        "source": "b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38181845865",
+        "android_api": [35, 36],
+        "jobs": [114595885720, 114595885898],
+        "checks": "All ten country careers pass both annual admissions rollovers, including the previous Spanish reserve/parent failure. Actual local standings/cup winners feed admissions; titleholders, performance places, cup pass-down, foreign associations and stable club identities pass the host and native gates.",
+        "limitation": "Other-country reserve vacancies use eligible simulated lower qualification results. Full Portuguese lower-pyramid result archives have separate prior evidence. Licensing refusals and federation administrative incidents are outside the simulated world."
+      }
     },
     {
       "id": "registration",

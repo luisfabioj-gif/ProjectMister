@@ -42,5 +42,26 @@ public final class CompetitionCalendar {
         }
         return Collections.unmodifiableList(dates);
     }
+    /** A complete simulated regular season, leaving May/June for cup finals and playoffs. */
+    public static List<LocalDate> boundedSeason(LocalDate start,LocalDate finish,int rounds,Collection<LocalDate> occupied) {
+        if(start==null||finish==null||finish.isBefore(start)||rounds<2||rounds>50||occupied==null||occupied.contains(null))throw new IllegalArgumentException("Invalid bounded league calendar");
+        int days=(int)ChronoUnit.DAYS.between(start,finish);if(days>366)throw new IllegalArgumentException("League calendar exceeds a season");
+        boolean[] available=new boolean[days+1];int[] capacity=new int[days+3];
+        for(int day=0;day<=days;day++){LocalDate date=start.plusDays(day);available[day]=true;for(LocalDate other:occupied)if(Math.abs(ChronoUnit.DAYS.between(date,other))<2){available[day]=false;break;}}
+        for(int day=days;day>=0;day--)capacity[day]=Math.max(capacity[day+1],available[day]?1+capacity[day+2]:0);
+        if(capacity[0]<rounds)throw new IllegalStateException("Insufficient league dates before postseason");ArrayList<LocalDate> dates=new ArrayList<>();int earliest=0;
+        for(int round=0;round<rounds;round++) {
+            int target=(int)Math.round(round*days/(double)(rounds-1)),chosen=-1;
+            for(int day=earliest;day<=days;day++)if(available[day]&&capacity[day+2]>=rounds-round-1&&(chosen<0||Math.abs(day-target)<Math.abs(chosen-target)))chosen=day;
+            if(chosen<0)throw new IllegalStateException("League date capacity changed");dates.add(start.plusDays(chosen));earliest=chosen+2;
+        }
+        return Collections.unmodifiableList(dates);
+    }
+    public static String snapshot(List<LocalDate> dates){StringJoiner out=new StringJoiner(",");for(LocalDate date:dates)out.add(date.toString());return out.toString();}
+    public static List<LocalDate> restore(String text,int year,int rounds) {
+        if(text==null||text.length()>1024)throw new IllegalArgumentException("Invalid league dates");String[] parts=text.split(",",-1);if(parts.length!=rounds)throw new IllegalArgumentException("Missing league dates");ArrayList<LocalDate> dates=new ArrayList<>();LocalDate previous=null;
+        for(String part:parts){LocalDate date=LocalDate.parse(part);if(date.isBefore(LocalDate.of(year,7,1))||date.isAfter(LocalDate.of(year+1,5,10))||previous!=null&&ChronoUnit.DAYS.between(previous,date)<2)throw new IllegalArgumentException("Invalid league chronology");dates.add(date);previous=date;}
+        if(!snapshot(dates).equals(text))throw new IllegalArgumentException("Non-canonical league calendar");return Collections.unmodifiableList(dates);
+    }
     private CompetitionCalendar(){}
 }

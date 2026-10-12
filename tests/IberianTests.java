@@ -56,6 +56,8 @@ public final class IberianTests {
         check(s.eligible(new boolean[]{true,false,false},2)[0]==1);
         check(ReserveEligibility.parentRelegationConflict(new String[]{"pt:fc-porto","pt:fc-porto-b"},new boolean[]{false,true},new int[]{0}));
         check(!ReserveEligibility.parentRelegationConflict(new String[]{"pt:fc-porto","pt:fc-porto-b"},new boolean[]{false,true},new int[]{1}));
+        LeagueResults triple=new LeagueResults(3,true);triple.record(0,0,1,1,0);triple.record(1,1,0,0,1);triple.record(2,0,2,1,0);triple.record(3,2,0,1,0);triple.record(4,1,2,1,0);triple.record(5,2,1,0,0);
+        s=new IberianStandings("ES",new Integer[]{0,1,2},new int[]{10,10,10},new int[]{20,20,21},new int[]{15,15,16},new int[]{3,3,3},triple,true);check(s.order[0]==0&&s.order[1]==1&&s.order[2]==2);
         System.out.println("PASS: Portuguese draw/retention, Spanish eight playoff paths and higher-seed extra time, saved phases, ranking and reserve eligibility");
     }
 }

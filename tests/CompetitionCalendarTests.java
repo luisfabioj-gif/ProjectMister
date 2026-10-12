@@ -29,6 +29,15 @@ public final class CompetitionCalendarTests {
         for(int day=0;day<40;day++)impossible.add(LocalDate.of(2027,8,9).plusDays(day));
         try {CompetitionCalendar.cupSeason(LocalDate.of(2027,8,9),34,impossible);throw new AssertionError("impossible rest schedule accepted");}
         catch(IllegalStateException expected){}
+        for(int year=2026;year<=2040;year++)for(int rounds:new int[]{34,38,42,46}) {
+            ArrayList<LocalDate> occupied=new ArrayList<>();
+            for(int week=0;week<37;week++)if(week%3!=1)occupied.add(LocalDate.of(year,8,9).plusWeeks(week).plusDays(3));
+            occupied.add(LocalDate.of(year+1,5,10));
+            List<LocalDate> dates=CompetitionCalendar.boundedSeason(LocalDate.of(year,8,9),LocalDate.of(year+1,5,10),rounds,occupied);
+            check(dates.size()==rounds&&!dates.get(rounds-1).isAfter(LocalDate.of(year+1,5,10)),"Regular season finishes before postseason");
+            check(CompetitionCalendar.restore(CompetitionCalendar.snapshot(dates),year,rounds).equals(dates),"Exact bounded dates survive reload");
+            for(int i=0;i<rounds;i++){if(i>0)check(ChronoUnit.DAYS.between(dates.get(i-1),dates.get(i))>=2,"Bounded league recovery");for(LocalDate other:occupied)check(Math.abs(ChronoUnit.DAYS.between(dates.get(i),other))>=2,"Bounded league avoids other competition dates");}
+        }
         System.out.println("PASS: 72 crowded recurring Portuguese calendars, recovery, deterministic reload and impossible-window rejection");
     }
 }

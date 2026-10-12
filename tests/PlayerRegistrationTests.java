@@ -20,7 +20,9 @@ public final class PlayerRegistrationTests {
         check(decision("ENG",1,"2027-05-01").requiresApproval(),"Premier League Board discretion explicit");
         check(decision("NL",1,"2026-10-15").requiresApproval(),"KNVB dispensation remains a simulated application");
         check(decision("SCO",1,"2027-05-01").permitted()&&decision("ES",1,"2027-05-01").permitted(),"Verified unregistered/expired-contract exceptions remain available");
-        check(!decision("TR",1,"2026-10-15").permitted()&&!decision("FR",1,"2026-10-15").permitted(),"No unverified automatic exception invented");
+        check(decision("FR",1,"2026-10-15").permitted()&&!decision("FR",2,"2027-02-02").permitted(),"French free-agent exemption ends at the winter deadline");
+        check(!PlayerRegistration.decide("FR",1,2026,LocalDate.of(2026,10,15),true,LocalDate.of(2026,9,2),false).permitted(),"Late French release does not satisfy the exemption");
+        check(!decision("TR",1,"2026-10-15").permitted(),"TFF ordinary unattached pool remains subject to its verified registration windows");
         PlayerRegistration.Decision leap=PlayerRegistration.decide("PT",1,2027,LocalDate.of(2028,2,29),true,WorldMarket.FREE_AGENT_CONTRACT_END,false);check(leap.permitted()&&leap.cutoff.equals(LocalDate.of(2028,2,29))&&leap.explanation.contains("projected"),"Projected leap-year cutoff labeled");
         check(!decision("PT",1,"2027-07-01").permitted(),"Completed season cannot authorize the next season");
         System.out.println("PASS: country/tier registration windows, expired-contract eligibility, free-agent cutoffs, projected leap years, explicit Board/KNVB approvals and unsupported-exception rejection");

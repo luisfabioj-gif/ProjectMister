@@ -45,6 +45,10 @@ public final class PlayerRegistration {
                 cutoff=LocalDate.of(year+1,3,15);if(contractEnded.isAfter(LocalDate.of(year,6,30)))return closed("This Belgian pool uses the ordinary end-of-season expiry exemption",source(country,tier),cutoff);
                 if(date.isBefore(LocalDate.of(year,7,1)))return closed("Belgian end-of-season free-agent registration starts on 1 July",source(country,tier),cutoff);
                 explanation="An expired professional contract permits registration from 1 July through 15 March.";break;
+            case "FR":
+                cutoff=windows.get(1).closes;
+                if(contractEnded.isAfter(windows.get(0).closes))return closed("The French ordinary free-agent exemption requires the contract to have ended before the main registration period closed",source(country,tier),cutoff);
+                explanation="Professionals released before the summer deadline, with no later registration or amateur reclassification, may register through the winter deadline.";break;
             case "SCO":
                 if(!freeAtClose)return closed("The player must be unregistered at the preceding window’s close",source(country,tier),cutoff);
                 explanation="Unregistered at the preceding window’s close; the ordinary Scottish exception remains available this season.";break;
@@ -70,13 +74,14 @@ public final class PlayerRegistration {
         switch(country){
             case "PT":return "https://www.ligaportugal.pt/backoffice/assets/20260701_RC_2026_27_f53785bcd4.pdf";
             case "DE":return "https://media.dfl.de/sites/2/2026/04/Lizenzordnung-Spieler-LOS-2026-04-21-Stand.pdf";
-            case "IT":return "https://www.figc.it/it/federazione/news/approvati-i-criteri-per-le-riammissioni-le-sostituzioni-e-i-ripescaggi-nei-campionati-professionistici-szuz8fvh";
+            case "IT":return "https://files.figc.it/version/c%3AMjFkNjRjMzctZDUwMi00%3AOTQ1YjU5Y2QtNDhiNy00/235%20-%20Termini%20e%20disposizioni%20regolamentari%20tesseramento%20societ%C3%A0%20Serie%20A%20Serie%20B%20e%20Serie%20C%202026-2027.pdf";
             case "BE":return "https://belgianfootball.s3.eu-central-1.amazonaws.com/s3fs-public/rbfa/docs/pdf/reglement/bondsreglement_reglement_federal/URBSFA_Reglement_Livre_B_Titre_4_Joueurs.pdf";
             case "SCO":return "https://assets.ctfassets.net/qu0slcxvbwp6/2jBkzVnGXzywHTwITQoWte/e307fc2d76d249827a7e261b2797c428/ScottishFA_Handbook_2026-27_A5_DIGITAL.pdf";
             case "ES":return "https://rfef.es/sites/default/files/2025-11/20251112_Reglamento_de_Competiciones_2025.pdf";
             case "ENG":return tier==2?"https://images.gc.eflservices.co.uk/c99e4490-a070-11f1-b53b-9be1de328ad3.pdf":"https://www.sec.gov/Archives/edgar/data/1549107/000110465926110384/manu-20260630xex4d14.htm";
             case "NL":return "https://www.knvb.nl/downloads/bestand/29888/reglementen-betaald-voetbal";
             case "TR":return "https://www.tff.org/Resources/TFF/Auto/1708353ee9e34bd6846cf94461bd900c.pdf";
+            case "FR":return "https://www.lfp.fr/assets/24_25_Reglement_Integral_26_07_2024_1_2c3930f8d5.pdf";
             default:return "";
         }
     }

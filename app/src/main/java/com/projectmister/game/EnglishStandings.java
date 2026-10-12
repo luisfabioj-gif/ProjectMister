@@ -7,7 +7,11 @@ public final class EnglishStandings {
     public final Integer[] order;
     private final boolean[] tiedWithNext;
     public EnglishStandings(int tier,Integer[] clubs,int[] points,int[] scored,int[] conceded,int[] wins,LeagueResults ledger,boolean finished) {
+        this(tier,clubs,points,scored,conceded,wins,ledger,finished,0);
+    }
+    public EnglishStandings(int tier,Integer[] clubs,int[] points,int[] scored,int[] conceded,int[] wins,LeagueResults ledger,boolean finished,int europeanPlaces) {
         if(tier!=1&&tier!=2)throw new IllegalArgumentException("Invalid tier");
+        if(europeanPlaces<0||europeanPlaces>clubs.length)throw new IllegalArgumentException("Invalid admission boundary");
         order=clubs.clone();tiedWithNext=new boolean[Math.max(0,clubs.length-1)];
         java.util.Comparator<Integer> base=(a,b)->{
             int c=Integer.compare(points[b],points[a]);if(c!=0)return c;
@@ -20,8 +24,7 @@ public final class EnglishStandings {
             if(end-start>1) {
                 int[] ids=new int[end-start];for(int i=start;i<end;i++)ids[i-start]=order[i];
                 int[][] mini=ledger.miniTable(ids);boolean complete=ledger.recordedFromStart&&ledger.meetingsComplete(ids,2);
-                // European admissions remain inactive; preserve shared non-consequential positions.
-                boolean consequential=start==0||(start<=clubs.length-4&&end>clubs.length-3);
+                boolean consequential=start==0||(start<=clubs.length-4&&end>clubs.length-3)||finished&&start<europeanPlaces;
                 java.util.Comparator<Integer> head=(a,b)->{
                     if(!complete||tier==1&&(!finished||!consequential))return 0;
                     int c=Integer.compare(mini[b][1],mini[a][1]);if(c!=0)return c;
@@ -38,5 +41,6 @@ public final class EnglishStandings {
         }
     }
     public int rankAt(int position){if(position<0||position>=order.length)throw new IllegalArgumentException("Invalid position");while(position>0&&tiedAt(position-1))position--;return position+1;}
+    public EnglishStandings decisions(LeagueDecisions decisions,String stage){if(decisions!=null)decisions.apply(stage,order,tiedWithNext);return this;}
     public boolean tiedAt(int leftPosition){return leftPosition>=0&&leftPosition<tiedWithNext.length&&tiedWithNext[leftPosition];}
 }
