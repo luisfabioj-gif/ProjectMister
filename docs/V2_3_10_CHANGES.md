@@ -13,9 +13,13 @@
   retain their fixture version; the following edition adopts the new calendar.
 - Premier League head-to-head rules cover prospective European-admission places.
 - Season-transition failures now include diagnostic evidence in Android logs.
+- Removing the saved calendar or league-decision state from a new-schema backup
+  is rejected before any existing career or setting is replaced.
 
 The tracker has 89 verified points, including the previous candidate's Android
 35/36 UEFA and annual-qualification gate. Final equality now has saved neutral matches/series or administrative draws,
-with regular disciplinary ranking tracked separately. The complete rule/calendar
+with regular disciplinary ranking tracked separately. Cup player restrictions
+and suspensions are still unfinished; current primary inputs are in
+`PLAYER_CUP_RULES.md`. The complete rule/calendar
 checkpoint still requires its integrated Android gate; private
 Play signing/publication and physical phone testing remain outside this gate.

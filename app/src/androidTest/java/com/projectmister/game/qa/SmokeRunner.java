@@ -155,7 +155,7 @@ public final class SmokeRunner extends Instrumentation {
     }
     private void seedRulesCareer(String country,int tier,boolean modern)throws Exception {
         Object catalog=get("catalog"),data=null;for(Object d:(List<?>)catalog.getClass().getField("divisions").get(catalog))if(d.getClass().getField("id").get(d).equals(country.toLowerCase(Locale.ROOT)+":"+tier))data=d;
-        Object world=gameClass("CareerDivision").getMethod("countryCareer",catalog.getClass(),data.getClass()).invoke(null,catalog,data);call("configureDivision",new Class[]{gameClass("CareerDivision")},world);set("selectedSlot",2);set("selectedClub",0);call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);if(modern)set("fixtureVersion",6);call("generatePlayers",new Class[0]);call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);call("resetFinanceStadiumState",new Class[0]);set("wageBudgetK",1000000);set("currentTransferBudget",1000000);
+        Object world=gameClass("CareerDivision").getMethod("countryCareer",catalog.getClass(),data.getClass()).invoke(null,catalog,data);call("configureDivision",new Class[]{gameClass("CareerDivision")},world);set("selectedSlot",2);set("selectedClub",0);call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);if(modern){set("fixtureVersion",6);call("resetLeagueStandings",new Class[0]);}call("generatePlayers",new Class[0]);call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);call("resetFinanceStadiumState",new Class[0]);set("wageBudgetK",1000000);set("currentTransferBudget",1000000);
     }
     private void verifyRules()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
@@ -169,11 +169,15 @@ public final class SmokeRunner extends Instrumentation {
             call("advanceCareerDate",new Class[]{java.time.LocalDate.class},start.plusDays(6));check((Integer)get("financePlayerWagesK")==initial&&(Integer)get("stadiumProjectWeeks")==5,"Six calendar days cannot charge a full week or advance a facility");
             call("advanceCareerDate",new Class[]{java.time.LocalDate.class},start.plusDays(7));check((Integer)get("financePlayerWagesK")==initial+wages&&(Integer)get("stadiumProjectWeeks")==4,"One calendar week charges wages and advances a facility once");
             call("processFinanceWeek",new Class[]{boolean.class},true);call("processFinanceWeek",new Class[]{boolean.class},true);check((Integer)get("financePlayerWagesK")==initial+wages,"Two fixtures cannot double-charge weekly wages");
-            call("advanceCareerDate",new Class[]{java.time.LocalDate.class},start.plusDays(14));check((Integer)get("financePlayerWagesK")==initial+2*wages&&(Integer)get("stadiumProjectWeeks")==3,"Second calendar week processed exactly once");call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"Calendar-week progress reloads");check((Integer)get("careerWeeksProcessed")==2&& (Integer)get("financePlayerWagesK")==initial+2*wages,"Weekly costs retain exact saved progress");checkBackupReadable();
+            call("advanceCareerDate",new Class[]{java.time.LocalDate.class},start.plusDays(14));check((Integer)get("financePlayerWagesK")==initial+2*wages&&(Integer)get("stadiumProjectWeeks")==3,"Second calendar week processed exactly once");call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"Calendar-week progress reloads");check((Integer)get("careerWeeksProcessed")==2&& (Integer)get("financePlayerWagesK")==initial+2*wages,"Weekly costs retain exact saved progress");checkBackupReadable();checkModernBackupCompleteness();
         });
         for(String country:new String[]{"PT","DE","ENG","ES","IT","FR","NL","BE","SCO","TR"}) {
             ui(()->{
-                seedRulesCareer(country,1,true);Object world=get("division");int size=((String[])world.getClass().getField("clubIds").get(world)).length,rounds=(Integer)call("seasonRounds",new Class[0]);if(country.equals("SCO"))set("splitOrder",world.getClass().getMethod("members",int.class).invoke(world,1));
+                seedRulesCareer(country,1,true);
+                // Isolate final league equality from the real all-competition career gate.
+                // A jump to May cannot retain the unplayed opening Portuguese League Cup.
+                for(String field:new String[]{"leagueCup","domesticCup","nationalCups","scottishLeagueCup","modernPortugueseCup","europeanCampaign"})set(field,null);
+                Object world=get("division");int size=((String[])world.getClass().getField("clubIds").get(world)).length,rounds=(Integer)call("seasonRounds",new Class[0]);if(country.equals("SCO"))set("splitOrder",world.getClass().getMethod("members",int.class).invoke(world,1));
                 Object ledger=gameClass("LeagueResults").getConstructor(int.class,boolean.class).newInstance(size,true),decisions=gameClass("LeagueDecisions").getConstructor(int.class,int.class).newInstance(2026,size);
                 for(int round=0;round<rounds;round++)for(Object fixture:(Object[])call("fixturesForRound",new Class[]{int.class},round)){int home=fixture.getClass().getField("home").getInt(fixture),away=fixture.getClass().getField("away").getInt(fixture);ledger.getClass().getMethod("record",int.class,int.class,int.class,int.class,int.class).invoke(ledger,round,home,away,0,0);decisions.getClass().getMethod("recordDiscipline",int.class,int.class,int.class,int.class,int.class,int.class,int.class).invoke(decisions,round,home,away,0,0,0,0);}
                 set("leagueResults",ledger);set("leagueDecisions",decisions);int[] points=(int[])get("points"),gf=(int[])get("goalsFor"),ga=(int[])get("goalsAgainst");for(int c=0;c<size;c++){points[c]=90-2*c;gf[c]=20;ga[c]=10;}points[1]=points[0];set("matchday",rounds);set("currentDate",call("leagueFixtureDate",new Class[]{int.class},rounds-1));String regular=(String)ledger.getClass().getMethod("snapshot").invoke(ledger);int[] originalPoints=points.clone();call("prepareLeagueDecisions",new Class[0]);
@@ -771,6 +775,16 @@ public final class SmokeRunner extends Instrumentation {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
         Object checked=gameClass("BackupRestore").getMethod("validate",byte[].class).invoke(null,(Object)backupBytes(prefs.getAll()));
         check(checked.equals(prefs.getAll()),"backup preserves current linked postseason and classic saves");
+    }
+    private void checkModernBackupCompleteness()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
+        Map<String,?> original=new HashMap<>(prefs.getAll());
+        for(String field:new String[]{"league_dates","league_decisions"}) {
+            Map<String,Object> broken=new HashMap<>(original);broken.remove("save_2_"+field);
+            try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,backupBytes(broken));throw new AssertionError("Missing modern state accepted: "+field);}
+            catch(InvocationTargetException expected){check(expected.getCause() instanceof IOException,"Missing "+field+" rejected before replacement");}
+            check(prefs.getAll().equals(original),"Missing "+field+" leaves every career and setting unchanged");
+        }
     }
     private void verifyBackups()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);

@@ -1,4 +1,25 @@
-# National rules verification — 5 October 2026
+# National rules verification — updated 12 October 2026
+
+## Current checkpoint
+
+The original dated sections below preserve their source verification and earlier
+implementation limits. Source `b3a461e` now passes the combined Android 35/36
+annual UEFA gate, including forced Spanish reserve relegation. The newer
+`14957bb` candidate adds saved final neutral matches/series, French/Italian final
+draws, recorded French/Spanish disciplinary ranking, narrowed Spanish mini-table
+reapplication, Scottish split decisions and saved postseason calendars. Its own
+Android evidence is pending. No fixed club ID awards a consequential unresolved
+place in new careers.
+
+The remaining national-rules milestone also includes player cup restrictions and
+suspensions, which have not yet been fully enforced. Current primary inputs and
+the outstanding verification are recorded in [PLAYER_CUP_RULES.md](PLAYER_CUP_RULES.md).
+Do not treat the final league decision engine as proof of those player rules.
+Ordinary lower-pyramid sporting relegation outside Portugal remains limited to
+the modeled two divisions; other-country forced-reserve vacancies use labelled
+simulated lower qualification results with stable club identities.
+
+## Earlier dated verification
 
 These are implementation inputs, not claims that the game already enforces them.
 Linked Scottish careers implement the Premiership/Championship playoff ladder.

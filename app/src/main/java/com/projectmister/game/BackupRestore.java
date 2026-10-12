@@ -89,6 +89,7 @@ public final class BackupRestore {
                 ReserveTierOutcome.restoreSeed((String)data.getOrDefault(prefix+"reserve_transition_seed",""));
                 String decisions=(String)data.getOrDefault(prefix+"league_decisions","");if(!decisions.isEmpty())LeagueDecisions.restore(decisions).validate(cupYear,size,LocalDate.parse((String)data.get(prefix+"date")),LeagueResults.restore(history,size));
                 String dates=(String)data.getOrDefault(prefix+"league_dates","");int fixtureVersion=(Integer)data.getOrDefault(prefix+"fixture_version",0);
+                if(fixtureVersion>=6&&decisions.isEmpty())throw new IllegalArgumentException("Missing saved league decisions");
                 if(!dates.isEmpty()){if(division==null||fixtureVersion<6)throw new IllegalArgumentException("Unexpected league dates");CompetitionCalendar.restore(dates,cupYear,maxRound);}else if(fixtureVersion>=6)throw new IllegalArgumentException("Missing saved league dates");
                 String promotion=(String)data.getOrDefault(prefix+"promotion","");
                 String promotionDates=(String)data.getOrDefault(prefix+"promotion_dates","");
