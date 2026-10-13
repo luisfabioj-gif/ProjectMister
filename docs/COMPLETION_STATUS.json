@@ -2,8 +2,17 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-12T12:59:00Z",
+  "updated_utc": "2026-10-13T11:47:16Z",
   "complete": false,
+  "latest_checkpoint": {
+    "source": "8c451df5b676e67872c64930702e4f5e72528576",
+    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38390075070",
+    "conclusion": "failure",
+    "new_evidence": "Android 35 passes the actual UEFA A/B-list scenario: late free-agent exclusion, three winter additions, ordered goalkeeper/market identities, registered ban service, exact reloads and atomic backups. Both host suites pass 25 profile and 27 registration checks. No new weighted milestone is verified.",
+    "blocker": "Android 35 reaches a genuine Scottish Cup background match-sheet failure when no eligible reserve goalkeeper remains. Android 36 stops earlier in the isolated Portuguese League Cup helper, which selects before settling elapsed-week training after a date jump.",
+    "next_candidate": "Promote registered academy goalkeepers with stable saved identities when required by a domestic cup match sheet; retain existing injuries and bans. Native QA also exercises two unavailable keepers, unused reserve appearances, and exact reload. Settle isolated fixture dates before selecting a fit team.",
+    "limitations": "The replacement candidate still requires passing Android 35/36 evidence. No physical-phone validation, final installable APK delivery or completion is claimed."
+  },
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
   "milestones": [

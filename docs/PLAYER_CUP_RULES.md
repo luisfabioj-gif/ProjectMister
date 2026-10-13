@@ -23,7 +23,8 @@ seven actual recent participants in the competition proper. A first unknown
 team sheet in an upgraded mid-season career is grandfathered until actual
 appearances are available; no former appearances are invented. Opponent
 substitutions now use their frozen eligible kick-off bench, including suspension
-checks. UEFA registration lists are still unfinished integration work.
+checks. UEFA registration lists are integrated; their complete Android validation
+remains open.
 Earlier cards and appearances are not fabricated when an
 existing career is upgraded.
 
@@ -105,7 +106,15 @@ next checkpoint uses the cup's actual stage and a bounded world-sized fixture
 index; a complete 146-club host tournament exercises the case.
 
 Still to finish: native verification of the French match-sheet integration and
-UEFA player-list integration.
+the complete UEFA player-list gate. On 13 October, run 38390075070 passes the
+actual UEFA-list scenario on Android 35, then exposes a Scottish Cup background
+sheet without an eligible reserve goalkeeper. The following checkpoint promotes
+an already licensed fictional youth goalkeeper with an ordered, saved player ID
+when a French or Scottish cup sheet needs a keeper. Injuries and suspensions of
+existing players remain intact, and promotion adds no past first-team appearances.
+Native QA forces both original Scottish keepers unavailable, checks a genuine
+starting/reserve replacement, records only the keeper who plays, and checks exact
+identities and backups after reload. Full Android 35/36 evidence is still required.
 Run 38326011977 passes all twenty actual registration scenarios on Android 35/36,
 then exposes an invalid league-decider fixture index. Deciding event previews are
 recreated on each read, so searching them by object identity returned -1. The

@@ -1433,6 +1433,23 @@ public class MainActivity extends Activity {
         p.name=new String[]{"Daniel Neves","Rui Carvalho","Henrique Martins"}[origin.cohort%3];p.overall=Math.max(48,strength[club]-16);p.currentAbility=p.overall*2;p.potentialAbility=Math.min(200,p.currentAbility+30);p.weeklyWageK=5;p.contractYears=3;p.squadRole="Academy goalkeeper";p.transferListed=false;p.loanListed=false;
         p.pace=p.technique=p.passing=p.finishing=p.defending=p.physical=p.overall;tuneAttributesForPosition(p,new Random(origin.club.hashCode()*31L+origin.cohort));rulesSquads=null;return p;
     }
+    private Player promoteAcademyGoalkeeper(int club) {
+        ensureCupEligibility();ensureTrainingHistory();
+        RosterExtensions.Origin origin=rosterExtensions.academy(division.clubIds[club],careerSeasonStart.minusYears(18));
+        Player p=appendAcademyPlayer(origin);cupEligibility.seed(p.id,club);cupEligibilitySize=players.size();
+        trainingHistory.seed(p.id,origin.birth,club,trainingAssociation(club),origin.birth.plusYears(15),0);trainingHistorySize=players.size();
+        return p;
+    }
+    private void ensureRequiredCupGoalkeepers(MatchDiscipline.Fixture f) {
+        if(!f.competition.equals("SCO_CUP")&&!f.competition.equals("FR_COUPE"))return;
+        // A licensed youth keeper can join the first-team sheet. Suspended and
+        // injured keepers remain unavailable, and no past appearances are added.
+        for(int club:new int[]{f.home,f.away}) {
+            int available=0;
+            for(Player p:rulesSquad(club))if(p.position.equals("GK")&&p.injuredWeeks==0&&cupPlayerReason(f,p).isEmpty()&&matchDiscipline.suspendedMatches(f,p.id)==0)available++;
+            while(available++<2)promoteAcademyGoalkeeper(club);
+        }
+    }
     private ArrayList<UEFARegistration.Profile> uefaProfiles(int club,int phase,LocalDate firstLeg,LocalDate matchDate) {
         ArrayList<UEFARegistration.Profile> out=new ArrayList<>();LocalDate cutoff=phase<10?firstLeg.minusDays(1):UEFARegistration.deadline(careerSeasonStart.getYear(),UEFARegistration.stage(phase));if(currentDate.isBefore(cutoff))cutoff=currentDate;
         LocalDate bDate=currentDate.isBefore(matchDate.minusDays(1))?currentDate:matchDate.minusDays(1);
@@ -1454,7 +1471,7 @@ public class MainActivity extends Activity {
     private UEFARegistration.Book prepareUEFAClubList(int club,String competition,int phase,LocalDate first,LocalDate date,int round) {
         ensureCupEligibility();ensureTrainingHistory();if(uefaRegistration==null)uefaRegistration=new UEFARegistration(careerSeasonStart.getYear());
             LocalDate keeperDate=currentDate.isBefore(date.minusDays(1))?currentDate:date.minusDays(1);int keepers=0;for(Player p:rulesSquad(club))if(p.position.equals("GK")&&(cupEligibility.baselineRegistration(p.id)||!cupEligibility.qualifiedOn(p.id).isAfter(keeperDate)))keepers++;
-            while(keepers++<3){RosterExtensions.Origin origin=rosterExtensions.academy(division.clubIds[club],careerSeasonStart.minusYears(18));Player p=appendAcademyPlayer(origin);cupEligibility.seed(p.id,club);cupEligibilitySize=players.size();trainingHistory.seed(p.id,origin.birth,club,trainingAssociation(club),origin.birth.plusYears(15),0);trainingHistorySize=players.size();}
+            while(keepers++<3)promoteAcademyGoalkeeper(club);
             ArrayList<UEFARegistration.Profile> profiles=uefaProfiles(club,phase,first,date);
             if(phase>=11&&uefaRegistration.book(club,competition,10)==null)uefaRegistration.prepare(club,competition,10,UEFARegistration.deadline(careerSeasonStart.getYear(),10).plusDays(1),date,currentDate,0,uefaProfiles(club,10,first,date),java.util.Collections.emptySet());
             java.util.Set<Integer> departed=new java.util.HashSet<>();UEFARegistration.Book prior=uefaRegistration.book(club,competition,10);if(prior!=null)for(UEFARegistration.Entry entry:prior.listA()){Player p=findPlayer(entry.id);if(entry.goalkeeper&&p!=null&&p.team!=club&&!p.onLoan)departed.add(p.id);}
@@ -1500,6 +1517,7 @@ public class MainActivity extends Activity {
     private void prepareDiscipline(MatchDiscipline.Fixture f) {
         ensureMatchDiscipline();
         ensureUEFARegistration(f);
+        ensureRequiredCupGoalkeepers(f);
         matchDiscipline.prepare(f,eligibleRulePlayers(f));
     }
     private MatchDiscipline.Fixture leagueDisciplineFixture(int home,int away){return new MatchDiscipline.Fixture(careerSeasonStart.getYear(),(division==null?"PT":division.country)+"_LEAGUE",0,matchday,0,false,home,away,currentDate);}
@@ -1551,7 +1569,7 @@ public class MainActivity extends Activity {
     private MatchDiscipline.Fixture upcomingDisciplineFixture() {
         if(matchInProgress)return liveDisciplineFixture;
         if(matchDiscipline==null||matchDiscipline.year!=careerSeasonStart.getYear())return null;
-        if(cupDue()&&nextCupTie()!=null&&(nextCupTie().home()==selectedClub||nextCupTie().away()==selectedClub)){MatchDiscipline.Fixture next=cupDisciplineFixture();ensureUEFARegistration(next);return next;}
+        if(cupDue()&&nextCupTie()!=null&&(nextCupTie().home()==selectedClub||nextCupTie().away()==selectedClub)){MatchDiscipline.Fixture next=cupDisciplineFixture();ensureUEFARegistration(next);ensureRequiredCupGoalkeepers(next);return next;}
         if(matchday<seasonRounds()&&leagueOpponentForRound(matchday)>=0){boolean home=selectedHomeForRound(matchday);return new MatchDiscipline.Fixture(careerSeasonStart.getYear(),(division==null?"PT":division.country)+"_LEAGUE",0,matchday,0,false,home?selectedClub:leagueOpponentForRound(matchday),home?leagueOpponentForRound(matchday):selectedClub,nextLeagueDate());}
         return null;
     }
