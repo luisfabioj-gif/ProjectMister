@@ -16,6 +16,14 @@ public final class LeagueDecisionTests {
         cards.ensure("FINAL1",new int[]{0,1},true,78L,LocalDate.of(2027,5,12),Collections.emptyList());check(cards.complete()&&cards.fixtures().isEmpty()&&cards.lotResults().size()==1,"Saved lot resolves without invented fixtures");
         String saved=cards.snapshot();check(saved.equals(LeagueDecisions.restore(saved).snapshot()),"Saved lot reload exact");
         rejected=false;try{LeagueDecisions.restore(saved.replace("G|FINAL1|1|78|0,1|","G|FINAL1|1|78|0,0|"));}catch(IllegalArgumentException expected){rejected=true;}check(rejected,"Duplicate deciding entrant rejected");
+        LeagueDecisions indexed=new LeagueDecisions(2026,20);
+        indexed.ensure("FINAL1",new int[]{0,1,2},false,1L,LocalDate.of(2027,5,12),Collections.emptyList());
+        indexed.ensure("FINAL2",new int[]{3,4},false,2L,LocalDate.of(2027,5,12),Collections.emptyList());
+        check(indexed.fixtureIndex(indexed.next(3))==3,"Managed second-group event has its saved global index");
+        for(int i=0;i<indexed.fixtures().size();i++)check(indexed.fixtureIndex(indexed.fixtures().get(i))==i,"Independently recreated previews retain saved fixture identity");
+        String indexedSave=indexed.snapshot();indexed=LeagueDecisions.restore(indexedSave);
+        check(indexed.fixtureIndex(indexed.next(3))==3,"Deciding fixture index survives reload");
+        rejected=false;try{indexed.fixtureIndex(cards.next(0));}catch(IllegalArgumentException expected){rejected=true;}check(rejected,"Missing deciding event rejected");
         System.out.println("PASS: 48 neutral deciding match/series campaigns, saved shootout sessions, exact archives, discipline and malformed decision rejection");
     }
 }

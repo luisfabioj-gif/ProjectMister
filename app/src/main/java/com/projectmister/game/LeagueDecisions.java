@@ -54,6 +54,19 @@ public final class LeagueDecisions {
         return next;
     }
     public List<Event> fixtures(){ArrayList<Event> fixtures=new ArrayList<>();for(Group group:groups.values())for(int i=0;i<group.ties.size();i++)fixtures.add(new Event(group.key,i,group.ties.get(i),group.dates.get(i),group.entrants.length>2));return Collections.unmodifiableList(fixtures);}
+    /** Event previews are recreated on every read; their object identity is not
+     * the identity of the saved match. Use the stored group and fixture instead. */
+    public int fixtureIndex(Event event) {
+        if(event==null)throw new IllegalArgumentException("Missing deciding event");
+        int offset=0;for(Group group:groups.values()) {
+            if(group.key.equals(event.group)) {
+                if(event.fixture<0||event.fixture>=group.ties.size()||group.ties.get(event.fixture)!=event.tie||!group.dates.get(event.fixture).equals(event.date))throw new IllegalArgumentException("Changed deciding event");
+                return offset+event.fixture;
+            }
+            offset+=group.ties.size();
+        }
+        throw new IllegalArgumentException("Unknown deciding event");
+    }
     public List<int[]> lotResults(){ArrayList<int[]> results=new ArrayList<>();for(Group group:groups.values())if(group.lots)results.add(group.order.clone());return results;}
     public List<KnockoutTie> shootoutSessions(){ArrayList<KnockoutTie> sessions=new ArrayList<>();for(Group group:groups.values())sessions.addAll(group.shootouts);return Collections.unmodifiableList(sessions);}
     public List<LeagueDecisions> editions(){ArrayList<LeagueDecisions> editions=new ArrayList<>();for(String saved:archives)editions.add(restore(saved));editions.add(this);return Collections.unmodifiableList(editions);}

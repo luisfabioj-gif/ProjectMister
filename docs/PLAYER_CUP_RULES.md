@@ -100,6 +100,14 @@ index; a complete 146-club host tournament exercises the case.
 
 Still to finish: native verification of the French match-sheet integration and
 UEFA player-list integration.
+Run 38326011977 passes all twenty actual registration scenarios on Android 35/36,
+then exposes an invalid league-decider fixture index. Deciding event previews are
+recreated on each read, so searching them by object identity returned -1. The
+following checkpoint resolves the saved group/fixture identity to a stable global
+index. Host checks cover multiple simultaneous deciding groups and exact reload;
+the native scenario asserts the valid index before playing each country decider.
+This repaired checkpoint still needs the complete Android gate and earns no new
+completion weight yet.
 Run 38324692043 passes the original backup/Portuguese cup adapter failures on
 API36, then reaches the isolated registration QA. That helper signed an October
 free agent before rewinding to test August, which a saved registration ledger

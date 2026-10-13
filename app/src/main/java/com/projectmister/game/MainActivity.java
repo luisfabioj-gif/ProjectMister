@@ -1446,7 +1446,7 @@ public class MainActivity extends Activity {
     private MatchDiscipline.Fixture leagueDisciplineFixture(int home,int away){return new MatchDiscipline.Fixture(careerSeasonStart.getYear(),(division==null?"PT":division.country)+"_LEAGUE",0,matchday,0,false,home,away,currentDate);}
     private MatchDiscipline.Fixture cupDisciplineFixture() {
         KnockoutTie tie=nextCupTie();int home=tie.home(),away=tie.away(),leg=tie.playedLegs();String code;int phase=0,round=0;boolean end=leg==tie.legs-1;
-        if(nextCupIsLeagueDecision()){LeagueDecisions.Event e=leagueDecisions.next(selectedClub);code=division.country+"_DECIDER";round=leagueDecisions.fixtures().indexOf(e);}
+        if(nextCupIsLeagueDecision()){LeagueDecisions.Event e=leagueDecisions.next(selectedClub);code=division.country+"_DECIDER";round=leagueDecisions.fixtureIndex(e);}
         else if(nextCupIsDutchEuropean()){code="NL_PLAYOFF";round=dutchEuropeanPlayoff.ties().indexOf(tie);}
         else if(nextCupIsEuropean()) {
             EuropeanCampaign.Event e=europeanCampaign.next(selectedClub);code="UEFA_"+e.competition;
