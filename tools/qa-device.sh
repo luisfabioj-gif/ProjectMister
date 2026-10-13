@@ -20,6 +20,7 @@ grep -q 'PASS twenty registration cases, calendar-week accounting and ten isolat
 timeout 600s adb shell am instrument -w -e mode cup-players com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/cup-players.txt
 grep -q 'PASS actual cup dismissal, eligible lineup, ban service, transfer persistence and atomic backup rejection verified' qa-output/cup-players.txt
 grep -q 'PASS Scottish Cup transfer restriction blocks an actual ineligible lineup and preserves playable progression and exact saves' qa-output/cup-players.txt
+grep -q 'PASS French actual cup match-sheet continuity, free-agent registrations, unused bench distinction and exact saves verified' qa-output/cup-players.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/cup-players.txt
 for country in ES PT DE ENG IT FR NL BE SCO TR; do
     timeout 600s adb shell am instrument -w -e mode europe -e country "$country" com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee "qa-output/europe-$country.txt"
