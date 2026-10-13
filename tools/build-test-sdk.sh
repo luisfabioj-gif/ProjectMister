@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 : "${ANDROID_HOME:?}" "${JAVA_HOME:?}"
+node tools/validate-qa-api.js
 bt="$ANDROID_HOME/build-tools/35.0.0"; platform="$ANDROID_HOME/platforms/android-35/android.jar"
 out=app/build/test-manual
 mkdir -p "$out/classes" "$out/dex"

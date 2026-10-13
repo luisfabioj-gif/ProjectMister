@@ -37,6 +37,12 @@ signings now save and enforce that qualification date, including in cup/UEFA
 selection and eligible ban service. The CE2 ledger restores CE1 saves without
 changing existing eligibility. No DNCG incident or incomplete dossier is generated.
 
+UEFA A/B lists are now integrated with saved fictional youth histories, actual
+registration dates, match selection and ban service. The implementation and
+remaining native-evidence requirement are recorded in [UEFA_PLAYER_LISTS.md](UEFA_PLAYER_LISTS.md).
+There are 27 passing list cases and 25 stable-profile cases; no extra milestone
+weight is credited before the complete Android gate.
+
 ## Verified current inputs
 
 | Competition | Ordinary cautions / participation input | Primary source |

@@ -50,6 +50,8 @@ public final class CupEligibility {
         if(r==null){r=new Registration();registrations.put(id,r);}r.club=club;r.parent=loanParent;r.joined=date;r.qualifiedOn=date.plusDays(qualificationDays);r.baseline=false;r.registeredClubs.add(club);
     }
     public LocalDate qualifiedOn(int id){Registration r=registrations.get(id);return r==null?null:r.qualifiedOn;}
+    public LocalDate registeredOn(int id){Registration r=registrations.get(id);return r==null?null:r.joined;}
+    public boolean baselineRegistration(int id){Registration r=registrations.get(id);return r!=null&&r.baseline;}
     private static String scope(MatchDiscipline.Fixture f){return f.european()?"UEFA":f.competition;}
     private TreeMap<Integer,TreeSet<Integer>> played(int id,String competition) {
         TreeMap<String,TreeMap<Integer,TreeSet<Integer>>> all=appearances.get(id);

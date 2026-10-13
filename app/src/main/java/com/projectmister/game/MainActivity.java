@@ -98,6 +98,10 @@ public class MainActivity extends Activity {
     private String unreadablePromotion="";
     private SeasonHistory seasonHistory=new SeasonHistory();
     private java.util.List<String> marketHires=new ArrayList<>();
+    private RosterExtensions rosterExtensions=new RosterExtensions();
+    private PlayerTrainingHistory trainingHistory=new PlayerTrainingHistory();
+    private int trainingHistorySize=-1;
+    private UEFARegistration uefaRegistration;
     private boolean livePlayoff=false;
     private PortugueseLeagueCup leagueCup;
     private PortugueseLeagueCupSeasons modernPortugueseCup;
@@ -1404,6 +1408,58 @@ public class MainActivity extends Activity {
         if(cupEligibility.year!=careerSeasonStart.getYear())throw new IllegalStateException("Wrong player participation edition");
         if(cupEligibilitySize!=players.size()){for(Player p:players)cupEligibility.seed(p.id,p.team);cupEligibilitySize=players.size();}
     }
+    private String trainingAssociation(int team){return division==null?"PT":division.association(team);}
+    private void ensureTrainingHistory() {
+        if(trainingHistory==null)trainingHistory=new PlayerTrainingHistory();
+        if(trainingHistorySize==players.size())return;
+        int base=clubNames.length*PLAYERS_PER_TEAM;
+        for(Player p:players)if(!trainingHistory.contains(p.id)) {
+            int origin=p.id<base?p.id/PLAYERS_PER_TEAM:p.team;int slot=p.id%PLAYERS_PER_TEAM;
+            RosterExtensions.Origin extra=p.id<base?null:rosterExtensions.origins().get(p.id-base);
+            LocalDate birth=extra!=null&&extra.academy()?extra.birth:LocalDate.of(careerSeasonStart.getYear()-p.age,7,1).minusDays(p.id%180);
+            LocalDate joined=cupEligibility==null?currentDate:cupEligibility.registeredOn(p.id);if(joined==null)joined=currentDate;
+            boolean youth=extra!=null&&extra.academy()||extra==null&&slot<12;
+            LocalDate from=youth?birth.plusYears(15):joined;
+            trainingHistory.seed(p.id,birth,origin,trainingAssociation(origin),from,0);
+            if(p.team!=origin)trainingHistory.register(p.id,p.team,trainingAssociation(p.team),joined);
+        }
+        trainingHistorySize=players.size();
+    }
+    private Player appendAcademyPlayer(RosterExtensions.Origin origin) {
+        int club=-1;for(int i=0;i<division.clubIds.length;i++)if(division.clubIds[i].equals(origin.club))club=i;
+        if(club<0)throw new IllegalArgumentException("Unknown academy club");
+        Player p=appendMarketPlayer(new WorldMarket.Candidate("free~0~"+(origin.cohort%3*20)));
+        p.team=club;p.age=java.time.Period.between(origin.birth,careerSeasonStart).getYears();p.position="GK";
+        p.name=new String[]{"Daniel Neves","Rui Carvalho","Henrique Martins"}[origin.cohort%3];p.overall=Math.max(48,strength[club]-16);p.currentAbility=p.overall*2;p.potentialAbility=Math.min(200,p.currentAbility+30);p.weeklyWageK=5;p.contractYears=3;p.squadRole="Academy goalkeeper";p.transferListed=false;p.loanListed=false;
+        p.pace=p.technique=p.passing=p.finishing=p.defending=p.physical=p.overall;tuneAttributesForPosition(p,new Random(origin.club.hashCode()*31L+origin.cohort));rulesSquads=null;return p;
+    }
+    private ArrayList<UEFARegistration.Profile> uefaProfiles(int club,int phase,LocalDate firstLeg,LocalDate matchDate) {
+        ArrayList<UEFARegistration.Profile> out=new ArrayList<>();LocalDate cutoff=phase<10?firstLeg.minusDays(1):UEFARegistration.deadline(careerSeasonStart.getYear(),UEFARegistration.stage(phase));if(currentDate.isBefore(cutoff))cutoff=currentDate;
+        LocalDate bDate=currentDate.isBefore(matchDate.minusDays(1))?currentDate:matchDate.minusDays(1);
+        for(Player p:rulesSquad(club))out.add(new UEFARegistration.Profile(p.id,club,p.overall,p.position.equals("GK"),trainingHistory.clubTrained(p.id,club,cutoff),trainingHistory.associationTrained(p.id,trainingAssociation(club),cutoff),trainingHistory.listB(p.id,club,careerSeasonStart.getYear(),bDate),cupEligibility.registeredOn(p.id),cupEligibility.qualifiedOn(p.id),cupEligibility.baselineRegistration(p.id)));
+        return out;
+    }
+    private LocalDate uefaFirstLeg(MatchDiscipline.Fixture f) {
+        if(f.phase>=10)return f.date;
+        EuropeanQualifying qualifying=europeanCampaign==null?null:europeanCampaign.qualifying();
+        if(qualifying!=null)for(EuropeanQualifying.Draw draw:qualifying.draws())if(draw.round==f.phase)for(KnockoutTie tie:draw.ties)if(tie.firstHome==f.home&&tie.firstAway==f.away||tie.firstHome==f.away&&tie.firstAway==f.home)return qualifying.date(draw,0);
+        throw new IllegalStateException("UEFA qualifying first-leg date unavailable");
+    }
+    private void ensureUEFARegistration(MatchDiscipline.Fixture f) {
+        if(!f.european())return;ensureCupEligibility();ensureTrainingHistory();
+        if(uefaRegistration==null)uefaRegistration=new UEFARegistration(careerSeasonStart.getYear());
+        LocalDate first=uefaFirstLeg(f);
+        for(int club:new int[]{f.home,f.away})prepareUEFAClubList(club,f.competition,f.phase,first,f.date,f.round);
+    }
+    private UEFARegistration.Book prepareUEFAClubList(int club,String competition,int phase,LocalDate first,LocalDate date,int round) {
+        ensureCupEligibility();ensureTrainingHistory();if(uefaRegistration==null)uefaRegistration=new UEFARegistration(careerSeasonStart.getYear());
+            LocalDate keeperDate=currentDate.isBefore(date.minusDays(1))?currentDate:date.minusDays(1);int keepers=0;for(Player p:rulesSquad(club))if(p.position.equals("GK")&&(cupEligibility.baselineRegistration(p.id)||!cupEligibility.qualifiedOn(p.id).isAfter(keeperDate)))keepers++;
+            while(keepers++<3){RosterExtensions.Origin origin=rosterExtensions.academy(division.clubIds[club],careerSeasonStart.minusYears(18));Player p=appendAcademyPlayer(origin);cupEligibility.seed(p.id,club);cupEligibilitySize=players.size();trainingHistory.seed(p.id,origin.birth,club,trainingAssociation(club),origin.birth.plusYears(15),0);trainingHistorySize=players.size();}
+            ArrayList<UEFARegistration.Profile> profiles=uefaProfiles(club,phase,first,date);
+            if(phase>=11&&uefaRegistration.book(club,competition,10)==null)uefaRegistration.prepare(club,competition,10,UEFARegistration.deadline(careerSeasonStart.getYear(),10).plusDays(1),date,currentDate,0,uefaProfiles(club,10,first,date),java.util.Collections.emptySet());
+            java.util.Set<Integer> departed=new java.util.HashSet<>();UEFARegistration.Book prior=uefaRegistration.book(club,competition,10);if(prior!=null)for(UEFARegistration.Entry entry:prior.listA()){Player p=findPlayer(entry.id);if(entry.goalkeeper&&p!=null&&p.team!=club&&!p.onLoan)departed.add(p.id);}
+            return uefaRegistration.prepare(club,competition,phase,first,date,currentDate,round,profiles,departed);
+    }
     private LocalDate cupPlayerDeadline(MatchDiscipline.Fixture f,Player p) {
         if(nationalCups==null||!f.competition.equals("ENG_FA_CUP")&&!(f.competition.equals("SCO_CUP")&&f.phase==8&&!p.position.equals("GK")))return null;
         for(CupSeasons seasons:nationalCups.competitions())if(seasons.active().competition.equals(f.competition)) {
@@ -1415,10 +1471,12 @@ public class MainActivity extends Activity {
     }
     private String cupPlayerReason(MatchDiscipline.Fixture f,Player p) {
         if(f==null||cupEligibility==null)return "";
-        return cupEligibility.reason(f,p.id,p.team,p.age,p.position.equals("GK"),cupPlayerDeadline(f,p),false);
+        UEFARegistration.Book list=f.european()&&uefaRegistration!=null?uefaRegistration.book(p.team,f.competition,f.phase):null;
+        String reason=cupEligibility.reason(f,p.id,p.team,p.age,p.position.equals("GK"),cupPlayerDeadline(f,p),list!=null&&list.winterRegistered(p.id));
+        if(!reason.isEmpty()||!f.european())return reason;return uefaRegistration==null?"UEFA player list has not been submitted":uefaRegistration.reason(p.team,f.competition,f.phase,p.id);
     }
     private void recordCupParticipation(MatchDiscipline.Fixture f,java.util.Collection<Integer> participants) {
-        java.util.Map<Integer,Integer> clubs=new java.util.HashMap<>();for(int id:participants){Player p=findPlayer(id);if(p==null)throw new IllegalArgumentException("Unknown match participant");clubs.put(id,p.team);}cupEligibility.record(f,clubs);
+        java.util.Map<Integer,Integer> clubs=new java.util.HashMap<>();java.util.Set<Integer> winter=new java.util.HashSet<>();for(int id:participants){Player p=findPlayer(id);if(p==null)throw new IllegalArgumentException("Unknown match participant");clubs.put(id,p.team);UEFARegistration.Book list=f.european()&&uefaRegistration!=null?uefaRegistration.book(p.team,f.competition,f.phase):null;if(list!=null&&list.winterRegistered(id))winter.add(id);}cupEligibility.record(f,clubs,winter);
     }
     private String cupMatchSheetReason(MatchDiscipline.Fixture f,int team,java.util.Collection<Integer> xi,java.util.Collection<Integer> bench) {
         java.util.Set<Integer> keepers=new java.util.HashSet<>();for(Player p:rulesSquad(team))if(p.position.equals("GK"))keepers.add(p.id);
@@ -1441,6 +1499,7 @@ public class MainActivity extends Activity {
     private ArrayList<Integer> eligibleRulePlayers(MatchDiscipline.Fixture f){ArrayList<Integer> ids=new ArrayList<>();for(int team:new int[]{f.home,f.away})for(Player p:rulesSquad(team))if(cupPlayerReason(f,p).isEmpty())ids.add(p.id);return ids;}
     private void prepareDiscipline(MatchDiscipline.Fixture f) {
         ensureMatchDiscipline();
+        ensureUEFARegistration(f);
         matchDiscipline.prepare(f,eligibleRulePlayers(f));
     }
     private MatchDiscipline.Fixture leagueDisciplineFixture(int home,int away){return new MatchDiscipline.Fixture(careerSeasonStart.getYear(),(division==null?"PT":division.country)+"_LEAGUE",0,matchday,0,false,home,away,currentDate);}
@@ -1492,7 +1551,7 @@ public class MainActivity extends Activity {
     private MatchDiscipline.Fixture upcomingDisciplineFixture() {
         if(matchInProgress)return liveDisciplineFixture;
         if(matchDiscipline==null||matchDiscipline.year!=careerSeasonStart.getYear())return null;
-        if(cupDue()&&nextCupTie()!=null&&(nextCupTie().home()==selectedClub||nextCupTie().away()==selectedClub))return cupDisciplineFixture();
+        if(cupDue()&&nextCupTie()!=null&&(nextCupTie().home()==selectedClub||nextCupTie().away()==selectedClub)){MatchDiscipline.Fixture next=cupDisciplineFixture();ensureUEFARegistration(next);return next;}
         if(matchday<seasonRounds()&&leagueOpponentForRound(matchday)>=0){boolean home=selectedHomeForRound(matchday);return new MatchDiscipline.Fixture(careerSeasonStart.getYear(),(division==null?"PT":division.country)+"_LEAGUE",0,matchday,0,false,home?selectedClub:leagueOpponentForRound(matchday),home?leagueOpponentForRound(matchday):selectedClub,nextLeagueDate());}
         return null;
     }
@@ -3602,6 +3661,7 @@ public class MainActivity extends Activity {
                 true
         );
 
+
         TextView mainResult = makeText(
                 clubNames[liveHome] + "  " + liveHomeGoals + " - " + liveAwayGoals + "  " + clubNames[liveAway],
                 22,
@@ -4458,6 +4518,7 @@ public class MainActivity extends Activity {
                 team == selectedClub ? "Your squad • tap a player for full stats" : "Opposition squad • tap a player for full stats",
                 true
         );
+        if(team==selectedClub&&europeanCampaign!=null)page.addView(makeButton("European player lists",v->showUEFAPlayerLists()));
 
         ArrayList<Player> teamPlayers = new ArrayList<>();
         for (Player p : players) if (p.team == team) teamPlayers.add(p);
@@ -4578,6 +4639,8 @@ public class MainActivity extends Activity {
         overview.addView(profileInfoRow("Weekly wage", knowledge >= 2 || p.team == selectedClub ? "€" + p.weeklyWageK + "k" : "Unknown"));
         overview.addView(profileInfoRow("Contract remaining", p.contractYears + " year(s)"));
         overview.addView(profileInfoRow("Squad role", p.squadRole));
+        ensureTrainingHistory();overview.addView(profileInfoRow("Date of birth",trainingHistory.birth(p.id).format(DATE_FORMAT)));
+        overview.addView(profileInfoRow("European training status",trainingHistory.clubTrained(p.id,p.team,currentDate)?"Club-trained at "+clubNames[p.team]:trainingHistory.associationTrained(p.id,trainingAssociation(p.team),currentDate)?"Association-trained in "+trainingAssociation(p.team):"Open List A place"));
         overview.addView(profileInfoRow("Appearances", String.valueOf(p.appearances)));
         overview.addView(profileInfoRow("Goals / Assists", p.goals + " / " + p.assists));
         if(matchDiscipline!=null){List<String> ledger=matchDiscipline.playerSummary(p.id);overview.addView(profileInfoRow("Discipline",ledger.isEmpty()?"No recorded cautions or pending bans":android.text.TextUtils.join("\n",ledger)));overview.addView(makeText("Cards tracked from "+matchDiscipline.recordedFrom,11,muted));}
@@ -5155,6 +5218,7 @@ public class MainActivity extends Activity {
 
         if (random.nextDouble() < chance) {
             cupEligibility.register(p.id,selectedClub,currentDate,-1,division!=null&&division.country.equals("FR")?2:0);
+            ensureTrainingHistory();trainingHistory.register(p.id,selectedClub,trainingAssociation(selectedClub),currentDate);
             currentTransferBudget -= fee;
             recordTransferPurchase(fee);
             p.team = selectedClub;
@@ -5200,6 +5264,7 @@ public class MainActivity extends Activity {
         if (random.nextDouble() < chance) {
             int oldTeam = p.team;
             cupEligibility.register(p.id,selectedClub,currentDate,oldTeam,division!=null&&division.country.equals("FR")?2:0);
+            ensureTrainingHistory();trainingHistory.register(p.id,selectedClub,trainingAssociation(selectedClub),currentDate,oldTeam);
             currentTransferBudget -= fee;
             recordTransferLoanFee(fee);
             p.team = selectedClub;
@@ -5244,7 +5309,7 @@ public class MainActivity extends Activity {
     }
     private int playerPortraitIdentity(Player p) {
         int index=p.id-clubNames.length*PLAYERS_PER_TEAM;
-        return index>=0&&index<marketHires.size()?marketHires.get(index).hashCode():p.id;
+        if(index>=0&&index<rosterExtensions.size()){RosterExtensions.Origin origin=rosterExtensions.origins().get(index);return origin.academy()?31*origin.club.hashCode()+origin.cohort:origin.market.hashCode();}return p.id;
     }
     private void showWorldMarket() {
         backAction=()->showTransferHub();
@@ -5293,7 +5358,7 @@ public class MainActivity extends Activity {
         PlayerRegistration.Decision registration=marketRegistration(c);
         String issue=matchInProgress?"Finish the current match before signing players":marketLocalClub(key.split("~")[0])>=0?"Use the existing club squad to negotiate this transfer":!registration.permitted()?registration.explanation:marketHires.contains(key)?"Player already recruited":marketHires.size()>=WorldMarket.MAX_HIRES?"Recruitment capacity reached":currentTransferBudget<c.fee?"Insufficient transfer budget":totalPlayerWagesK()+totalStaffWagesK()+c.wage>wageBudgetK?"Insufficient wage budget":null;
         if(issue!=null){Toast.makeText(this,issue,Toast.LENGTH_LONG).show();return -1;}
-        cupEligibility.register(players.size(),selectedClub,currentDate,-1,division!=null&&division.country.equals("FR")?2:0);marketHires.add(key);Player p=appendMarketPlayer(c);cupEligibilitySize=players.size();currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
+        ensureTrainingHistory();cupEligibility.register(players.size(),selectedClub,currentDate,-1,division!=null&&division.country.equals("FR")?2:0);rosterExtensions.market(key);marketHires.add(key);Player p=appendMarketPlayer(c);cupEligibilitySize=players.size();trainingHistory.seed(p.id,LocalDate.of(careerSeasonStart.getYear()-p.age,7,1).minusDays(p.id%180),selectedClub,trainingAssociation(selectedClub),currentDate,0);trainingHistorySize=players.size();currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
         scoutKnowledge[p.id]=4;addNews("TRANSFER",c.name+" signs",(c.free?"Free agent":"Worldwide transfer")+" • €"+c.wage+"k/week • 3 years"+(registration.requiresApproval()?" • career exemption approved":""));saveCurrentGame();return p.id;
     }
     private PlayerRegistration.Decision marketRegistration(WorldMarket.Candidate candidate){return PlayerRegistration.decide(division==null?"PT":division.country,division==null?1:division.tier,careerSeasonStart.getYear(),currentDate,candidate.free,candidate.free?WorldMarket.FREE_AGENT_CONTRACT_END:null,false);}
@@ -6668,6 +6733,7 @@ public class MainActivity extends Activity {
     private void showEuropeanCalendar(LinearLayout page) {
         page.addView(profileSectionTitle("EUROPE • "+europeanCampaign.year+"/"+(europeanCampaign.year+1)));
         page.addView(makeText("Your club: "+europeanCompetitionForClub(selectedClub),15,accent));
+        page.addView(makeButton("European player lists",v->showUEFAPlayerLists()));
         page.addView(makeText("Career draws and results • dates follow the published opening windows, with saved reschedules around national cups. Later editions use projected calendars.",12,muted));
         if(europeanCampaign.qualifying()!=null) {
             page.addView(makeButton("Annual admissions & qualifying",v->showEuropeanQualifying(europeanCampaign.qualifying(),false)));
@@ -6677,6 +6743,39 @@ public class MainActivity extends Activity {
         EuropeanLeaguePhase.Competition managed=europeanCampaign.competitionForClub(selectedClub);
         if(managed!=null)appendEuropeanFixtures(page,europeanCampaign.season(managed),true);
         else page.addView(makeText("Your club has no European fixtures this season. Follow all three competitions above.",14,muted));
+    }
+    private void showUEFAPlayerLists() {
+        backAction=()->showTeamPlayers(selectedClub);LinearLayout page=createPage("European player lists",clubNames[selectedClub]+" • "+careerSeasonStart.getYear()+"/"+(careerSeasonStart.getYear()+1),true);
+        if(matchInProgress){page.addView(makeText("Finish the current match before changing player lists.",15,accent));return;}
+        EuropeanLeaguePhase.Competition competition=europeanCampaign==null?null:europeanCampaign.competitionForClub(selectedClub);
+        if(competition==null){page.addView(makeText("Your club has not qualified for a European competition this season.",15,muted));return;}
+        int phase=10,round=0;LocalDate first=UEFARegistration.deadline(careerSeasonStart.getYear(),10).plusDays(1),date=currentDate.plusDays(1);
+        EuropeanQualifying qualifying=europeanCampaign.qualifying();
+        if(qualifying!=null&&!qualifying.complete())for(EuropeanQualifying.Draw draw:qualifying.draws())for(KnockoutTie tie:draw.ties)if(tie.winner()<0&&(tie.firstHome==selectedClub||tie.firstAway==selectedClub)){phase=draw.round;first=qualifying.date(draw,0);date=qualifying.date(draw,Math.min(1,tie.playedLegs()));}
+        if(europeanCampaign.leaguePhasesReady()){EuropeanLeaguePhase league=europeanCampaign.season(competition).leaguePhase();if(league.complete())phase=11;else{round=league.currentRound();first=date=league.date(round);}}
+        String code="UEFA_"+competition;UEFARegistration.Book book=prepareUEFAClubList(selectedClub,code,phase,first,date,round);
+        saveCurrentGame();
+        page.addView(profileInfoRow("Competition",EuropeanCampaign.name(competition)));
+        page.addView(profileInfoRow("Stage",phase<10?EuropeanQualifying.roundName(phase):phase==10?"League phase":"Knockout phase"));
+        page.addView(profileInfoRow("List A",book.listA().size()+" / "+book.capacity()+" places • deadline "+book.deadline.format(DATE_FORMAT)));
+        page.addView(profileInfoRow("Locally trained",book.clubTrained()+" club-trained • "+book.associationTrained()+" association-trained (up to 4 reserved places)"));
+        page.addView(profileInfoRow("Goalkeepers",book.goalkeepersA()+" on A • "+book.goalkeepersTotal()+" across A/B"));
+        if(phase<10)page.addView(profileInfoRow("Late qualifying additions",book.lateAdditions()+" / 2 • close "+book.closes.format(DATE_FORMAT)+" before the first leg"));
+        if(phase>=11)page.addView(profileInfoRow("New knockout players",book.winterAdditions()+" / 3"));
+        page.addView(makeText("List B uses saved birth dates and club-training periods. Unused substitutes do not count as appearances. Initial youth histories are generated attributes of your fictional players.",12,muted));
+        if(careerSeasonStart.getYear()>2026)page.addView(makeText("Later-season deadlines project the 2026/27 rules into your career.",12,muted));
+        if(!currentDate.isAfter(book.closes)){final int chosenPhase=phase;final LocalDate chosenFirst=first,chosenDate=date;page.addView(makeAccentButton("Edit & submit List A",v->editUEFAList(book,chosenPhase,chosenFirst,chosenDate)));}
+        else page.addView(makeText("List A is closed for this stage. Eligible List B players are registered before each match.",13,muted));
+        page.addView(profileSectionTitle("LIST A"));for(UEFARegistration.Entry entry:book.listA())appendUEFAListPlayer(page,entry,entry.keeperExemption?"Goalkeeper replacement":entry.training==2?"Club-trained":entry.training==1?"Association-trained":"Open place");
+        page.addView(profileSectionTitle("LIST B"));for(UEFARegistration.Entry entry:book.listB())appendUEFAListPlayer(page,entry,"Eligible youth player");
+        page.addView(profileSectionTitle("NOT LISTED"));for(Player p:rulesSquad(selectedClub))if(!book.contains(p.id))page.addView(makeButton(p.name+" • "+p.position+" • unavailable for this European stage",v->showPlayerProfile(p.id,selectedClub)));
+        page.addView(makeButton("UEFA player-list rule source",v->openHistorySource("https://documents.uefa.com/r/Regulations-of-the-UEFA-"+(competition==EuropeanLeaguePhase.Competition.CHAMPIONS?"Champions-League":competition==EuropeanLeaguePhase.Competition.EUROPA?"Europa-League":"Conference-League")+"-2026/27/Article-31-Player-lists-Online")));
+    }
+    private void appendUEFAListPlayer(LinearLayout page,UEFARegistration.Entry entry,String label){Player p=findPlayer(entry.id);if(p==null)return;page.addView(makeButton(p.name+" • "+p.position+" • "+label+(p.team!=selectedClub?" • has left the club":""),v->showPlayerProfile(p.id,p.team)));}
+    private void editUEFAList(UEFARegistration.Book book,int phase,LocalDate first,LocalDate date) {
+        ArrayList<Player> squad=new ArrayList<>(rulesSquad(selectedClub));sortPlayersByPositionThenOverall(squad);String[] labels=new String[squad.size()];boolean[] selected=new boolean[squad.size()];
+        for(int i=0;i<squad.size();i++){Player p=squad.get(i);labels[i]=p.name+" • "+p.position+" • "+p.overall;selected[i]=book.listAContains(p.id);}
+        new BossDialog.Builder(this).setTitle("Submit European List A").setMessage("Keep the homegrown quota and two List A goalkeepers. Eligible youth players fill List B automatically.").setMultiChoiceItems(labels,selected,(d,index,checked)->selected[index]=checked).setPositiveButton("Submit",(d,w)->{ArrayList<Integer> ids=new ArrayList<>();for(int i=0;i<selected.length;i++)if(selected[i])ids.add(squad.get(i).id);String issue=uefaRegistration.submit(book,ids,uefaProfiles(selectedClub,phase,first,date),currentDate);if(issue.isEmpty()){saveCurrentGame();showUEFAPlayerLists();}else new BossDialog.Builder(this).setTitle("List could not be submitted").setMessage(issue).setPositiveButton("Review",(dialog,which)->showUEFAPlayerLists()).show();}).setNegativeButton("Cancel",null).show();
     }
     private void showEuropeanQualifying(EuropeanQualifying qualifying,boolean archive) {
         backAction=archive?this::showHistoryHub:()->showCalendarTab("Europe");EuropeanAdmissions admissions=qualifying.admissions();LinearLayout page=createPage("European qualifying",admissions.year+"/"+(admissions.year+1)+(archive?" • archive":" • annual admissions"),true);
@@ -7013,7 +7112,7 @@ public class MainActivity extends Activity {
                 players.add(p);
             }
         }
-        for(String key:marketHires)appendMarketPlayer(new WorldMarket.Candidate(key));
+        for(RosterExtensions.Origin origin:rosterExtensions.origins())if(origin.academy())appendAcademyPlayer(origin);else appendMarketPlayer(new WorldMarket.Candidate(origin.market));
     }
 
     private int attributeFromOverall(Random r, int overall, int spread) {
@@ -7194,7 +7293,7 @@ public class MainActivity extends Activity {
 
     private void configureDivision(CareerDivision value) {
         dutchEuropeanPlayoff=null;liveDutchEuropean=false;
-        seasonHistory=new SeasonHistory();marketHires=new ArrayList<>();
+        seasonHistory=new SeasonHistory();marketHires=new ArrayList<>();rosterExtensions=new RosterExtensions();trainingHistory=new PlayerTrainingHistory();trainingHistorySize=-1;uefaRegistration=null;
         division=value;reserveTransitionSeed=null;leagueDecisions=null;liveLeagueDecision=false;liveDecisionEvent=null;leagueDates=java.util.Collections.emptyList();leagueDatesKey="";promotionDates=null;lowerPromotionDates=null;europeanCampaign=null;liveEuropean=false;liveEuropeanEvent=null;scottishSplitProvisional=false;promotion=null;unreadablePromotion="";livePlayoff=false;liveCup=false;liveDomesticCup=false;leagueCup=null;modernPortugueseCup=null;liveModernPortugueseCup=false;portugueseThird=null;portugueseFourth=null;portugueseDistrict=null;lowerPromotion=null;liveLowerPlayoff=false;nextManagerClub=-1;domesticCup=null;nationalCups=null;liveNationalCup=false;scottishLeagueCup=null;liveScottishCup=false;domesticCupHistory=new DomesticCupHistory();seasonAgeApplied=false;postseasonWeeksProcessed=0;careerWeeksProcessed=0;careerSchedule=null;splitOrder=new int[0];careerSeasonStart=SEASON_START;selectedClub=-1;
         defaultClubNames=value==null?legacyNames.clone():value.names.clone();
         strength=value==null?legacyStrength.clone():value.strengths.clone();
@@ -7642,6 +7741,7 @@ public class MainActivity extends Activity {
         careerSeasonStart=modernPortugueseCup==null&&europeanCampaign==null?careerSeasonStart.plusYears(1):LocalDate.of(nextYear,7,1);if(modernPortugueseCup!=null)fixtureVersion=4;if(europeanCampaign!=null)fixtureVersion=6;
         if(matchDiscipline!=null)matchDiscipline=matchDiscipline.nextSeason(nextYear,careerSeasonStart);
         if(cupEligibility!=null)cupEligibility=cupEligibility.nextSeason(nextYear,careerSeasonStart);
+        if(uefaRegistration!=null)uefaRegistration=uefaRegistration.nextSeason(nextYear);
         currentDate=careerSeasonStart;reserveTransitionSeed=null;matchday=0;splitOrder=new int[0];leagueDates=java.util.Collections.emptyList();leagueDatesKey="";promotionDates=null;lowerPromotionDates=null;careerSchedule=null;seasonAgeApplied=false;postseasonWeeksProcessed=0;careerWeeksProcessed=0;
         resetLeagueStandings();saveCurrentGame();showDashboard();
     }
@@ -7774,6 +7874,8 @@ public class MainActivity extends Activity {
 
         if (selectedSlot < 0 || selectedClub < 0) return;
         ensureMatchDiscipline();
+        ensureTrainingHistory();
+        if(uefaRegistration==null)uefaRegistration=new UEFARegistration(careerSeasonStart.getYear());
         announceManagedSuspensions();
 
         if(fixtureVersion>=6&&leagueDates.isEmpty())leagueFixtureDate(0);
@@ -7782,6 +7884,11 @@ public class MainActivity extends Activity {
                 .putString(key(selectedSlot,"match_discipline"),matchDiscipline.snapshot())
                 .putInt(key(selectedSlot,"participation_version"),1)
                 .putString(key(selectedSlot,"cup_participation"),cupEligibility.snapshot())
+                .putInt(key(selectedSlot,"player_profiles_version"),1)
+                .putString(key(selectedSlot,"roster_extensions"),rosterExtensions.snapshot())
+                .putString(key(selectedSlot,"player_training_history"),trainingHistory.snapshot())
+                .putInt(key(selectedSlot,"uefa_registration_version"),1)
+                .putString(key(selectedSlot,"uefa_player_lists"),uefaRegistration.snapshot())
                 .putString(key(selectedSlot,"reserve_transition_seed"),reserveTransitionSeed==null?"":reserveTransitionSeed.toString())
                 .putString(key(selectedSlot,"league_decisions"),leagueDecisions==null?"":leagueDecisions.snapshot())
                 .putString(key(selectedSlot,"league_dates"),fixtureVersion>=6?CompetitionCalendar.snapshot(leagueDates):"")
@@ -7891,6 +7998,10 @@ public class MainActivity extends Activity {
             } else if(saved!=null&&saved.country.equals("SCO")&&(saved.linked||saved.splitSeason())&&prefs.getInt(key(slot,"matchday"),0)>33)throw new IllegalArgumentException("Missing split");
             SeasonHistory restoredHistory=SeasonHistory.restore(prefs.getString(key(slot,"season_history"),""));
             java.util.List<String> restoredMarket=WorldMarket.restore(prefs.getString(key(slot,"market_hires"),""));
+            int profilesVersion=prefs.getInt(key(slot,"player_profiles_version"),0);String rawExtensions=prefs.getString(key(slot,"roster_extensions"),""),rawTraining=prefs.getString(key(slot,"player_training_history"),"");
+            if(profilesVersion<0||profilesVersion>1||profilesVersion==1&&(rawExtensions.isEmpty()||rawTraining.isEmpty())||profilesVersion==0&&(!rawExtensions.isEmpty()||!rawTraining.isEmpty()))throw new IllegalArgumentException("Missing saved player profiles");
+            RosterExtensions restoredExtensions=rawExtensions.isEmpty()?RosterExtensions.legacy(restoredMarket):RosterExtensions.restore(rawExtensions);restoredExtensions.validate(restoredMarket,RosterExtensions.clubIdentities(saved==null?null:saved.clubIds,n));
+            PlayerTrainingHistory restoredTraining=rawTraining.isEmpty()?new PlayerTrainingHistory():PlayerTrainingHistory.restore(rawTraining);
             String rawCup=prefs.getString(key(slot,"league_cup"),"");
             PortugueseLeagueCup restoredCup=null;
             DomesticCup restoredDomestic=null;String rawDomestic=prefs.getString(key(slot,"domestic_cup"),"");
@@ -7939,6 +8050,9 @@ public class MainActivity extends Activity {
             if(prefs.getInt(key(slot,"discipline_version"),0)>=1&&rawDiscipline.isEmpty())throw new IllegalArgumentException("Missing saved player discipline");
             MatchDiscipline restoredDiscipline=rawDiscipline.isEmpty()?new MatchDiscipline(savedYear,savedDate):MatchDiscipline.restore(rawDiscipline);
             String savedPlayerTeams=prefs.getString(key(slot,"p_team"),"");restoredDiscipline.validate(savedYear,savedPlayerTeams.isEmpty()?n*20+restoredMarket.size():savedPlayerTeams.split(",",-1).length,savedDate);
+            if(profilesVersion==1){int[] profileTeams=java.util.Arrays.stream(savedPlayerTeams.split(",",-1)).mapToInt(Integer::parseInt).toArray();if(profileTeams.length!=n*PLAYERS_PER_TEAM+restoredExtensions.size())throw new IllegalArgumentException("Saved supplementary player count disagrees");restoredTraining.validate(profileTeams,savedDate);}
+            int uefaListVersion=prefs.getInt(key(slot,"uefa_registration_version"),0);String rawUEFALists=prefs.getString(key(slot,"uefa_player_lists"),"");if(uefaListVersion<0||uefaListVersion>1||uefaListVersion==1&&rawUEFALists.isEmpty()||uefaListVersion==0&&!rawUEFALists.isEmpty())throw new IllegalArgumentException("Missing saved UEFA player lists");UEFARegistration restoredUEFALists=rawUEFALists.isEmpty()?new UEFARegistration(savedYear):UEFARegistration.restore(rawUEFALists);restoredUEFALists.validate(savedYear,savedPlayerTeams.isEmpty()?n*PLAYERS_PER_TEAM+restoredExtensions.size():savedPlayerTeams.split(",",-1).length,n,savedDate);
+            restoredUEFALists.validateGoalkeepers(restoredExtensions.goalkeepers(n));
             String rawParticipation=prefs.getString(key(slot,"cup_participation"),"");int participationVersion=prefs.getInt(key(slot,"participation_version"),0);
             if(participationVersion<0||participationVersion>1||participationVersion==1&&rawParticipation.isEmpty())throw new IllegalArgumentException("Missing or unsupported player participation");
             CupEligibility restoredParticipation=rawParticipation.isEmpty()?null:CupEligibility.restore(rawParticipation);
@@ -7954,6 +8068,8 @@ public class MainActivity extends Activity {
             String rawLowerDates=prefs.getString(key(slot,"lower_promotion_dates"),"");PostseasonCalendar restoredLowerDates=rawLowerDates.isEmpty()?null:PostseasonCalendar.restore(rawLowerDates);
             if(restoredLowerDates!=null)restoredLowerDates.validate(restoredLower,savedYear,LocalDate.parse(prefs.getString(key(slot,"date"),SEASON_START.toString())),n);
             configureDivision(saved);reserveTransitionSeed=restoredReserveSeed;leagueDecisions=restoredDecisions;lowerPromotionDates=restoredLowerDates;leagueDates=restoredDates;promotionDates=restoredPromotionDates;europeanCampaign=restoredEuropean;seasonHistory=restoredHistory;marketHires=restoredMarket;domesticCupHistory=restoredCupHistory;
+            rosterExtensions=restoredExtensions;trainingHistory=restoredTraining;trainingHistorySize=-1;
+            uefaRegistration=restoredUEFALists;
             matchDiscipline=restoredDiscipline;cupEligibility=restoredParticipation;cupEligibilitySize=-1;liveDisciplineFixture=null;rulesSquads=null;disciplinaryNewsPending=false;disciplineBeforeMatch.clear();
             dutchEuropeanPlayoff=restoredDutch;
             leagueCup=restoredCup;
@@ -8054,6 +8170,7 @@ public class MainActivity extends Activity {
         decodePlayerField(prefs.getString(key(slot, "p_loan"), ""), "loan");
         decodePlayerField(prefs.getString(key(slot, "p_team"), ""), "team");
         decodePlayerField(prefs.getString(key(slot, "p_onloan"), ""), "onloan");
+        ensureCupEligibility();ensureTrainingHistory();
         ensureTacticsValid();
         loadClassicState(slot);
         loadFinanceStadiumState(slot);
@@ -8075,7 +8192,8 @@ public class MainActivity extends Activity {
     private void clearSave(int slot) {
         SharedPreferences.Editor editor = prefs.edit();
         String[] fields = {
-                "participation_version", "cup_participation", "discipline_version", "match_discipline", "reserve_transition_seed", "league_decisions", "league_dates", "promotion_dates", "lower_promotion_dates", "career_world", "season_start", "season_history", "market_hires", "league_cup", "modern_portuguese_cup", "portuguese_third", "portuguese_fourth", "portuguese_district", "portuguese_lower_promotion", "domestic_cup", "domestic_cup_history", "national_cups", "scottish_league_cup", "european_campaign", "dutch_european_playoff", "season_age_applied", "career_weeks", "postseason_weeks", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
+                "uefa_registration_version", "uefa_player_lists",
+                "player_profiles_version", "roster_extensions", "player_training_history", "participation_version", "cup_participation", "discipline_version", "match_discipline", "reserve_transition_seed", "league_decisions", "league_dates", "promotion_dates", "lower_promotion_dates", "career_world", "season_start", "season_history", "market_hires", "league_cup", "modern_portuguese_cup", "portuguese_third", "portuguese_fourth", "portuguese_district", "portuguese_lower_promotion", "domestic_cup", "domestic_cup_history", "national_cups", "scottish_league_cup", "european_campaign", "dutch_european_playoff", "season_age_applied", "career_weeks", "postseason_weeks", "split_order", "league_results", "promotion", "split_provisional", "fixture_version", "exists", "club", "manager_first", "manager_last", "manager_dob", "manager_gender", "manager_country_index", "manager_league", "manager_league_index",
                 "manager_wage", "manager_contract_years", "manager_tactical", "manager_motivating", "manager_discipline", "manager_player_knowledge", "manager_youth", "manager_negotiating",
                 "matchday", "date", "training", "formation", "playstyle", "budget", "roles", "role_slots", "role_pos",
                 "staff_am_name", "staff_am_rating", "staff_coach_name", "staff_coach_rating", "staff_scout_name", "staff_scout_rating",
@@ -9495,6 +9613,7 @@ public class MainActivity extends Activity {
     }
 
     private void processSeasonEnd() {
+        ensureTrainingHistory();if(division!=null)for(int club=0;club<clubNames.length;club++)if(division.association(club).equals(division.country)&&division.clubTiers[club]<=2&&played[club]>=division.rounds(division.clubTiers[club])){LocalDate last=leagueFixtureDate(division.rounds(division.clubTiers[club])-1);if(!last.isAfter(currentDate))trainingHistory.completeSeason(club,leagueFixtureDate(0),last);}
         if(fixtureVersion<6)rollFinanceSeason();
         addNews("SEASON", "Season complete", "Player ages and development have been updated.");
         for (Player p : players) {

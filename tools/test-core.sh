@@ -11,6 +11,10 @@ javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/MatchDiscipl
 java -cp "$out" com.projectmister.game.MatchDisciplineTests
 javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/CupEligibility.java tests/CupEligibilityTests.java
 java -cp "$out" com.projectmister.game.CupEligibilityTests
+javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{RosterExtensions,PlayerTrainingHistory}.java tests/PlayerProfileTests.java
+java -cp "$out" com.projectmister.game.PlayerProfileTests
+javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/UEFARegistration.java tests/UEFARegistrationTests.java
+java -cp "$out" com.projectmister.game.UEFARegistrationTests
 javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{EuropeanDraw,EuropeanCalendar,EuropeanCampaign,EuropeanPerformance,EuropeanDomesticSeason,EuropeanAdmissions,EuropeanQualifying,DutchEuropeanPlayoff}.java tests/EuropeanDrawTests.java tests/EuropeanCampaignTests.java tests/DutchEuropeanPlayoffTests.java
 java -cp "$out" com.projectmister.game.DutchEuropeanPlayoffTests
 java -cp "$out" com.projectmister.game.EuropeanDrawTests
