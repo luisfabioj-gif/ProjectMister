@@ -298,6 +298,7 @@ public class MainActivity extends Activity {
     private int liveSubsUsed = 0;
     private final ArrayList<Integer> liveXIIds = new ArrayList<>();
     private final ArrayList<Integer> liveBenchIds = new ArrayList<>();
+    private final ArrayList<Integer> liveOppositionBenchIds = new ArrayList<>();
     private final ArrayList<Integer> liveUsedOffIds = new ArrayList<>();
 
 
@@ -1419,6 +1420,16 @@ public class MainActivity extends Activity {
     private void recordCupParticipation(MatchDiscipline.Fixture f,java.util.Collection<Integer> participants) {
         java.util.Map<Integer,Integer> clubs=new java.util.HashMap<>();for(int id:participants){Player p=findPlayer(id);if(p==null)throw new IllegalArgumentException("Unknown match participant");clubs.put(id,p.team);}cupEligibility.record(f,clubs);
     }
+    private String cupMatchSheetReason(MatchDiscipline.Fixture f,int team,java.util.Collection<Integer> xi,java.util.Collection<Integer> bench) {
+        java.util.Set<Integer> keepers=new java.util.HashSet<>();for(Player p:rulesSquad(team))if(p.position.equals("GK"))keepers.add(p.id);
+        // These projected cup calendars have no competition-proper fixture in a
+        // simulated senior FIFA international period. Medical hearings are not invented.
+        return cupEligibility.matchSheetReason(f,team,xi,bench,keepers,false);
+    }
+    private ArrayList<Integer> eligibleBench(int team,MatchDiscipline.Fixture f,java.util.Collection<Integer> xi) {
+        ArrayList<Player> available=new ArrayList<>();for(Player p:rulesSquad(team))if(!xi.contains(p.id)&&p.injuredWeeks==0&&cupPlayerReason(f,p).isEmpty()&&matchDiscipline.suspendedMatches(f,p.id)==0)available.add(p);
+        available.sort((a,b)->a.position.equals("GK")!=b.position.equals("GK")?a.position.equals("GK")?-1:1:Integer.compare(b.overall,a.overall));ArrayList<Integer> ids=new ArrayList<>();int limit=Math.min(7,CupEligibility.matchSheetLimit(f)-11);for(Player p:available)if(ids.size()<limit)ids.add(p.id);return ids;
+    }
     private ArrayList<Player> rulesSquad(int team) {
         if(rulesSquads==null||rulesSquadSize!=players.size()) {
             rulesSquads=new java.util.HashMap<>();for(Player p:players)rulesSquads.computeIfAbsent(p.team,k->new ArrayList<>()).add(p);rulesSquadSize=players.size();
@@ -1458,6 +1469,7 @@ public class MainActivity extends Activity {
     }
     private int[] recordBackgroundDiscipline(MatchDiscipline.Fixture f,int homeCards,int awayCards) {
         prepareDiscipline(f);ArrayList<Integer> home=bestElevenForTeam(f.home,f),away=bestElevenForTeam(f.away,f),appeared=new ArrayList<>(home);appeared.addAll(away);
+        if(f.competition.equals("FR_COUPE")||f.competition.equals("SCO_CUP"))for(int team:new int[]{f.home,f.away}){ArrayList<Integer> xi=team==f.home?home:away;String issue=cupMatchSheetReason(f,team,xi,eligibleBench(team,f,xi));if(!issue.isEmpty())throw new IllegalStateException("Automatic cup match sheet: "+issue);}
         backgroundDisciplineFixture=f;backgroundHomeParticipants.clear();backgroundHomeParticipants.addAll(home);backgroundAwayParticipants.clear();backgroundAwayParticipants.addAll(away);
         if(f.competition.endsWith("_LEAGUE"))backgroundLeagueParticipants.addAll(appeared);
         java.util.Map<Integer,Integer> cards=new java.util.HashMap<>();Random bookings=new Random(f.key().hashCode()*73831L);
@@ -1567,6 +1579,9 @@ public class MainActivity extends Activity {
             if(reason.isEmpty()&&p.injuredWeeks>0)reason="Injured for "+p.injuredWeeks+" week(s)";
             if(!reason.isEmpty()){matchInProgress=false;liveCup=false;livePlayoff=false;Toast.makeText(this,p.name+": "+reason+". Select a replacement in Tactics.",Toast.LENGTH_LONG).show();showTactics();return;}
         }
+        ArrayList<Integer> selectedXi=new ArrayList<>(),selectedBench=new ArrayList<>();for(Player p:rulesSquad(selectedClub)){if(playerRoleStatus[p.id]==2)selectedXi.add(p.id);else if(playerRoleStatus[p.id]==1&&p.injuredWeeks==0&&cupPlayerReason(liveDisciplineFixture,p).isEmpty()&&matchDiscipline.suspendedMatches(liveDisciplineFixture,p.id)==0)selectedBench.add(p.id);}
+        String sheetIssue=cupMatchSheetReason(liveDisciplineFixture,selectedClub,selectedXi,selectedBench);
+        if(!sheetIssue.isEmpty()){matchInProgress=false;liveCup=false;livePlayoff=false;Toast.makeText(this,sheetIssue+". Adjust the match sheet in Tactics.",Toast.LENGTH_LONG).show();showTactics();return;}
         liveAwayKitColour=KitColours.away(primaryColours[liveHome],primaryColours[liveAway],secondaryColours[liveAway]);
 
         liveOtherFixtures.clear();
@@ -1644,6 +1659,7 @@ public class MainActivity extends Activity {
         liveLooseBallX = liveLooseBallY = 0.5f;
                           prepareLiveLineup();
         prepareLivePitchLineups();
+        int opposition=selectedClub==liveHome?liveAway:liveHome;ArrayList<Integer> oppositionXi=opposition==liveHome?liveHomeLineupIds:liveAwayLineupIds;liveOppositionBenchIds.clear();liveOppositionBenchIds.addAll(eligibleBench(opposition,liveDisciplineFixture,oppositionXi));
         substitutions.reset(liveXIIds);substitutionsPending=false;
         matchTackles.clear();matchCompletedPasses.clear();matchMissedPasses.clear();matchYellows.clear();matchDismissals.clear();
         matchParticipants.clear(); matchParticipants.addAll(liveHomeLineupIds); matchParticipants.addAll(liveAwayLineupIds);
@@ -2239,7 +2255,7 @@ public class MainActivity extends Activity {
         if (on == null) return;
 
         boolean reversal = isLiveSubstitutionReversal(offId, onId);
-        if(!liveBenchIds.contains(onId) || on.injuredWeeks>0 || matchDismissals.contains(onId) || matchDiscipline.suspendedMatches(liveDisciplineFixture,onId)>0 || !substitutions.change(offId,onId)) {
+        if(!liveBenchIds.contains(onId) || on.injuredWeeks>0 || matchDismissals.contains(onId) || !cupPlayerReason(liveDisciplineFixture,on).isEmpty() || matchDiscipline.suspendedMatches(liveDisciplineFixture,onId)>0 || !substitutions.change(offId,onId)) {
             Toast.makeText(this,"Change unavailable: check eligibility and substitutions remaining.",Toast.LENGTH_SHORT).show(); return;
         }
 
@@ -2813,7 +2829,7 @@ public class MainActivity extends Activity {
         if(slot<0 || (need<12 && minute<65))return;
         Player off=findPlayer(xi.get(slot)),best=null;
         float quality=-1000;
-        for(Player p:players) if(p.team==team && p.injuredWeeks==0 && !xi.contains(p.id) && !aiDeparted.contains(p.id) && !"GK".equals(p.position)) {
+        for(Player p:rulesSquad(team)) if(liveOppositionBenchIds.contains(p.id) && p.injuredWeeks==0 && cupPlayerReason(liveDisciplineFixture,p).isEmpty() && matchDiscipline.suspendedMatches(liveDisciplineFixture,p.id)==0 && !xi.contains(p.id) && !aiDeparted.contains(p.id) && !"GK".equals(p.position)) {
             float q=p.overall+p.fitness*.35f-(p.position.equals(off.position)?0:25);
             if(q>quality){quality=q;best=p;}
         }
@@ -3090,7 +3106,8 @@ public class MainActivity extends Activity {
 
         ArrayList<Player> outfield = new ArrayList<>();
         for (Player p : squad) if (!"GK".equals(p.position)) outfield.add(p);
-        Collections.sort(outfield, (a,b) -> Integer.compare(b.overall, a.overall));
+        java.util.Set<Integer> recent=fixture!=null&&fixture.competition.equals("FR_COUPE")&&fixture.phase>=9&&cupEligibility!=null?cupEligibility.recentParticipants(team):java.util.Collections.emptySet();
+        Collections.sort(outfield, (a,b) -> recent.contains(a.id)!=recent.contains(b.id)?recent.contains(a.id)?-1:1:Integer.compare(b.overall,a.overall));
 
         int defenders = 0, mids = 0, forwards = 0;
         for (Player p : outfield) {
@@ -3106,6 +3123,7 @@ public class MainActivity extends Activity {
             if (rank >= 9 && forwards < 3 && !chosen.contains(p)) { chosen.add(p); forwards++; }
         }
         for (Player p : outfield) if (chosen.size() < 11 && !chosen.contains(p)) chosen.add(p);
+        if(!recent.isEmpty()){int used=0;for(Player p:chosen)if(recent.contains(p.id))used++;for(Player p:outfield)if(used<7&&recent.contains(p.id)&&!chosen.contains(p)){for(int i=chosen.size()-1;i>=0;i--)if(!chosen.get(i).position.equals("GK")&&!recent.contains(chosen.get(i).id)){chosen.set(i,p);used++;break;}}}
         sortPlayersByPositionThenOverall(chosen);
         ArrayList<Integer> ids = new ArrayList<>();
         for (Player p : chosen) if (ids.size() < 11) ids.add(p.id);
@@ -5136,7 +5154,7 @@ public class MainActivity extends Activity {
         chance = Math.max(0.12, Math.min(0.94, chance));
 
         if (random.nextDouble() < chance) {
-            cupEligibility.register(p.id,selectedClub,currentDate,-1);
+            cupEligibility.register(p.id,selectedClub,currentDate,-1,division!=null&&division.country.equals("FR")?2:0);
             currentTransferBudget -= fee;
             recordTransferPurchase(fee);
             p.team = selectedClub;
@@ -5181,7 +5199,7 @@ public class MainActivity extends Activity {
 
         if (random.nextDouble() < chance) {
             int oldTeam = p.team;
-            cupEligibility.register(p.id,selectedClub,currentDate,oldTeam);
+            cupEligibility.register(p.id,selectedClub,currentDate,oldTeam,division!=null&&division.country.equals("FR")?2:0);
             currentTransferBudget -= fee;
             recordTransferLoanFee(fee);
             p.team = selectedClub;
@@ -5275,7 +5293,7 @@ public class MainActivity extends Activity {
         PlayerRegistration.Decision registration=marketRegistration(c);
         String issue=matchInProgress?"Finish the current match before signing players":marketLocalClub(key.split("~")[0])>=0?"Use the existing club squad to negotiate this transfer":!registration.permitted()?registration.explanation:marketHires.contains(key)?"Player already recruited":marketHires.size()>=WorldMarket.MAX_HIRES?"Recruitment capacity reached":currentTransferBudget<c.fee?"Insufficient transfer budget":totalPlayerWagesK()+totalStaffWagesK()+c.wage>wageBudgetK?"Insufficient wage budget":null;
         if(issue!=null){Toast.makeText(this,issue,Toast.LENGTH_LONG).show();return -1;}
-        marketHires.add(key);Player p=appendMarketPlayer(c);cupEligibility.register(p.id,selectedClub,currentDate,-1);cupEligibilitySize=players.size();currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
+        cupEligibility.register(players.size(),selectedClub,currentDate,-1,division!=null&&division.country.equals("FR")?2:0);marketHires.add(key);Player p=appendMarketPlayer(c);cupEligibilitySize=players.size();currentTransferBudget-=c.fee;recordTransferPurchase(c.fee);
         scoutKnowledge[p.id]=4;addNews("TRANSFER",c.name+" signs",(c.free?"Free agent":"Worldwide transfer")+" • €"+c.wage+"k/week • 3 years"+(registration.requiresApproval()?" • career exemption approved":""));saveCurrentGame();return p.id;
     }
     private PlayerRegistration.Decision marketRegistration(WorldMarket.Candidate candidate){return PlayerRegistration.decide(division==null?"PT":division.country,division==null?1:division.tier,careerSeasonStart.getYear(),currentDate,candidate.free,candidate.free?WorldMarket.FREE_AGENT_CONTRACT_END:null,false);}
@@ -6018,7 +6036,8 @@ public class MainActivity extends Activity {
             if (p.position.equals("GK") && (bestGK == null || p.overall > bestGK.overall)) bestGK = p;
         }
 
-        Collections.sort(squad, (a, b) -> Integer.compare(b.overall, a.overall));
+        java.util.Set<Integer> recent=next!=null&&next.competition.equals("FR_COUPE")&&next.phase>=9&&cupEligibility!=null?cupEligibility.recentParticipants(selectedClub):java.util.Collections.emptySet();
+        Collections.sort(squad, (a,b) -> recent.contains(a.id)!=recent.contains(b.id)?recent.contains(a.id)?-1:1:Integer.compare(b.overall,a.overall));
         int starters = 0;
         if (bestGK != null) {
             playerRoleStatus[bestGK.id] = 2;
@@ -6027,11 +6046,13 @@ public class MainActivity extends Activity {
         for (Player p : squad) {
             if (starters >= 11) break;
             if (bestGK != null && p.id == bestGK.id) continue;
+            if(p.position.equals("GK"))continue;
             playerRoleStatus[p.id] = 2;
             starters++;
         }
 
-        int subs = 0;
+        int subs = 0;Player reserveGK=null;for(Player p:squad)if(p.position.equals("GK")&&playerRoleStatus[p.id]==0&&(reserveGK==null||p.overall>reserveGK.overall))reserveGK=p;
+        if(reserveGK!=null){playerRoleStatus[reserveGK.id]=1;playerSelectedSlot[reserveGK.id]=-1;playerSelectedPosition[reserveGK.id]=reserveGK.position;subs++;}
         for (Player p : squad) {
             if (playerRoleStatus[p.id] != 0) continue;
             if (subs >= 7) break;

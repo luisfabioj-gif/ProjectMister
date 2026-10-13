@@ -16,9 +16,26 @@ one-club limit and parent-club loan restriction. Default-round registration
 deadlines are saved indirectly in each immutable cup calendar; the FA final uses
 the semi-final deadline. An added native scenario transfers an actual Scottish
 Cup participant, rejects his ineligible selection, and plays an eligible replacement.
-French match-sheet restrictions and UEFA registration lists are still unfinished
-integration work. Earlier cards and appearances are not fabricated when an
+French match-sheet restrictions and ordinary qualification dates now have 53
+passing host participation cases and an added actual Android free-agent / continuity
+scenario, still awaiting native evidence. Automatic selection retains at least
+seven actual recent participants in the competition proper. A first unknown
+team sheet in an upgraded mid-season career is grandfathered until actual
+appearances are available; no former appearances are invented. Opponent
+substitutions now use their frozen eligible kick-off bench, including suspension
+checks. UEFA registration lists are still unfinished integration work.
+Earlier cards and appearances are not fabricated when an
 existing career is upgraded.
+
+The official LFP statutes page returned HTTP 404 but included its real 2026/27
+document list in rendered download-widget data. The 8 September 2026 administrative
+and disciplinary PDFs were retrieved directly on 13 October (UK time). Article
+213 confirms the ordinary free-agent cutoff already used by the game; the older
+2024/25 reference has been replaced. Article 208 bis requires two days after a
+complete ordinary new-player dossier. Actual French permanent/loan/free-agent
+signings now save and enforce that qualification date, including in cup/UEFA
+selection and eligible ban service. The CE2 ledger restores CE1 saves without
+changing existing eligibility. No DNCG incident or incomplete dossier is generated.
 
 ## Verified current inputs
 
@@ -34,7 +51,7 @@ existing career is upgraded.
 | FA Cup | Up to two clubs in an edition; only one club in any round. Unused substitutes do not count as having played. Match registration deadlines still apply | FA Cup 2026/27 rules 95–103 |
 | Carabao Cup | At most two clubs in the edition; may not represent different clubs in the semi-final stage. Winter movers may play for the new club in the final. Loans are allowed unless the parent explicitly refuses | Full EFL Carabao Cup rules 2026/27, rules 6.1–6.4; current document linked from the official cup-rules page |
 | Coupe de France | In the competition proper, the match sheet needs at least seven players who appeared in one of the first team's last two official matches, except during the stated FIFA senior international period. Match sheets allow 16 / 18 / 20 players depending on round | FFF Coupe de France 2026/27, article 7.3 |
-| French professional first teams | Five cautions across league / Coupe de France / Trophée des Champions incur a ban. A firm commission sanction clears cautions up to the decision; subsequent cautions remain. Yellow bans begin the following Tuesday | LFP disciplinary rules 2026/27, articles 11/12/14; the career projects weekly Wednesday commission dates |
+| French professional first teams | Five cautions across league / Coupe de France / Trophée des Champions incur a ban. A firm commission sanction clears cautions up to the decision; subsequent cautions remain. Yellow bans begin the following Tuesday | LFP disciplinary rules 2026/27, updated 8 September 2026, articles 11/12/14; the career projects weekly Wednesday commission dates |
 | Belgian Cup | Two cautions through round four; **three** from round five. Before round five, clear earlier cautions and pending yellow bans. An unserved cup yellow / double-yellow ban does not carry into the next season | Current RBFA Book B, articles B11.184/188/193 |
 | Scottish Cup / League Cup | Each two cautions suspend. Scottish Cup resets before rounds one and four; League Cup resets before round two. Accumulation ceases before semi-finals; an already incurred ban remains. Repeated sending-off offences add a match per previous offence in that cup | Scottish FA JPP 2026/27, annex C, sections 2/3 |
 | FA Cup / Carabao Cup | Current FA Cup competition-proper caution threshold is **two**, regardless of entry at first or third round, with further bans every two. Carabao thresholds two and four. Both stop accumulating after quarter-finals. Domestic sending-off recurrence adds a match per earlier offence | FA Handbook 2026/27, on-field regulations 24–34 and tables 1/2 |
@@ -62,7 +79,8 @@ unused benches, and watched fixtures must use the players who really appeared.
 - https://www.tff.org/Resources/TFF/Auto/dd8f8b54192c42de80c71cd95068f530.pdf
 - https://assets.ctfassets.net/qu0slcxvbwp6/4noZMOOZQZFerq3dDvCLzx/5e1f7f86c9c860d6d283eac5aad90dc1/JPP_2026-27.pdf
 - https://belgianfootball.s3.eu-central-1.amazonaws.com/s3fs-public/rbfa/docs/pdf/reglement/bondsreglement_reglement_federal/KBVB_bondsreglement_Boek_B.pdf
-- https://www.lfp.fr/assets/26_27_Reglement_Disciplinaire_25_06_2026_1decd7a4a3.pdf
+- https://www.lfp.fr/assets/26_27_Reglement_Disciplinaire_08_09_2026_67eca018f8.pdf
+- https://www.lfp.fr/assets/26_27_Reglement_Administratif_08_09_2026_81737d37a3.pdf
 - https://www.thefa.com/-/media/files/thefaportal/governance-docs/rules-of-the-association/2026-27/the-fa-handbook-2026-27.ashx
 - https://www.figc.it/it/federazione/norme/codice-di-giustizia-sportiva
 
@@ -80,7 +98,13 @@ expanded Portuguese cup: a fixture index was incorrectly used as a stage. The
 next checkpoint uses the cup's actual stage and a bounded world-sized fixture
 index; a complete 146-club host tournament exercises the case.
 
-Still to finish: French match-sheet restrictions and UEFA player-list integration.
+Still to finish: native verification of the French match-sheet integration and
+UEFA player-list integration.
+Run 38324692043 passes the original backup/Portuguese cup adapter failures on
+API36, then reaches the isolated registration QA. That helper signed an October
+free agent before rewinding to test August, which a saved registration ledger
+correctly rejects. Its next version tests August before October, retaining every
+open-window/out-of-window assertion without weakening monotonic registration.
 Turkish article 93 was checked
 against the current TFF PDF: four cautions per category; a sending-off removes
 that match's cautions from accumulation; yellow cards and pending yellow bans

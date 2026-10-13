@@ -9,7 +9,7 @@ public final class CupEligibility {
     private static final int MAX_PLAYERS=CareerLimits.MAX_CLUBS*64;
     private static final class Registration {
         int club,parent;
-        LocalDate joined;
+        LocalDate joined,qualifiedOn;
         boolean baseline;
         final TreeSet<Integer> registeredClubs=new TreeSet<>();
     }
@@ -34,18 +34,22 @@ public final class CupEligibility {
     /** The existing roster is registered, but its unrecorded former appearances are unknown. */
     public void seed(int id,int club) {
         identity(id,club);if(registrations.containsKey(id))return;
-        Registration r=new Registration();r.club=club;r.parent=-1;r.joined=recordedFrom;r.baseline=true;r.registeredClubs.add(club);registrations.put(id,r);
+        Registration r=new Registration();r.club=club;r.parent=-1;r.joined=r.qualifiedOn=recordedFrom;r.baseline=true;r.registeredClubs.add(club);registrations.put(id,r);
     }
     public String transferReason(int id,int destination) {
         identity(id,destination);Registration r=registrations.get(id);
         return r!=null&&!r.registeredClubs.contains(destination)&&r.registeredClubs.size()>=3?"Already registered with three clubs this season":"";
     }
     public void register(int id,int club,LocalDate date,int loanParent) {
-        identity(id,club);if(date==null||date.isBefore(recordedFrom)||date.isAfter(LocalDate.of(year+1,7,31))||loanParent< -1||loanParent>=CareerLimits.MAX_CLUBS||loanParent==club)throw new IllegalArgumentException("Invalid registration change");
+        register(id,club,date,loanParent,0);
+    }
+    public void register(int id,int club,LocalDate date,int loanParent,int qualificationDays) {
+        identity(id,club);if(date==null||date.isBefore(recordedFrom)||date.isAfter(LocalDate.of(year+1,7,31))||loanParent< -1||loanParent>=CareerLimits.MAX_CLUBS||loanParent==club||qualificationDays<0||qualificationDays>4)throw new IllegalArgumentException("Invalid registration change");
         String reason=transferReason(id,club);if(!reason.isEmpty())throw new IllegalArgumentException(reason);
         Registration r=registrations.get(id);if(r!=null&&date.isBefore(r.joined))throw new IllegalArgumentException("Registration moved backwards");
-        if(r==null){r=new Registration();registrations.put(id,r);}r.club=club;r.parent=loanParent;r.joined=date;r.baseline=false;r.registeredClubs.add(club);
+        if(r==null){r=new Registration();registrations.put(id,r);}r.club=club;r.parent=loanParent;r.joined=date;r.qualifiedOn=date.plusDays(qualificationDays);r.baseline=false;r.registeredClubs.add(club);
     }
+    public LocalDate qualifiedOn(int id){Registration r=registrations.get(id);return r==null?null:r.qualifiedOn;}
     private static String scope(MatchDiscipline.Fixture f){return f.european()?"UEFA":f.competition;}
     private TreeMap<Integer,TreeSet<Integer>> played(int id,String competition) {
         TreeMap<String,TreeMap<Integer,TreeSet<Integer>>> all=appearances.get(id);
@@ -61,6 +65,7 @@ public final class CupEligibility {
         fixture(f);Registration r=registrations.get(id);
         if(r==null||r.club!=club)return "Not registered with this club";
         if(!r.baseline&&r.joined.isAfter(f.date))return "Registration takes effect after this match";
+        if(f.date.isBefore(r.qualifiedOn))return "Awaiting match qualification until "+r.qualifiedOn;
         if(deadline!=null&&!r.baseline&&r.joined.isAfter(deadline))return "Registered after this round's deadline ("+deadline+")";
         Set<Integer> allClubs=playedClubs(id);if(!allClubs.contains(club)&&allClubs.size()>=2)return "Already played official first-team matches for two clubs this season";
         TreeMap<Integer,TreeSet<Integer>> cups=played(id,scope(f));
@@ -87,6 +92,26 @@ public final class CupEligibility {
     public Set<Integer> recentParticipants(int club) {
         TreeSet<Integer> ids=new TreeSet<>();for(Sheet s:recent.getOrDefault(club,new ArrayList<>()))ids.addAll(s.players);return Collections.unmodifiableSet(ids);
     }
+    public static int matchSheetLimit(MatchDiscipline.Fixture f){return f.competition.equals("FR_COUPE")?f.phase<=6?16:f.phase<=8?18:20:20;}
+    public String matchSheetReason(MatchDiscipline.Fixture f,int club,Collection<Integer> starters,Collection<Integer> bench,Set<Integer> goalkeepers,boolean fifaSeniorPeriod) {
+        fixture(f);if(starters==null||bench==null||goalkeepers==null)throw new IllegalArgumentException("Missing match sheet");
+        Set<Integer> sheet=new HashSet<>(starters);if(starters.size()!=11||sheet.size()!=11)return "Select eleven distinct starters";
+        for(int id:bench)if(!sheet.add(id))return "A player cannot occupy two match-sheet places";
+        int limit=matchSheetLimit(f);if(sheet.size()>limit)return "This round allows at most "+limit+" players on the match sheet";
+        for(int id:sheet){Registration r=registrations.get(id);if(r==null||r.club!=club)return "A match-sheet player is not registered with this club";}
+        if(f.competition.equals("SCO_CUP")||f.competition.equals("FR_COUPE")&&sheet.size()==limit) {
+            if(starters.stream().noneMatch(goalkeepers::contains)||bench.stream().noneMatch(goalkeepers::contains))return "This cup match sheet needs a starting and a reserve goalkeeper";
+        }
+        if(f.competition.equals("FR_COUPE")&&f.phase>=9&&!fifaSeniorPeriod) {
+            Set<Integer> previous=recentParticipants(club);
+            // An upgraded career cannot reconstruct its missing previous team sheets.
+            // Grandfather only that first unknown sheet; actual appearances then replace it.
+            if(previous.isEmpty()&&recordedFrom.isAfter(LocalDate.of(year,7,1)))return "";
+            int continuity=0;for(int id:sheet)if(previous.contains(id))continuity++;
+            if(continuity<7)return "Include at least seven players who appeared in one of the last two official first-team matches";
+        }
+        return "";
+    }
     /** Preflight both clubs before any record changes. */
     public void record(MatchDiscipline.Fixture f,Map<Integer,Integer> appearedClubs) {record(f,appearedClubs,Collections.emptySet());}
     public void record(MatchDiscipline.Fixture f,Map<Integer,Integer> appearedClubs,Set<Integer> uefaWinterRegistered) {
@@ -110,29 +135,30 @@ public final class CupEligibility {
     }
     public CupEligibility nextSeason(int nextYear,LocalDate from) {
         if(nextYear!=year+1)throw new IllegalArgumentException("Missing participation season");CupEligibility next=new CupEligibility(nextYear,from);
-        for(Map.Entry<Integer,Registration> e:registrations.entrySet()){Registration a=e.getValue(),b=new Registration();b.club=a.club;b.parent=a.parent;b.joined=a.joined;b.baseline=a.baseline;b.registeredClubs.add(a.club);next.registrations.put(e.getKey(),b);}return next;
+        for(Map.Entry<Integer,Registration> e:registrations.entrySet()){Registration a=e.getValue(),b=new Registration();b.club=a.club;b.parent=a.parent;b.joined=a.joined;b.qualifiedOn=a.qualifiedOn;b.baseline=a.baseline;b.registeredClubs.add(a.club);next.registrations.put(e.getKey(),b);}return next;
     }
     private static String ids(Collection<Integer> ids){StringJoiner out=new StringJoiner(",");for(int id:ids)out.add(String.valueOf(id));return out.toString();}
     private static TreeSet<Integer> ids(String text,int max){TreeSet<Integer> out=new TreeSet<>();if(!text.isEmpty())for(String s:text.split(",",-1)){int n=Integer.parseInt(s);if(n<0||n>=max||!out.add(n))throw new IllegalArgumentException("Invalid saved identities");}if(!ids(out).equals(text))throw new IllegalArgumentException("Noncanonical identities");return out;}
-    public String snapshot() {
-        StringBuilder out=new StringBuilder("CE1|").append(year).append('|').append(recordedFrom);
-        for(Map.Entry<Integer,Registration> e:registrations.entrySet()){Registration r=e.getValue();out.append("\nJ|").append(e.getKey()).append('|').append(r.club).append('|').append(r.joined).append('|').append(r.parent).append('|').append(r.baseline?1:0).append('|').append(ids(r.registeredClubs));}
+    public String snapshot(){return snapshot(false);}
+    private String snapshot(boolean legacy) {
+        StringBuilder out=new StringBuilder(legacy?"CE1|":"CE2|").append(year).append('|').append(recordedFrom);
+        for(Map.Entry<Integer,Registration> e:registrations.entrySet()){Registration r=e.getValue();out.append("\nJ|").append(e.getKey()).append('|').append(r.club).append('|').append(r.joined).append('|').append(r.parent).append('|').append(r.baseline?1:0).append('|').append(ids(r.registeredClubs));if(!legacy)out.append('|').append(r.qualifiedOn);}
         for(Map.Entry<Integer,TreeMap<String,TreeMap<Integer,TreeSet<Integer>>>> p:appearances.entrySet())for(Map.Entry<String,TreeMap<Integer,TreeSet<Integer>>> c:p.getValue().entrySet())for(Map.Entry<Integer,TreeSet<Integer>> t:c.getValue().entrySet())out.append("\nP|").append(p.getKey()).append('|').append(c.getKey()).append('|').append(t.getKey()).append('|').append(ids(t.getValue()));
         for(Map.Entry<Integer,ArrayList<Sheet>> e:recent.entrySet())for(Sheet s:e.getValue())out.append("\nH|").append(e.getKey()).append('|').append(s.date).append('|').append(s.key).append('|').append(ids(s.players));
         for(Map.Entry<String,LocalDate> e:recorded.entrySet())out.append("\nF|").append(e.getKey()).append('|').append(e.getValue());return out.toString();
     }
     public static CupEligibility restore(String text) {
         if(text==null||text.length()>16*1024*1024)throw new IllegalArgumentException("Oversized participation save");String[] rows=text.split("\n",-1),h=rows[0].split("\\|",-1);
-        if(h.length!=3||!h[0].equals("CE1")||rows.length>200000)throw new IllegalArgumentException("Invalid participation schema");CupEligibility out=new CupEligibility(Integer.parseInt(h[1]),LocalDate.parse(h[2]));
+        if(h.length!=3||!h[0].equals("CE1")&&!h[0].equals("CE2")||rows.length>200000)throw new IllegalArgumentException("Invalid participation schema");boolean legacy=h[0].equals("CE1");CupEligibility out=new CupEligibility(Integer.parseInt(h[1]),LocalDate.parse(h[2]));
         for(int i=1;i<rows.length;i++) {
             String[] r=rows[i].split("\\|",-1);
-            if(r[0].equals("J")&&r.length==7){int id=Integer.parseInt(r[1]),club=Integer.parseInt(r[2]);identity(id,club);Registration j=new Registration();j.club=club;j.joined=LocalDate.parse(r[3]);j.parent=Integer.parseInt(r[4]);j.baseline=r[5].equals("1");j.registeredClubs.addAll(ids(r[6],CareerLimits.MAX_CLUBS));if(j.parent< -1||j.parent>=CareerLimits.MAX_CLUBS||j.parent==club||!r[5].matches("[01]")||j.registeredClubs.isEmpty()||j.registeredClubs.size()>3||!j.registeredClubs.contains(club)||out.registrations.put(id,j)!=null)throw new IllegalArgumentException("Invalid saved registration");}
+            if(r[0].equals("J")&&r.length==(legacy?7:8)){int id=Integer.parseInt(r[1]),club=Integer.parseInt(r[2]);identity(id,club);Registration j=new Registration();j.club=club;j.joined=LocalDate.parse(r[3]);j.qualifiedOn=legacy?j.joined:LocalDate.parse(r[7]);j.parent=Integer.parseInt(r[4]);j.baseline=r[5].equals("1");j.registeredClubs.addAll(ids(r[6],CareerLimits.MAX_CLUBS));if(j.qualifiedOn.isBefore(j.joined)||j.qualifiedOn.isAfter(j.joined.plusDays(4))||j.parent< -1||j.parent>=CareerLimits.MAX_CLUBS||j.parent==club||!r[5].matches("[01]")||j.registeredClubs.isEmpty()||j.registeredClubs.size()>3||!j.registeredClubs.contains(club)||out.registrations.put(id,j)!=null)throw new IllegalArgumentException("Invalid saved registration");}
             else if(r[0].equals("P")&&r.length==5){int id=Integer.parseInt(r[1]),club=Integer.parseInt(r[3]);identity(id,club);TreeSet<Integer> phases=ids(r[4],100);if(!r[2].matches("(?:UEFA|(?:ENG|PT|ES|FR|IT|NL|DE|BE|SCO|TR)_[A-Z][A-Z0-9_]{0,29})")||phases.isEmpty()||out.appearances.computeIfAbsent(id,k->new TreeMap<>()).computeIfAbsent(r[2],k->new TreeMap<>()).put(club,phases)!=null)throw new IllegalArgumentException("Invalid saved appearances");}
             else if(r[0].equals("H")&&r.length==5){int club=Integer.parseInt(r[1]);identity(0,club);ArrayList<Sheet> values=out.recent.computeIfAbsent(club,k->new ArrayList<>());values.add(new Sheet(r[3],LocalDate.parse(r[2]),ids(r[4],MAX_PLAYERS)));if(values.size()>2)throw new IllegalArgumentException("Too many recent first-team matches");}
             else if(r[0].equals("F")&&r.length==3){LocalDate date=LocalDate.parse(r[2]);if(r[1].length()>160||!r[1].matches("[A-Z0-9_:-]+")||!r[1].endsWith(":"+date)||out.recorded.put(r[1],date)!=null)throw new IllegalArgumentException("Invalid saved participation fixture");}
             else throw new IllegalArgumentException("Invalid participation row");
         }
-        if(!text.equals(out.snapshot()))throw new IllegalArgumentException("Noncanonical participation save");return out;
+        if(!text.equals(out.snapshot(legacy)))throw new IllegalArgumentException("Noncanonical participation save");return out;
     }
     public void validate(int edition,int playerCount,int clubCount,LocalDate current) {
         if(edition!=year||playerCount<1||clubCount<2||clubCount>CareerLimits.MAX_CLUBS||current==null||current.isBefore(recordedFrom)||registrations.size()!=playerCount)throw new IllegalArgumentException("Wrong participation career");

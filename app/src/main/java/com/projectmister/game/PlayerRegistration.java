@@ -81,7 +81,7 @@ public final class PlayerRegistration {
             case "ENG":return tier==2?"https://images.gc.eflservices.co.uk/c99e4490-a070-11f1-b53b-9be1de328ad3.pdf":"https://www.sec.gov/Archives/edgar/data/1549107/000110465926110384/manu-20260630xex4d14.htm";
             case "NL":return "https://www.knvb.nl/downloads/bestand/29888/reglementen-betaald-voetbal";
             case "TR":return "https://www.tff.org/Resources/TFF/Auto/1708353ee9e34bd6846cf94461bd900c.pdf";
-            case "FR":return "https://www.lfp.fr/assets/24_25_Reglement_Integral_26_07_2024_1_2c3930f8d5.pdf";
+            case "FR":return "https://www.lfp.fr/assets/26_27_Reglement_Administratif_08_09_2026_81737d37a3.pdf";
             default:return "";
         }
     }

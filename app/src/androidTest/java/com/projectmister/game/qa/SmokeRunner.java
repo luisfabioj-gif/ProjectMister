@@ -160,9 +160,10 @@ public final class SmokeRunner extends Instrumentation {
     private void verifyRules()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
         for(String country:new String[]{"PT","DE","ENG","ES","IT","FR","NL","BE","SCO","TR"})for(int tier=1;tier<=2;tier++) {final int level=tier;ui(()->{
-            seedRulesCareer(country,level,false);int base=((List<?>)get("players")).size();set("currentDate",java.time.LocalDate.of(2026,10,15));int hired=(Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~1");check(country.equals("TR")?hired==-1:hired==base,country+" tier "+level+" actual ordinary free-agent exception enforced");
+            seedRulesCareer(country,level,false);int base=((List<?>)get("players")).size();set("currentDate",java.time.LocalDate.of(2026,8,15));int budget=(Integer)get("currentTransferBudget");check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~2")==base&&(Integer)get("currentTransferBudget")==budget,country+" tier "+level+" open-window free hire has no fee");
+            set("currentDate",java.time.LocalDate.of(2026,10,15));int hired=(Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~1");check(country.equals("TR")?hired==-1:hired==base+1,country+" tier "+level+" actual ordinary free-agent exception enforced");
             String foreign=country.equals("ENG")?"pt:sl-benfica~1~18":"eng:arsenal~1~18";check((Integer)call("signMarketPlayer",new Class[]{String.class},foreign)==-1,country+" tier "+level+" ordinary contracted transfer blocked out of window");
-            set("currentDate",java.time.LocalDate.of(2026,8,15));int budget=(Integer)get("currentTransferBudget");check((Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~2")>=base&&(Integer)get("currentTransferBudget")==budget,country+" tier "+level+" open-window free hire has no fee");call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),country+" registration hire reloads");checkBackupReadable();
+            call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),country+" registration hire reloads");checkBackupReadable();
         });}
         ui(()->{
             seedRulesCareer("PT",1,true);java.time.LocalDate start=(java.time.LocalDate)get("careerSeasonStart");int initial=(Integer)get("financePlayerWagesK"),wages=(Integer)call("totalPlayerWagesK",new Class[0]);set("stadiumProjectWeeks",5);set("stadiumProjectCode",1);
@@ -532,6 +533,38 @@ public final class SmokeRunner extends Instrumentation {
         }
         check(true,"actual cup dismissal, eligible lineup, ban service, transfer persistence and atomic backup rejection verified");
         verifyScottishCupTransfer();
+        verifyFrenchCupContinuity();
+    }
+    private void verifyFrenchCupContinuity()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());final boolean[] tested={false};final ArrayList<Integer> fresh=new ArrayList<>(),heldXi=new ArrayList<>(),heldBench=new ArrayList<>();final java.time.LocalDate[] properDate={null};
+        ui(()->{
+            Object data=null;for(Object d:(List<?>)get("catalog").getClass().getField("divisions").get(get("catalog")))if(d.getClass().getField("id").get(d).equals("fr:1"))data=d;
+            Object world=call("newCountryCareer",new Class[]{data.getClass()},data);call("configureDivision",new Class[]{gameClass("CareerDivision")},world);set("selectedSlot",2);set("selectedClub",0);((Random)get("random")).setSeed(27317);
+            call("initialiseNewManagerDefaults",new Class[0]);call("resetCareerState",new Class[0]);set("europeanCampaign",null);call("generatePlayers",new Class[0]);call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);call("saveCurrentGame",new Class[0]);
+            Object cup=get("nationalCups").getClass().getMethod("active").invoke(get("nationalCups")),round=cup.getClass().getMethod("round",int.class).invoke(cup,2);properDate[0]=(java.time.LocalDate)round.getClass().getMethod("date",int.class).invoke(round,0);
+        });
+        for(int step=0;step<400&&!tested[0];step++)ui(()->{
+            for(Object p:(List<?>)get("players")){Field injury=p.getClass().getDeclaredField("injuredWeeks");injury.setAccessible(true);injury.setInt(p,0);}call("initialiseTacticsForClub",new Class[0]);
+            java.time.LocalDate today=(java.time.LocalDate)get("currentDate");
+            if(fresh.isEmpty()&&!today.isBefore(java.time.LocalDate.of(2026,12,1))&&!today.isAfter(properDate[0].minusDays(2))) {
+                int[] roles=(int[])get("playerRoleStatus");for(Object p:(List<?>)get("players"))if(playerInt(p,"team")==0){int id=playerInt(p,"id");if(roles[id]==2)heldXi.add(id);else if(roles[id]==1)heldBench.add(id);}
+                set("currentTransferBudget",10000);set("wageBudgetK",1000000);for(int slot:new int[]{40,42,43,44,45,46,48,49,50,52,57}){int id=(Integer)call("signMarketPlayer",new Class[]{String.class},"free~0~"+slot);check(id>=0,"Actual French free agent signs at least two days before the cup fixture");fresh.add(id);check(today.plusDays(2).equals(get("cupEligibility").getClass().getMethod("qualifiedOn",int.class).invoke(get("cupEligibility"),id)),"Actual French signing saves two-day qualification delay");}
+            }
+            if(!fresh.isEmpty()){int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");Arrays.fill(roles,0);Arrays.fill(slots,-1);for(int id:heldXi)roles[id]=2;for(int id:heldBench)roles[id]=1;}
+            if((Boolean)call("cupDue",new Class[0])&&(Boolean)call("nextCupIsNational",new Class[0])) {
+                Object tie=call("nextCupTie",new Class[0]),fixture=call("cupDisciplineFixture",new Class[0]);int home=(Integer)tie.getClass().getMethod("home").invoke(tie),away=(Integer)tie.getClass().getMethod("away").invoke(tie),phase=fixture.getClass().getField("phase").getInt(fixture);
+                if(phase>=9&&(home==0||away==0)) {
+                    Set<?> previous=(Set<?>)get("cupEligibility").getClass().getMethod("recentParticipants",int.class).invoke(get("cupEligibility"),0);check(previous.size()>=7,"French actual recent first-team participants exist before competition proper");ArrayList<Integer> oldBench=new ArrayList<>();for(Object value:previous)if(oldBench.size()<7)oldBench.add((Integer)value);
+                    check(fresh.size()==11,"Eleven genuine signings completed before the French match date");for(int id:fresh){Object p=call("findPlayer",new Class[]{int.class},id);check(((String)call("cupPlayerReason",new Class[]{fixture.getClass(),p.getClass()},fixture,p)).isEmpty(),"Two-day qualification is complete before testing continuity");check(!previous.contains(id),"Unplayed new signing is not invented in previous match history");}
+                    int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");Arrays.fill(roles,0);Arrays.fill(slots,-1);for(int id:fresh)roles[id]=2;
+                    call("startLiveMatchday",new Class[0]);check(!(Boolean)get("matchInProgress"),"Actual Coupe de France rejects eleven entirely new players without seven recent participants");for(int id:oldBench)roles[id]=1;
+                    call("startLiveMatchday",new Class[0]);check((Boolean)get("matchInProgress")&&(Boolean)get("liveNationalCup"),"Seven genuine recent participants on the bench allow actual French cup match");set("livePaused",true);Set<?> participants=(Set<?>)get("matchParticipants");check(participants.containsAll(fresh),"All eleven newly registered starters actually participate");for(int id:oldBench)check(!participants.contains(id),"Unused continuity bench does not receive a new appearance");
+                    set("liveHomeGoals",home==0?4:0);set("liveAwayGoals",away==0?4:0);call("finishLiveMatch",new Class[0]);String saved=(String)get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"));check((Boolean)call("loadSave",new Class[]{int.class},2),"French continuity result and transfers reload");check(saved.equals(get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"))),"French actual continuity and transfer records reload exactly");Set<?> after=(Set<?>)get("cupEligibility").getClass().getMethod("recentParticipants",int.class).invoke(get("cupEligibility"),0);check(after.containsAll(fresh),"New actual cup participants enter recent first-team history");checkBackupReadable();tested[0]=true;return;
+                }
+            }
+            call("startLiveMatchday",new Class[0]);if(!(Boolean)get("matchInProgress"))return;set("livePaused",true);set("liveHomeGoals",(Integer)get("liveHome")==0?4:0);set("liveAwayGoals",(Integer)get("liveAway")==0?4:0);call("finishLiveMatch",new Class[0]);
+        });
+        check(tested[0],"Actual French continuity scenario completes");capture("cup-player-french-continuity-replacement");ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"Original careers restored after French continuity scenario");});check(true,"French actual cup match-sheet continuity, free-agent registrations, unused bench distinction and exact saves verified");
     }
     private void verifyScottishCupTransfer()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());final int[] moved={-1};final boolean[] tested={false};

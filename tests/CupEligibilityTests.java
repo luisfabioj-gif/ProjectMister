@@ -45,5 +45,29 @@ public final class CupEligibilityTests {
         Map<Integer,Integer> wrong=new HashMap<>();wrong.put(0,0);wrong.put(1,2);reject(()->loaded.record(f("ENG_LEAGUE",0,0,1,"2026-11-28"),wrong));check(text.equals(loaded.snapshot()),"mixed unregistered match sheet rejected without partial appearances");
         loaded.register(0,2,LocalDate.of(2026,11,22),-1);check(!eligible(loaded,f("ENG_FA_CUP",1,2,3,"2026-11-28"),0),"FA same-round restriction survives reload then transfer");
     }
-    public static void main(String[] args)throws Exception {englishCups();scotlandAndDeadlines();europeAndGeneralLimits();savesAndAtomicity();System.out.println("PASS "+checks+" saved cup appearances, transfer identities, loan parents, UEFA phase exceptions, general club limits, deadlines and atomic backups");}
+    private static List<Integer> range(int first,int count){ArrayList<Integer> ids=new ArrayList<>();for(int i=0;i<count;i++)ids.add(first+i);return ids;}
+    private static void frenchMatchSheets(){
+        CupEligibility c=new CupEligibility(2026,LocalDate.of(2026,7,1));for(int id=0;id<24;id++)c.seed(id,0);Map<Integer,Integer> used=new HashMap<>();for(int id:range(0,11))used.put(id,0);c.record(f("FR_LEAGUE",0,0,1,"2026-10-01"),used);
+        MatchDiscipline.Fixture seventh=f("FR_COUPE",7,0,1,"2026-10-17"),proper=f("FR_COUPE",9,0,1,"2026-12-19");Set<Integer> keepers=new HashSet<>(Arrays.asList(0,11,12,23));
+        check(c.matchSheetReason(seventh,0,range(0,11),range(11,7),keepers,false).isEmpty(),"French seventh round permits eighteen players with reserve goalkeeper");
+        check(!c.matchSheetReason(seventh,0,range(0,11),range(11,8),keepers,false).isEmpty(),"French seventh-round sheet cannot exceed eighteen");
+        check(!c.matchSheetReason(seventh,0,range(0,11),range(13,7),keepers,false).isEmpty(),"French full sheet needs reserve goalkeeper");
+        check(c.matchSheetReason(seventh,0,range(12,11),Collections.emptyList(),keepers,false).isEmpty(),"French continuity quota does not apply during qualifying rounds");
+        check(!c.matchSheetReason(proper,0,range(12,11),Collections.emptyList(),keepers,false).isEmpty(),"all-new French proper-round sheet is rejected");
+        ArrayList<Integer> bench=new ArrayList<>(range(0,7));check(c.matchSheetReason(proper,0,range(12,11),bench,keepers,false).isEmpty(),"seven actual previous participants on bench satisfy French rule");
+        bench.remove(6);check(!c.matchSheetReason(proper,0,range(12,11),bench,keepers,false).isEmpty(),"six actual previous participants are insufficient");
+        check(c.matchSheetReason(proper,0,range(12,11),Collections.emptyList(),keepers,true).isEmpty(),"FIFA senior international-period exception bypasses only continuity quota");
+        CupEligibility loaded=CupEligibility.restore(c.snapshot());loaded.validate(2026,24,2,LocalDate.of(2026,10,1));check(loaded.matchSheetReason(proper,0,range(0,11),range(12,9),keepers,false).isEmpty(),"full twenty-player French proper-round sheet survives actual-history reload");
+        check(!loaded.matchSheetReason(f("SCO_CUP",4,0,1,"2027-01-16"),0,range(0,11),range(13,7),keepers,false).isEmpty(),"Scottish Cup requires a reserve keeper even below twenty-player maximum");
+        CupEligibility upgrade=new CupEligibility(2026,LocalDate.of(2026,12,18));for(int id=0;id<24;id++)upgrade.seed(id,0);check(upgrade.matchSheetReason(proper,0,range(12,11),Collections.emptyList(),keepers,false).isEmpty(),"first unknown upgraded French sheet is grandfathered without fabricated appearances");
+        check(upgrade.recentParticipants(0).isEmpty(),"upgrade exemption does not invent match records");
+    }
+    private static void qualificationDelay(){
+        CupEligibility c=fresh();c.register(0,2,LocalDate.of(2026,9,1),-1,2);
+        check(!eligible(c,f("FR_LEAGUE",0,2,3,"2026-09-01"),0),"French signing cannot appear immediately");check(!eligible(c,f("FR_COUPE",7,2,3,"2026-09-02"),0),"French qualification delay includes next day");check(eligible(c,f("FR_LEAGUE",0,2,3,"2026-09-03"),0),"French ordinary signing qualifies after two days");
+        CupEligibility loaded=CupEligibility.restore(c.snapshot());check(loaded.qualifiedOn(0).equals(LocalDate.of(2026,9,3))&&!eligible(loaded,f("FR_LEAGUE",0,2,3,"2026-09-02"),0),"Saved qualification delay is exact");loaded.validate(2026,4,4,LocalDate.of(2026,9,1));
+        String legacy="CE1|2026|2026-07-01\nJ|0|0|2026-07-01|-1|1|0";CupEligibility old=CupEligibility.restore(legacy);old.validate(2026,1,2,LocalDate.of(2026,7,1));check(old.snapshot().startsWith("CE2|")&&old.qualifiedOn(0).equals(LocalDate.of(2026,7,1)),"Version-one participation upgrades without changing existing eligibility");
+        reject(()->CupEligibility.restore(c.snapshot().replace("|2026-09-03","|2026-08-31")));String before=c.snapshot();reject(()->c.register(0,3,LocalDate.of(2026,9,4),-1,5));check(before.equals(c.snapshot()),"Invalid qualification delay is atomic");
+    }
+    public static void main(String[] args)throws Exception {englishCups();scotlandAndDeadlines();europeAndGeneralLimits();savesAndAtomicity();frenchMatchSheets();qualificationDelay();System.out.println("PASS "+checks+" saved cup appearances, transfer identities, loan parents, UEFA phase exceptions, general club limits, deadlines, match sheets, qualification dates and atomic backups");}
 }
