@@ -1,34 +1,64 @@
-# BOSS XI v2.3.2 development candidate
+# BOSS XI 2.3.11 Android test build
 
 Android football-management game, package `com.projectmister.game`.
 
-## Status
+Twenty selectable divisions across ten countries use real club identities and
+fictional footballers. Careers connect league standings, linked-tier promotion,
+recurring national cups and the Champions League, Europa League and Conference
+League. Portuguese careers include the expanded lower pyramid and the published
+future League Cup format. Transfers cover the twenty-division world pool and
+unattached players, with country registration decisions explained in profiles.
 
-Twenty selectable divisions across ten countries, with linked two-tier careers. All ten country promotion checkpoints passed Android 35/36 verification in [run 37391856850](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37391856850), source `b3e5e53481e82cd2ab12258873b929d5e635bf14`. The checks cover all 40 standalone/linked career variants, watched playoffs, next-season identities, backups, release-split installation and different-signing-key save restoration. Unresolved rule edge cases and the Dutch calendar interpretation are documented. Playable domestic/European cups, full calendars, lower-pyramid movements and production/hardware checks remain unfinished. See [current competition status](docs/COMPETITION_EXPANSION_STATUS.md), [audit and scope](docs/V2_3_AUDIT.md) and [validation status](docs/VALIDATION.md).
+History keeps sourced previous winners separate from your saved career trophies.
+Player lists, training histories, cup appearances, suspensions and calendars are
+saved alongside squads and finances. Watched and quick matches use eligible
+players; half-time tactics and substitutions remain available during live play.
 
-## Normal build
+## Validation and installation
 
-JDK 17, Gradle 8.11.1, Android SDK 36 and build-tools 35.0.0 (Android SDK 35 is also required for the independent QA runner):
+The exact verified scope and current blockers are in
+[the completion tracker](docs/COMPLETION_STATUS.md), with machine-readable
+milestone evidence in [COMPLETION_STATUS.json](docs/COMPLETION_STATUS.json).
+The 2.3.11 candidate still requires its complete Android 35/36 gate. An earlier
+checkpoint or a passing source build is not the final APK delivery.
 
-```
-gradle :app:assembleDebug --no-daemon
+[The Android test guide](docs/ANDROID_TEST_GUIDE.md) covers backup, installation,
+existing saves, starting the expanded game and reporting issues on a real phone.
+The build retains the existing development signing certificate for sideloaded
+updates. Play publication and physical-phone testing are separate from emulator
+validation; [Play preparation](docs/PLAY_STORE_READINESS.md) records their scope.
+
+## Build and test
+
+Use JDK 17, Gradle 8.11.1, Android SDK 36 and build-tools 35.0.0. SDK 35 is also
+needed for the independent instrumentation runner.
+
+```bash
+gradle :app:assembleDebug :app:bundleRelease --no-daemon
 bash tools/test-core.sh
+bash tools/build-test-sdk.sh
 ```
 
-Builds now use committed Android source. Historical reconstruction workflows remain as baseline references. New candidate workflow: `.github/workflows/build-boss-xi-v2.3.yml`.
+For a dependency-free SDK build, set `JAVA_HOME` and `ANDROID_HOME` and run
+`bash tools/build-sdk.sh`. The candidate workflow builds committed source,
+installs the preserved baseline, verifies upgrades, navigation and live matches,
+tests registration and player eligibility, completes recurring country careers,
+checks compact landscape and installs release splits. It also checks restoration
+across a different disposable signing identity and uploads logs and screenshots.
 
-For a dependency-free SDK build of this Java app, set `JAVA_HOME` and `ANDROID_HOME`, then run `bash tools/build-sdk.sh`. This assembles a debug candidate through aapt2, javac, d8, zipalign and apksigner; it does not replace runtime QA or normal Gradle CI.
+## Assets and football data
 
-## Regression verification
+[Asset provenance](docs/ASSET_PROVENANCE.md) describes the reusable fictional
+photographic portraits and stadium/facility artwork.
+[Audio sources](docs/AUDIO_SOURCES.md) identify bundled crowd recordings and
+effects. Hardware listening and sustained phone performance are checked during
+the real-world test.
 
-`tests/RegressionTests.java` covers transactional substitutions, eligibility, limits, pace/fatigue, bounded ball flight and tactical intent.
+Published sources, projected later dates and simulated approvals are identified
+in the game and repository notes. Generated youth training histories describe
+fictional players; unknown prior appearances are not invented. Special medical
+hearings, licensing decisions and competitions outside the modeled career world
+are not presented as fully simulated regulations.
 
-`app/src/androidTest` contains an independent instrumentation runner, built with `bash tools/build-test-sdk.sh`. The CI workflow installs preserved Hotfix 4, seeds a career, installs the candidate without uninstalling, navigates core screens, checks substitutions before/after resumed play, crosses half-time/full-time, runs a complete match, verifies goal/shot consistency and saved round progression, and checks marker layout across all five formations on normal and compact landscape screens. It uploads screenshots and logs for review.
-
-Startup's safe immersive-navigation no-op, existing preference names and development signing identity are preserved. The bundled certificate is the historical development certificate; this is not a new production signing setup.
-
-## Assets
-
-See [asset provenance](docs/ASSET_PROVENANCE.md). Forty-two reusable fictional photographic portraits load asynchronously from the APK. Crowd ambience and goal reactions now use CC0 field recordings; see [audio sources](docs/AUDIO_SOURCES.md). Original short effects remain. Quality needs hardware listening review.
-
-See [v2.3.1 changes](docs/V2_3_1_CHANGES.md) for the offer fix, shared branded menus, three speed settings, recorded crowd and movement changes.
+See [2.3.11 changes](docs/V2_3_11_CHANGES.md) for the current handoff scope and
+[validation](docs/VALIDATION.md) for dated evidence.
