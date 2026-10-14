@@ -23,9 +23,13 @@ public final class SmokeRunner extends Instrumentation {
     private void set(String name,Object value)throws Exception {Field f=activity.getClass().getDeclaredField(name);f.setAccessible(true);f.set(activity,value);}
     interface Work {void run()throws Exception;}
     private void ui(Work w)throws Exception {
-        final Throwable[] error={null};runOnMainSync(()->{try{w.run();}catch(Throwable e){error[0]=e;}});
+        final Throwable[] error={null};final boolean[] idle={true};
+        runOnMainSync(()->{try{w.run();idle[0]=!((Boolean)get("liveMatchActive")&&!(Boolean)get("livePaused"));}catch(Throwable e){error[0]=e;}});
         if(error[0]!=null)throw new Exception(error[0]);
-        waitForIdleSync();
+        // A continuously rendered match need not become globally idle. Waiting
+        // here can starve the bounded match-progress checks on a slow emulator.
+        // Paused/layout screens still receive the original idle/layout checks.
+        if(idle[0])waitForIdleSync();
     }
     private void check(boolean ok,String label){if(!ok)throw new AssertionError(label);report.append("PASS ").append(label).append('\n');}
     private void page(String name,String method,Class<?>[] types,Object... values)throws Exception {
@@ -42,11 +46,11 @@ public final class SmokeRunner extends Instrumentation {
     }
     private void awaitRound(int target)throws Exception {
         long end=SystemClock.uptimeMillis()+75000;
-        final int[] round={0};
+        final int[] round={0};final String[] state={""};
         while(SystemClock.uptimeMillis()<end) {
-            ui(()->round[0]=(Integer)get("matchday"));if(round[0]>=target)return;SystemClock.sleep(150);
+            ui(()->{round[0]=(Integer)get("matchday");state[0]="round="+round[0]+", minute="+get("liveMinuteFloat")+", active="+get("liveMatchActive")+", paused="+get("livePaused");});if(round[0]>=target)return;SystemClock.sleep(150);
         }
-        throw new AssertionError("Timed out waiting for full-time");
+        throw new AssertionError("Timed out waiting for full-time (target="+target+", "+state[0]+")");
     }
     private void dismissEmulatorSystemAnr() throws Exception {
         android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
@@ -75,6 +79,7 @@ public final class SmokeRunner extends Instrumentation {
         Bitmap b=getUiAutomation().takeScreenshot();
         if(b==null)throw new AssertionError("Screenshot missing: "+name);
         try(FileOutputStream f=new FileOutputStream(new File(output,name+".png"))){b.compress(Bitmap.CompressFormat.PNG,100,f);} b.recycle();
+        Bundle checkpoint=new Bundle();checkpoint.putString("stream","CHECKPOINT screenshot "+name+"\n");sendStatus(0,checkpoint);
     }
     private void verifyTacticsMarkers()throws Exception {
         ui(()->{
