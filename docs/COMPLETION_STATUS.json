@@ -2,7 +2,7 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-14T11:56:00Z",
+  "updated_utc": "2026-10-14T12:11:00Z",
   "complete": false,
   "latest_checkpoint": {
     "source": "a92da6ad3b9a4867e2c0bdc4368158c68d1bba94",
@@ -10,7 +10,7 @@
     "conclusion": "failure",
     "new_evidence": "Both Android 35 and 36 pass actual UEFA A/B lists and winter additions; Scottish Cup transfer restrictions, two unavailable keepers, stable promoted keeper identities, preserved injuries, actual appearances and exact reloads; French two-day qualification and seven-recent-player match sheets; twenty registration cases; and ES/PT/DE combined two-season UEFA careers. No new weighted milestone is verified.",
     "blocker": "Both Android versions fail England's second-season league-phase draw after qualifying completes. The generated draw cannot satisfy the association and prior-season venue constraints within its search. This is a real career-progression failure, not passing Android evidence.",
-    "next_candidate": "Version 2.3.11 packages the remaining modeled features. QA bounds continuous live-match reads and checks the failing England career first, preserving exact draw input for a regression fix. All ten UEFA countries, national rules, calendar, upgrade, release packaging and final APK gates remain required.",
+    "next_candidate": "Version 2.3.11 fixes the captured mathematical pot-capacity deadlock through explicitly labelled, saved future-seed exchanges. All qualified clubs, original seeds, titleholder pot and strict opponent/venue restrictions are retained. The captured draw and complete UC2 career pass host reload regressions. Android QA checks England first and then all ten UEFA countries, national rules, calendar, upgrade, release packaging and APK delivery; that complete gate remains pending.",
     "limitations": "Partial scenarios do not verify the complete current candidate. No physical-phone validation, final APK delivery or completion is claimed."
   },
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",

@@ -2,6 +2,7 @@ package com.projectmister.game;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.nio.file.*;
 
 public final class EuropeanDrawTests {
     private static void check(boolean b,String message){if(!b)throw new AssertionError(message);}
@@ -22,7 +23,19 @@ public final class EuropeanDrawTests {
             for(int r=0;r<rounds-2;r++)check(!(home[r]==home[r+1]&&home[r]==home[r+2]),"no more than two consecutive home or away matches");
         }
     }
-    public static void main(String[] args) {
+    private static void englandRegression()throws Exception {
+        String[] input=Files.readString(Path.of("tests/fixtures/eng-2027-draw.txt")).trim().split("\n--PREVIOUS--\n");String[] rows=input[0].split("\n"),header=rows[1].split("\\|");
+        ArrayList<EuropeanLeaguePhase.Club> field=new ArrayList<>();for(int i=2;i<rows.length;i++){String[] c=rows[i].split("\\|");field.add(new EuropeanLeaguePhase.Club(Integer.parseInt(c[1]),c[2],Integer.parseInt(c[3]),Integer.parseInt(c[4])));}
+        EuropeanLeaguePhase previous=EuropeanLeaguePhase.restore(input[1]);check(input[1].equals(previous.snapshot()),"older ULP1 draw remains byte-identical");
+        int year=Integer.parseInt(header[0]);long seed=Long.parseLong(header[1]);EuropeanLeaguePhase phase=EuropeanDraw.create(EuropeanLeaguePhase.Competition.CHAMPIONS,year,field,dates(year,false),seed,previous);venues(phase);
+        check(phase.seedingAdjusted()&&phase.snapshot().startsWith("ULP2|"),"impossible projected pots carry saved adjustment metadata");
+        int changed=0;for(EuropeanLeaguePhase.Club club:phase.clubs()){EuropeanLeaguePhase.Club original=field.stream().filter(c->c.id==club.id).findFirst().get();check(club.association.equals(original.association)&&club.coefficient==original.coefficient&&club.seedPot==original.pot,"every qualified identity, coefficient and original seed is retained");if(club.pot!=club.seedPot)changed++;}
+        check(changed==4,"six English clubs with five in pot one require exactly two seed exchanges");check(phase.clubs().stream().filter(c->c.id==field.get(0).id).findFirst().get().pot==0,"titleholder remains in pot one");
+        for(int f=0;f<phase.fixtureCount();f++)for(int p=0;p<previous.fixtureCount();p++)check(!(phase.fixture(f).home==previous.fixture(p).home&&phase.fixture(f).away==previous.fixture(p).away),"actual previous-season venue exclusions retained");
+        check(phase.snapshot().equals(EuropeanLeaguePhase.restore(phase.snapshot()).snapshot()),"adjusted seeds and fixtures restore canonically");check(phase.snapshot().equals(EuropeanDraw.create(phase.competition,year,field,dates(year,false),seed,previous).snapshot()),"captured Android career draw replays deterministically");
+        String corrupted=phase.snapshot().replaceFirst("\\|0\\nC\\|","|4\nC|");try{EuropeanLeaguePhase.restore(corrupted);throw new AssertionError("invalid original seed accepted");}catch(IllegalArgumentException expected){}
+    }
+    public static void main(String[] args)throws Exception {
         for(EuropeanLeaguePhase.Competition competition:EuropeanLeaguePhase.Competition.values()) {
             boolean co=competition==EuropeanLeaguePhase.Competition.CONFERENCE;Set<String> draws=new HashSet<>();
             for(int seed=0;seed<12;seed++) {
@@ -42,6 +55,7 @@ public final class EuropeanDrawTests {
         }
         ArrayList<EuropeanLeaguePhase.Club> impossible=new ArrayList<>();for(int c=0;c<36;c++)impossible.add(new EuropeanLeaguePhase.Club(c,"PT",c/9,100000-c));
         try{EuropeanDraw.create(EuropeanLeaguePhase.Competition.CHAMPIONS,2026,impossible,dates(2026,false),0,null);throw new AssertionError("impossible association field accepted");}catch(IllegalArgumentException expected){}
-        System.out.println("PASS: 36 generated UEFA draws, 18 consecutive editions, actual multi-club association distribution, pots, venues, previous-season exclusions, deterministic saves and impossible-field rejection");
+        englandRegression();
+        System.out.println("PASS: 36 generated UEFA draws, 18 consecutive editions, captured Android England regression, explicit projected-seed adjustments, unchanged entrants, strict opponent/venue restrictions, legacy/canonical saves and impossible-field rejection");
     }
 }

@@ -16,11 +16,11 @@ public final class EuropeanDraw {
     private int nodes;
 
     @SuppressWarnings("unchecked")
-    private EuropeanDraw(EuropeanLeaguePhase.Competition competition,List<EuropeanLeaguePhase.Club> field,EuropeanLeaguePhase previous,long seed) {
+    private EuropeanDraw(EuropeanLeaguePhase.Competition competition,List<EuropeanLeaguePhase.Club> field,EuropeanLeaguePhase previous,long seed,int year) {
         if(competition==null||field==null||field.size()!=36)throw new IllegalArgumentException("UEFA draw needs 36 clubs");
         boolean conference=competition==EuropeanLeaguePhase.Competition.CONFERENCE;int pots=conference?6:4;
         for(EuropeanLeaguePhase.Club club:field)if(club==null)throw new IllegalArgumentException("Missing UEFA draw club");
-        template=conference?CONFERENCE:CHAMPIONS;clubs=new ArrayList<>(field);
+        template=conference?CONFERENCE:CHAMPIONS;clubs=year>2026?balanceProjectedSeeding(field,conference):new ArrayList<>(field);
         clubs.sort(Comparator.comparingInt((EuropeanLeaguePhase.Club c)->c.pot).thenComparingInt(c->c.id));
         pools=new ArrayList[pots];for(int p=0;p<pots;p++)pools[p]=new ArrayList<>();
         Map<String,Integer> countries=new HashMap<>();Set<Integer> identities=new HashSet<>();
@@ -46,6 +46,32 @@ public final class EuropeanDraw {
             solved=assign(0);
         }
         if(!solved)throw new IllegalStateException("UEFA draw could not satisfy the association and prior-season restrictions; preserve the field and request a new simulated draw seed");
+    }
+    /** An association's clubs all need opponents from each pot. The other clubs
+     * in that pot can each meet at most two of them. A projected coefficient pot
+     * that violates this capacity has no legal draw, regardless of search seed.
+     * Simulated later editions exchange the closest seeds rather than changing
+     * qualified clubs or dropping opponent restrictions (Article 16.03). */
+    private static List<EuropeanLeaguePhase.Club> balanceProjectedSeeding(List<EuropeanLeaguePhase.Club> field,boolean conference) {
+        int pots=conference?6:4,size=36/pots;ArrayList<EuropeanLeaguePhase.Club> result=new ArrayList<>(field);
+        TreeMap<String,int[]> counts=new TreeMap<>();int[] sizes=new int[pots];Set<Integer> ids=new HashSet<>();
+        for(EuropeanLeaguePhase.Club c:result){if(c.pot>=pots||c.seedPot>=pots||!ids.add(c.id))throw new IllegalArgumentException("Invalid UEFA draw pot or identity");counts.computeIfAbsent(c.association,k->new int[pots])[c.pot]++;sizes[c.pot]++;}
+        for(int n:sizes)if(n!=size)throw new IllegalArgumentException("Unequal UEFA draw pots");
+        Map<String,Integer> limits=new TreeMap<>();for(Map.Entry<String,int[]> e:counts.entrySet()){int total=0;for(int n:e.getValue())total+=n;int limit=conference?(2*size-total)/2:size-total;if(limit<0||total>pots*limit)throw new IllegalArgumentException("Association field cannot satisfy UEFA draw restrictions");limits.put(e.getKey(),limit);}
+        int protectedId=field.get(0).pot==0?field.get(0).id:-1;
+        for(int step=0;step<36;step++) {
+            String country=null;int pot=-1,excess=0;
+            for(Map.Entry<String,int[]> e:counts.entrySet())for(int p=0;p<pots;p++)if(e.getValue()[p]-limits.get(e.getKey())>excess){country=e.getKey();pot=p;excess=e.getValue()[p]-limits.get(country);}
+            if(country==null)return result;
+            int donor=-1;for(int i=0;i<36;i++){EuropeanLeaguePhase.Club c=result.get(i);if(c.pot==pot&&c.association.equals(country)&&c.id!=protectedId&&(donor<0||c.coefficient<result.get(donor).coefficient||c.coefficient==result.get(donor).coefficient&&c.id>result.get(donor).id))donor=i;}
+            int receiver=-1;long cost=Long.MAX_VALUE;
+            if(donor>=0)for(int i=0;i<36;i++){EuropeanLeaguePhase.Club c=result.get(i);if(c.pot==pot||c.association.equals(country)||c.id==protectedId||counts.get(country)[c.pot]>=limits.get(country)||counts.get(c.association)[pot]>=limits.get(c.association))continue;
+                long next=Math.abs(c.pot-pot)*1000001L+Math.abs((long)c.coefficient-result.get(donor).coefficient);if(next<cost||next==cost&&(receiver<0||c.id<result.get(receiver).id)){receiver=i;cost=next;}}
+            if(receiver<0)throw new IllegalArgumentException("Projected UEFA seeds cannot satisfy association capacity");
+            EuropeanLeaguePhase.Club a=result.get(donor),b=result.get(receiver);counts.get(a.association)[a.pot]--;counts.get(a.association)[b.pot]++;counts.get(b.association)[b.pot]--;counts.get(b.association)[a.pot]++;
+            result.set(donor,new EuropeanLeaguePhase.Club(a.id,a.association,b.pot,a.coefficient,a.seedPot));result.set(receiver,new EuropeanLeaguePhase.Club(b.id,b.association,a.pot,b.coefficient,b.seedPot));
+        }
+        throw new IllegalStateException("Projected UEFA seeding did not converge");
     }
     private boolean valid(int slot,int club) {
         int[] counts=new int[36];
@@ -77,7 +103,7 @@ public final class EuropeanDraw {
     }
     public static EuropeanLeaguePhase create(EuropeanLeaguePhase.Competition competition,int year,List<EuropeanLeaguePhase.Club> field,List<LocalDate> dates,long seed,EuropeanLeaguePhase previous) {
         if(previous!=null&&(previous.competition!=competition||previous.season!=year-1))throw new IllegalArgumentException("Wrong previous UEFA edition");
-        EuropeanDraw draw=new EuropeanDraw(competition,field,previous,seed);ArrayList<EuropeanLeaguePhase.Fixture> fixtures=new ArrayList<>();
+        EuropeanDraw draw=new EuropeanDraw(competition,field,previous,seed,year);ArrayList<EuropeanLeaguePhase.Fixture> fixtures=new ArrayList<>();
         for(int[] f:draw.template)fixtures.add(new EuropeanLeaguePhase.Fixture(f[0],draw.clubs.get(draw.assignment[f[1]]).id,draw.clubs.get(draw.assignment[f[2]]).id));
         return new EuropeanLeaguePhase(competition,year,draw.clubs,fixtures,dates);
     }

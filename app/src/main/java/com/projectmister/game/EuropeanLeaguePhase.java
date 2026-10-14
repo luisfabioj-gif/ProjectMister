@@ -7,12 +7,15 @@ import java.util.*;
 public final class EuropeanLeaguePhase {
     public enum Competition { CHAMPIONS, EUROPA, CONFERENCE }
     public static final class Club {
-        public final int id,pot,coefficient;
+        public final int id,pot,coefficient,seedPot;
         public final String association;
         /** Coefficients use thousandths to preserve exact ordering. */
         public Club(int id,String association,int pot,int coefficient) {
-            if(id<0||association==null||!association.matches("[A-Z]{2,4}")||pot<0||coefficient<0||coefficient>1000000)throw new IllegalArgumentException("Invalid UEFA club");
-            this.id=id;this.association=association;this.pot=pot;this.coefficient=coefficient;
+            this(id,association,pot,coefficient,pot);
+        }
+        public Club(int id,String association,int pot,int coefficient,int seedPot) {
+            if(id<0||association==null||!association.matches("[A-Z]{2,4}")||pot<0||seedPot<0||coefficient<0||coefficient>1000000)throw new IllegalArgumentException("Invalid UEFA club");
+            this.id=id;this.association=association;this.pot=pot;this.coefficient=coefficient;this.seedPot=seedPot;
         }
     }
     public static final class Fixture {
@@ -36,9 +39,10 @@ public final class EuropeanLeaguePhase {
         int games=competition==Competition.CONFERENCE?6:8,pots=competition==Competition.CONFERENCE?6:4;
         if(dates.size()!=games||fixtures.size()!=18*games)throw new IllegalArgumentException("Incomplete league phase calendar");
         for(int i=0;i<dates.size();i++)if(dates.get(i)==null||dates.get(i).isBefore(LocalDate.of(season,7,1))||dates.get(i).isAfter(LocalDate.of(season+1,6,30))||i>0&&!dates.get(i).isAfter(dates.get(i-1)))throw new IllegalArgumentException("Invalid UEFA dates");
-        int[] potCount=new int[pots];
-        for(int i=0;i<36;i++){Club c=clubs.get(i);if(c==null||c.pot>=pots||index.put(c.id,i)!=null)throw new IllegalArgumentException("Invalid UEFA club identity");potCount[c.pot]++;}
+        int[] potCount=new int[pots],seedCount=new int[pots];
+        for(int i=0;i<36;i++){Club c=clubs.get(i);if(c==null||c.pot>=pots||c.seedPot>=pots||index.put(c.id,i)!=null)throw new IllegalArgumentException("Invalid UEFA club identity");potCount[c.pot]++;seedCount[c.seedPot]++;}
         for(int count:potCount)if(count!=36/pots)throw new IllegalArgumentException("Unequal UEFA pots");
+        for(int count:seedCount)if(count!=36/pots)throw new IllegalArgumentException("Unequal original UEFA pots");
         boolean[][] playedRound=new boolean[36][games],opponents=new boolean[36][36];int[][] homePots=new int[36][pots],awayPots=new int[36][pots];
         ArrayList<Map<String,Integer>> associations=new ArrayList<>();for(int i=0;i<36;i++)associations.add(new HashMap<>());
         for(Fixture f:fixtures) {
@@ -59,6 +63,7 @@ public final class EuropeanLeaguePhase {
     }
     public int fixtureCount(){return fixtures.size();}
     public List<Club> clubs(){return clubs;}
+    public boolean seedingAdjusted(){for(Club club:clubs)if(club.pot!=club.seedPot)return true;return false;}
     public Fixture fixture(int i){return fixtures.get(i);}
     public int[] result(int i){return results[i]==null?null:results[i].clone();}
     public LocalDate date(int round){return dates.get(round);}
@@ -103,8 +108,8 @@ public final class EuropeanLeaguePhase {
         int round=currentRound();if(round>=0&&dates.get(round).isBefore(date))throw new IllegalArgumentException("Overdue UEFA round");
     }
     public String snapshot() {
-        StringBuilder out=new StringBuilder("ULP1|").append(competition).append('|').append(season);
-        for(Club c:clubs)out.append("\nC|").append(c.id).append('|').append(c.association).append('|').append(c.pot).append('|').append(c.coefficient);
+        boolean adjusted=seedingAdjusted();StringBuilder out=new StringBuilder(adjusted?"ULP2|":"ULP1|").append(competition).append('|').append(season);
+        for(Club c:clubs){out.append("\nC|").append(c.id).append('|').append(c.association).append('|').append(c.pot).append('|').append(c.coefficient);if(adjusted)out.append('|').append(c.seedPot);}
         for(LocalDate date:dates)out.append("\nD|").append(date);
         for(Fixture f:fixtures)out.append("\nF|").append(f.round).append('|').append(f.home).append('|').append(f.away);
         // Round order is canonical even when the supplied draw's fixture list was unsorted.
@@ -114,11 +119,12 @@ public final class EuropeanLeaguePhase {
     public static EuropeanLeaguePhase restore(String text) {
         if(text==null||text.length()>65536)throw new IllegalArgumentException("Invalid UEFA save size");
         String[] lines=text.split("\n",-1),header=lines[0].split("\\|",-1);
-        if(header.length!=3||!header[0].equals("ULP1"))throw new IllegalArgumentException("Invalid UEFA save");
+        if(header.length!=3||!header[0].equals("ULP1")&&!header[0].equals("ULP2"))throw new IllegalArgumentException("Invalid UEFA save");
+        boolean adjusted=header[0].equals("ULP2");
         Competition competition=Competition.valueOf(header[1]);int rounds=competition==Competition.CONFERENCE?6:8,fixtures=18*rounds,base=37+rounds+fixtures;
         if(lines.length<base||lines.length>base+fixtures)throw new IllegalArgumentException("Invalid UEFA save count");
         ArrayList<Club> clubs=new ArrayList<>();ArrayList<LocalDate> dates=new ArrayList<>();ArrayList<Fixture> draw=new ArrayList<>();int at=1;
-        for(int i=0;i<36;i++){String[] c=row(lines[at++],"C",5);clubs.add(new Club(Integer.parseInt(c[1]),c[2],Integer.parseInt(c[3]),Integer.parseInt(c[4])));}
+        for(int i=0;i<36;i++){String[] c=row(lines[at++],"C",adjusted?6:5);clubs.add(new Club(Integer.parseInt(c[1]),c[2],Integer.parseInt(c[3]),Integer.parseInt(c[4]),adjusted?Integer.parseInt(c[5]):Integer.parseInt(c[3])));}
         for(int i=0;i<rounds;i++)dates.add(LocalDate.parse(row(lines[at++],"D",2)[1]));
         for(int i=0;i<fixtures;i++){String[] f=row(lines[at++],"F",4);draw.add(new Fixture(Integer.parseInt(f[1]),Integer.parseInt(f[2]),Integer.parseInt(f[3])));}
         EuropeanLeaguePhase phase=new EuropeanLeaguePhase(competition,Integer.parseInt(header[2]),clubs,draw,dates);

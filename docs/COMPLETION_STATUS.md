@@ -17,9 +17,12 @@ exclusion, three winter additions, registered ban service and atomic backups;
 twenty registration cases; and combined two-season ES/PT/DE UEFA careers.
 These partial checks add no weighted milestone: the complete current gate remains
 open. Both versions then expose England's second-season UEFA league-phase draw
-failure after qualifying completes. The association and previous-venue search
-fails to create that field. The 2.3.11 candidate checks this progression first
-and preserves exact draw input for the fix. Live-match QA reads are bounded so
+failure after qualifying completes. Captured input contains six English clubs,
+five in pot one: the association/opponent limits make that seeding impossible.
+The 2.3.11 candidate exchanges the closest projected seeds, retains every club
+and original seed, preserves strict opponent/venue rules and labels the saved
+adjustment in the competition screen. The captured draw and full UC2 career
+reload pass host regressions. Android QA checks England first. Live-match reads are bounded so
 continuous rendering cannot prevent their progress checks. All ten UEFA careers,
 national rules, calendar, upgrade, release packaging and APK delivery still need
 passing current evidence. No physical-phone validation or final APK is claimed.

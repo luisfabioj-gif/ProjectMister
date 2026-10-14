@@ -16,6 +16,10 @@ final APK or physical-phone validation is claimed by this source checkpoint.
 - UEFA A/B lists enforce training places, goalkeeper minima, stage deadlines,
   late qualifying additions, closed league-phase lists and three winter additions.
   Only an eligible registered fixture serves a UEFA ban.
+- Future projected UEFA pots that cannot satisfy association capacity use saved,
+  explicit seed exchanges. All qualified clubs and original seeds are retained;
+  the titleholder stays in pot one and strict opponent/venue rules still apply.
+  The competition screen identifies each adjustment as a career simulation.
 - French/Scottish cup sheets can promote a licensed fictional youth goalkeeper
   when existing keepers are unavailable. Promotions retain saved identities,
   wages and training records, preserving existing injuries and suspensions.

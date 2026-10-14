@@ -1,4 +1,28 @@
-# UEFA career draw preparation — 9 October 2026
+# UEFA career draws — updated 14 October 2026
+
+The 14 October Android England regression captured six English qualifiers with
+five projected coefficient seeds in pot one. No legal draw can satisfy those
+pots: every association club needs two opponents from each pot, while each
+other club in that pot can face at most two from that association. For a nine-club
+pot, `association total + association clubs in the pot <= 9` is necessary.
+Changing the random seed cannot resolve this contradiction.
+
+Simulated later editions now exchange the closest seeds only when that capacity
+is violated. The titleholder stays in pot one. Every qualified club, coefficient
+and original pot is retained; no association, opponent-count or venue restriction
+is dropped. Original and adjusted pots are saved in ULP2 metadata, shown on the
+competition screen and retained in archives. Unadjusted ULP1 saves and previously
+successful seeded draws retain their original representation and draw algorithm.
+The Conference equivalent is `association total <= 2 * (6 - pot count)`.
+
+This is an explicit **career projection**, not a claim that UEFA has announced
+those future pots. Article 16.03 permits administrative changes to draw conditions
+to avoid deadlocks; the game models that discretion through saved seed exchanges.
+Current qualified fields keep their published pots. The captured Android draw,
+original fixtures and seed are a host regression fixture. Complete current
+Android 35/36 evidence is still required.
+
+## Original 9 October preparation
 
 `EuropeanDraw` now generates seeded simulated league-phase draws from an explicit
 qualified 36-club field. It solves club placement against association exclusions,
