@@ -19,8 +19,11 @@ players; half-time tactics and substitutions remain available during live play.
 The exact verified scope and current blockers are in
 [the completion tracker](docs/COMPLETION_STATUS.md), with machine-readable
 milestone evidence in [COMPLETION_STATUS.json](docs/COMPLETION_STATUS.json).
-The 2.3.11 candidate still requires its complete Android 35/36 gate. An earlier
-checkpoint or a passing source build is not the final APK delivery.
+Version 2.3.11 passes the complete Android 35/36 gate in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811).
+All 100 feature-scope points are verified and the tested APK is available with
+the final chat handoff. [APK provenance](docs/BOSS_XI_2_3_11_RELEASE.md) records
+the source, artifacts, checksum and preserved update signature.
 
 [The Android test guide](docs/ANDROID_TEST_GUIDE.md) covers backup, installation,
 existing saves, starting the expanded game and reporting issues on a real phone.

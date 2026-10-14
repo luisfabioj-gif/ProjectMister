@@ -2,16 +2,23 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-14T16:59:00Z",
-  "complete": false,
+  "updated_utc": "2026-10-14T18:30:16Z",
+  "complete": true,
   "latest_checkpoint": {
-    "source": "7b7bd0ede2246bfa66d6f8e1ce9e6cb02803453a",
-    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38562072883",
-    "conclusion": "failure",
-    "new_evidence": "Android 36 passes the complete gate: ten combined two-season UEFA careers, recurring national cups, actual player eligibility and discipline, twenty registration cases and final league decisions, forty standalone/linked careers, exact backups, compact layouts, release-bundle upgrade and different-key restoration. England's repaired second-season draw and exact reload pass on both Android 35 and 36. No additional weighted milestone is verified until current evidence from both versions and final delivery are complete.",
-    "blocker": "Android 35 reaches natural half-time but the outer full-mode 480-second limit kills the accumulated scenario after 46 more seconds, before the separate 75-second second-half progress bound expires. The full Android 35 gate has not passed. No new draw failure remains in this run.",
-    "next_candidate": "Retain the same production code. Increase the expanded full-mode execution budget to 600 seconds and the complete two-version workflow budget to 120 minutes, preserving all assertions and individual progress bounds. Rerun the complete Android 35/36 gate and review screenshots before final APK delivery.",
-    "limitations": "Partial scenarios do not verify the complete current candidate. No physical-phone validation, final APK delivery or completion is claimed."
+    "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
+    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
+    "conclusion": "success",
+    "android_api": [
+      35,
+      36
+    ],
+    "jobs": [
+      115985935375,
+      115985934651
+    ],
+    "new_evidence": "Both complete Android gates pass: twenty registration cases and ten final league decisions; UEFA A/B lists and registered ban service; actual Scottish/French cup eligibility, goalkeeper identities and appearances; ten combined two-season UEFA careers and recurring national cups; forty standalone/linked careers; natural live matches and half-time tactics; exact backups; compact layouts; release-bundle upgrade and different-key restoration. Reviewed screenshots and the same verified APK from both jobs complete the final handoff.",
+    "blocker": null,
+    "limitations": "This is the completed tracked development scope for a real-world Android test. Android 35/36 emulator validation does not claim physical Samsung Galaxy S25 Ultra testing, hardware audio/performance validation or Play publication. Future draws and later dates remain labelled career projections."
   },
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
@@ -273,7 +280,7 @@
         "checks": "Three native Portuguese seasons; two recurring new-format League Cups; actual managed watched/quick league-phase matches, used-player appearances, chronological calendars, Liga 2/3 promotion and lower replacements, canonical reloads, exact archives and atomic corrupt-backup rejection. API35 cup and lower-history screenshots reviewed.",
         "qa_artifact_api35": 11627194622,
         "qa_artifact_api36": 11628076367,
-        "limitation": "Full UEFA admissions/titleholders/performance places remain in the separate pending UEFA and annual-qualification milestones; the tested Portuguese exemptions use the provisional base allocation. Excess spacing in the cup summary is a presentation follow-up."
+        "limitation": "The earlier provisional admissions boundary is superseded by the final verified annual UEFA qualification. Future fixture dates and career draws remain projections; the qualifier summary has sparse vertical spacing but retains readable names and playable fixture controls."
       }
     },
     {
@@ -284,11 +291,17 @@
       "evidence": {
         "source": "b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38181845865",
-        "android_api": [35, 36],
-        "jobs": [114595885720, 114595885898],
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          114595885720,
+          114595885898
+        ],
         "qa_artifact_api36": 11719341458,
         "checks": "Each of ten native country careers completed two combined UEFA/domestic seasons with actual managed watched and quick results, qualifying, exact archives, canonical reloads and backups. Four API36 European calendar/history screenshots reviewed on 12 October. Host gates cover all three league/knockout formats and recurring editions.",
-        "limitation": "Saved bounded league and postseason calendars are a separate pending calendar milestone; future editions and career draws remain labelled projections."
+        "limitation": "Future editions, foreign domestic results and career draws remain labelled projections. Saved bounded league/postseason calendars are now verified by the final 2.3.11 gate."
       }
     },
     {
@@ -299,8 +312,14 @@
       "evidence": {
         "source": "b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38181845865",
-        "android_api": [35, 36],
-        "jobs": [114595885720, 114595885898],
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          114595885720,
+          114595885898
+        ],
         "checks": "All ten country careers pass both annual admissions rollovers, including the previous Spanish reserve/parent failure. Actual local standings/cup winners feed admissions; titleholders, performance places, cup pass-down, foreign associations and stable club identities pass the host and native gates.",
         "limitation": "Other-country reserve vacancies use eligible simulated lower qualification results. Full Portuguese lower-pyramid result archives have separate prior evidence. Licensing refusals and federation administrative incidents are outside the simulated world."
       }
@@ -308,32 +327,131 @@
     {
       "id": "registration",
       "weight": 2,
-      "status": "pending",
-      "acceptance": "Country transfer windows and free-agent exceptions are enforced and explained using verified rules."
+      "status": "verified",
+      "acceptance": "Country transfer windows and free-agent exceptions are enforced and explained using verified rules.",
+      "evidence": {
+        "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          115985935375,
+          115985934651
+        ],
+        "qa_artifact_api35": 11917728577,
+        "qa_artifact_api36": 11919157922,
+        "checks": "Twenty native top/second-tier registration scenarios, out-of-window contracted rejection, ordinary free-agent decisions, fee-free signings, qualification dates and exact reload/backup pass on both versions."
+      }
     },
     {
       "id": "remaining_national_rules",
       "weight": 3,
-      "status": "pending",
-      "acceptance": "Consequential ties, reserve/parent conflicts and cup-specific eligibility/discipline resolve without deadlocking annual progression."
+      "status": "verified",
+      "acceptance": "Consequential ties, reserve/parent conflicts and cup-specific eligibility/discipline resolve without deadlocking annual progression.",
+      "evidence": {
+        "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          115985935375,
+          115985934651
+        ],
+        "qa_artifact_api35": 11917728577,
+        "qa_artifact_api36": 11919157922,
+        "checks": "Ten isolated final league decisions, result-derived reserve/parent vacancies, Scottish forced unavailable keepers and transfer restrictions, French two-day qualification and seven-recent-player continuity, actual appearances versus unused benches, eligible suspension service and exact atomic backups pass on both versions."
+      }
     },
     {
       "id": "calendar",
       "weight": 2,
-      "status": "pending",
-      "acceptance": "Dated league, cup and UEFA schedules advance monotonically, prevent double booking and label projected future dates."
+      "status": "verified",
+      "acceptance": "Dated league, cup and UEFA schedules advance monotonically, prevent double booking and label projected future dates.",
+      "evidence": {
+        "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          115985935375,
+          115985934651
+        ],
+        "qa_artifact_api35": 11917728577,
+        "qa_artifact_api36": 11919157922,
+        "checks": "Ten combined two-season domestic/UEFA careers, recurring country cups, three Portuguese seasons and dated postseason/lower-pyramid progression pass with chronological dates, no league-ledger contamination, elapsed-week accounting, canonical reloads and exact archives."
+      }
     },
     {
       "id": "full_game_qa",
       "weight": 2,
-      "status": "pending",
-      "acceptance": "Full Android 35/36 navigation, live matches, long-career, expanded competitions, save/backup and release installation gates pass; screenshots reviewed; defects fixed."
+      "status": "verified",
+      "acceptance": "Full Android 35/36 navigation, live matches, long-career, expanded competitions, save/backup and release installation gates pass; screenshots reviewed; defects fixed.",
+      "evidence": {
+        "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          115985935375,
+          115985934651
+        ],
+        "qa_artifact_api35": 11917728577,
+        "qa_artifact_api36": 11919157922,
+        "checks": "Both full jobs pass all modes, including natural full-time, half-time tactics/resume, forty standalone/linked careers, compact layouts, legacy upgrades, non-debuggable release-bundle installation and different-key restoration. Current 35/36 screenshots and byte-identical preceding dashboard/profile/market/stadium/history screenshots are reviewed. No game fatal exception or app ANR is present in final logcats."
+      }
     },
     {
       "id": "finished_test_apk",
       "weight": 2,
-      "status": "pending",
-      "acceptance": "Verified installable APK, provenance, complete change notes and real-world testing instructions delivered. Play publication and physical phone testing are outside the accessible development gate."
+      "status": "verified",
+      "acceptance": "Verified installable APK, provenance, complete change notes and real-world testing instructions delivered. Play publication and physical phone testing are outside the accessible development gate.",
+      "evidence": {
+        "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
+        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
+        "android_api": [
+          35,
+          36
+        ],
+        "jobs": [
+          115985935375,
+          115985934651
+        ],
+        "qa_artifact_api35": 11917728577,
+        "qa_artifact_api36": 11919157922,
+        "checks": "The APK from passing Android 35 artifact 11917973416 is byte-identical to passing Android 36 artifact 11920215445. ZIP digests, manifest, APK SHA-256 and preserved v2 signing certificate verify. The actual APK is saved for download with provenance, complete change notes and real-world installation/test instructions.",
+        "apk_artifact_api35": 11917973416,
+        "apk_artifact_api36": 11920215445,
+        "apk_sha256": "005d9e0cb9eb0394bb638dcd67b704f051b65064552b0e7adfaa6f3e268981a5",
+        "apk_size_bytes": 2637610,
+        "delivered": true,
+        "provenance": "docs/BOSS_XI_2_3_11_RELEASE.md"
+      }
     }
-  ]
+  ],
+  "delivery": {
+    "file_name": "BOSS-XI-v2.3.11-Android-Test.apk",
+    "available_in_chat": true,
+    "version": "2.3.11",
+    "version_code": 37,
+    "package": "com.projectmister.game",
+    "minimum_sdk": 26,
+    "target_sdk": 36,
+    "size_bytes": 2637610,
+    "sha256": "005d9e0cb9eb0394bb638dcd67b704f051b65064552b0e7adfaa6f3e268981a5",
+    "artifact_id": 11917973416,
+    "artifact_url": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811/artifacts/11917973416",
+    "matching_api36_artifact_id": 11920215445,
+    "signing_certificate_sha256": "06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e",
+    "kind": "Signed development sideload test APK; preserves the existing development update key.",
+    "provenance": "docs/BOSS_XI_2_3_11_RELEASE.md",
+    "test_guide": "docs/ANDROID_TEST_GUIDE.md"
+  }
 }

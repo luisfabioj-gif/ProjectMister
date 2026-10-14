@@ -1,4 +1,4 @@
-# Player registration — 14 October 2026 test candidate
+# Player registration — verified Android test build, 14 October 2026
 
 Ordinary contracted signings use the verified country and division windows in
 `RegistrationWindow`. The world pool contains fictional professionals whose
@@ -49,6 +49,9 @@ inclusivity, later release/registration rejection, projected leap years and
 explicit Board/KNVB approvals. The new Android gate checks both divisions of all
 ten countries for an off-window ordinary free-agent decision, an out-of-window
 contracted rejection, an in-window fee-free hire and exact reload/backup.
-Those isolated native cases have passed on both Android versions. The refined
-registration checkpoint remains pending the complete integrated Android gate;
-isolated checks do not establish French cup continuity or UEFA list completion.
+Those native cases and the complete integrated Android 35/36 gate now pass in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811),
+source `bd5059b96a93c91655d56db2402d0142c6c195bf`. Each rules report has
+179 passing assertions. Separate actual French cup continuity and UEFA A/B list
+scenarios also pass; isolated registration decisions alone would not prove them.
+The registration milestone is now verified.

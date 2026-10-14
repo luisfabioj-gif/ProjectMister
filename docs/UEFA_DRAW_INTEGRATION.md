@@ -19,8 +19,13 @@ This is an explicit **career projection**, not a claim that UEFA has announced
 those future pots. Article 16.03 permits administrative changes to draw conditions
 to avoid deadlocks; the game models that discretion through saved seed exchanges.
 Current qualified fields keep their published pots. The captured Android draw,
-original fixtures and seed are a host regression fixture. Complete current
-Android 35/36 evidence is still required.
+original fixtures and seed are a host regression fixture. Complete Android 35/36
+evidence now passes at source `bd5059b96a93c91655d56db2402d0142c6c195bf`
+in [run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811).
+Both versions complete the repaired England career through two seasons and exact
+reload/archives, plus the other nine country careers. The current adjusted-draw
+screens were reviewed on both versions; the original and adjusted seeds and the
+career-projection explanation are readable.
 
 ## Original 9 October preparation
 

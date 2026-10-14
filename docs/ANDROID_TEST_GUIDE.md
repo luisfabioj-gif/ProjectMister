@@ -1,7 +1,9 @@
 # BOSS XI Android real-world test
 
-The final handoff will identify the exact tested source, workflow and APK hash.
-Do not treat an intermediate candidate as the completed release.
+Install `BOSS-XI-v2.3.11-Android-Test.apk`, version 2.3.11 / code 37,
+from the final chat handoff. [The exact build record](BOSS_XI_2_3_11_RELEASE.md)
+identifies its source, passing Android 35/36 workflow, signature and checksum.
+This is the completed development test build for your Samsung Galaxy S25 Ultra.
 
 ## Install and keep your saves
 

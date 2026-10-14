@@ -1,25 +1,31 @@
-# National rules verification — updated 12 October 2026
+# National rules verification — updated 14 October 2026
 
 ## Current checkpoint
 
-The original dated sections below preserve their source verification and earlier
-implementation limits. Source `b3a461e` now passes the combined Android 35/36
-annual UEFA gate, including forced Spanish reserve relegation. The newer
-`14957bb` candidate adds saved final neutral matches/series, French/Italian final
-draws, recorded French/Spanish disciplinary ranking, narrowed Spanish mini-table
-reapplication, Scottish split decisions and saved postseason calendars. Its own
-Android evidence is pending. No fixed club ID awards a consequential unresolved
-place in new careers.
+Source `bd5059b96a93c91655d56db2402d0142c6c195bf` passes both complete
+Android 35/36 jobs in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811).
+The final rules scenario passes twenty registration cases and ten isolated
+consequential league decisions. Ten country careers also complete two combined
+UEFA/domestic seasons with result-derived annual admissions, reserve/parent
+constraints, chronological postseason calendars and exact archives/backups.
+No fixed club ID awards a consequential unresolved place in new careers.
 
-The remaining national-rules milestone also includes player cup restrictions and
-suspensions, which have not yet been fully enforced. Current primary inputs and
-the outstanding verification are recorded in [PLAYER_CUP_RULES.md](PLAYER_CUP_RULES.md).
-Do not treat the final league decision engine as proof of those player rules.
+Separate native player scenarios pass actual cup restrictions, French continuity
+and qualification dates, unavailable Scottish keepers and preserved promoted-player
+identities, eligible suspension service and UEFA A/B lists. These are independent
+evidence for [PLAYER_CUP_RULES.md](PLAYER_CUP_RULES.md) and
+[UEFA_PLAYER_LISTS.md](UEFA_PLAYER_LISTS.md); the league-decider engine alone
+does not verify player eligibility. The national-rules milestone is now verified.
 Ordinary lower-pyramid sporting relegation outside Portugal remains limited to
 the modeled two divisions; other-country forced-reserve vacancies use labelled
 simulated lower qualification results with stable club identities.
 
 ## Earlier dated verification
+
+The following sections preserve earlier source inputs and the implementation
+limits recorded at those checkpoints. Their then-pending items are superseded
+by the complete current gate above where they belong to the declared scope.
 
 These are implementation inputs, not claims that the game already enforces them.
 Linked Scottish careers implement the Premiership/Championship playoff ladder.

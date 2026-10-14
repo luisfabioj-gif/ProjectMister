@@ -1,4 +1,23 @@
-# Player cup restrictions — implementation checkpoint, 12 October 2026
+# Player cup restrictions — verified 14 October 2026
+
+## Current Android evidence
+
+Source `bd5059b96a93c91655d56db2402d0142c6c195bf` passes both complete
+Android 35/36 jobs in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811).
+Each cup-player report has 130 passing assertions. Actual watched/background
+appearances, eligible replacements, dismissal/ban service, transfer restrictions,
+French two-day qualification and seven-recent-player sheets, unused bench
+distinction, unavailable Scottish keepers, stable promoted-player identities and
+exact saves/atomic backups pass. Separate UEFA-player reports have 31 passing
+assertions and all ten country careers complete two combined seasons.
+The remaining national-rules milestone is now verified. Physical-phone testing
+and special medical/administrative proceedings remain outside this evidence.
+
+## Earlier implementation checkpoint — 12–13 October 2026
+
+The following paragraphs preserve the then-pending implementation history and
+dated primary inputs. The current passing native evidence is recorded above.
 
 The new player disciplinary ledger is connected to actual watched and background
 fixtures, stable player identities, automatic team selection, substitutions,

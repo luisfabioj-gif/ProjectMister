@@ -1,110 +1,64 @@
 # BOSS XI completion tracker
 
-The machine-readable source is [COMPLETION_STATUS.json](COMPLETION_STATUS.json).
-It measures estimated feature scope, not elapsed time or predicted hours.
-The weights total 100. Only `verified` milestones contribute to completion;
-source-only engines and untested integrations contribute zero. The current
-checkpoint has 89 verified points and **11% of the tracked work left**.
+**Complete for the real-world Android test: 100 verified points, 0% remaining.**
+This is an estimated feature-scope percentage, not a time estimate:
+`100 - sum(verified milestone weights) = 100 - 100 = 0`.
+The fixed weights and individual evidence remain in
+[COMPLETION_STATUS.json](COMPLETION_STATUS.json).
 
-Source `7b7bd0ede2246bfa66d6f8e1ce9e6cb02803453a` passes the entire Android 36
-gate in [run 38562072883](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38562072883),
-including all ten UEFA careers, national cups, eligibility/discipline, forty
-division careers, release installation and different-key restoration. The repaired
-England annual draw also passes on Android 35. That job then reaches natural
-half-time, but the overall 480-second full-mode limit stops it 46 seconds later,
-before the runner's 75-second second-half progress bound expires. The next run
-retains the same production code and all assertions, with a 600-second full-mode
-budget and 120-minute complete-workflow budget. Both-version evidence, screenshot
-review and final delivery remain required. These partial results add no weight.
+## Final verified build — 14 October 2026
 
-On 14 October, source `a92da6ad3b9a4867e2c0bdc4368158c68d1bba94`
-passed the new Scottish and French cup-player scenarios on **both Android 35 and
-36** in [run 38553953890](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38553953890).
-Evidence includes two unavailable Scottish keepers, a promoted keeper's stable
-saved identity, preserved injuries and bans, actual appearances versus unused
-reserves, exact reloads, French two-day qualification and the seven-recent-player
-match-sheet restriction. Both versions also pass UEFA A/B lists, late free-agent
-exclusion, three winter additions, registered ban service and atomic backups;
-twenty registration cases; and combined two-season ES/PT/DE UEFA careers.
-These partial checks add no weighted milestone: the complete current gate remains
-open. Both versions then expose England's second-season UEFA league-phase draw
-failure after qualifying completes. Captured input contains six English clubs,
-five in pot one: the association/opponent limits make that seeding impossible.
-The 2.3.11 candidate exchanges the closest projected seeds, retains every club
-and original seed, preserves strict opponent/venue rules and labels the saved
-adjustment in the competition screen. The captured draw and full UC2 career
-reload pass host regressions. Android QA checks England first. Live-match reads are bounded so
-continuous rendering cannot prevent their progress checks. All ten UEFA careers,
-national rules, calendar, upgrade, release packaging and APK delivery still need
-passing current evidence. No physical-phone validation or final APK is claimed.
+Source `bd5059b96a93c91655d56db2402d0142c6c195bf` passes both complete jobs in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811):
 
-On 8 October 2026, source `f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`
-passed [Android 35/36 QA](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698).
-The eight newly verified cup milestones add 16 points. Each country completed
-two native seasons with watched/quick cup results, canonical saves, unchanged
-league ledgers, exact archives and atomic corrupted-backup rejection. England
-and Scotland each include their separate League Cup. Four API36 cup/history
-screenshots were reviewed; the Scottish fresh-season group calendar is readable.
+| Android API | Job | Result | QA artifact |
+| --- | --- | --- | --- |
+| 35 | [115985935375](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811/job/115985935375) | Success | 11917728577 |
+| 36 | [115985934651](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811/job/115985934651) | Success | 11919157922 |
 
-On 9 October 2026, source `d805d5a0628cebeb57b3f302caf1e0d2eb798d5f` passed
-[Android 35/36 QA](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37953129633).
-The recurring Portuguese League Cup milestone adds 5 verified points. Three
-native seasons include two new-format League Cups, actual watched/quick managed
-league-phase matches, used-player appearance checks, chronological dates, lower
-promotion outcomes, exact archives and atomic backup rejection. API35 cup and
-lower-history screenshots were reviewed. The cup summary has excess spacing to
-correct; full UEFA admissions are still a separate unfinished milestone.
+The final eleven points now have passing integration and delivery evidence:
 
-The 10 October development checkpoint connects all three UEFA competitions,
-annual admissions and two-leg qualifying to expanded careers, saves and History.
-The Android 35/36 run 38094113766 failed Spain's annual-admissions rollover.
-The following candidate handles forced reserve relegation with stable, eligible
-lower replacements from simulated qualification results and adds country free-agent
-registration decisions.
+| Milestone | Verified weight |
+| --- | ---: |
+| Country registration and free-agent exceptions | 2 |
+| Final league decisions, player eligibility and discipline | 3 |
+| Shared league, cup, UEFA and postseason calendar | 2 |
+| Complete Android 35/36 gate and screenshot review | 2 |
+| Verified APK, provenance, change notes and test instructions | 2 |
 
-Source `b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5` passed
-[Android 35/36 QA](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38181845865)
-on 11 October UTC (12 October UK time). Both logs show two complete combined
-UEFA/domestic seasons for each of ten country careers, watched and quick results,
-annual admissions, exact archives, reloads and backups. Four API36 European
-calendar/history screenshots were reviewed on 12 October. UEFA and annual
-qualification now add 15 verified points. The Spanish rollover failure is resolved.
-See [UEFA_CAREER_INTEGRATION.md](UEFA_CAREER_INTEGRATION.md).
+Both versions complete ten combined two-season UEFA careers, recurring national
+cups, forty standalone/linked careers, natural live matches, half-time tactics,
+exact saves/backups, compact layouts, release-bundle installation and
+different-key restoration. Actual French and Scottish player scenarios and UEFA
+A/B list scenarios pass. The captured impossible future English seeding is
+resolved by explicit saved seed exchanges while retaining every qualified club,
+original seed and strict opponent/venue constraints.
 
-The next candidate adds final league decisions, country registration refinements,
-stored bounded league/postseason calendars and accounting by elapsed calendar
-weeks. These changes have passing host tests and compile, but still require their
-own Android integration run. They earn no additional milestone weight yet.
+## Delivered test APK
 
-The 12 October run 38254535799 passes all twenty registration cases, calendar-week
-accounting and ten isolated final league decisions on both Android versions. It
-then fails in the Portuguese postseason QA helper, which requests its former
-fixed 20 June date after the newly dated upper playoffs have passed that date.
-The next checkpoint follows the current saved career date and checks both dated
-lower-barrage legs and their exact reload. The complete calendar and final QA
-milestones remain pending until the full country-career gate passes.
+`BOSS-XI-v2.3.11-Android-Test.apk` is available with the final chat handoff.
+It is version 2.3.11 / code 37, 2,637,610 bytes, minimum SDK 26 / target SDK 36.
+Both passing jobs contain byte-identical APKs. SHA-256:
 
-Run 38278541188 then completes all ten combined UEFA/domestic country careers
-on Android 35/36, including the dated Portuguese lower barrage. Its later
-isolated German cup check tries annual rollover without completing promotion;
-the game correctly keeps the season open. The next QA checkpoint finishes and
-reloads the required playoffs before asserting exact annual cup archives, and
-keeps new domestic test careers on their saved modern calendar. No extra
-milestone weight is assigned before that full gate passes.
+`005d9e0cb9eb0394bb638dcd67b704f051b65064552b0e7adfaa6f3e268981a5`
 
-Remaining: registration (2), remaining national rules (3), shared calendar (2), final Android
-QA (2) and finished APK delivery (2). Portuguese lower-division outcomes are
-verified with the recurring League Cup gate; recurring annual UEFA qualification
-is now verified separately. No physical phone testing or final APK delivery is claimed.
+The signature verifies with the existing development update certificate.
+[APK provenance and artifacts](BOSS_XI_2_3_11_RELEASE.md),
+[complete change notes](V2_3_11_CHANGES.md) and
+[the Android test guide](ANDROID_TEST_GUIDE.md) identify the exact build.
 
-Completion means a polished, integrated Android build for the user's real-world
-test: existing management and matchday systems, recurring national cups, the
-published future Portuguese League Cup, playable UEFA seasons, qualification,
-stable identities, saves, calendar integrity and full emulator validation.
-The final handoff must identify the tested source, Android run and APK hash.
-It cannot claim physical-phone testing or Play publication without that evidence.
+## Real-world test boundary
 
-Six-hour reports read this file and the current branch, recompute the percentage,
-and name verified progress and remaining blockers. They do not infer progress
-from the time elapsed. Update milestone evidence with each passing integration
-gate. Keep the fixed weighting unless a clearly documented scope change occurs.
+There is no open blocker in the tracked development scope. This is a signed
+development test APK. Physical Samsung Galaxy S25 Ultra testing, hardware
+audio/performance feedback and Play publication are separate steps. Future
+dates/draws and foreign domestic outcomes are identified as career simulations;
+special medical/licensing hearings and ordinary lower pyramids outside the
+modeled world are outside the declared scope.
+
+Export existing careers before installing. Use a new career in an empty slot
+for the expanded world; old careers retain stable identities and their original
+world. Historical records remain separate from simulated career winners.
+
+The progress-report completion condition is now met: `complete=true`, all 100
+points verified, and the installable APK available with provenance and guidance.

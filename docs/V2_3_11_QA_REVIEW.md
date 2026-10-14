@@ -1,7 +1,30 @@
 # BOSS XI 2.3.11 visual and artifact review — 14 October 2026
 
-This records reviewed evidence. It does not replace the complete Android 35/36
-gate or final APK delivery.
+This records reviewed evidence alongside the complete Android 35/36 gate and
+final APK delivery. [The release record](BOSS_XI_2_3_11_RELEASE.md) identifies
+the tested source and all final artifacts.
+
+## Final complete gate
+
+Source `bd5059b96a93c91655d56db2402d0142c6c195bf` passes both full jobs in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811):
+Android 35 `115985935375` and Android 36 `115985934651`. The QA artifacts are
+`11917728577` and `11919157922`, with 30 reports and 152 preserved screenshots
+each. APK artifacts `11917973416` and `11920215445` contain byte-identical bytes,
+matching the preceding APK hash recorded below. The final manifest, v2 signature,
+ZIP digests and CRCs verify; no game fatal exception or app ANR appears in either
+final logcat. The actual APK is saved for the chat handoff.
+
+Current Android 35 screenshots reviewed: `22-natural-fulltime.png`,
+`different-key-restored-career.png`, `europe-ENG-adjusted-draw.png` and
+`decisions-FR.png`. Current Android 36 screenshots reviewed:
+`22-natural-fulltime.png`, `europe-ENG-adjusted-draw.png`,
+`40-portuguese-new-league-cup.png` and `36-recurring-cup-history.png`.
+Full-time statistics/results, restored club/manager, draw adjustments, dated
+cup controls and separate career/historical archives are readable. The Portuguese
+qualifier summary remains vertically sparse but its names and fixture controls
+are functional. Earlier dashboard/profile/market/stadium/compact/history reviews
+below use byte-identical production code and the same APK.
 
 ## Passing Android 36 checkpoint
 
@@ -50,14 +73,15 @@ conditions, substitutions and Return to Match. Its ZIP SHA-256 is
 No game FATAL EXCEPTION, app ANR or BOSSXI_QA failure was found in that logcat.
 This does not establish an API35 full-time or complete-gate pass.
 
-## Current rerun
+## Original rerun requirement — now met
 
 Source `bd5059b96a93c91655d56db2402d0142c6c195bf` retains byte-identical
 production and native-test source. It changes only the full-mode execution
 budget (480 to 600 seconds), overall workflow budget (90 to 120 minutes) and
 status documentation. Every assertion and the separate 75-second match progress
 bounds remain intact. [Run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811)
-must finish before its complete-gate evidence is credited.
+was required to finish before complete-gate evidence was credited. Both jobs
+now pass, as recorded in the final gate above.
 
 Physical Samsung Galaxy S25 Ultra testing and audio/performance feedback remain
 the user's next step after the verified APK handoff.

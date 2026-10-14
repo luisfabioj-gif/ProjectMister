@@ -1,4 +1,20 @@
-# UEFA career integration — development checkpoint, 10 October 2026
+# UEFA career integration — verified Android test scope, 14 October 2026
+
+## Current complete gate
+
+Source `bd5059b96a93c91655d56db2402d0142c6c195bf` passes both complete
+Android 35/36 jobs in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811).
+Every one of ten country careers completes two combined UEFA/domestic seasons
+with watched/quick results, qualifying, annual admissions, saved player eligibility,
+chronological calendars, exact archives and atomic backups. The final development
+APK is available with [provenance](BOSS_XI_2_3_11_RELEASE.md). All 100 fixed
+feature-scope points are verified; physical-phone validation remains the next step.
+
+## Original development checkpoint — 10 October 2026
+
+The original implementation notes and then-open limits below preserve that dated
+checkpoint. Current verification is recorded above.
 
 New expanded careers connect the Champions League, Europa League and Conference
 League to the existing match, calendar, save, backup and History screens. The

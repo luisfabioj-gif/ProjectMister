@@ -1,6 +1,23 @@
-# Competition expansion — checkpoint, 7 October 2026
+# Competition expansion — complete Android test scope, 14 October 2026
 
-## Current checkpoint — 9 October 2026
+## Current verified build — 2.3.11
+
+All recurring national cups, three UEFA competitions, annual admissions,
+registration/player eligibility, consequential league decisions, shared calendars
+and final Android test delivery now have passing evidence. Source
+`bd5059b96a93c91655d56db2402d0142c6c195bf` passes both complete Android
+35/36 jobs in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811).
+The fixed tracker has 100 verified points and **0% estimated feature scope
+remaining**, not a time estimate. The actual tested APK is available with the
+chat handoff; [provenance](BOSS_XI_2_3_11_RELEASE.md) and
+[phone testing instructions](ANDROID_TEST_GUIDE.md) identify the build and scope.
+
+The records below are dated historical checkpoints. Their then-open implementation
+statements are superseded by the current verified scope above. Physical-phone
+validation and Play publication remain separate steps.
+
+## Earlier checkpoint — 9 October 2026
 
 The recurring cups in all ten countries now have passing Android 35/36 evidence.
 The eight newly verified countries passed run 37858104698 at source

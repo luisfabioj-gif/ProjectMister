@@ -1,9 +1,16 @@
-# BOSS XI 2.3.11 Android test candidate
+# BOSS XI 2.3.11 verified Android test build
 
-This candidate completes the remaining implementation around the expanded
+This build completes the remaining implementation around the expanded
 2.3.10 career checkpoint. Version code 37 preserves the package and existing
-development signing identity. Complete Android evidence is still pending; no
-final APK or physical-phone validation is claimed by this source checkpoint.
+development signing identity. Both complete Android 35/36 gates pass on
+14 October 2026, and the verified APK is available with the final chat handoff.
+
+The finished test scope retains twenty selectable real-club divisions across ten
+countries, linked promotion, worldwide/free-agent recruitment, recurring national
+cups and three UEFA competitions, sourced historical winners, live match tactics,
+78 fictional photographic portraits and stadium/upgrade artwork. Existing saves
+retain their stable identities; a new career in an empty slot starts the expanded
+world. Earlier feature and asset changes are recorded in the versioned notes.
 
 - Country/tier transfer windows, ordinary free-agent exceptions and French
   qualification delays are saved and enforced before signings or selection.
@@ -36,10 +43,15 @@ final APK or physical-phone validation is claimed by this source checkpoint.
 
 ## Handoff evidence
 
-The final verified source, Android 35/36 workflow, reviewed screenshots, APK
-artifact and SHA-256 will be recorded after the complete gate passes. The fixed
-100-point tracker credits only verified milestones, and the final delivery
-milestone is not credited until an installable APK has been made available.
+Tested source: `bd5059b96a93c91655d56db2402d0142c6c195bf`.
+[Run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811)
+passes the full Android 35/36 gate. Both jobs contain byte-identical APKs;
+the manifest and preserved signing certificate verify. APK SHA-256:
+`005d9e0cb9eb0394bb638dcd67b704f051b65064552b0e7adfaa6f3e268981a5`.
+
+[The release record](BOSS_XI_2_3_11_RELEASE.md) identifies artifacts, reviewed
+screens and validation limits. The fixed 100-point tracker now has every milestone
+verified, including actual APK delivery: 0% estimated feature scope remains.
 
 Use [ANDROID_TEST_GUIDE.md](ANDROID_TEST_GUIDE.md) for the Samsung Galaxy
 S25 Ultra test and issue reports. Physical-phone audio/performance testing and

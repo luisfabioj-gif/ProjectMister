@@ -2,6 +2,37 @@
 
 This is a tested development APK, not a Play Store production release. Android hardware listening and sustained performance review remain necessary.
 
+## Complete 2.3.11 Android test handoff — 14 October 2026
+
+- Source: `bd5059b96a93c91655d56db2402d0142c6c195bf`.
+- [Run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811)
+  succeeds in full on Android 35 job `115985935375` and Android 36 job `115985934651`.
+- Both versions complete ten combined two-season UEFA careers, recurring national
+  cups, three Portuguese seasons and forty standalone/linked division careers.
+  Natural live matches, half-time tactics/resume, chronological calendars, annual
+  admissions, exact archives and atomic backups pass.
+- Rules, UEFA-player, cup-player, division, release and migration reports contain
+  179, 31, 130, 751, 94 and 6 passing assertions respectively on each version.
+  Actual player eligibility, appearances, keeper identities and ban service are
+  exercised. All tests retain their individual progress bounds and assertions.
+- Compact layouts, baseline upgrades, non-debuggable AAB-derived installation
+  and exact different-key restoration pass. Neither final logcat contains a game
+  fatal exception or app ANR. Both QA archives preserve 152 screenshots;
+  [reviewed screens](V2_3_11_QA_REVIEW.md) are recorded separately.
+- The actual APK is available with the final chat handoff. Both passing artifacts
+  contain byte-identical APKs, version 2.3.11 / code 37, 2,637,610 bytes.
+  SHA-256: `005d9e0cb9eb0394bb638dcd67b704f051b65064552b0e7adfaa6f3e268981a5`.
+  The preserved development signing certificate verifies.
+- [The provenance record](BOSS_XI_2_3_11_RELEASE.md) identifies the artifacts,
+  manifest, signature, hash, validation scope and real-world test instructions.
+  The fixed tracker now has all 100 points verified: **0% estimated feature scope
+  remains**, not a time estimate. Physical-phone and Play validation remain separate.
+
+## Earlier dated checkpoints
+
+The following records preserve what passed and what was still open at each
+earlier checkpoint. The complete current development scope is recorded above.
+
 ## Verified recurring cups — 8 October 2026
 
 - Source: `f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`.

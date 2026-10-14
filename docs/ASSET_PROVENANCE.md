@@ -1,4 +1,22 @@
-# v2.3 asset provenance
+# BOSS XI asset provenance
+
+## Current packaged artwork — 2.3.11
+
+The verified APK contains 78 fictional photographic portrait tiles in
+`assets/portraits/person_00.webp` through `person_77.webp`, plus
+`assets/stadium/ground.webp` and `assets/stadium/upgrade.webp`. Portrait assignment
+is stable across saves, transfers and academy/market roster additions. Tiles are
+reused deliberately across the fictional player database.
+
+The original 42 portraits are described below. The additional 36 player portraits
+and both stadium illustrations were generated for version 2.3.3; their prompts
+and processing are recorded in [V2_3_3_CHANGES.md](V2_3_3_CHANGES.md#assets-and-prompts).
+They depict fictional people and venues. The stadium artwork illustrates the
+ground and its development rather than claiming to photograph the selected club.
+
+Current audio provenance is in [AUDIO_SOURCES.md](AUDIO_SOURCES.md).
+
+## Original v2.3 artwork
 
 Portraits: generated with the built-in image generation tool for this project, fictional people only, without supplied real-person references. Two atlases inspected and cropped into 42 square 256×256 WebP portraits, quality 88. Files: app/src/main/assets/portraits/person_00.webp through person_41.webp. First 30 are young/senior players; 30–35 male staff; 36–41 female managers. Deliberate reuse across the database. Persisted identity assignment; no network or per-launch generation.
 

@@ -1,8 +1,14 @@
-# UEFA player lists — 13 October 2026 implementation checkpoint
+# UEFA player lists — verified 14 October 2026
 
-The current implementation has 27 passing host registration cases, 25 profile
-cases and signed app/QA compilation. It is awaiting its own Android 35/36 gate;
-no completion points or device-validation claim are added for source alone.
+Source `bd5059b96a93c91655d56db2402d0142c6c195bf` passes both complete
+Android 35/36 jobs in
+[run 38602775811](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811).
+Each native UEFA-player report has 31 passing assertions: actual A/B lists,
+late free-agent exclusion, saved goalkeeper identities, eligible registered ban
+service, three winter additions, fourth-player rejection and exact atomic backups.
+All ten country careers separately complete two combined UEFA/domestic seasons.
+The earlier 27 host registration cases and 25 profile cases remain useful unit
+evidence; the milestone is credited from the passing integration and handoff.
 
 The Squad and Europe screens open **European player lists**. List A can be edited
 and submitted before the current deadline. The saved automatic list covers the
@@ -36,7 +42,8 @@ registration. The added native Portuguese scenario plays actual league-phase and
 knockout matches, rejects an unlisted forced starter, records an actual second-yellow
 dismissal, serves it through an eligible UEFA fixture and admits only three of four
 new players. It also checks interleaved market/academy IDs, portraits, exact saves
-and atomic rejection of missing list/profile fields. It still needs passing logs.
+and atomic rejection of missing list/profile fields. All of those native checks
+now have passing logs on both Android versions in the complete gate above.
 
 All three save slots and typed backups preserve `roster_extensions`,
 `player_training_history` and `uefa_player_lists`, with required version flags.
