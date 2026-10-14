@@ -6,20 +6,23 @@ The weights total 100. Only `verified` milestones contribute to completion;
 source-only engines and untested integrations contribute zero. The current
 checkpoint has 89 verified points and **11% of the tracked work left**.
 
-On 13 October, source `8c451df5b676e67872c64930702e4f5e72528576`
-reached the new UEFA player-list scenario on Android 35 in
-[run 38390075070](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38390075070).
-That scenario passes late free-agent exclusion, three winter additions, stable
-goalkeeper/market identities, registered ban service, exact saves and atomic
-backup checks. The profile/list host suites pass 25 and 27 checks. These partial
-checks add no weighted milestone: the complete Android 35/36 gate remains open.
-Android 35 then exposed a genuine Scottish Cup background sheet with no eligible
-reserve goalkeeper; Android 36 stopped earlier in the isolated Portuguese Cup
-helper after its date jump. The following candidate promotes a licensed youth
-keeper with a real saved roster identity when needed, preserves existing injuries
-and bans, and tests two unavailable keepers, unused reserve appearances and exact
-reload. Isolated native scenarios settle elapsed-week training before picking
-their fit team. The candidate still requires both complete Android runs.
+On 14 October, source `a92da6ad3b9a4867e2c0bdc4368158c68d1bba94`
+passed the new Scottish and French cup-player scenarios on **both Android 35 and
+36** in [run 38553953890](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38553953890).
+Evidence includes two unavailable Scottish keepers, a promoted keeper's stable
+saved identity, preserved injuries and bans, actual appearances versus unused
+reserves, exact reloads, French two-day qualification and the seven-recent-player
+match-sheet restriction. Both versions also pass UEFA A/B lists, late free-agent
+exclusion, three winter additions, registered ban service and atomic backups;
+twenty registration cases; and combined two-season ES/PT/DE UEFA careers.
+These partial checks add no weighted milestone: the complete current gate remains
+open. Both versions then expose England's second-season UEFA league-phase draw
+failure after qualifying completes. The association and previous-venue search
+fails to create that field. The 2.3.11 candidate checks this progression first
+and preserves exact draw input for the fix. Live-match QA reads are bounded so
+continuous rendering cannot prevent their progress checks. All ten UEFA careers,
+national rules, calendar, upgrade, release packaging and APK delivery still need
+passing current evidence. No physical-phone validation or final APK is claimed.
 
 On 8 October 2026, source `f781e2d9a5a8cbdd90a2de12759a62aac8a0355a`
 passed [Android 35/36 QA](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698).

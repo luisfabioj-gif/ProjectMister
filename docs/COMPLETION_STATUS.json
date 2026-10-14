@@ -2,16 +2,16 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-13T11:47:16Z",
+  "updated_utc": "2026-10-14T11:56:00Z",
   "complete": false,
   "latest_checkpoint": {
-    "source": "8c451df5b676e67872c64930702e4f5e72528576",
-    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38390075070",
+    "source": "a92da6ad3b9a4867e2c0bdc4368158c68d1bba94",
+    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38553953890",
     "conclusion": "failure",
-    "new_evidence": "Android 35 passes the actual UEFA A/B-list scenario: late free-agent exclusion, three winter additions, ordered goalkeeper/market identities, registered ban service, exact reloads and atomic backups. Both host suites pass 25 profile and 27 registration checks. No new weighted milestone is verified.",
-    "blocker": "Android 35 reaches a genuine Scottish Cup background match-sheet failure when no eligible reserve goalkeeper remains. Android 36 stops earlier in the isolated Portuguese League Cup helper, which selects before settling elapsed-week training after a date jump.",
-    "next_candidate": "Promote registered academy goalkeepers with stable saved identities when required by a domestic cup match sheet; retain existing injuries and bans. Native QA also exercises two unavailable keepers, unused reserve appearances, and exact reload. Settle isolated fixture dates before selecting a fit team.",
-    "limitations": "The replacement candidate still requires passing Android 35/36 evidence. No physical-phone validation, final installable APK delivery or completion is claimed."
+    "new_evidence": "Both Android 35 and 36 pass actual UEFA A/B lists and winter additions; Scottish Cup transfer restrictions, two unavailable keepers, stable promoted keeper identities, preserved injuries, actual appearances and exact reloads; French two-day qualification and seven-recent-player match sheets; twenty registration cases; and ES/PT/DE combined two-season UEFA careers. No new weighted milestone is verified.",
+    "blocker": "Both Android versions fail England's second-season league-phase draw after qualifying completes. The generated draw cannot satisfy the association and prior-season venue constraints within its search. This is a real career-progression failure, not passing Android evidence.",
+    "next_candidate": "Version 2.3.11 packages the remaining modeled features. QA bounds continuous live-match reads and checks the failing England career first, preserving exact draw input for a regression fix. All ten UEFA countries, national rules, calendar, upgrade, release packaging and final APK gates remain required.",
+    "limitations": "Partial scenarios do not verify the complete current candidate. No physical-phone validation, final APK delivery or completion is claimed."
   },
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
