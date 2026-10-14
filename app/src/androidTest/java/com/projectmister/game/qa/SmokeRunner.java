@@ -599,16 +599,14 @@ public final class SmokeRunner extends Instrumentation {
                     check(reason.contains("another club"),"Actual Scottish Cup fixture explains the transferred player's restriction");int[] roles=(int[])get("playerRoleStatus"),slots=(int[])get("playerSelectedSlot");
                     check(roles[moved[0]]!=2,"Assistant excludes cup-tied transfer");for(Object teammate:(List<?>)get("players"))if(playerInt(teammate,"team")==club&&roles[playerInt(teammate,"id")]==2){int id=playerInt(teammate,"id");roles[id]=0;slots[id]=-1;break;}roles[moved[0]]=2;
                     call("startLiveMatchday",new Class[0]);check(!(Boolean)get("matchInProgress"),"Actual watched Scottish Cup rejects manually selected cup-tied transfer");call("initialiseTacticsForClub",new Class[0]);call("startLiveMatchday",new Class[0]);check((Boolean)get("matchInProgress")&&(Boolean)get("liveNationalCup"),"Eligible replacement allows actual Scottish Cup progression");set("livePaused",true);check(!((Set<?>)get("matchParticipants")).contains(moved[0]),"Cup-tied footballer has no actual new-club cup appearance");set("liveHomeGoals",home==club?4:0);set("liveAwayGoals",away==club?4:0);call("finishLiveMatch",new Class[0]);
+                    verifyScottishKeeperResult(club,promoted,goalkeeperTested);
                     String saved=(String)get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"));check((Boolean)call("loadSave",new Class[]{int.class},2),"Scottish player-rule career reloads after actual result");check(saved.equals(get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"))),"Cup-tied transfer and actual eligible result reload exactly");checkBackupReadable();tested[0]=true;return;
                 }
             }
             call("startLiveMatchday",new Class[0]);if(!(Boolean)get("matchInProgress"))return;set("livePaused",true);boolean ownCup=(Boolean)get("liveNationalCup");int club=(Integer)get("selectedClub"),candidate=-1;
             if(ownCup&&moved[0]<0)for(Object id:(List<?>)get("liveXIIds")){Object p=call("findPlayer",new Class[]{int.class},(Integer)id);Field position=p.getClass().getDeclaredField("position");position.setAccessible(true);if(!position.get(p).equals("GK")){candidate=(Integer)id;break;}}
             set("liveHomeGoals",(Integer)get("liveHome")==club?4:0);set("liveAwayGoals",(Integer)get("liveAway")==club?4:0);call("finishLiveMatch",new Class[0]);
-            if(ownCup&&!goalkeeperTested[0]&&!promoted.isEmpty()) {
-                int appearances=0;for(int id:promoted)if(((Set<?>)get("cupEligibility").getClass().getMethod("playedClubs",int.class).invoke(get("cupEligibility"),id)).contains(club))appearances++;
-                check(appearances==1,"Only the youth goalkeeper who actually played receives a cup appearance");String roster=(String)get("rosterExtensions").getClass().getMethod("snapshot").invoke(get("rosterExtensions"));check((Boolean)call("loadSave",new Class[]{int.class},2),"Scottish goalkeeper replacements reload after an actual cup result");check(roster.equals(get("rosterExtensions").getClass().getMethod("snapshot").invoke(get("rosterExtensions"))),"Actual goalkeeper promotions retain ordered identities after reload");for(int id:promoted)check(playerInt(call("findPlayer",new Class[]{int.class},id),"team")==club,"Promoted goalkeeper keeps the original club and player ID");checkBackupReadable();goalkeeperTested[0]=true;
-            }
+            if(ownCup)verifyScottishKeeperResult(club,promoted,goalkeeperTested);
             if(candidate>=0) {
                 Object cup=get("nationalCups").getClass().getMethod("active").invoke(get("nationalCups")),world=get("division");int drawn=(Integer)cup.getClass().getMethod("drawnCount").invoke(cup),destination=-1;
                 for(int index=0;index<drawn&&destination<0;index++){Object tie=cup.getClass().getMethod("at",int.class).invoke(cup,index);if((Integer)tie.getClass().getMethod("winner").invoke(tie)<0)for(String side:new String[]{"home","away"}){int team=(Integer)tie.getClass().getMethod(side).invoke(tie);if(team!=club&&(Boolean)world.getClass().getMethod("contains",int.class).invoke(world,team)){destination=team;break;}}}
@@ -617,6 +615,21 @@ public final class SmokeRunner extends Instrumentation {
             }
         });
         check(tested[0]&&goalkeeperTested[0],"Scottish actual cup transfer and goalkeeper scenarios complete");capture("cup-player-scottish-transfer-restriction");ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"Original careers retained after Scottish eligibility scenario");});check(true,"Scottish Cup transfer restriction blocks an actual ineligible lineup and preserves playable progression and exact saves");
+    }
+    private void verifyScottishKeeperResult(int club,ArrayList<Integer> promoted,boolean[] checked)throws Exception {
+        if(checked[0]||promoted.isEmpty())return;
+        int appearances=0;
+        for(int id:promoted)if(((Set<?>)get("cupEligibility").getClass().getMethod("playedClubs",int.class).invoke(get("cupEligibility"),id)).contains(club))appearances++;
+        check(appearances==1,"Only the youth goalkeeper who actually played receives a cup appearance");
+        String roster=(String)get("rosterExtensions").getClass().getMethod("snapshot").invoke(get("rosterExtensions"));
+        String training=(String)get("trainingHistory").getClass().getMethod("snapshot").invoke(get("trainingHistory"));
+        String participation=(String)get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"));
+        check((Boolean)call("loadSave",new Class[]{int.class},2),"Scottish goalkeeper replacements reload after an actual cup result");
+        check(roster.equals(get("rosterExtensions").getClass().getMethod("snapshot").invoke(get("rosterExtensions"))),"Actual goalkeeper promotions retain ordered identities after reload");
+        check(training.equals(get("trainingHistory").getClass().getMethod("snapshot").invoke(get("trainingHistory"))),"Promoted goalkeeper training histories reload exactly");
+        check(participation.equals(get("cupEligibility").getClass().getMethod("snapshot").invoke(get("cupEligibility"))),"Starting and unused reserve goalkeeper appearances reload exactly");
+        for(int id:promoted)check(playerInt(call("findPlayer",new Class[]{int.class},id),"team")==club,"Promoted goalkeeper keeps the original club and player ID");
+        checkBackupReadable();checked[0]=true;
     }
     private void completeProfessionalPostseason(String country)throws Exception {
         check((Boolean)call("preparePromotion",new Class[0]),country+" final standings resolve required promotion field");
