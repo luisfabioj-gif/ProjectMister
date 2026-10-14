@@ -9,6 +9,11 @@ timeout 180s adb shell am instrument -w -e mode seed com.projectmister.game.test
 grep -q 'PASS baseline career seeded' qa-output/baseline.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/baseline.txt
 adb install -r app/build/outputs/apk/debug/app-debug.apk
+# Exercise the previously failing annual draw first. It restores the preserved
+# baseline career on success, so the upgrade and full gameplay gates still run.
+timeout 600s adb shell am instrument -w -e mode europe -e country ENG com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/europe-ENG.txt
+grep -q 'PASS ENG combined UEFA qualifying domestic calendars two seasons watched quick matches exact archives and backups verified' qa-output/europe-ENG.txt
+! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/europe-ENG.txt
 timeout 480s adb shell am instrument -w -e mode full com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/candidate.txt
 grep -q 'PASS worldwide transfers free agents reload budget and lineup verified' qa-output/candidate.txt
 grep -q 'PASS calendar recorded results and shootout orientation verified' qa-output/candidate.txt
@@ -25,7 +30,7 @@ grep -q 'PASS actual cup dismissal, eligible lineup, ban service, transfer persi
 grep -q 'PASS Scottish Cup transfer restriction blocks an actual ineligible lineup and preserves playable progression and exact saves' qa-output/cup-players.txt
 grep -q 'PASS French actual cup match-sheet continuity, free-agent registrations, unused bench distinction and exact saves verified' qa-output/cup-players.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/cup-players.txt
-for country in ES PT DE ENG IT FR NL BE SCO TR; do
+for country in ES PT DE IT FR NL BE SCO TR; do
     timeout 600s adb shell am instrument -w -e mode europe -e country "$country" com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee "qa-output/europe-$country.txt"
     grep -q "PASS $country combined UEFA qualifying domestic calendars two seasons watched quick matches exact archives and backups verified" "qa-output/europe-$country.txt"
     ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' "qa-output/europe-$country.txt"

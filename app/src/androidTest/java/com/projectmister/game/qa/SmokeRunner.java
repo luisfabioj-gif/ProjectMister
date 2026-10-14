@@ -1260,6 +1260,24 @@ public final class SmokeRunner extends Instrumentation {
         check(true,"Scottish watched playoff and season transition verified");
     }
 
+    private void preserveFailureContext()throws Exception {
+        if(output==null)return;
+        try(FileOutputStream f=new FileOutputStream(new File(output,"report.txt"))){f.write(report.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+        Object campaign=get("europeanCampaign");if(campaign==null)return;
+        Field ready=campaign.getClass().getDeclaredField("materialized");ready.setAccessible(true);if(ready.getBoolean(campaign))return;
+        Object qualifying=campaign.getClass().getMethod("qualifying").invoke(campaign);if(qualifying==null||!(Boolean)qualifying.getClass().getMethod("complete").invoke(qualifying))return;
+        Field seed=campaign.getClass().getDeclaredField("drawSeed"),previous=campaign.getClass().getDeclaredField("previous");seed.setAccessible(true);previous.setAccessible(true);
+        // Preserve the draw input without snapshot(): materialisation is the
+        // operation that failed. This contains only the simulated career field.
+        java.util.Base64.Encoder encoder=java.util.Base64.getEncoder();
+        StringBuilder input=new StringBuilder("UC2|").append(campaign.getClass().getField("year").getInt(campaign)).append('|').append(seed.getLong(campaign)).append('\n');
+        input.append(encoder.encodeToString(((String)qualifying.getClass().getMethod("snapshot").invoke(qualifying)).getBytes(java.nio.charset.StandardCharsets.UTF_8))).append('\n');
+        input.append(encoder.encodeToString(((String)previous.get(campaign)).getBytes(java.nio.charset.StandardCharsets.UTF_8))).append("\n-");
+        for(Object archive:(List<?>)campaign.getClass().getMethod("qualifyingArchives").invoke(campaign))input.append('\n').append(encoder.encodeToString(((String)archive).getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        try(FileOutputStream f=new FileOutputStream(new File(output,"uefa-draw-repro.txt"))){f.write(input.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+        Bundle checkpoint=new Bundle();checkpoint.putString("stream","CHECKPOINT preserved UEFA draw input\n");sendStatus(0,checkpoint);
+    }
+
     @SuppressWarnings("unchecked") public void onStart(){
         Bundle result=new Bundle();
         try {
@@ -1471,6 +1489,7 @@ public final class SmokeRunner extends Instrumentation {
             result.putString("stream",report.toString());finish(Activity.RESULT_OK,result);
         }catch(Throwable e){
             android.util.Log.e("BOSSXI_QA","Feature regression failed",e);
+            try{preserveFailureContext();}catch(Throwable diagnostic){android.util.Log.w("BOSSXI_QA","Could not preserve failure context",diagnostic);}
             result.putString("stream",report+"FAIL "+android.util.Log.getStackTraceString(e));finish(Activity.RESULT_CANCELED,result);
         }
     }
