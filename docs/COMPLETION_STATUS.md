@@ -6,6 +6,17 @@ The weights total 100. Only `verified` milestones contribute to completion;
 source-only engines and untested integrations contribute zero. The current
 checkpoint has 89 verified points and **11% of the tracked work left**.
 
+Source `7b7bd0ede2246bfa66d6f8e1ce9e6cb02803453a` passes the entire Android 36
+gate in [run 38562072883](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38562072883),
+including all ten UEFA careers, national cups, eligibility/discipline, forty
+division careers, release installation and different-key restoration. The repaired
+England annual draw also passes on Android 35. That job then reaches natural
+half-time, but the overall 480-second full-mode limit stops it 46 seconds later,
+before the runner's 75-second second-half progress bound expires. The next run
+retains the same production code and all assertions, with a 600-second full-mode
+budget and 120-minute complete-workflow budget. Both-version evidence, screenshot
+review and final delivery remain required. These partial results add no weight.
+
 On 14 October, source `a92da6ad3b9a4867e2c0bdc4368158c68d1bba94`
 passed the new Scottish and French cup-player scenarios on **both Android 35 and
 36** in [run 38553953890](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38553953890).

@@ -14,7 +14,9 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 timeout 600s adb shell am instrument -w -e mode europe -e country ENG com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/europe-ENG.txt
 grep -q 'PASS ENG combined UEFA qualifying domestic calendars two seasons watched quick matches exact archives and backups verified' qa-output/europe-ENG.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/europe-ENG.txt
-timeout 480s adb shell am instrument -w -e mode full com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/candidate.txt
+# Expanded Portuguese career scenarios precede the natural live match. Allow
+# their total runtime; the runner retains its separate 75-second progress bounds.
+timeout 600s adb shell am instrument -w -e mode full com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/candidate.txt
 grep -q 'PASS worldwide transfers free agents reload budget and lineup verified' qa-output/candidate.txt
 grep -q 'PASS calendar recorded results and shootout orientation verified' qa-output/candidate.txt
 grep -q 'PASS completed match survives reload' qa-output/candidate.txt
