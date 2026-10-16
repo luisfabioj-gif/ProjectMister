@@ -5,7 +5,7 @@ node tools/validate-qa-api.js
 bt="$ANDROID_HOME/build-tools/35.0.0"; platform="$ANDROID_HOME/platforms/android-35/android.jar"
 out=app/build/test-manual
 mkdir -p "$out/classes" "$out/dex"
-"$bt/aapt2" link -o "$out/resources.apk" -I "$platform" --manifest app/src/androidTest/AndroidManifest.xml --min-sdk-version 26 --target-sdk-version 35
+"$bt/aapt2" link -o "$out/resources.apk" -I "$platform" --manifest app/src/androidTest/AndroidManifest.xml -A tests/fixtures --min-sdk-version 26 --target-sdk-version 35
 "$JAVA_HOME/bin/javac" -source 17 -target 17 -cp "$platform" -d "$out/classes" app/src/androidTest/java/com/projectmister/game/qa/*.java
 "$JAVA_HOME/bin/jar" cf "$out/classes.jar" -C "$out/classes" .
 "$bt/d8" --lib "$platform" --min-api 26 --output "$out/dex" "$out/classes.jar"

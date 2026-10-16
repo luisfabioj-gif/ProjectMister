@@ -339,8 +339,34 @@ public final class SmokeRunner extends Instrumentation {
         });
         check(true,"Portuguese cup live quarter-final semi-final final and league resumption verified");
     }
+    private void verifyEuropeanDraw(Object phase,Object previous,String label)throws Exception {
+        Class<?> type=gameClass("EuropeanLeaguePhase");String snapshot=(String)type.getMethod("snapshot").invoke(phase);
+        Object restored=type.getMethod("restore",String.class).invoke(null,snapshot);
+        check(snapshot.equals(type.getMethod("snapshot").invoke(restored)),label+" validates all opponent/pot rules and restores canonically");
+        int rounds=type.getField("competition").get(phase).toString().equals("CONFERENCE")?6:8;
+        Map<Integer,boolean[]> venues=new HashMap<>();for(Object club:(List<?>)type.getMethod("clubs").invoke(phase))venues.put(club.getClass().getField("id").getInt(club),new boolean[rounds]);
+        Set<String> previousVenues=new HashSet<>();if(previous!=null)for(int i=0;i<(Integer)type.getMethod("fixtureCount").invoke(previous);i++){Object f=type.getMethod("fixture",int.class).invoke(previous,i);previousVenues.add(f.getClass().getField("home").getInt(f)+":"+f.getClass().getField("away").getInt(f));}
+        for(int i=0;i<(Integer)type.getMethod("fixtureCount").invoke(phase);i++){Object f=type.getMethod("fixture",int.class).invoke(phase,i);int home=f.getClass().getField("home").getInt(f),away=f.getClass().getField("away").getInt(f),round=f.getClass().getField("round").getInt(f);venues.get(home)[round]=true;if(previousVenues.contains(home+":"+away))throw new AssertionError(label+" repeats a previous-season venue");}
+        for(boolean[] home:venues.values()){if(home[0]==home[1]||home[rounds-1]==home[rounds-2])throw new AssertionError(label+" opening/closing venues unbalanced");for(int r=0;r<rounds-2;r++)if(home[r]==home[r+1]&&home[r]==home[r+2])throw new AssertionError(label+" has three consecutive identical venues");}
+        check(venues.size()==36,label+" preserves 36 entrants, balanced venue sequences and previous-season venue exclusions");
+    }
+    private void verifyCapturedEuropeanDraw()throws Exception {
+        String input;try(InputStream in=getContext().getAssets().open("eng-2027-draw.txt")){input=new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8).trim();}
+        String[] parts=input.split("\\n--PREVIOUS--\\n"),rows=parts[0].split("\\n"),header=rows[1].split("\\|");
+        Class<?> type=gameClass("EuropeanLeaguePhase"),clubType=gameClass("EuropeanLeaguePhase$Club"),competitionType=gameClass("EuropeanLeaguePhase$Competition");
+        Object competition=competitionType.getMethod("valueOf",String.class).invoke(null,"CHAMPIONS"),previous=type.getMethod("restore",String.class).invoke(null,parts[1]);
+        ArrayList<Object> field=new ArrayList<>();for(int i=2;i<rows.length;i++){String[] c=rows[i].split("\\|");field.add(clubType.getConstructor(int.class,String.class,int.class,int.class).newInstance(Integer.parseInt(c[1]),c[2],Integer.parseInt(c[3]),Integer.parseInt(c[4])));}
+        int year=Integer.parseInt(header[0]);long seed=Long.parseLong(header[1]);ArrayList<java.time.LocalDate> dates=new ArrayList<>();for(int r=0;r<8;r++)dates.add(java.time.LocalDate.of(year,9,10).plusWeeks(r*2L));
+        Method create=gameClass("EuropeanDraw").getMethod("create",competitionType,int.class,List.class,List.class,long.class,type);
+        Object phase=create.invoke(null,competition,year,field,dates,seed,previous);verifyEuropeanDraw(phase,previous,"Captured England regression");
+        check((Boolean)type.getMethod("seedingAdjusted").invoke(phase),"captured impossible England pots still require an explicit saved seeding adjustment");
+        int changed=0;for(Object club:(List<?>)type.getMethod("clubs").invoke(phase)){int id=clubType.getField("id").getInt(club);Object original=null;for(Object candidate:field)if(clubType.getField("id").getInt(candidate)==id)original=candidate;if(original==null)throw new AssertionError("Captured draw lost a qualified club");for(String name:new String[]{"association","coefficient"})if(!clubType.getField(name).get(club).equals(clubType.getField(name).get(original)))throw new AssertionError("Captured draw changed "+name);int seedPot=clubType.getField("seedPot").getInt(club);if(seedPot!=clubType.getField("pot").getInt(original))throw new AssertionError("Captured draw changed the original seed");if(clubType.getField("pot").getInt(club)!=seedPot)changed++;if(id==clubType.getField("id").getInt(field.get(0))&&clubType.getField("pot").getInt(club)!=0)throw new AssertionError("Captured titleholder lost pot one");}
+        check(changed==4,"captured England field retains all identities and coefficients with exactly two seed exchanges");
+        check(type.getMethod("snapshot").invoke(phase).equals(type.getMethod("snapshot").invoke(create.invoke(null,competition,year,field,dates,seed,previous))),"captured England adjusted draw replays deterministically on Android");
+    }
     private void verifyEuropeanCareer(String country)throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
+        if(country.equals("ENG"))verifyCapturedEuropeanDraw();
         final int[] watched={0},quick={0},qualifying={0};final boolean[] finished={false};final java.time.LocalDate[] lastManaged={null};
         ui(()->{
             Object data=null;for(Object d:(List<?>)get("catalog").getClass().getField("divisions").get(get("catalog")))if(d.getClass().getField("id").get(d).equals(country.toLowerCase(Locale.ROOT)+":1"))data=d;
@@ -374,7 +400,7 @@ public final class SmokeRunner extends Instrumentation {
                     finished[0]=(Integer)get("matchday")== (Integer)call("seasonRounds",new Class[0])&&(Boolean)call("cupsComplete",new Class[0]);
                 });
             }
-            if(country.equals("ENG")&&year==2027){ui(()->{Object europe=get("europeanCampaign"),editions=((List<?>)europe.getClass().getMethod("competitions").invoke(europe)).get(0),season=editions.getClass().getMethod("active").invoke(editions),phase=season.getClass().getMethod("leaguePhase").invoke(season);check((Boolean)phase.getClass().getMethod("seedingAdjusted").invoke(phase),"ENG actual second-season draw saves an explicit projected-seeding adjustment");call("showEuropeanEdition",new Class[]{season.getClass(),boolean.class},season,false);});capture("europe-ENG-adjusted-draw");}
+            if(country.equals("ENG")&&year==2027){ui(()->{Object europe=get("europeanCampaign"),editions=((List<?>)europe.getClass().getMethod("competitions").invoke(europe)).get(0),season=editions.getClass().getMethod("active").invoke(editions),phase=season.getClass().getMethod("leaguePhase").invoke(season);verifyEuropeanDraw(phase,null,"ENG actual second-season draw");call("showEuropeanEdition",new Class[]{season.getClass(),boolean.class},season,false);});capture("europe-ENG-second-season-draw");}
             ui(()->{
                 check(finished[0],country+" domestic and all three UEFA editions complete");Object europe=get("europeanCampaign");List<?> editions=(List<?>)europe.getClass().getMethod("competitions").invoke(europe);Map<String,String> completed=new HashMap<>();for(Object seasons:editions){Object season=seasons.getClass().getMethod("active").invoke(seasons),phase=season.getClass().getMethod("leaguePhase").invoke(season);check((Boolean)season.getClass().getMethod("complete").invoke(season),country+" UEFA final completed");completed.put(phase.getClass().getField("competition").get(phase).toString(),(String)season.getClass().getMethod("snapshot").invoke(season));}
                 String dutchArchive=null;if(country.equals("NL")){Object playoff=get("dutchEuropeanPlayoff");check(playoff!=null&&(Boolean)playoff.getClass().getMethod("complete").invoke(playoff),"NL actual European ticket playoff completed");dutchArchive=(String)playoff.getClass().getMethod("snapshot").invoke(playoff);call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"NL completed European ticket reloads");check(dutchArchive.equals(get("dutchEuropeanPlayoff").getClass().getMethod("snapshot").invoke(get("dutchEuropeanPlayoff"))),"NL exact European playoff state retained");checkBackupReadable();call("showDutchEuropeanPlayoff",new Class[]{gameClass("DutchEuropeanPlayoff"),boolean.class},get("dutchEuropeanPlayoff"),false);}
