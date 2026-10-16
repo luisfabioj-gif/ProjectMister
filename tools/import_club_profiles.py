@@ -77,6 +77,7 @@ def main():
         try:
             with urlopen(Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; BOSS-XI-data-review/1.0)','Accept-Encoding':'identity'}),timeout=40) as r:
                 body=r.read();encoding=r.headers.get('Content-Encoding','').lower()
+                if not body:print('EMPTY RESPONSE',r.status,r.geturl(),r.headers.get('Content-Type'),r.headers.get('Content-Length'),flush=True)
                 if encoding=='gzip' or body[:2]==b'\x1f\x8b':body=gzip.decompress(body)
                 elif encoding=='br':
                     import brotli
@@ -169,7 +170,7 @@ def main():
         if m:p.update(stadium=m.group(1).strip(),capacity=int(re.sub(r'[^\d]','',m.group(2))))
         p['strengthEstimate']=max(40,min(95,round(47+6.5*math.log(max(.2,p['marketValueEUR']/1e6)))))
         p['transferBudgetEstimateK']=max(100,round(p['marketValueEUR']*.08/1000/50)*50)
-        info=f'{TM}/club/datenfakten/verein/{p["tmId"]}'
+        info=p.get('clubSource',f'{TM}/club/datenfakten/verein/{p["tmId"]}')
         body=None if args.seed and p.get('primary') and p.get('secondary') else fetch(info,optional=bool(p.get('primary') and p.get('secondary')))
         detail=BeautifulSoup(body or b'','html.parser')
         colours=[]
