@@ -11,7 +11,8 @@ ROOT=Path(__file__).resolve().parents[1]
 seed=json.loads((ROOT/'tools/data/club-profiles-review.json').read_text())
 sources=json.loads((ROOT/'tools/data/alternate-club-sources.json').read_text())
 FIFA=dict(x.split(':',1) for x in ('ENG:England|SCO:Scotland|WAL:Wales|NIR:Northern Ireland|IRL:Ireland|POR:Portugal|ESP:Spain|FRA:France|ITA:Italy|GER:Germany|NED:Netherlands|BEL:Belgium|TUR:Türkiye|BRA:Brazil|ARG:Argentina|URU:Uruguay|PAR:Paraguay|CHI:Chile|COL:Colombia|ECU:Ecuador|VEN:Venezuela|PER:Peru|BOL:Bolivia|MEX:Mexico|USA:United States|CAN:Canada|JAM:Jamaica|CRC:Costa Rica|PAN:Panama|HON:Honduras|DOM:Dominican Republic|HAI:Haiti|AUS:Australia|NZL:New Zealand|JPN:Japan|KOR:Korea, South|CHN:China|DEN:Denmark|SWE:Sweden|NOR:Norway|FIN:Finland|ISL:Iceland|AUT:Austria|SUI:Switzerland|POL:Poland|CZE:Czech Republic|SVK:Slovakia|HUN:Hungary|ROU:Romania|BUL:Bulgaria|CRO:Croatia|SRB:Serbia|BIH:Bosnia and Herzegovina|MNE:Montenegro|SVN:Slovenia|MKD:North Macedonia|ALB:Albania|KOS:Kosovo|GRE:Greece|CYP:Cyprus|UKR:Ukraine|RUS:Russia|GEO:Georgia|ARM:Armenia|AZE:Azerbaijan|KAZ:Kazakhstan|UZB:Uzbekistan|ISR:Israel|LUX:Luxembourg|LTU:Lithuania|LVA:Latvia|EST:Estonia|MLT:Malta|CMR:Cameroon|CIV:Cote d\'Ivoire|SEN:Senegal|MLI:Mali|NGA:Nigeria|GHA:Ghana|GAM:The Gambia|GUI:Guinea|GNB:Guinea-Bissau|CPV:Cape Verde|ANG:Angola|COD:DR Congo|COG:Congo|MAR:Morocco|ALG:Algeria|TUN:Tunisia|EGY:Egypt|BFA:Burkina Faso|BEN:Benin|TOG:Togo|GAB:Gabon|EQG:Equatorial Guinea|RSA:South Africa|ZIM:Zimbabwe|ZAM:Zambia|MOZ:Mozambique|BDI:Burundi|COM:Comoros|MTN:Mauritania|RWA:Rwanda|TAN:Tanzania|UGA:Uganda|KEN:Kenya|SLE:Sierra Leone|LBR:Liberia|IRN:Iran|IRQ:Iraq|SYR:Syria|LBN:Lebanon|JOR:Jordan|PLE:Palestine|KSA:Saudi Arabia|QAT:Qatar').split('|'))
-def nation(v):return FIFA.get(v.strip(),v.strip())
+def nation(v):
+    v=FIFA.get(v.strip(),v.strip());return {'Cape Verde Islands':'Cape Verde','Congo DR':'DR Congo'}.get(v,v)
 def get(url):
     for attempt in range(3):
         try:
@@ -70,8 +71,10 @@ def complete(p):
                 n=re.search(r'([0-9][0-9, .]{2,})',capacity.group(1));seats=int(re.sub('[^0-9]','',n.group(1))) if n else 0
                 if name and 500<=seats<=150000:p.update(stadium=name,capacity=seats,stadiumSource=page)
         if entry.get('colours'):
-            if not observed:raise RuntimeError('Club kit observation absent '+p['id']+'; '+repr([line for line in text.splitlines() if re.search('pattern|body|colour|shorts|socks|leftarm',line,re.I)][:12]))
-            p['primary'],p['secondary']=entry['colours'];p['colourSource']=page
+            if not observed and not entry.get('paletteEvidence'):raise RuntimeError('Club kit observation absent '+p['id'])
+            p['primary'],p['secondary']=entry['colours'];p['colourSource']=entry.get('paletteEvidence',page);p['paletteMethod']='Reviewed club colours; display hex values chosen for the game.'
+        if entry.get('stadium') and not p.get('capacity'):
+            ground=entry['stadium'];p.update(stadium=ground['name'],capacity=ground['capacity'],stadiumSource=ground['source'])
         if not p.get('nationalities'):
             counts=squad(text)
             if sum(counts.values())>=12:p.update(nationalities=counts,rosterSize=sum(counts.values()),rosterSource=page)

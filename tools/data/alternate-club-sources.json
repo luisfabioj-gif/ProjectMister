@@ -1,85 +1,597 @@
 {
-"fr:paris-fc":{"wiki":"Paris FC","colours":["123266","ffffff"]},
-"fr:ogc-nice":{"wiki":"OGC Nice","colours":["d71920","111111"]},
-"fr:montpellier-herault-sc":{"wiki":"Montpellier HSC","espnId":"274","colours":["162d59","f47721"]},
-"fr:rodez-af":{"wiki":"Rodez AF","colours":["cf152d","f3c52c"]},
-"fr:fc-sochaux-montbeliard":{"wiki":"FC Sochaux-Montbéliard","colours":["f5d328","173b73"]},
-"pt:sl-benfica":{"wiki":"S.L. Benfica","colours":["ca281d","ffffff"]},
-"pt:fc-porto":{"wiki":"FC Porto","colours":["004b9b","ffffff"]},
-"pt:estoril-praia":{"wiki":"G.D. Estoril Praia","colours":["ffdf00","1b60aa"]},
-"pt:estrela-amadora":{"wiki":"C.F. Estrela da Amadora","colours":["278446","db202d"]},
-"pt:academica":{"wiki":"Académica de Coimbra (football)","colours":["151515","ffffff"]},
-"pt:afs":{"wiki":"AVS Futebol SAD","colours":["d51b2e","ffffff"]},
-"pt:amarante-fc":{"wiki":"Amarante F.C.","colours":["151515","ffffff"]},
-"pt:cd-feirense":{"wiki":"C.D. Feirense","colours":["2057aa","ffffff"]},
-"pt:cd-tondela":{"wiki":"C.D. Tondela","colours":["167341","f3cc25"]},
-"pt:fc-felgueiras":{"wiki":"F.C. Felgueiras (2006)","colours":["175ba6","ffffff"]},
-"pt:fc-penafiel":{"wiki":"F.C. Penafiel","colours":["d4212a","171717"]},
-"pt:fc-porto-b":{"wiki":"FC Porto B","colours":["004b9b","ffffff"]},
-"pt:fc-vizela":{"wiki":"F.C. Vizela","colours":["3a8bc8","ffffff"]},
-"pt:gd-chaves":{"wiki":"G.D. Chaves","colours":["cc2031","204b92"]},
-"pt:lusitania-lourosa-fc":{"wiki":"Lusitânia F.C.","colours":["f2d026","228044"]},
-"pt:leixoes-sc":{"wiki":"Leixões S.C.","colours":["d62432","ffffff"]},
-"pt:portimonense":{"wiki":"Portimonense S.C.","colours":["171717","ffffff"]},
-"pt:sc-farense":{"wiki":"S.C. Farense","colours":["171717","ffffff"]},
-"pt:scu-torreense":{"wiki":"S.C.U. Torreense","colours":["8e2344","24458d"]},
-"pt:sl-benfica-b":{"wiki":"S.L. Benfica B","colours":["ca281d","ffffff"]},
-"pt:sporting-cp-b":{"wiki":"Sporting CP B","colours":["008127","ffffff"]},
-"pt:u-leiria":{"wiki":"U.D. Leiria","colours":["ffffff","ce2531"]},
-"pt:vitoria-sc":{"wiki":"Vitória S.C."},
-"nl:excelsior-rotterdam":{"wiki":"Excelsior Rotterdam","colours":["161616","c41e2c"]},
-"nl:az":{"wiki":"AZ Alkmaar"},"nl:heracles-almelo":{"wiki":"Heracles Almelo"},"nl:jong-fc-utrecht":{"wiki":"Jong FC Utrecht"},
-"be:krc-genk":{"wiki":"K.R.C. Genk","colours":["175baf","ffffff"]},
-"be:royal-antwerp-fc":{"wiki":"Royal Antwerp F.C.","colours":["ce2335","ffffff"]},
-"be:royale-union-saint-gilloise":{"wiki":"Royale Union Saint-Gilloise","colours":["f2d229","234783"]},
-"be:sk-beveren":{"wiki":"S.K. Beveren","colours":["f5da2c","194e91"]},
-"be:stvv":{"wiki":"Sint-Truidense V.V.","espnId":"936","colours":["f4d529","1e4a8a"]},
-"be:club-nxt":{"wiki":"Club NXT","colours":["176ab5","171717"]},
-"be:fcv-dender-eh":{"wiki":"F.C.V. Dender E.H.","colours":["1e68aa","171717"]},
-"be:jong-genk":{"wiki":"Jong Genk","colours":["175baf","ffffff"]},
-"be:jong-kaa-gent":{"wiki":"Jong KAA Gent","colours":["205ba9","ffffff"]},
-"be:k-beerschot-va":{"wiki":"K Beerschot VA","colours":["663a8d","ffffff"]},
-"be:k-lierse-s-k":{"wiki":"Lierse Kempenzonen","colours":["f3d22b","171717"]},
-"be:kas-eupen":{"wiki":"K.A.S. Eupen","colours":["171717","ffffff"]},
-"be:ksc-lokeren":{"wiki":"K.S.C. Lokeren-Temse","colours":["f4d52a","171717"]},
-"be:patro-eisden-maasmechelen":{"wiki":"Patro Eisden Maasmechelen","colours":["2b66a7","ffffff"]},
-"be:rfc-liege":{"wiki":"RFC Liège","colours":["ce263a","204f91"]},
-"be:rfc-seraing":{"wiki":"RFC Seraing (1922)","colours":["cd2430","171717"]},
-"be:royal-excelsior-virton":{"wiki":"R.E. Virton","colours":["268446","ffffff"]},
-"be:royal-francs-borains":{"wiki":"Francs Borains","colours":["29834c","ffffff"]},
-"be:rsca-futures":{"wiki":"RSCA Futures","colours":["6b428d","ffffff"]},
-"be:sporting-hasselt":{"wiki":"Sporting Hasselt","colours":["25824b","ffffff"]},
-"be:sporting-charleroi":{"wiki":"Royal Charleroi S.C."},"sco:raith-rovers":{"wiki":"Raith Rovers F.C."},
-"tr:amed-sportif-faaliyetler":{"wiki":"Amed S.F.K.","colours":["d32735","298443"]},
-"tr:erzurumspor-fk":{"wiki":"Erzurumspor F.K.","colours":["2183c3","ffffff"]},
-"tr:kayserispor":{"wiki":"Kayserispor","colours":["d1202e","f5cd2a"]},
-"tr:bursaspor":{"wiki":"Bursaspor","colours":["228045","ffffff"]},
-"tr:igdr-fk":{"wiki":"Iğdır F.K.","colours":["2c884b","ffffff"]},
-"tr:batman-petrolspor":{"wiki":"Batman Petrolspor","colours":["d12232","ffffff"]},
-"tr:saryer":{"wiki":"Sarıyer S.K.","colours":["17365f","ffffff"]},
-"tr:ankara-keciorengucu":{"wiki":"Ankara Keçiörengücü S.K.","colours":["704796","ffffff"]},
-"tr:mardin-1969-spor":{"wiki":"Mardin 1969 Spor","colours":["932a3b","1b3460"]},
-"tr:antalyaspor":{"wiki":"Antalyaspor","colours":["d22333","ffffff"]},
-"tr:fatih-karagumruk":{"wiki":"Fatih Karagümrük S.K.","colours":["cc2834","171717"]},
-"tr:muglaspor":{"wiki":"Muğlaspor","colours":["29834c","ffffff"]},
-"tr:bandrmaspor":{"wiki":"Bandırmaspor","colours":["952f47","ffffff"]},
-"tr:pendikspor":{"wiki":"Pendikspor","colours":["d22332","ffffff"]},
-"tr:manisa-fk":{"wiki":"Manisa F.K.","colours":["171717","ffffff"]},
-"tr:bodrum-fk":{"wiki":"Bodrum F.K.","colours":["2c8a4b","ffffff"]},
-"tr:sivasspor":{"wiki":"Sivasspor","colours":["d32233","ffffff"]},
-"tr:umraniyespor":{"wiki":"Ümraniyespor","colours":["d32333","ffffff"]},
-"tr:esenler-erokspor":{"wiki":"Esenler Erokspor","colours":["29854a","f2d327"]},
-"tr:istanbulspor":{"wiki":"İstanbulspor","colours":["f3d32c","171717"]},
-"tr:vanspor-fk":{"wiki":"Vanspor FK","colours":["c82534","171717"]},
-"tr:boluspor":{"wiki":"Boluspor","colours":["d02432","ffffff"]},
-"tr:istanbul-basaksehir":{"wiki":"İstanbul Başakşehir F.K."},
-"tr:goztepe":{"wiki":"Göztepe S.K.","colours":["cc2534","f3cf2a"]},
-"tr:eyupspor":{"wiki":"Eyüpspor","colours":["713f8d","f0ce2a"]},
-"tr:alanyaspor":{"wiki":"Alanyaspor","colours":["f58425","29834b"]},
-"tr:caykur-rizespor":{"wiki":"Çaykur Rizespor","colours":["21864e","1c66ab"]},
-"tr:gaziantep-fk":{"wiki":"Gaziantep F.K.","colours":["cb2333","171717"]},
-"tr:kocaelispor":{"wiki":"Kocaelispor","colours":["258247","171717"]},
-"tr:kasmpasa":{"wiki":"Kasımpaşa S.K.","colours":["1d3a6a","ffffff"]},
-"tr:samsunspor":{"wiki":"Samsunspor","colours":["d12333","ffffff"]},
-"tr:corum-fk":{"wiki":"Çorum F.K.","colours":["ce2634","171717"]}
+  "fr:paris-fc": {
+    "wiki": "Paris FC",
+    "colours": [
+      "123266",
+      "ffffff"
+    ]
+  },
+  "fr:ogc-nice": {
+    "wiki": "OGC Nice",
+    "colours": [
+      "d71920",
+      "111111"
+    ]
+  },
+  "fr:montpellier-herault-sc": {
+    "wiki": "Montpellier HSC",
+    "espnId": "274",
+    "colours": [
+      "162d59",
+      "f47721"
+    ]
+  },
+  "fr:rodez-af": {
+    "wiki": "Rodez AF",
+    "colours": [
+      "cf152d",
+      "f3c52c"
+    ]
+  },
+  "fr:fc-sochaux-montbeliard": {
+    "wiki": "FC Sochaux-Montbéliard",
+    "colours": [
+      "f5d328",
+      "173b73"
+    ]
+  },
+  "pt:sl-benfica": {
+    "wiki": "S.L. Benfica",
+    "colours": [
+      "ca281d",
+      "ffffff"
+    ]
+  },
+  "pt:fc-porto": {
+    "wiki": "FC Porto",
+    "colours": [
+      "004b9b",
+      "ffffff"
+    ]
+  },
+  "pt:estoril-praia": {
+    "wiki": "G.D. Estoril Praia",
+    "colours": [
+      "ffdf00",
+      "1b60aa"
+    ]
+  },
+  "pt:estrela-amadora": {
+    "wiki": "C.F. Estrela da Amadora",
+    "colours": [
+      "278446",
+      "db202d"
+    ]
+  },
+  "pt:academica": {
+    "wiki": "Académica de Coimbra (football)",
+    "colours": [
+      "151515",
+      "ffffff"
+    ]
+  },
+  "pt:afs": {
+    "wiki": "AVS Futebol SAD",
+    "colours": [
+      "d51b2e",
+      "ffffff"
+    ],
+    "paletteEvidence": "https://lojaoficial.ligaportugal.pt/pt/camisolas/camisola-equipamento-principal-avs-2025-26_p2857.html"
+  },
+  "pt:amarante-fc": {
+    "wiki": "Amarante F.C.",
+    "colours": [
+      "151515",
+      "ffffff"
+    ]
+  },
+  "pt:cd-feirense": {
+    "wiki": "C.D. Feirense",
+    "colours": [
+      "2057aa",
+      "ffffff"
+    ]
+  },
+  "pt:cd-tondela": {
+    "wiki": "C.D. Tondela",
+    "colours": [
+      "167341",
+      "f3cc25"
+    ]
+  },
+  "pt:fc-felgueiras": {
+    "wiki": "F.C. Felgueiras (2006)",
+    "colours": [
+      "175ba6",
+      "ffffff"
+    ]
+  },
+  "pt:fc-penafiel": {
+    "wiki": "F.C. Penafiel",
+    "colours": [
+      "d4212a",
+      "171717"
+    ]
+  },
+  "pt:fc-porto-b": {
+    "wiki": "FC Porto B",
+    "colours": [
+      "004b9b",
+      "ffffff"
+    ]
+  },
+  "pt:fc-vizela": {
+    "wiki": "F.C. Vizela",
+    "colours": [
+      "3a8bc8",
+      "ffffff"
+    ]
+  },
+  "pt:gd-chaves": {
+    "wiki": "G.D. Chaves",
+    "colours": [
+      "cc2031",
+      "204b92"
+    ]
+  },
+  "pt:lusitania-lourosa-fc": {
+    "wiki": "Lusitânia F.C.",
+    "colours": [
+      "f2d026",
+      "228044"
+    ]
+  },
+  "pt:leixoes-sc": {
+    "wiki": "Leixões S.C.",
+    "colours": [
+      "d62432",
+      "ffffff"
+    ]
+  },
+  "pt:portimonense": {
+    "wiki": "Portimonense S.C.",
+    "colours": [
+      "171717",
+      "ffffff"
+    ]
+  },
+  "pt:sc-farense": {
+    "wiki": "S.C. Farense",
+    "colours": [
+      "171717",
+      "ffffff"
+    ]
+  },
+  "pt:scu-torreense": {
+    "wiki": "S.C.U. Torreense",
+    "colours": [
+      "8e2344",
+      "24458d"
+    ]
+  },
+  "pt:sl-benfica-b": {
+    "wiki": "S.L. Benfica B",
+    "colours": [
+      "ca281d",
+      "ffffff"
+    ]
+  },
+  "pt:sporting-cp-b": {
+    "wiki": "Sporting CP B",
+    "colours": [
+      "008127",
+      "ffffff"
+    ]
+  },
+  "pt:u-leiria": {
+    "wiki": "U.D. Leiria",
+    "colours": [
+      "ffffff",
+      "ce2531"
+    ],
+    "paletteEvidence": "https://lojaoficial.ligaportugal.pt/pt/camisolas/camisola-equipamento-principal-u-leiria-2026-27_p3358.html"
+  },
+  "pt:vitoria-sc": {
+    "wiki": "Vitória S.C."
+  },
+  "nl:excelsior-rotterdam": {
+    "wiki": "Excelsior Rotterdam",
+    "colours": [
+      "161616",
+      "c41e2c"
+    ]
+  },
+  "nl:az": {
+    "wiki": "AZ Alkmaar"
+  },
+  "nl:heracles-almelo": {
+    "wiki": "Heracles Almelo"
+  },
+  "nl:jong-fc-utrecht": {
+    "wiki": "Jong FC Utrecht"
+  },
+  "be:krc-genk": {
+    "wiki": "K.R.C. Genk",
+    "colours": [
+      "175baf",
+      "ffffff"
+    ]
+  },
+  "be:royal-antwerp-fc": {
+    "wiki": "Royal Antwerp F.C.",
+    "colours": [
+      "ce2335",
+      "ffffff"
+    ]
+  },
+  "be:royale-union-saint-gilloise": {
+    "wiki": "Royale Union Saint-Gilloise",
+    "colours": [
+      "f2d229",
+      "234783"
+    ]
+  },
+  "be:sk-beveren": {
+    "wiki": "S.K. Beveren",
+    "colours": [
+      "f5da2c",
+      "194e91"
+    ],
+    "paletteEvidence": "https://www.skbeveren.be/club-2/"
+  },
+  "be:stvv": {
+    "wiki": "Sint-Truidense V.V.",
+    "espnId": "936",
+    "colours": [
+      "f4d529",
+      "1e4a8a"
+    ]
+  },
+  "be:club-nxt": {
+    "wiki": "Club NXT",
+    "colours": [
+      "176ab5",
+      "171717"
+    ]
+  },
+  "be:fcv-dender-eh": {
+    "wiki": "F.C.V. Dender E.H.",
+    "colours": [
+      "1e68aa",
+      "171717"
+    ]
+  },
+  "be:jong-genk": {
+    "wiki": "Jong Genk",
+    "colours": [
+      "175baf",
+      "ffffff"
+    ]
+  },
+  "be:jong-kaa-gent": {
+    "wiki": "Jong KAA Gent",
+    "colours": [
+      "205ba9",
+      "ffffff"
+    ]
+  },
+  "be:k-beerschot-va": {
+    "wiki": "K Beerschot VA",
+    "colours": [
+      "663a8d",
+      "ffffff"
+    ]
+  },
+  "be:k-lierse-s-k": {
+    "wiki": "Lierse Kempenzonen",
+    "colours": [
+      "f3d22b",
+      "171717"
+    ]
+  },
+  "be:kas-eupen": {
+    "wiki": "K.A.S. Eupen",
+    "colours": [
+      "171717",
+      "ffffff"
+    ]
+  },
+  "be:ksc-lokeren": {
+    "wiki": "K.S.C. Lokeren-Temse",
+    "colours": [
+      "f4d52a",
+      "171717"
+    ]
+  },
+  "be:patro-eisden-maasmechelen": {
+    "wiki": "Patro Eisden Maasmechelen",
+    "colours": [
+      "2b66a7",
+      "ffffff"
+    ]
+  },
+  "be:rfc-liege": {
+    "wiki": "RFC Liège",
+    "colours": [
+      "ce263a",
+      "204f91"
+    ],
+    "stadium": {
+      "name": "Stade de Rocourt",
+      "capacity": 8000,
+      "source": "https://fr.wikipedia.org/wiki/Liste_de_stades_de_football_en_Belgique"
+    }
+  },
+  "be:rfc-seraing": {
+    "wiki": "RFC Seraing (1922)",
+    "colours": [
+      "cd2430",
+      "171717"
+    ]
+  },
+  "be:royal-excelsior-virton": {
+    "wiki": "R.E. Virton",
+    "colours": [
+      "268446",
+      "ffffff"
+    ]
+  },
+  "be:royal-francs-borains": {
+    "wiki": "Francs Borains",
+    "colours": [
+      "29834c",
+      "ffffff"
+    ]
+  },
+  "be:rsca-futures": {
+    "wiki": "RSCA Futures",
+    "colours": [
+      "6b428d",
+      "ffffff"
+    ]
+  },
+  "be:sporting-hasselt": {
+    "wiki": "Sporting Hasselt",
+    "colours": [
+      "25824b",
+      "ffffff"
+    ]
+  },
+  "be:sporting-charleroi": {
+    "wiki": "Royal Charleroi S.C."
+  },
+  "sco:raith-rovers": {
+    "wiki": "Raith Rovers F.C.",
+    "stadium": {
+      "name": "Stark’s Park",
+      "capacity": 8867,
+      "source": "https://en.wikipedia.org/wiki/Stark%27s_Park"
+    }
+  },
+  "tr:amed-sportif-faaliyetler": {
+    "wiki": "Amed S.F.K.",
+    "colours": [
+      "d32735",
+      "298443"
+    ]
+  },
+  "tr:erzurumspor-fk": {
+    "wiki": "Erzurumspor F.K.",
+    "colours": [
+      "2183c3",
+      "ffffff"
+    ]
+  },
+  "tr:kayserispor": {
+    "wiki": "Kayserispor",
+    "colours": [
+      "d1202e",
+      "f5cd2a"
+    ]
+  },
+  "tr:bursaspor": {
+    "wiki": "Bursaspor",
+    "colours": [
+      "228045",
+      "ffffff"
+    ]
+  },
+  "tr:igdr-fk": {
+    "wiki": "Iğdır F.K.",
+    "colours": [
+      "2c884b",
+      "ffffff"
+    ]
+  },
+  "tr:batman-petrolspor": {
+    "wiki": "Batman Petrolspor",
+    "colours": [
+      "d12232",
+      "ffffff"
+    ]
+  },
+  "tr:saryer": {
+    "wiki": "Sarıyer S.K.",
+    "colours": [
+      "17365f",
+      "ffffff"
+    ]
+  },
+  "tr:ankara-keciorengucu": {
+    "wiki": "Ankara Keçiörengücü S.K.",
+    "colours": [
+      "704796",
+      "ffffff"
+    ]
+  },
+  "tr:mardin-1969-spor": {
+    "wiki": "Mardin 1969 Spor",
+    "colours": [
+      "932a3b",
+      "1b3460"
+    ]
+  },
+  "tr:antalyaspor": {
+    "wiki": "Antalyaspor",
+    "colours": [
+      "d22333",
+      "ffffff"
+    ]
+  },
+  "tr:fatih-karagumruk": {
+    "wiki": "Fatih Karagümrük S.K.",
+    "colours": [
+      "cc2834",
+      "171717"
+    ]
+  },
+  "tr:muglaspor": {
+    "wiki": "Muğlaspor",
+    "colours": [
+      "29834c",
+      "ffffff"
+    ]
+  },
+  "tr:bandrmaspor": {
+    "wiki": "Bandırmaspor",
+    "colours": [
+      "952f47",
+      "ffffff"
+    ]
+  },
+  "tr:pendikspor": {
+    "wiki": "Pendikspor",
+    "colours": [
+      "d22332",
+      "ffffff"
+    ]
+  },
+  "tr:manisa-fk": {
+    "wiki": "Manisa F.K.",
+    "colours": [
+      "171717",
+      "ffffff"
+    ]
+  },
+  "tr:bodrum-fk": {
+    "wiki": "Bodrum F.K.",
+    "colours": [
+      "2c8a4b",
+      "ffffff"
+    ]
+  },
+  "tr:sivasspor": {
+    "wiki": "Sivasspor",
+    "colours": [
+      "d32233",
+      "ffffff"
+    ]
+  },
+  "tr:umraniyespor": {
+    "wiki": "Ümraniyespor",
+    "colours": [
+      "d32333",
+      "ffffff"
+    ]
+  },
+  "tr:esenler-erokspor": {
+    "wiki": "Esenler Erokspor",
+    "colours": [
+      "29854a",
+      "f2d327"
+    ]
+  },
+  "tr:istanbulspor": {
+    "wiki": "İstanbulspor",
+    "colours": [
+      "f3d32c",
+      "171717"
+    ]
+  },
+  "tr:vanspor-fk": {
+    "wiki": "Vanspor FK",
+    "colours": [
+      "c82534",
+      "171717"
+    ]
+  },
+  "tr:boluspor": {
+    "wiki": "Boluspor",
+    "colours": [
+      "d02432",
+      "ffffff"
+    ]
+  },
+  "tr:istanbul-basaksehir": {
+    "wiki": "İstanbul Başakşehir F.K."
+  },
+  "tr:goztepe": {
+    "wiki": "Göztepe S.K.",
+    "colours": [
+      "cc2534",
+      "f3cf2a"
+    ],
+    "stadium": {
+      "name": "Gürsel Aksel Stadyumu",
+      "capacity": 23376,
+      "source": "https://www.tff.org/Default.aspx?kulupID=3688&pageID=395"
+    }
+  },
+  "tr:eyupspor": {
+    "wiki": "Eyüpspor",
+    "colours": [
+      "713f8d",
+      "f0ce2a"
+    ]
+  },
+  "tr:alanyaspor": {
+    "wiki": "Alanyaspor",
+    "colours": [
+      "f58425",
+      "29834b"
+    ]
+  },
+  "tr:caykur-rizespor": {
+    "wiki": "Çaykur Rizespor",
+    "colours": [
+      "21864e",
+      "1c66ab"
+    ]
+  },
+  "tr:gaziantep-fk": {
+    "wiki": "Gaziantep F.K.",
+    "colours": [
+      "cb2333",
+      "171717"
+    ]
+  },
+  "tr:kocaelispor": {
+    "wiki": "Kocaelispor",
+    "colours": [
+      "258247",
+      "171717"
+    ]
+  },
+  "tr:kasmpasa": {
+    "wiki": "Kasımpaşa S.K.",
+    "colours": [
+      "1d3a6a",
+      "ffffff"
+    ]
+  },
+  "tr:samsunspor": {
+    "wiki": "Samsunspor",
+    "colours": [
+      "d12333",
+      "ffffff"
+    ],
+    "paletteEvidence": "https://samsunspor.org.tr/tarihce/"
+  },
+  "tr:corum-fk": {
+    "wiki": "Çorum F.K.",
+    "colours": [
+      "ce2634",
+      "171717"
+    ]
+  }
 }
