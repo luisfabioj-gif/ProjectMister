@@ -9,6 +9,9 @@ timeout 180s adb shell am instrument -w -e mode seed com.projectmister.game.test
 grep -q 'PASS baseline career seeded' qa-output/baseline.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/baseline.txt
 adb install -r app/build/outputs/apk/debug/app-debug.apk
+timeout 600s adb shell am instrument -w -e mode feedback com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/feedback.txt
+grep -q 'PASS all eleven feedback areas, exact identities, timed scouting, ordinal tables and sixty-four stadium upgrades verified' qa-output/feedback.txt
+! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/feedback.txt
 # Exercise the previously failing annual draw first. It restores the preserved
 # baseline career on success, so the upgrade and full gameplay gates still run.
 timeout 600s adb shell am instrument -w -e mode europe -e country ENG com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/europe-ENG.txt

@@ -155,6 +155,11 @@ public final class CareerDivision {
             return o.put("clubs",a).toString();
         }catch(Exception e){throw new IllegalStateException("Cannot encode career database",e);}
     }
+    public CareerDivision withProfiles(ClubProfiles profiles) {
+        if(profiles==null)return this;
+        try{JSONObject o=new JSONObject(snapshot());JSONArray clubs=o.getJSONArray("clubs");for(int i=0;i<clubs.length();i++){ClubProfiles.Profile p=profiles.get(clubIds[i]);if(p==null)continue;clubs.getJSONObject(i).put("strength",p.strength).put("budget",Math.max(1,Math.round(p.budgetK/1000f))).put("primary",p.primary).put("secondary",p.secondary);}return new CareerDivision(o);}
+        catch(Exception invalid){throw new IllegalArgumentException("Cannot apply club snapshot",invalid);}
+    }
     public boolean splitSeason(){return country.equals("SCO")&&tier==1;}
     public int meetings(){return country.equals("SCO")?(tier==1?3:4):2;}
     public int rounds(){return rounds(tier);}

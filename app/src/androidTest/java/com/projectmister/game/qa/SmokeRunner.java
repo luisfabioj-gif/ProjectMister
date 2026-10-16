@@ -104,7 +104,10 @@ public final class SmokeRunner extends Instrumentation {
         do {
             dismissEmulatorSystemAnr();
             android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
-            if(root!=null)for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText(text))if(n.isVisibleToUser())return n;
+            if(root!=null)for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText(text)){
+                if(n.isVisibleToUser())return n;
+                n.performAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
+            }
             SystemClock.sleep(100);
         }while(SystemClock.uptimeMillis()<until);
         throw new AssertionError("Visible control missing: "+text);
@@ -118,6 +121,52 @@ public final class SmokeRunner extends Instrumentation {
     private void collectScreenText(View view,StringBuilder text) {
         if(view instanceof android.widget.TextView)text.append(((android.widget.TextView)view).getText()).append('\n');
         if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)collectScreenText(((ViewGroup)view).getChildAt(i),text);
+    }
+    private String screenText(){StringBuilder b=new StringBuilder();collectScreenText(activity.getWindow().getDecorView(),b);return b.toString();}
+    private void verifyFeedback()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
+        final String[] identity={null},reports={null};final int[] target={-1};final java.time.LocalDate[] started={null};
+        ui(()->{
+            String[] leagues=(String[])get("LEAGUE_OPTIONS");check(leagues.length==20&&!Arrays.toString(leagues).contains("Classic"),"new careers offer twenty real divisions without Classic");
+            Object profiles=get("clubProfiles");check(profiles!=null&&(Integer)profiles.getClass().getMethod("size").invoke(profiles)==365,"all 365 playable clubs have validated observed profiles");
+            seedRulesCareer("ENG",1,true);Object world=get("division");String[] ids=(String[])world.getClass().getField("clubIds").get(world);int arsenal=Arrays.asList(ids).indexOf("eng:arsenal"),hull=Arrays.asList(ids).indexOf("eng:hull-city"),city=Arrays.asList(ids).indexOf("eng:manchester-city");
+            int[] colours=(int[])get("primaryColours"),strength=(int[])get("strength"),budgets=(int[])get("budgets");
+            check(android.graphics.Color.red(colours[arsenal])>android.graphics.Color.blue(colours[arsenal])&&android.graphics.Color.blue(colours[city])>android.graphics.Color.red(colours[city]),"Arsenal red and Manchester City blue replace arbitrary colours");
+            check(strength[arsenal]>strength[hull]&&budgets[arsenal]>budgets[hull],"squad-value calibration distinguishes title contenders and smaller clubs");
+            Set<String> nations=new HashSet<>();for(int i=0;i<20;i++)nations.add(playerString(call("findPlayer",new Class[]{int.class},arsenal*20+i),"nationality"));check(nations.size()>5&&nations.contains("England"),"English club has observed multinational squad proportions");
+            set("selectedClub",arsenal);call("initialiseTacticsForClub",new Class[0]);call("resetFinanceStadiumState",new Class[0]);set("attributeMasking",false);target[0]=(arsenal==0?20:0);Object p=call("findPlayer",new Class[]{int.class},target[0]);call("showPlayerProfile",new Class[]{int.class,int.class},target[0],playerInt(p,"team"));
+            check(screenText().contains("Scout player"),"explicit scout button remains available with masking off");
+            started[0]=(java.time.LocalDate)get("currentDate");identity[0]=(String)call("playerIdentitySnapshot",new Class[0]);
+        });capture("feedback-player-scout-action");tap("Scout player");
+        ui(()->{
+            Object book=get("scoutingReports"),entry=book.getClass().getMethod("get",String.class).invoke(book,"P"+target[0]);check(entry!=null&&(Boolean)entry.getClass().getMethod("pending").invoke(entry),"player action creates an actual scouting assignment");
+            call("advanceCareerDate",new Class[]{java.time.LocalDate.class},started[0].plusDays(6));check(((List<?>)entry.getClass().getMethod("report").invoke(entry)).isEmpty(),"scouting report is unavailable before seven days");
+            call("advanceCareerDate",new Class[]{java.time.LocalDate.class},started[0].plusDays(7));entry=book.getClass().getMethod("get",String.class).invoke(book,"P"+target[0]);check(!(Boolean)entry.getClass().getMethod("pending").invoke(entry)&&((List<?>)entry.getClass().getMethod("report").invoke(entry)).size()>=15,"dated scouting report completes through calendar progression");
+            call("showScoutingReport",new Class[]{String.class},"P"+target[0]);String t=screenText();check(t.contains("Potential")&&t.contains("Current ability")&&t.contains("Recommendation")&&t.contains("Nationality")&&t.contains("Weekly wage"),"report presents ability potential nationality costs risks and recommendation");
+            reports[0]=(String)book.getClass().getMethod("snapshot").invoke(book);call("saveCurrentGame",new Class[0]);check((Boolean)call("loadSave",new Class[]{int.class},2),"new identities and scout report load successfully");check(identity[0].equals(call("playerIdentitySnapshot",new Class[0]))&&reports[0].equals(get("scoutingReports").getClass().getMethod("snapshot").invoke(get("scoutingReports"))),"all player identities and dated assessments survive exact reload");checkBackupReadable();
+            Map<String,Object> good=new HashMap<>(prefs.getAll());for(String field:new String[]{"p_identity","scouting_reports"}){Map<String,Object> bad=new HashMap<>(good);bad.put("save_2_"+field,"corrupted");boolean rejected=false;try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,(Object)backupBytes(bad));}catch(InvocationTargetException expected){rejected=true;}check(rejected&&prefs.getAll().equals(good),"corrupt "+field+" rejected before any career changes");}
+            call("showScoutingReport",new Class[]{String.class},"P"+target[0]);
+        });capture("feedback-completed-scout-report");
+        ui(()->{call("resetLeagueStandings",new Class[0]);call("showLeagueTable",new Class[0]);String t=screenText();check(t.contains("1st")&&t.contains("2nd")&&t.contains("3rd")&&t.contains("20th")&&!t.contains("Equal position")&&!t.contains("=2"),"level league table displays unique sequential ordinal positions");});capture("feedback-ordinal-table");
+        ui(()->{call("showDashboard",new Class[0]);check(!screenText().contains("1/20"),"dashboard uses readable league position");});capture("feedback-dashboard");
+        ui(()->{set("liveHome",0);set("liveAway",1);set("liveHomePasses",0);set("liveAwayPasses",0);View stats=(View)call("matchStatsCard",new Class[]{boolean.class},false);StringBuilder t=new StringBuilder();collectScreenText(stats,t);check(t.toString().contains("Possession")&&t.toString().contains("Shots")&&t.toString().contains("—"),"match summary has separate comparison rows and honest unavailable details");call("showLiveStatsDialog",new Class[0]);});capture("feedback-match-comparison");tap("Close");
+        ui(()->{
+            set("stadiumCapacity",10000);set("stadiumSeatedCapacity",10000);set("stadiumExpansionLimit",150000);set("financeBalanceK",5000000);set("stadiumProjectWeeks",0);set("stadiumProjectCode",0);
+            for(String field:new String[]{"stadiumNorthLevel","stadiumEastLevel","stadiumSouthLevel","stadiumWestLevel","stadiumTrainingLevel","stadiumMedicalLevel","stadiumGymLevel","stadiumYouthLevel","stadiumShopLevel","stadiumBarsLevel","stadiumRestaurantsLevel","stadiumHospitalityLevel","stadiumFanZoneLevel","stadiumParkingLevel","stadiumMediaLevel","stadiumMuseumLevel"})set(field,1);
+            call("showStadiumCentre",new Class[0]);
+        });capture("feedback-complex-before");
+        final int[] tapAt={0,0};ui(()->{View map=(View)get("stadiumMap");int[] location=new int[2];map.getLocationOnScreen(location);tapAt[0]=location[0]+(int)(map.getWidth()*.30f);tapAt[1]=location[1]+(int)(map.getHeight()*.12f);for(int stage=1;stage<=5;stage++){try(InputStream in=getTargetContext().getAssets().open("stadium/complex-level-"+stage+".webp")){Bitmap image=android.graphics.BitmapFactory.decodeStream(in);check(image!=null&&image.getWidth()==1280&&image.getHeight()==853,"architectural stage "+stage+" decodes on Android");image.recycle();}}});
+        long touch=SystemClock.uptimeMillis();sendPointerSync(MotionEvent.obtain(touch,touch,MotionEvent.ACTION_DOWN,tapAt[0],tapAt[1],0));sendPointerSync(MotionEvent.obtain(touch,touch+80,MotionEvent.ACTION_UP,tapAt[0],tapAt[1],0));waitForIdleSync();check(node("North stand")!=null&&node("Plan upgrade")!=null,"complex touch opens the actual selected stand");capture("feedback-stand-selected");tap("Close");
+        int[] codes={101,102,103,104,1,2,3,4,5,6,7,8,9,10,11,12};
+        for(int stage=2;stage<=5;stage++)for(int code:codes){final int part=code,level=stage;final int[] bank={0},capacity={0},duration={0};
+            ui(()->{bank[0]=(Integer)get("financeBalanceK");capacity[0]=(Integer)get("stadiumCapacity");call("showStadiumPart",new Class[]{int.class},part);});tap("Plan upgrade");tap("Approve");
+            ui(()->{duration[0]=(Integer)get("stadiumProjectWeeks");check(duration[0]>0&&(Integer)call("stadiumPartLevel",new Class[]{int.class},part)==level-1,"component "+part+" stage "+level+" waits for construction");for(int week=0;week<duration[0];week++)call("advanceStadiumProject",new Class[0]);check((Integer)call("stadiumPartLevel",new Class[]{int.class},part)==level,"component "+part+" completes architectural stage "+level);check((Integer)get("financeBalanceK")<bank[0]&&(part<100?(Integer)get("stadiumCapacity")==capacity[0]:(Integer)get("stadiumCapacity")>capacity[0]),"component "+part+" preserves charged cash and correct capacity");call("saveCurrentGame",new Class[0]);});
+            if(code==12){ui(()->{check((Boolean)call("loadSave",new Class[]{int.class},2),"all sixteen upgraded components reload at stage "+level);call("showStadiumCentre",new Class[0]);});capture("feedback-complex-stage-"+stage);}
+        }
+        ui(()->{call("showHistoryHub",new Class[0]);check(!screenText().contains("Official source"),"history hub has no source controls");});capture("feedback-history-hub");tap("UEFA Champions League");ui(()->{String t=screenText();check(t.contains("Real-world winners")&&!t.contains("Official source"),"history competition shows winner rows without source buttons");});capture("feedback-history-winners");
+        ui(()->{call("showFinances",new Class[0]);check(!screenText().contains("Bank balance          "),"finance uses responsive labelled account rows");});capture("feedback-finances");
+        ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"preserved baseline restored after feedback scenarios");});
+        check(true,"all eleven feedback areas, exact identities, timed scouting, ordinal tables and sixty-four stadium upgrades verified");
     }
     private void verifyWorldMarket()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);
@@ -1348,6 +1397,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(savedWorld!=null&&savedWorld.getClass().getField("linked").getBoolean(savedWorld),"linked country survives release upgrade");
                 page("release-linked-table","showLeagueTable",new Class[0]);
                 check(true,"release bundle upgrade and feature navigation verified");
+            } else if(mode.equals("feedback")) {
+                verifyFeedback();
             } else if(mode.equals("europe")) {
                 verifyEuropeanCareer(args.getString("country","PT"));
             } else if(mode.equals("national-cups")) {

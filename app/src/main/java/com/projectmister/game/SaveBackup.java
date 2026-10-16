@@ -11,6 +11,8 @@ public final class SaveBackup {
     private static final int MAGIC=0x42584931, VERSION=1, MAX_ENTRIES=2000;
     private static final Map<String,Class<?>> FIELDS=new HashMap<>();
     static {
+        fields("p_identity,scouting_reports",String.class);
+        fields("player_identity_version,scouting_reports_version",Integer.class);
         fields("match_discipline,cup_participation,roster_extensions,player_training_history,uefa_player_lists",String.class);
         fields("discipline_version,participation_version,player_profiles_version,uefa_registration_version",Integer.class);
         fields("reserve_transition_seed,league_decisions,league_dates,promotion_dates,lower_promotion_dates,dutch_european_playoff",String.class);

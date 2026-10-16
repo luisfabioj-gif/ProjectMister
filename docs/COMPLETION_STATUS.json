@@ -2,23 +2,12 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-14T18:30:16Z",
-  "complete": true,
+  "updated_utc": "2026-10-16T12:00:00Z",
+  "complete": false,
   "latest_checkpoint": {
-    "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
-    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
-    "conclusion": "success",
-    "android_api": [
-      35,
-      36
-    ],
-    "jobs": [
-      115985935375,
-      115985934651
-    ],
-    "new_evidence": "Both complete Android gates pass: twenty registration cases and ten final league decisions; UEFA A/B lists and registered ban service; actual Scottish/French cup eligibility, goalkeeper identities and appearances; ten combined two-season UEFA careers and recurring national cups; forty standalone/linked careers; natural live matches and half-time tactics; exact backups; compact layouts; release-bundle upgrade and different-key restoration. Reviewed screenshots and the same verified APK from both jobs complete the final handoff.",
-    "blocker": null,
-    "limitations": "This is the completed tracked development scope for a real-world Android test. Android 35/36 emulator validation does not claim physical Samsung Galaxy S25 Ultra testing, hardware audio/performance validation or Play publication. Future draws and later dates remain labelled career projections."
+    "conclusion": "pending",
+    "source": null,
+    "note": "Host regressions and all 365 club profile checks passed locally; Android 35/36 and current APK delivery pending."
   },
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
@@ -26,87 +15,87 @@
     {
       "id": "presentation",
       "weight": 6,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Dashboard, navigation, profiles, tactics, finance and stadium readable in Android screenshots and compact landscape."
     },
     {
       "id": "saves",
       "weight": 6,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Startup, save compatibility, three slots, backup validation, upgrade and different-key restore pass Android QA."
     },
     {
       "id": "live_match",
       "weight": 7,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Playable 2D match, spatial passing, ball flight, tactical movement, opponent substitutions and truthful watched-team results."
     },
     {
       "id": "tactics",
       "weight": 4,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Half-time tactics, substitutions, undo and match resume preserve the active match."
     },
     {
       "id": "audio",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Crowd/event audio, volume controls, lifecycle and audio-focus handling integrated."
     },
     {
       "id": "finance_stadium",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Existing finance, stadium and facility purchases retain accounting and saves."
     },
     {
       "id": "management",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Squads, player/staff profiles, training, scouting, board and inbox remain playable."
     },
     {
       "id": "twenty_divisions",
       "weight": 6,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Ten countries, twenty real-club divisions and linked first/second tier promotion pass Android QA."
     },
     {
       "id": "world_market",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recruitment from all twenty catalog divisions and free agents works from Portuguese and other careers."
     },
     {
       "id": "history",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Sourced real competition winners and saved career league/cup history appear in History."
     },
     {
       "id": "artwork",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Stable fictional photographic portraits and stadium/upgrade images are displayed."
     },
     {
       "id": "portuguese_domestic_cup",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring Taça de Portugal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA."
     },
     {
       "id": "german_cup",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring DFB-Pokal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA."
     },
     {
       "id": "english_cups",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring FA Cup and League Cup connected to country careers, live/quick results, annual entrants, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
         "android_api": [
@@ -124,9 +113,9 @@
     {
       "id": "spanish_cup",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring Copa del Rey connected to country careers, live/quick results, annual entrants, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
         "android_api": [
@@ -144,9 +133,9 @@
     {
       "id": "italian_cup",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring Coppa Italia connected to country careers, live/quick results, annual entrants, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
         "android_api": [
@@ -164,9 +153,9 @@
     {
       "id": "french_cup",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring Coupe de France connected to country careers, live/quick results, annual entrants, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
         "android_api": [
@@ -184,9 +173,9 @@
     {
       "id": "dutch_cup",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring KNVB Cup connected to country careers, live/quick results, annual entrants, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
         "android_api": [
@@ -204,9 +193,9 @@
     {
       "id": "belgian_cup",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring Belgian Cup connected to country careers, live/quick results, annual entrants, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
         "android_api": [
@@ -224,9 +213,9 @@
     {
       "id": "scottish_cups",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring Scottish Cup and League Cup connected to country careers, live/quick results, annual entrants, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
         "android_api": [
@@ -244,9 +233,9 @@
     {
       "id": "turkish_cup",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Recurring Turkish Cup connected to country careers, live/quick results, annual entrants, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37858104698",
         "android_api": [
@@ -264,9 +253,9 @@
     {
       "id": "portuguese_league_cup_2027",
       "weight": 5,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Published 2027/28 format, lower promotion outcomes, European exemptions, used-player age tiebreak and annual career integration.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "d805d5a0628cebeb57b3f302caf1e0d2eb798d5f",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/37953129633",
         "android_api": [
@@ -286,9 +275,9 @@
     {
       "id": "uefa",
       "weight": 10,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Playable recurring Champions League, Europa League and Conference League with qualification, foreign clubs, draws, live/quick fixtures, calendars, saves and history.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38181845865",
         "android_api": [
@@ -307,9 +296,9 @@
     {
       "id": "annual_qualification",
       "weight": 5,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Final standings and cup results determine next-year competition fields and lower-pyramid replacements with stable identities.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38181845865",
         "android_api": [
@@ -327,9 +316,9 @@
     {
       "id": "registration",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Country transfer windows and free-agent exceptions are enforced and explained using verified rules.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
         "android_api": [
@@ -348,9 +337,9 @@
     {
       "id": "remaining_national_rules",
       "weight": 3,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Consequential ties, reserve/parent conflicts and cup-specific eligibility/discipline resolve without deadlocking annual progression.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
         "android_api": [
@@ -369,9 +358,9 @@
     {
       "id": "calendar",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Dated league, cup and UEFA schedules advance monotonically, prevent double booking and label projected future dates.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
         "android_api": [
@@ -390,9 +379,9 @@
     {
       "id": "full_game_qa",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Full Android 35/36 navigation, live matches, long-career, expanded competitions, save/backup and release installation gates pass; screenshots reviewed; defects fixed.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
         "android_api": [
@@ -411,9 +400,9 @@
     {
       "id": "finished_test_apk",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_unverified",
       "acceptance": "Verified installable APK, provenance, complete change notes and real-world testing instructions delivered. Play publication and physical phone testing are outside the accessible development gate.",
-      "evidence": {
+      "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
         "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
         "android_api": [
@@ -437,21 +426,48 @@
     }
   ],
   "delivery": {
-    "file_name": "BOSS-XI-v2.3.11-Android-Test.apk",
-    "available_in_chat": true,
-    "version": "2.3.11",
-    "version_code": 37,
+    "version": "2.3.12",
+    "version_code": 38,
+    "available_in_chat": false,
     "package": "com.projectmister.game",
-    "minimum_sdk": 26,
-    "target_sdk": 36,
-    "size_bytes": 2637610,
-    "sha256": "005d9e0cb9eb0394bb638dcd67b704f051b65064552b0e7adfaa6f3e268981a5",
-    "artifact_id": 11917973416,
-    "artifact_url": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811/artifacts/11917973416",
-    "matching_api36_artifact_id": 11920215445,
-    "signing_certificate_sha256": "06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e",
-    "kind": "Signed development sideload test APK; preserves the existing development update key.",
-    "provenance": "docs/BOSS_XI_2_3_11_RELEASE.md",
-    "test_guide": "docs/ANDROID_TEST_GUIDE.md"
-  }
+    "kind": "Development update for the existing Android test installation."
+  },
+  "previous_release": {
+    "version": "2.3.11",
+    "checkpoint": {
+      "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
+      "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
+      "conclusion": "success",
+      "android_api": [
+        35,
+        36
+      ],
+      "jobs": [
+        115985935375,
+        115985934651
+      ],
+      "new_evidence": "Both complete Android gates pass: twenty registration cases and ten final league decisions; UEFA A/B lists and registered ban service; actual Scottish/French cup eligibility, goalkeeper identities and appearances; ten combined two-season UEFA careers and recurring national cups; forty standalone/linked careers; natural live matches and half-time tactics; exact backups; compact layouts; release-bundle upgrade and different-key restoration. Reviewed screenshots and the same verified APK from both jobs complete the final handoff.",
+      "blocker": null,
+      "limitations": "This is the completed tracked development scope for a real-world Android test. Android 35/36 emulator validation does not claim physical Samsung Galaxy S25 Ultra testing, hardware audio/performance validation or Play publication. Future draws and later dates remain labelled career projections."
+    },
+    "delivery": {
+      "file_name": "BOSS-XI-v2.3.11-Android-Test.apk",
+      "available_in_chat": true,
+      "version": "2.3.11",
+      "version_code": 37,
+      "package": "com.projectmister.game",
+      "minimum_sdk": 26,
+      "target_sdk": 36,
+      "size_bytes": 2637610,
+      "sha256": "005d9e0cb9eb0394bb638dcd67b704f051b65064552b0e7adfaa6f3e268981a5",
+      "artifact_id": 11917973416,
+      "artifact_url": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811/artifacts/11917973416",
+      "matching_api36_artifact_id": 11920215445,
+      "signing_certificate_sha256": "06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e",
+      "kind": "Signed development sideload test APK; preserves the existing development update key.",
+      "provenance": "docs/BOSS_XI_2_3_11_RELEASE.md",
+      "test_guide": "docs/ANDROID_TEST_GUIDE.md"
+    }
+  },
+  "scope_note": "2.3.12 incorporates all eleven device-feedback fixes. Existing weights stay fixed; current release changes must pass the full Android gates before milestones regain verified status."
 }

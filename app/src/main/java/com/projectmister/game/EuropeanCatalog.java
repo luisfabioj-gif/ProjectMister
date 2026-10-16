@@ -19,6 +19,10 @@ public final class EuropeanCatalog {
         }
     }
     public JSONArray clubs()throws Exception{return data.getJSONArray("clubs");}
+    public EuropeanLeaguePhase.Competition openingCompetition(String id){
+        try{for(EuropeanLeaguePhase.Competition competition:EuropeanLeaguePhase.Competition.values()){JSONArray clubs=data.getJSONObject("fields").getJSONArray(competition.name());for(int i=0;i<clubs.length();i++)if(clubs.getJSONObject(i).getString("id").equals(id))return competition;}}
+        catch(JSONException invalid){throw new IllegalStateException("Invalid opening UEFA field",invalid);}return null;
+    }
     public Map<String,Integer> admittedCounts(){TreeMap<String,Integer> counts=new TreeMap<>();try{JSONObject values=data.getJSONObject("openingAdmittedCounts");Iterator<String> keys=values.keys();while(keys.hasNext()){String key=keys.next();int n=values.getInt(key);if(!key.matches("[A-Z]{2,4}")||n<1||n>12)throw new IllegalArgumentException("Invalid opening UEFA admissions");counts.put(key,n);}}catch(JSONException invalid){throw new IllegalArgumentException("Missing opening UEFA admissions",invalid);}return Collections.unmodifiableMap(counts);}
     public static EuropeanCatalog read(InputStream input)throws Exception {
         ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buffer=new byte[4096];int n;while((n=input.read(buffer))!=-1){if(out.size()+n>256*1024)throw new IllegalArgumentException("Oversized European catalog");out.write(buffer,0,n);}return new EuropeanCatalog(new JSONObject(new String(out.toByteArray(),StandardCharsets.UTF_8)));

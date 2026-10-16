@@ -1,0 +1,28 @@
+name: Review dated club observations
+on:
+  workflow_dispatch:
+  push:
+    branches: [work/boss-xi-data-20261016]
+permissions:
+  contents: read
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install beautifulsoup4==4.13.5 brotli==1.1.0 zstandard==0.25.0
+      - name: Read alternate public observations
+        run: python tools/complete_club_profiles.py
+      - name: Preserve the reviewed snapshot and import evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-club-profiles
+          path: |
+            app/src/main/assets/competitions/club-profiles-2026.json
+            /tmp/club-profile-cache/profiles-progress.json
+          retention-days: 7
