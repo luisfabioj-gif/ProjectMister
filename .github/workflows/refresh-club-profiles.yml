@@ -16,7 +16,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install beautifulsoup4==4.13.5 brotli==1.1.0 zstandard==0.25.0
       - name: Read alternate public observations
-        run: python tools/collect_alternate_profiles.py
+        run: python tools/complete_club_profiles.py
       - name: Preserve the reviewed snapshot and import evidence
         if: always()
         uses: actions/upload-artifact@v4
