@@ -161,7 +161,7 @@ def main():
             if not flags:continue
             nation=flags[0].get('title') or flags[0].get('alt')
             if nation:nations[nation]+=1;players+=1
-        if players<12:raise RuntimeError('Incomplete roster '+p['id']+': '+str(players))
+        if players<12:raise RuntimeError('Incomplete roster '+p['id']+': '+str(players)+'; '+s.get_text(' ',strip=True)[:180])
         p['nationalities']=dict(sorted(nations.items()));p['rosterSize']=players
         details=s.select_one('.data-header__details') if s else None
         text=details.get_text(' ',strip=True) if details else s.get_text(' ',strip=True) if s else ''
@@ -179,7 +179,7 @@ def main():
         if colours:
             p['primary']=colours[0];p['secondary']=colours[1] if len(colours)>1 else p.get('secondary') or ('111827' if colours[0]=='ffffff' else 'ffffff')
             p['colourSource']=info;p['clubColours']=colours
-        if not p.get('primary') or not p.get('secondary'):raise RuntimeError('Missing real club colours '+p['id'])
+        if not p.get('primary') or not p.get('secondary'):raise RuntimeError('Missing real club colours '+p['id']+'; '+detail.get_text(' ',strip=True)[:180])
         p['strengthEstimate']=max(40,min(95,round(47+6.5*math.log(max(.2,p['marketValueEUR']/1e6)))))
         p['transferBudgetEstimateK']=max(100,round(p['marketValueEUR']*.08/1000/50)*50)
         return p
