@@ -104,9 +104,11 @@ public final class SmokeRunner extends Instrumentation {
         do {
             dismissEmulatorSystemAnr();
             android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
-            if(root!=null)for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText(text)){
-                if(n.isVisibleToUser())return n;
-                n.performAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
+            if(root!=null){
+                List<android.view.accessibility.AccessibilityNodeInfo> matches=root.findAccessibilityNodeInfosByText(text);
+                for(android.view.accessibility.AccessibilityNodeInfo n:matches)if(n.isVisibleToUser()&&n.getText()!=null&&text.contentEquals(n.getText()))return n;
+                for(android.view.accessibility.AccessibilityNodeInfo n:matches)if(n.isVisibleToUser()&&n.isClickable())return n;
+                for(android.view.accessibility.AccessibilityNodeInfo n:matches){if(n.isVisibleToUser())return n;n.performAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());}
             }
             SystemClock.sleep(100);
         }while(SystemClock.uptimeMillis()<until);

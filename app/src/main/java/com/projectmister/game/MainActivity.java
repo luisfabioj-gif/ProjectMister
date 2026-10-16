@@ -4443,7 +4443,7 @@ public class MainActivity extends Activity {
             }
             if (countries[i].equals("IT")) card.addView(makeText("Serie B summer registration opens 1 July; Serie A opens 29 June.", 12, muted));
             for (int rank = 1; rank <= access.league.size(); rank++) {
-                card.addView(makeText(rank + "  •  " + access.league.get(rank - 1).label(), 13, text));
+                card.addView(makeText(DisplayFormat.ordinal(rank) + "  •  " + access.league.get(rank - 1).label(), 13, text));
             }
             card.addView(makeText("Domestic cup winner  •  " + access.cup.label(), 13, accent));
             if (access.conferenceFromLeagueCup) card.addView(makeText("League Cup winner  •  Conference League play-off", 13, accent));
@@ -6801,7 +6801,7 @@ public class MainActivity extends Activity {
         EuropeanAdmissions admissions=qualifying.admissions();backAction=()->showEuropeanQualifying(qualifying,archive);
         LinearLayout page=createPage("Domestic qualification results",admissions.domestic().year+"/"+(admissions.domestic().year+1)+" • saved career outcomes",true);
         page.addView(makeText("Your association uses its completed league and cup results. Other associations simulate domestic results from the available real-club pool; these are career outcomes.",12,muted));
-        for(String association:admissions.domestic().associations()){LinearLayout card=makePanel();card.addView(profileSectionTitle(association));card.addView(profileInfoRow("Cup winners",clubNames[admissions.domestic().cup(association)]));int[] order=admissions.domestic().order(association);for(int i=0;i<Math.min(order.length,8);i++){EuropeanAdmissions.Entry entry=admissions.entry(order[i]);card.addView(makeText((i+1)+". "+clubNames[order[i]]+(entry==null?"":" • "+entry.label()),13,entry==null?muted:text));}page.addView(card);}
+        for(String association:admissions.domestic().associations()){LinearLayout card=makePanel();card.addView(profileSectionTitle(association));card.addView(profileInfoRow("Cup winners",clubNames[admissions.domestic().cup(association)]));int[] order=admissions.domestic().order(association);for(int i=0;i<Math.min(order.length,8);i++){EuropeanAdmissions.Entry entry=admissions.entry(order[i]);card.addView(profileInfoRow(DisplayFormat.ordinal(i+1)+" "+clubNames[order[i]],entry==null?"":entry.label()));}page.addView(card);}
     }
     private void showEuropeanEdition(EuropeanSeason season,boolean archive) {
         backAction=archive?this::showHistoryHub:()->showCalendarTab("Europe");EuropeanLeaguePhase phase=season.leaguePhase();
@@ -6809,10 +6809,17 @@ public class MainActivity extends Activity {
         if(phase.seedingAdjusted()){page.addView(makeText("Simulated future seeding adjusted to make a legal draw. All qualified clubs are retained; association exclusions, opponent limits and home/away balance still apply.",12,muted));for(EuropeanLeaguePhase.Club club:phase.clubs())if(club.pot!=club.seedPot)page.addView(makeText(clubNames[club.id]+" • original pot "+(club.seedPot+1)+" → draw pot "+(club.pot+1),12,muted));}
         page.addView(makeText("Top 8 qualify for the round of 16. Places 9–24 play the knockout play-offs; places 25–36 are eliminated. Two-leg ties use aggregate goals, extra time and penalties. League-phase elimination does not transfer to another competition.",12,muted));
         page.addView(profileSectionTitle("LEAGUE PHASE"));int[][] metrics=phase.metrics();java.util.Map<Integer,Integer> rowIndex=new java.util.HashMap<>();for(int i=0;i<phase.clubs().size();i++)rowIndex.put(phase.clubs().get(i).id,i);
-        int rank=0;for(int club:phase.order()){int[] row=metrics[rowIndex.get(club)];page.addView(makeText((++rank)+". "+clubNames[club]+" • Pts "+row[0]+" • GD "+row[1]+" • GF "+row[2],14,club==selectedClub?accent:rank<=8?text:muted));}
+        page.addView(europeanTableRow("POS","CLUB","PTS","GD","GF",true,false));
+        int rank=0;for(int club:phase.order()){int[] row=metrics[rowIndex.get(club)];page.addView(europeanTableRow(DisplayFormat.ordinal(++rank),clubNames[club],String.valueOf(row[0]),(row[1]>0?"+":"")+row[1],String.valueOf(row[2]),false,club==selectedClub));}
         appendEuropeanFixtures(page,season,false);
         if(!archive&&!season.complete())page.addView(makeAccentButton("Continue career",v->startLiveMatchday()));
         page.addView(makeButton(archive?"History":"European competitions",v->{if(archive)showHistoryHub();else showCalendarTab("Europe");}));
+    }
+    private View europeanTableRow(String rank,String club,String points,String difference,String goals,boolean header,boolean managed){
+        LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(8),dp(header?8:12),dp(8),dp(header?8:12));row.setBackground(rounded(header?panelLight:managed?Color.rgb(14,53,61):panel));
+        LinearLayout.LayoutParams layout=new LinearLayout.LayoutParams(-1,-2);layout.setMargins(0,0,0,dp(5));row.setLayoutParams(layout);
+        row.addView(makeLeagueCell(rank,.7f,header?muted:accent,true));TextView name=makeLeagueCell(club,2.6f,header?muted:text,true);name.setSingleLine(false);name.setMaxLines(2);name.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);row.addView(name);
+        row.addView(makeLeagueCell(points,.55f,header?muted:text,true));row.addView(makeLeagueCell(difference,.55f,header?muted:accent,false));row.addView(makeLeagueCell(goals,.55f,muted,false));return row;
     }
     private void appendEuropeanFixtures(LinearLayout page,EuropeanSeason season,boolean managedOnly) {
         EuropeanLeaguePhase phase=season.leaguePhase();page.addView(profileSectionTitle(managedOnly?"YOUR EUROPEAN FIXTURES":"LEAGUE-PHASE FIXTURES & RESULTS"));
@@ -8396,9 +8403,8 @@ public class MainActivity extends Activity {
     }
 
     private void saveClassicState() {
-        prefs.edit().putInt(key(selectedSlot,"player_identity_version"),1).putString(key(selectedSlot,"p_identity"),playerIdentitySnapshot()).putInt(key(selectedSlot,"scouting_reports_version"),1).putString(key(selectedSlot,"scouting_reports"),scoutingReports.snapshot()).apply();
         if (selectedSlot < 0) return;
-        prefs.edit()
+        prefs.edit().putInt(key(selectedSlot,"player_identity_version"),1).putString(key(selectedSlot,"p_identity"),playerIdentitySnapshot()).putInt(key(selectedSlot,"scouting_reports_version"),1).putString(key(selectedSlot,"scouting_reports"),scoutingReports.snapshot())
                 .putBoolean(key(selectedSlot, "classic_mask"), attributeMasking)
                 .putString(key(selectedSlot, "classic_scout"), encode(scoutKnowledge))
                 .putString(key(selectedSlot, "classic_scout_due"), encode(scoutDueRound))
