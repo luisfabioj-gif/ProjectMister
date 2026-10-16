@@ -40,12 +40,12 @@ def wiki(title):
     if title.replace('_',' ') not in WIKI:raise RuntimeError('Unknown club article '+title)
     return WIKI[title.replace('_',' ')]
 def squad(text):
-    start=re.search(r'(?im)^=+\s*(?:Current squad|First.team squad|First team|Senior squad)\s*=+',text)
+    start=re.search(r'(?im)^=+\s*(?:Current squad|First.team squad|First team|Senior squad|Squad|Players)\s*=+',text)
     if not start:return {}
     part=text[start.end():];stop=re.search(r'(?im)^==[^=]|^=+\s*(?:Out on loan|On loan|Reserve|Coaching)',part)
     if stop:part=part[:stop.start()]
     counts=Counter()
-    for row in re.findall(r'(?is)\{\{\s*Football squad player\s*\|(.*?)\}\}',part):
+    for row in re.findall(r'(?is)\{\{\s*(?:Football squad player|Fs player)\s*\|(.*?)\}\}',part):
         m=re.search(r'(?:^|\|)\s*nat\s*=\s*([^|\n}]+)',row)
         if m:counts[nation(m.group(1))]+=1
     return dict(sorted(counts.items()))
@@ -70,12 +70,12 @@ def complete(p):
                 n=re.search(r'([0-9][0-9, .]{2,})',capacity.group(1));seats=int(re.sub('[^0-9]','',n.group(1))) if n else 0
                 if name and 500<=seats<=150000:p.update(stadium=name,capacity=seats,stadiumSource=page)
         if entry.get('colours'):
-            if not observed:raise RuntimeError('Club kit observation absent '+p['id'])
+            if not observed:raise RuntimeError('Club kit observation absent '+p['id']+'; '+repr([line for line in text.splitlines() if re.search('pattern|body|colour|shorts|socks|leftarm',line,re.I)][:12]))
             p['primary'],p['secondary']=entry['colours'];p['colourSource']=page
         if not p.get('nationalities'):
             counts=squad(text)
             if sum(counts.values())>=12:p.update(nationalities=counts,rosterSize=sum(counts.values()),rosterSource=page)
-    if not p.get('nationalities') or sum(p['nationalities'].values())<12:raise RuntimeError('Missing observed roster '+p['id'])
+    if not p.get('nationalities') or sum(p['nationalities'].values())<12:raise RuntimeError('Missing observed roster '+p['id']+'; '+repr([line for line in text.splitlines() if re.search('squad|fs player|nat=',line,re.I)][:14]))
     if not p.get('primary') or not p.get('secondary'):raise RuntimeError('Missing observed club colours '+p['id'])
     return p
 errors=[]
