@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 import difflib
 import hashlib
+import gzip
 import json
 import math
 from pathlib import Path
@@ -74,8 +75,16 @@ def main():
             if optional:return None
             raise RuntimeError('Not cached: '+url)
         try:
-            with urlopen(Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; BOSS-XI-data-review/1.0)'}),timeout=40) as r:
-                body=r.read()
+            with urlopen(Request(url,headers={'User-Agent':'Mozilla/5.0 (compatible; BOSS-XI-data-review/1.0)','Accept-Encoding':'identity'}),timeout=40) as r:
+                body=r.read();encoding=r.headers.get('Content-Encoding','').lower()
+                if encoding=='gzip' or body[:2]==b'\x1f\x8b':body=gzip.decompress(body)
+                elif encoding=='br':
+                    import brotli
+                    body=brotli.decompress(body)
+                elif encoding=='zstd':
+                    import zstandard
+                    body=zstandard.ZstdDecompressor().decompress(body)
+                if body and body[:1] not in (b'<',b'{',b'[',b'\n',b' '):print('RESPONSE',url,encoding,len(body),body[:6].hex(),flush=True)
             temporary=p.with_suffix('.tmp');temporary.write_bytes(body);temporary.replace(p)
             time.sleep(.4);return body
         except Exception as e:
