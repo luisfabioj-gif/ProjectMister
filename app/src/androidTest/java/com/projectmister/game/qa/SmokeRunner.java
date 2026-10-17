@@ -954,7 +954,7 @@ public final class SmokeRunner extends Instrumentation {
             final boolean linked=index>=divisions.size();
             Object data=divisions.get(index%divisions.size());String id=(String)data.getClass().getField("id").get(data);
             Object world=linked?worldClass.getMethod("countryCareer",catalog.getClass(),data.getClass()).invoke(null,catalog,data):worldClass.getConstructor(data.getClass()).newInstance(data);
-            int count=((List<?>)data.getClass().getField("clubs").get(data)).size();final int leagueIndex=index%divisions.size()+1;
+            int count=((List<?>)data.getClass().getField("clubs").get(data)).size();final int leagueIndex=index%divisions.size();
             final int worldCount=((String[])worldClass.getField("names").get(world)).length;
             final int[] memberships=(int[])worldClass.getField("clubTiers").get(world);
             ui(()->{
@@ -964,11 +964,13 @@ public final class SmokeRunner extends Instrumentation {
                 call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
                 call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
                 check(((List<?>)get("players")).size()==worldCount*20,id+" generates full squads");
-                call("saveCurrentGame",new Class[0]);call("showMainMenu",new Class[0]);
+                String[] options=(String[])get("LEAGUE_OPTIONS");check(options.length==divisions.size()&&leagueIndex>=0&&leagueIndex<options.length&&options[leagueIndex].contains((String)data.getClass().getField("name").get(data)),id+" maps to the real zero-based league chooser");
+                call("saveCurrentGame",new Class[0]);SharedPreferences saved=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);check(saved.getInt("save_1_manager_league_index",-1)==leagueIndex&&options[leagueIndex].equals(saved.getString("save_1_manager_league","")),id+" saves the exact chooser index and label");call("showMainMenu",new Class[0]);
             });
             if(id.equals("eng:2")||id.equals("be:2")||id.equals("fr:2")||id.equals("sco:1"))capture("division-"+id.replace(':','-')+"-save");
             ui(()->{
                 check((Boolean)call("loadSave",new Class[]{int.class},1),id+" save loads");
+                check((Integer)get("managerLeagueIndex")==leagueIndex,id+" restores the selected real division index");
                 check(((String[])get("clubNames")).length==worldCount && (Integer)get("selectedClub")==count-1,id+" club identity survives reload");
                 if(id.equals("eng:2")) {
                     call("startLiveMatchday",new Class[0]);set("livePaused",true);

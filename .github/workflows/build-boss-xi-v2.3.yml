@@ -6,6 +6,7 @@ on:
     paths: ['app/**', 'tools/**', 'tests/**', '*.gradle', '.github/workflows/build-boss-xi-v2.3.yml']
 permissions:
   contents: read
+  actions: read
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -35,6 +36,10 @@ jobs:
         run: bash tools/test-core.sh
       - name: Build committed source directly
         run: gradle :app:assembleDebug :app:bundleRelease --no-daemon
+      - name: Record installed APK identity
+        run: |
+          mkdir -p qa-output
+          sha256sum app/build/outputs/apk/debug/app-debug.apk > qa-output/apk-sha256.txt
       - name: Build independent QA runner
         run: bash tools/build-test-sdk.sh
       - name: Build preserved baseline for upgrade test
@@ -42,6 +47,27 @@ jobs:
           git worktree add --detach /tmp/boss-baseline 73275b274b02c3273e72d9710f0639a54f29d590
           cd /tmp/boss-baseline
           gradle :app:assembleDebug --no-daemon
+      - name: Validate completed modes for a division-only QA correction
+        id: inherited
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/verified-qa-prefix.py --api ${{ matrix.api }}
+      - name: Prove identical APK before continuing previously verified game checks
+        if: steps.inherited.outputs.reuse == 'true'
+        run: |
+          git worktree add --detach /tmp/boss-verified-source 85d4de03593b22a0bf9d3d6e5a34e00ea838aa37
+          (cd /tmp/boss-verified-source && gradle :app:assembleDebug --no-daemon)
+          cmp app/build/outputs/apk/debug/app-debug.apk /tmp/boss-verified-source/app/build/outputs/apk/debug/app-debug.apk
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          candidate=Path('app/build/outputs/apk/debug/app-debug.apk').read_bytes()
+          reference=Path('/tmp/boss-verified-source/app/build/outputs/apk/debug/app-debug.apk').read_bytes()
+          assert candidate == reference
+          proof={'source':'85d4de03593b22a0bf9d3d6e5a34e00ea838aa37','candidate_sha256':hashlib.sha256(candidate).hexdigest(),'reference_sha256':hashlib.sha256(reference).hexdigest()}
+          Path('qa-output/apk-equivalence.json').write_text(json.dumps(proof,indent=2)+'\n')
+          print('PASS candidate APK byte-identical to rebuilt source with all prior completed Android modes')
+          PY
       - name: Fetch pinned official bundletool for release installation QA
         run: |
           mkdir -p app/build/toolchain
@@ -54,6 +80,8 @@ jobs:
           sudo udevadm trigger --name-match=kvm
       - name: Emulator careers, national rules, calendar, upgrade and match regressions
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          BOSS_QA_CONTINUATION: ${{ steps.inherited.outputs.reuse }}
         with:
           api-level: ${{ matrix.api }}
           arch: x86_64
