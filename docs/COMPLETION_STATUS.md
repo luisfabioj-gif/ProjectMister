@@ -1,9 +1,25 @@
 # BOSS XI completion status
 
-The current 2.3.12 device-feedback release is under Android verification. It has not been delivered yet.
+BOSS XI 2.3.12 / code 38 is ready for the real-world Android test. The signed
+`BOSS-XI-2.3.12.apk` is saved for the chat download. All 29 fixed milestones are
+verified, totalling 100 points: **0% estimated feature scope remains. This is not
+a time estimate.**
 
-The fixed milestone weights in `COMPLETION_STATUS.json` still total 100. Current release milestones regain verified status only with passing evidence for the changed source. This is an estimated feature-scope measure, not a time estimate. The completed 2.3.11 evidence and delivered APK remain recorded under `previous_release`.
+The [release record](BOSS_XI_2_3_12_RELEASE.md) identifies the successful Android
+35 and 36 jobs, source identity, inherited mode hashes, exact APK comparison,
+artifact links and signing certificate. Each platform retains 25 verified modes
+for unchanged game code, then passes the corrected 871-assertion forty-division
+suite, live/upgrade setup, backups, compact layouts, release installation and
+different-key recovery. Failed obsolete test fixtures receive no completion
+credit. Both final artifacts contain the identical verified APK.
 
-Local evidence: the core regression suite passes, including 69 identity/scouting/ordinal checks. The data gate covers all 365 selectable clubs, 7,300 apportioned identities, every observed nationality's name pool, kit colours, grounds and stable career world serialization.
+All eleven feedback areas are included: real division choices, 365 observed club
+profiles, ordinal table positions, readable statistics/accounts, five generated
+stadium stages with 64 independently tested upgrades, timed scouting reports,
+coherent multinational fictional squads and winner-only history pages.
 
-Pending: Android API 35/36 feedback and full game regressions, screenshot review, release installation and the signed APK handoff. See `DEVICE_FEEDBACK_20261015.md` for the eleven requested areas and the factual/estimated data boundaries.
+Follow [the Android test guide](ANDROID_TEST_GUIDE.md), export existing saves and
+install the APK as an update. Start a new career in an empty slot for the revised
+starting club data. Budgets and strength are game estimates; players and
+portraits remain fictional. Physical Samsung Galaxy S25 Ultra testing and Play
+publication are outside the completed emulator development gate.

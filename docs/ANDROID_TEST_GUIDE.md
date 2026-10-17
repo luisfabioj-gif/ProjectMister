@@ -1,9 +1,9 @@
 # BOSS XI Android real-world test
 
-Install `BOSS-XI-v2.3.11-Android-Test.apk`, version 2.3.11 / code 37,
-from the final chat handoff. [The exact build record](BOSS_XI_2_3_11_RELEASE.md)
+Install `BOSS-XI-2.3.12.apk`, version 2.3.12 / code 38,
+from the final chat handoff. [The exact build record](BOSS_XI_2_3_12_RELEASE.md)
 identifies its source, passing Android 35/36 workflow, signature and checksum.
-This is the completed development test build for your Samsung Galaxy S25 Ultra.
+This development test build includes the changes from your Samsung Galaxy S25 Ultra feedback.
 
 ## Install and keep your saves
 
@@ -16,8 +16,12 @@ This is the completed development test build for your Samsung Galaxy S25 Ultra.
 
 ## Start the expanded game
 
-Create a new career in an empty slot to get the expanded country world, national
-cups, three UEFA competitions and the saved calendar from the beginning.
+Create a new career in an empty slot to get the revised club colours, observed
+nationality mixes, calibrated starting budgets and strength, expanded country
+world, national cups, three UEFA competitions and saved calendar from the
+beginning. New careers offer twenty real divisions; the Classic option has been
+removed. Budgets and strength are explicitly labelled game estimates based on
+public squad valuations. Players and portraits remain fictional.
 Existing careers retain their stable club/player identities and original world;
 an older smaller world is not silently replaced by the expanded one. Its next
 edition adopts the newer calendar when the existing UEFA career rolls forward.
@@ -34,8 +38,22 @@ career can reach the top division without replacing its club or players.
 
 Fixtures, future draws, foreign domestic outcomes and later editions are career
 simulations. The History screen identifies its sourced historical records
-separately from your own winners. Published source links remain available in
-the game and repository notes.
+separately from your own winners. Historical pages show seasons and winner
+names; research references are retained in repository notes.
+
+## Try the feedback changes
+
+- Open a player or transfer profile and tap **Scout player**. Advance seven
+  calendar days, then open the returned Inbox assessment or the Scout Centre.
+  Check the current ability, development potential, strengths, costs and risk.
+- In **Stadium & facilities**, tap a stand or building on the complex view.
+  Approve an affordable project and advance through its construction period.
+  Its image and level should change after completion. Save and reload it.
+- Check **Match Summary** after a watched match and a quick result. The two
+  teams have aligned comparison rows; detail not collected for quick results
+  is displayed as unavailable.
+- Check that league positions read **1st**, **2nd**, **3rd** and remain unique
+  when teams share points. Open History to see the year and past winner rows.
 
 ## Report issues
 

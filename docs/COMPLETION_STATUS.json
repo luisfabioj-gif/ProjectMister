@@ -2,12 +2,58 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-16T12:00:00Z",
-  "complete": false,
+  "updated_utc": "2026-10-17T11:15:00Z",
+  "complete": true,
   "latest_checkpoint": {
-    "conclusion": "pending",
-    "source": null,
-    "note": "Host regressions and all 365 club profile checks passed locally; Android 35/36 and current APK delivery pending."
+    "conclusion": "success",
+    "source": "9ccdf0210e6823daf4bbaa2280ca71a0d6b22e97",
+    "production_source": "85d4de03593b22a0bf9d3d6e5a34e00ea838aa37",
+    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38992435601",
+    "android_api": [
+      35,
+      36
+    ],
+    "jobs": [
+      117273668694,
+      117277538737
+    ],
+    "evidence_runs": [
+      {
+        "api": 35,
+        "run": 38991170087,
+        "job": 117273668694,
+        "conclusion": "success",
+        "source": "577283a3cc66ac63a2eb46233712713157f97a01"
+      },
+      {
+        "api": 36,
+        "run": 38992435601,
+        "job": 117277538737,
+        "conclusion": "success",
+        "source": "9ccdf0210e6823daf4bbaa2280ca71a0d6b22e97"
+      }
+    ],
+    "new_evidence": "Both final Android jobs pass. Each verifies its API-specific 25 completed modes from run 38984023562 for unchanged game code, rebuilds that source and requires an identical APK, then reruns live/upgrade setup, all 40 standalone/linked division careers with 871 assertions, backups, compact layouts, release-bundle installation and different-key restoration. The earlier failed division fixture is corrected and retained only as diagnostics. All 11 feedback areas and 64 stand/facility upgrades pass. Both candidate artifacts contain identical signed APK bytes, verified and saved for the chat download.",
+    "blocker": null,
+    "limitations": "API 35/36 emulator evidence does not claim physical Samsung Galaxy S25 Ultra testing or Play publication. Players and portraits are fictional. Budgets and strength are labelled game estimates calibrated from dated public squad valuations; observed nationality counts are apportioned to 20 players.",
+    "supplementary_full_run": {
+      "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38991170087",
+      "conclusion": "success",
+      "android_jobs": [
+        {
+          "api": 35,
+          "job": 117273668694,
+          "conclusion": "success"
+        },
+        {
+          "api": 36,
+          "job": 117273667879,
+          "conclusion": "success"
+        }
+      ],
+      "completed_utc": "2026-10-17T03:27:08Z",
+      "note": "The main workflow also completed successfully on both APIs. The separately verified Android 16 final artifact remains the matched delivered candidate."
+    }
   },
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
@@ -15,85 +61,234 @@
     {
       "id": "presentation",
       "weight": 6,
-      "status": "implemented_unverified",
-      "acceptance": "Dashboard, navigation, profiles, tactics, finance and stadium readable in Android screenshots and compact landscape."
+      "status": "verified",
+      "acceptance": "Dashboard, navigation, profiles, tactics, finance and stadium readable in Android screenshots and compact landscape.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "feedback.txt",
+          "candidate.txt",
+          "compact.txt",
+          "release.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "saves",
       "weight": 6,
-      "status": "implemented_unverified",
-      "acceptance": "Startup, save compatibility, three slots, backup validation, upgrade and different-key restore pass Android QA."
+      "status": "verified",
+      "acceptance": "Startup, save compatibility, three slots, backup validation, upgrade and different-key restore pass Android QA.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "candidate.txt",
+          "divisions.txt",
+          "migration-restore.txt",
+          "release.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "live_match",
       "weight": 7,
-      "status": "implemented_unverified",
-      "acceptance": "Playable 2D match, spatial passing, ball flight, tactical movement, opponent substitutions and truthful watched-team results."
+      "status": "verified",
+      "acceptance": "Playable 2D match, spatial passing, ball flight, tactical movement, opponent substitutions and truthful watched-team results.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "candidate.txt",
+          "compact.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "tactics",
       "weight": 4,
-      "status": "implemented_unverified",
-      "acceptance": "Half-time tactics, substitutions, undo and match resume preserve the active match."
+      "status": "verified",
+      "acceptance": "Half-time tactics, substitutions, undo and match resume preserve the active match.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "candidate.txt",
+          "compact.txt",
+          "release.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "audio",
       "weight": 3,
-      "status": "implemented_unverified",
-      "acceptance": "Crowd/event audio, volume controls, lifecycle and audio-focus handling integrated."
+      "status": "verified",
+      "acceptance": "Crowd/event audio, volume controls, lifecycle and audio-focus handling integrated.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "candidate.txt",
+          "release.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "finance_stadium",
       "weight": 3,
-      "status": "implemented_unverified",
-      "acceptance": "Existing finance, stadium and facility purchases retain accounting and saves."
+      "status": "verified",
+      "acceptance": "Existing finance, stadium and facility purchases retain accounting and saves.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "feedback.txt",
+          "candidate.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "management",
       "weight": 3,
-      "status": "implemented_unverified",
-      "acceptance": "Squads, player/staff profiles, training, scouting, board and inbox remain playable."
+      "status": "verified",
+      "acceptance": "Squads, player/staff profiles, training, scouting, board and inbox remain playable.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "feedback.txt",
+          "candidate.txt",
+          "release.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "twenty_divisions",
       "weight": 6,
-      "status": "implemented_unverified",
-      "acceptance": "Ten countries, twenty real-club divisions and linked first/second tier promotion pass Android QA."
+      "status": "verified",
+      "acceptance": "Ten countries, twenty real-club divisions and linked first/second tier promotion pass Android QA.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "divisions.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "world_market",
       "weight": 3,
-      "status": "implemented_unverified",
-      "acceptance": "Recruitment from all twenty catalog divisions and free agents works from Portuguese and other careers."
+      "status": "verified",
+      "acceptance": "Recruitment from all twenty catalog divisions and free agents works from Portuguese and other careers.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "candidate.txt",
+          "rules.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "history",
       "weight": 3,
-      "status": "implemented_unverified",
-      "acceptance": "Sourced real competition winners and saved career league/cup history appear in History."
+      "status": "verified",
+      "acceptance": "Sourced real competition winners and saved career league/cup history appear in History.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "feedback.txt",
+          "europe-*.txt",
+          "cups-*.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "artwork",
       "weight": 3,
-      "status": "implemented_unverified",
-      "acceptance": "Stable fictional photographic portraits and stadium/upgrade images are displayed."
+      "status": "verified",
+      "acceptance": "Stable fictional photographic portraits and stadium/upgrade images are displayed.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "feedback.txt",
+          "candidate.txt",
+          "release.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "portuguese_domestic_cup",
       "weight": 3,
-      "status": "implemented_unverified",
-      "acceptance": "Recurring Taça de Portugal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA."
+      "status": "verified",
+      "acceptance": "Recurring Ta\u00e7a de Portugal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "candidate.txt",
+          "europe-PT.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "german_cup",
       "weight": 3,
-      "status": "implemented_unverified",
-      "acceptance": "Recurring DFB-Pokal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA."
+      "status": "verified",
+      "acceptance": "Recurring DFB-Pokal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA.",
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "national-cups.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      }
     },
     {
       "id": "english_cups",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Recurring FA Cup and League Cup connected to country careers, live/quick results, annual entrants, saves and history.",
       "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
@@ -108,12 +303,22 @@
         ],
         "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
         "qa_artifact_api36": 11585283817
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "cups-ENG.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "spanish_cup",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Recurring Copa del Rey connected to country careers, live/quick results, annual entrants, saves and history.",
       "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
@@ -128,12 +333,22 @@
         ],
         "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
         "qa_artifact_api36": 11585283817
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "cups-ES.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "italian_cup",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Recurring Coppa Italia connected to country careers, live/quick results, annual entrants, saves and history.",
       "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
@@ -148,12 +363,22 @@
         ],
         "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
         "qa_artifact_api36": 11585283817
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "cups-IT.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "french_cup",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Recurring Coupe de France connected to country careers, live/quick results, annual entrants, saves and history.",
       "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
@@ -168,12 +393,22 @@
         ],
         "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
         "qa_artifact_api36": 11585283817
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "cups-FR.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "dutch_cup",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Recurring KNVB Cup connected to country careers, live/quick results, annual entrants, saves and history.",
       "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
@@ -188,12 +423,22 @@
         ],
         "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
         "qa_artifact_api36": 11585283817
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "cups-NL.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "belgian_cup",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Recurring Belgian Cup connected to country careers, live/quick results, annual entrants, saves and history.",
       "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
@@ -208,12 +453,22 @@
         ],
         "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
         "qa_artifact_api36": 11585283817
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "cups-BE.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "scottish_cups",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Recurring Scottish Cup and League Cup connected to country careers, live/quick results, annual entrants, saves and history.",
       "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
@@ -228,12 +483,22 @@
         ],
         "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
         "qa_artifact_api36": 11585283817
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "cups-SCO.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "turkish_cup",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Recurring Turkish Cup connected to country careers, live/quick results, annual entrants, saves and history.",
       "previous_release_evidence": {
         "source": "f781e2d9a5a8cbdd90a2de12759a62aac8a0355a",
@@ -248,12 +513,22 @@
         ],
         "checks": "Two native career seasons, watched and quick cup matches, chronological dates, exact archives, reload/backup and atomic corrupt-backup rejection. Scottish League Cup future empty group fixtures open successfully. API36 screenshots reviewed.",
         "qa_artifact_api36": 11585283817
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "cups-TR.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "portuguese_league_cup_2027",
       "weight": 5,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Published 2027/28 format, lower promotion outcomes, European exemptions, used-player age tiebreak and annual career integration.",
       "previous_release_evidence": {
         "source": "d805d5a0628cebeb57b3f302caf1e0d2eb798d5f",
@@ -270,12 +545,23 @@
         "qa_artifact_api35": 11627194622,
         "qa_artifact_api36": 11628076367,
         "limitation": "The earlier provisional admissions boundary is superseded by the final verified annual UEFA qualification. Future fixture dates and career draws remain projections; the qualifier summary has sparse vertical spacing but retains readable names and playable fixture controls."
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "candidate.txt",
+          "europe-PT.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "uefa",
       "weight": 10,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Playable recurring Champions League, Europa League and Conference League with qualification, foreign clubs, draws, live/quick fixtures, calendars, saves and history.",
       "previous_release_evidence": {
         "source": "b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5",
@@ -291,12 +577,23 @@
         "qa_artifact_api36": 11719341458,
         "checks": "Each of ten native country careers completed two combined UEFA/domestic seasons with actual managed watched and quick results, qualifying, exact archives, canonical reloads and backups. Four API36 European calendar/history screenshots reviewed on 12 October. Host gates cover all three league/knockout formats and recurring editions.",
         "limitation": "Future editions, foreign domestic results and career draws remain labelled projections. Saved bounded league/postseason calendars are now verified by the final 2.3.11 gate."
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "europe-*.txt",
+          "uefa-players.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "annual_qualification",
       "weight": 5,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Final standings and cup results determine next-year competition fields and lower-pyramid replacements with stable identities.",
       "previous_release_evidence": {
         "source": "b3a461efd1db2c6b64c4bf654b00ecfc8c3865b5",
@@ -311,12 +608,24 @@
         ],
         "checks": "All ten country careers pass both annual admissions rollovers, including the previous Spanish reserve/parent failure. Actual local standings/cup winners feed admissions; titleholders, performance places, cup pass-down, foreign associations and stable club identities pass the host and native gates.",
         "limitation": "Other-country reserve vacancies use eligible simulated lower qualification results. Full Portuguese lower-pyramid result archives have separate prior evidence. Licensing refusals and federation administrative incidents are outside the simulated world."
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "europe-*.txt",
+          "cups-*.txt",
+          "candidate.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "registration",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Country transfer windows and free-agent exceptions are enforced and explained using verified rules.",
       "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
@@ -332,12 +641,23 @@
         "qa_artifact_api35": 11917728577,
         "qa_artifact_api36": 11919157922,
         "checks": "Twenty native top/second-tier registration scenarios, out-of-window contracted rejection, ordinary free-agent decisions, fee-free signings, qualification dates and exact reload/backup pass on both versions."
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "rules.txt",
+          "candidate.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "remaining_national_rules",
       "weight": 3,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Consequential ties, reserve/parent conflicts and cup-specific eligibility/discipline resolve without deadlocking annual progression.",
       "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
@@ -353,12 +673,25 @@
         "qa_artifact_api35": 11917728577,
         "qa_artifact_api36": 11919157922,
         "checks": "Ten isolated final league decisions, result-derived reserve/parent vacancies, Scottish forced unavailable keepers and transfer restrictions, French two-day qualification and seven-recent-player continuity, actual appearances versus unused benches, eligible suspension service and exact atomic backups pass on both versions."
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "rules.txt",
+          "cup-players.txt",
+          "uefa-players.txt",
+          "divisions.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "calendar",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Dated league, cup and UEFA schedules advance monotonically, prevent double booking and label projected future dates.",
       "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
@@ -374,12 +707,25 @@
         "qa_artifact_api35": 11917728577,
         "qa_artifact_api36": 11919157922,
         "checks": "Ten combined two-season domestic/UEFA careers, recurring country cups, three Portuguese seasons and dated postseason/lower-pyramid progression pass with chronological dates, no league-ledger contamination, elapsed-week accounting, canonical reloads and exact archives."
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "candidate.txt",
+          "europe-*.txt",
+          "cups-*.txt",
+          "rules.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "full_game_qa",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Full Android 35/36 navigation, live matches, long-career, expanded competitions, save/backup and release installation gates pass; screenshots reviewed; defects fixed.",
       "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
@@ -395,12 +741,22 @@
         "qa_artifact_api35": 11917728577,
         "qa_artifact_api36": 11919157922,
         "checks": "Both full jobs pass all modes, including natural full-time, half-time tactics/resume, forty standalone/linked careers, compact layouts, legacy upgrades, non-debuggable release-bundle installation and different-key restoration. Current 35/36 screenshots and byte-identical preceding dashboard/profile/market/stadium/history screenshots are reviewed. No game fatal exception or app ANR is present in final logcats."
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "all API-specific mode reports, original source/ZIP hashes and APK equivalence proof"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     },
     {
       "id": "finished_test_apk",
       "weight": 2,
-      "status": "implemented_unverified",
+      "status": "verified",
       "acceptance": "Verified installable APK, provenance, complete change notes and real-world testing instructions delivered. Play publication and physical phone testing are outside the accessible development gate.",
       "previous_release_evidence": {
         "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
@@ -422,15 +778,38 @@
         "apk_size_bytes": 2637610,
         "delivered": true,
         "provenance": "docs/BOSS_XI_2_3_11_RELEASE.md"
+      },
+      "evidence": {
+        "android_jobs": [
+          117273668694,
+          117277538737
+        ],
+        "reports": [
+          "docs/BOSS_XI_2_3_12_RELEASE.md",
+          "docs/ANDROID_TEST_GUIDE.md",
+          "matched API35/API36 APK and saved chat download"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
       }
     }
   ],
   "delivery": {
+    "file_name": "BOSS-XI-2.3.12.apk",
+    "available_in_chat": true,
     "version": "2.3.12",
     "version_code": 38,
-    "available_in_chat": false,
     "package": "com.projectmister.game",
-    "kind": "Development update for the existing Android test installation."
+    "minimum_sdk": 26,
+    "target_sdk": 36,
+    "size_bytes": 4336932,
+    "sha256": "41562ea6edd9a483baa60ecff5e25846f3364fe84e538d2c8947801a8558d385",
+    "artifact_id": 12086166773,
+    "artifact_url": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38992435601/artifacts/12086166773",
+    "matching_api35_artifact_id": 12085910283,
+    "signing_certificate_sha256": "06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e",
+    "kind": "Signed development sideload test APK; retains the existing development update key.",
+    "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md",
+    "test_guide": "docs/ANDROID_TEST_GUIDE.md"
   },
   "previous_release": {
     "version": "2.3.11",
@@ -469,5 +848,5 @@
       "test_guide": "docs/ANDROID_TEST_GUIDE.md"
     }
   },
-  "scope_note": "2.3.12 incorporates all eleven device-feedback fixes. Existing weights stay fixed; current release changes must pass the full Android gates before milestones regain verified status."
+  "scope_note": "All eleven device-feedback changes are verified within the existing 100-point development-test scope. Weights remain fixed. Both API-specific native gates and the signed APK handoff are complete; physical phone testing is the next step."
 }

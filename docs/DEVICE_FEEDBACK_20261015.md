@@ -1,6 +1,6 @@
 # BOSS XI 2.3.12 — device feedback
 
-Status: implementation under verification; no updated APK delivered yet.
+Status: verified on API 35/36; signed 2.3.12 APK saved for the chat download.
 
 This release addresses the eleven observations from the Samsung Galaxy S25 Ultra test. The previous 2.3.11 completion evidence remains evidence for that release, rather than a claim that these changes have passed.
 
@@ -34,4 +34,17 @@ The initial European participants come from the 2026/27 competition snapshot. La
 - Host gates: `tools/test-core.sh`, including player identity, report serialization and corrupt-input checks.
 - Android gates: `tools/qa-device.sh`, including the new feedback scenario alongside the existing upgrade, match, national-rule, domestic-cup, UEFA, save/restore and compact-screen regressions.
 
-The release evidence and APK identity will be appended after the exact committed source passes the device gates.
+The [verified release record](BOSS_XI_2_3_12_RELEASE.md) contains the successful API-specific jobs, source and APK equivalence proof, final artifact hashes and download identity. Each platform passes all64 component upgrades, all 40 corrected division careers, exact backups, compact layouts, release installation and different-key recovery. The prior test-only Classic-offset failure is retained as diagnostics and earns no completion credit.
+
+## Captured England career draw
+
+`eng-2027-draw.txt` records the simulated 2027 field and previous-season draw
+from Android 36 run 38559427013. It is a career regression fixture, not a list
+of real-world UEFA fixtures. Five English clubs in the original first pot
+require two projected-seed exchanges while preserving every qualifier,
+coefficient, original seed, association restriction and previous-season venue
+exclusion. Host tests and the Android runner both replay this same file.
+`build-test-sdk.sh` packages the fixture directory only into the independent
+QA APK; it is not included in the game. Organic careers validate their actual
+legal draw and canonical save instead of assuming that updated club strengths
+must reproduce the captured field.
