@@ -31,6 +31,22 @@ final class BossStyle {
         states.addState(new int[]{},shape(c,color,radius));
         return new RippleDrawable(ColorStateList.valueOf(color==LIME?0x26141a0c:0x33c2ff37),states,shape(c,0xffffffff,radius));
     }
+    static Drawable raised(Context c,int color,float radius){
+        int top=blend(color,Color.WHITE,color==LIME?.12f:.10f),bottom=blend(color,Color.BLACK,.18f);
+        GradientDrawable face=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{top,color,bottom});
+        face.setCornerRadius(dp(c,radius));face.setStroke(dp(c,1),color==LIME?0x90e1ff91:0x38dce9c9);
+        LayerDrawable layers=new LayerDrawable(new Drawable[]{shape(c,blend(color,Color.BLACK,.45f),radius),face});
+        layers.setLayerInset(1,0,0,0,dp(c,3));
+        StateListDrawable states=new StateListDrawable();states.addState(new int[]{-android.R.attr.state_enabled},shape(c,0xff242b1d,radius));states.addState(new int[]{},layers);
+        return new RippleDrawable(ColorStateList.valueOf(color==LIME?0x26141a0c:0x33c2ff37),states,shape(c,Color.WHITE,radius));
+    }
+    static void lift(View view){
+        android.animation.StateListAnimator states=new android.animation.StateListAnimator();
+        states.addState(new int[]{android.R.attr.state_pressed},android.animation.ObjectAnimator.ofFloat(view,"translationZ",-dp(view.getContext(),2)).setDuration(90));
+        states.addState(new int[]{},android.animation.ObjectAnimator.ofFloat(view,"translationZ",0).setDuration(140));
+        view.setElevation(dp(view.getContext(),3));view.setStateListAnimator(states);
+    }
+    private static int blend(int a,int b,float t){return Color.rgb(Math.round(Color.red(a)*(1-t)+Color.red(b)*t),Math.round(Color.green(a)*(1-t)+Color.green(b)*t),Math.round(Color.blue(a)*(1-t)+Color.blue(b)*t));}
     static ColorStateList buttonInk(boolean primary){return new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled},new int[]{}},new int[]{0xff838b76,primary?DARK:INK});}
     static void type(TextView text,int size,int color){
         text.setTextSize(size);text.setTextColor(color);text.setTypeface(size>=22?DISPLAY:size>=15?MEDIUM:BODY);

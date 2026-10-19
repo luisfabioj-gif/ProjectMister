@@ -158,6 +158,53 @@ public final class SmokeRunner extends Instrumentation {
         }finally{ui(()->{call("stopLiveMatchTicker",new Class[0]);call("stopLiveMatchAudio",new Class[0]);set("matchInProgress",false);set("liveTacticsSessionActive",false);gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);});}
     }
 
+    private Object objectGet(Object object,String name)throws Exception{Field f=object.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(object);}
+    private Object objectCall(Object object,String name,Class<?>[] types,Object... values)throws Exception{Method m=object.getClass().getDeclaredMethod(name,types);m.setAccessible(true);return m.invoke(object,values);}
+    private void verifyRequestedFixes()throws Exception{
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
+        try{
+            ui(()->{check((Boolean)call("loadSave",new Class[]{int.class},0),"2.3.13 career upgrades into 2.3.14");seedRulesCareer("PT",1,true);set("managerFirstName","Luis");set("managerLastName","Jardim");call("saveCurrentGame",new Class[0]);});
+            page("fixes-home","showDashboard",new Class[0]);
+            ui(()->{ViewGroup tabs=activity.getWindow().getDecorView().findViewWithTag("boss-home-tabs");check(tabs!=null&&tabs.getChildCount()==3,"all dashboard tabs exist");for(int i=0;i<3;i++){View tab=tabs.getChildAt(i);check(tab.getTop()>=0&&tab.getBottom()<=tabs.getHeight(),"dashboard tab fully inside row "+i);android.graphics.Rect visible=new android.graphics.Rect();check(tab.getLocalVisibleRect(visible)&&visible.top==0&&visible.bottom==tab.getHeight(),"dashboard tab fully visible "+i);check(tab.getElevation()>0,"tab has raised surface "+i);}check(!screenText().contains("MANAGER BRIEFING"),"manager briefing removed");});
+            page("fixes-world-market","showWorldMarket",new Class[0]);tap("All players");capture("fixes-database");
+            ui(()->{List<?> rows=(List<?>)call("recruitmentRows",new Class[0]);Set<String> keys=new HashSet<>();int active=0,free=0,world=0;for(Object row:rows){String key=(String)row.getClass().getField("key").get(row);if(!keys.add(key))throw new AssertionError("Duplicate database player "+key);if(key.startsWith("P"))active++;else if(key.startsWith("Mfree"))free++;else world++;}check(active==((List<?>)get("players")).size()&&free==60&&world>1000,"database includes every active player free agent and worldwide recruit");ViewGroup results=activity.getWindow().getDecorView().findViewWithTag("recruitment-results");check(results!=null&&results.getChildCount()==26,"full database is paginated instead of building thousands of views");});
+            tap("Sort");tap("Youngest first");ui(()->check((Integer)get("recruitmentSort")==2,"database sort responds to touch"));
+            tap("Filter");tap("Position: All");tap("Goalkeepers");tap("Apply filters");capture("fixes-database-filtered");
+            ui(()->{Object filter=get("recruitmentFilter");check(filter.getClass().getField("position").get(filter).equals("Goalkeepers"),"position filter responds to touch");check(screenText().contains("Filter • active"),"active filter shown");});
+            page("fixes-unattached","showMarketClub",new Class[]{String.class,String.class,int.class},"free","Unattached players",0);tap("Sort");tap("Future ability ↓");tap("Filter");capture("fixes-unattached-filters");tap("Reset");
+            ui(()->{call("startLiveMatchday",new Class[0]);set("livePaused",true);});capture("fixes-live-before");
+            ui(()->{
+                call("stopLiveMatchTicker",new Class[0]);set("livePaused",false);Object pitch=get("livePitchView");
+                int count=0;while((Boolean)objectCall(pitch,"restartInProgress",new Class[0])&&count++<3000)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
+                check(count<3000,"opening teams actually reach kickoff positions");
+                int team=(Integer)get("liveHome"),slot=7;set("livePossessionTeam",team);set("liveCarrierSlot",slot);
+                float x=(Float)objectCall(pitch,"getPlayerX",new Class[]{int.class,int.class},team,slot),y=(Float)objectCall(pitch,"getPlayerY",new Class[]{int.class,int.class},team,slot);
+                objectCall(pitch,"holdBallAt",new Class[]{int.class,int.class},team,slot);objectCall(pitch,"animateDribble",new Class[]{int.class,int.class,float.class,float.class,float.class},team,slot,x+.12f,y+.05f,1.8f);
+                for(int i=0;i<200;i++){objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);float px=(Float)objectCall(pitch,"getPlayerX",new Class[]{int.class,int.class},team,slot),py=(Float)objectCall(pitch,"getPlayerY",new Class[]{int.class,int.class},team,slot),bx=(Float)objectCall(pitch,"getBallX",new Class[0]),by=(Float)objectCall(pitch,"getBallY",new Class[0]);if(Math.hypot(px-bx,(py-by)*.648f)>.018f)throw new AssertionError("ball left dribbler at frame "+i);}check(true,"ball remains at carrier feet for every dribble frame");
+                objectCall(pitch,"prepareReceivingRun",new Class[]{int.class,int.class,boolean.class},team,8,true);objectCall(pitch,"animateBallToSlot",new Class[]{int.class,int.class,int.class,int.class,float.class},team,slot,team,8,1.2f);
+                for(int i=0;i<150;i++)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
+                float px=(Float)objectCall(pitch,"getPlayerX",new Class[]{int.class,int.class},team,8),py=(Float)objectCall(pitch,"getPlayerY",new Class[]{int.class,int.class},team,8),bx=(Float)objectCall(pitch,"getBallX",new Class[0]),by=(Float)objectCall(pitch,"getBallY",new Class[0]);check(Math.hypot(px-bx,(py-by)*.648f)<.018f,"moving reception arrives at the actual receiving player");
+                set("pendingGoalTeam",team);set("pendingGoalSlot",8);call("completePendingGoal",new Class[0]);float minute=(Float)get("liveMinuteFloat");
+                count=0;while((Boolean)objectCall(pitch,"restartInProgress",new Class[0])&&count++<4000){call("advanceLiveSimulation",new Class[]{float.class},1f/120);if(((Float)get("liveMinuteFloat")).floatValue()!=minute)throw new AssertionError("Clock advanced during celebration/reset");}
+                check(count>408&&count<4000,"goal celebration and physical reset both complete");
+                int taking=(Integer)get("livePossessionTeam");check(taking==(Integer)get("liveAway"),"conceding team takes the kickoff");
+                for(String side:new String[]{"home","away"}){float[] xs=(float[])objectGet(pitch,side+"X");boolean home=side.equals("home");for(int i=0;i<11;i++)check(home?xs[i]<.51f:xs[i]>.49f,"both teams reposition before restart "+side+i);}
+                check(!(Boolean)get("liveNeedsKickoffReset"),"goal reset cleared only after arrival");set("livePaused",true);set("liveHalfTimeTacticsActive",true);
+            });
+            page("fixes-half-time","showLiveTacticsScreen",new Class[0]);verifyTacticsMarkers();
+            ui(()->{ViewGroup board=activity.getWindow().getDecorView().findViewWithTag("live-tactics-pitch");for(int i=1;i<board.getChildCount();i++){String label=String.valueOf(board.getChildAt(i).getContentDescription());check(label.contains("CA ")&&label.contains("condition"),"half-time token shows ability and condition "+i);check(board.getChildAt(i) instanceof ViewGroup,"half-time token uses numbered tactics marker "+i);}});
+            ui(()->call("showLiveRatingsDialog",new Class[0]));capture("fixes-contribution");tap("Close");
+            ui(()->{call("stopLiveMatchTicker",new Class[0]);call("stopLiveMatchAudio",new Class[0]);set("matchInProgress",false);set("liveTacticsSessionActive",false);call("loadSave",new Class[]{int.class},2);});
+            page("fixes-inbox","showInbox",new Class[0]);
+            ui(()->{
+                List<?> inbox=(List<?>)get("inbox");int count=inbox.size();call("ensureMediaNews",new Class[0]);check(inbox.size()==count,"weekly newspaper and interview are not duplicated");Object interview=null;for(Object n:inbox)if(((String)n.getClass().getField("action").get(n)).startsWith("interview:")){interview=n;break;}check(interview!=null,"fictional journalist requests an interview");check(interview.getClass().getField("date").get(interview)!=null,"new messages have career dates");
+                Object player=((List<?>)get("players")).get(0);int morale=playerInt(player,"morale");call("answerInterview",new Class[]{interview.getClass(),int.class},interview,0);check(playerInt(player,"morale")==Math.min(100,morale+1),"interview response changes actual squad morale");call("answerInterview",new Class[]{interview.getClass(),int.class},interview,0);check(playerInt(player,"morale")==Math.min(100,morale+1),"repeat interview cannot change morale again");String encoded=(String)call("encodeInbox",new Class[0]);call("saveCurrentGame",new Class[0]);call("loadSave",new Class[]{int.class},2);check(call("encodeInbox",new Class[0]).equals(encoded),"dates read states and interview replies survive reload");
+                java.time.LocalDate now=(java.time.LocalDate)get("currentDate");call("advanceCareerDate",new Class[]{java.time.LocalDate.class},now.plusDays(7));check(((List<?>)get("inbox")).size()>count,"new press stories arrive as career advances");call("saveCurrentGame",new Class[0]);checkBackupReadable();call("showInbox",new Class[0]);
+            });capture("fixes-inbox-new-stories");
+            check(true,"all nine requested recruitment UI inbox possession and goal-reset fixes verified");
+        }finally{ui(()->{call("stopLiveMatchTicker",new Class[0]);call("stopLiveMatchAudio",new Class[0]);set("matchInProgress",false);set("liveTacticsSessionActive",false);gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);});}
+    }
+
     private void verifyFeedback()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
         final String[] identity={null},reports={null};final int[] target={-1};final java.time.LocalDate[] started={null};
@@ -1460,6 +1507,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(savedWorld!=null&&savedWorld.getClass().getField("linked").getBoolean(savedWorld),"linked country survives release upgrade");
                 page("release-linked-table","showLeagueTable",new Class[0]);
                 check(true,"release bundle upgrade and feature navigation verified");
+            } else if(mode.equals("fixes")) {
+                verifyRequestedFixes();
             } else if(mode.equals("premium")) {
                 verifyPremiumUI();
             } else if(mode.equals("feedback")) {

@@ -86,3 +86,6 @@ javac -cp "$out" -d "$out" tests/FeedbackCoreTests.java
 java -cp "$out" com.projectmister.game.FeedbackCoreTests
 javac -cp "$out:tools/test-deps/json.jar" -d "$out" tests/ClubProfilesTests.java
 java -cp "$out:tools/test-deps/json.jar" com.projectmister.game.ClubProfilesTests
+
+javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{Recruitment,InboxNews,MatchRestart}.java tests/FeedbackTests.java
+java -cp "$out" com.projectmister.game.FeedbackTests
