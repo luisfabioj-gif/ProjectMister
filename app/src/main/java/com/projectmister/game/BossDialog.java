@@ -14,7 +14,7 @@ import android.widget.*;
 
 /** Shared, scroll-safe menus. Message and choices are siblings, never competing AlertDialog panels. */
 final class BossDialog {
-    private static final int SURFACE=0xff15212d, ROW=0xff223243, INK=0xfff0f5fa, MUTED=0xffb5c5d2, ACCENT=0xff58d9ad;
+    private static final int SURFACE=BossStyle.SURFACE, ROW=BossStyle.RAISED, INK=BossStyle.INK, MUTED=BossStyle.MUTED, ACCENT=BossStyle.LIME;
     static final class Builder {
         final Context context;
         CharSequence title="",message,positive,negative;
@@ -34,16 +34,16 @@ final class BossDialog {
         Builder setPositiveButton(CharSequence v,DialogInterface.OnClickListener l){positive=v;positiveListener=l;return this;}
         Builder setNegativeButton(CharSequence v,DialogInterface.OnClickListener l){negative=v;negativeListener=l;return this;}
         int dp(float n){return Math.round(n*context.getResources().getDisplayMetrics().density);}
-        TextView text(CharSequence value,int size,int color){TextView t=new TextView(context);t.setText(value);t.setTextSize(size);t.setTextColor(color);return t;}
-        GradientDrawable shape(int color){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(16));return d;}
-        Button button(CharSequence label,boolean primary){Button b=new Button(context);b.setText(label);b.setTextSize(14);b.setTextColor(primary?0xff09271f:INK);b.setAllCaps(false);b.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);b.setPadding(dp(16),dp(10),dp(16),dp(10));b.setMinHeight(dp(52));b.setMinimumHeight(dp(52));b.setBackground(new RippleDrawable(ColorStateList.valueOf(0x3358d9ad),shape(primary?ACCENT:ROW),null));return b;}
+        TextView text(CharSequence value,int size,int color){TextView t=new TextView(context);t.setText(value);BossStyle.type(t,size,color);return t;}
+        GradientDrawable shape(int color){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(28));d.setStroke(dp(1),0x22ffffff);return d;}
+        Button button(CharSequence label,boolean primary){Button b=new Button(context);b.setText(label);b.setTextSize(14);b.setTextColor(BossStyle.buttonInk(primary));b.setTypeface(BossStyle.MEDIUM);b.setStateListAnimator(null);b.setAllCaps(false);b.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);b.setPadding(dp(16),dp(10),dp(16),dp(10));b.setMinHeight(dp(52));b.setMinimumHeight(dp(52));b.setBackground(BossStyle.ripple(context,primary?ACCENT:ROW,24));return b;}
         Dialog show(){
             Dialog dialog=new Dialog(context);dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             boolean landscape=context.getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE;
             LinearLayout root=new LinearLayout(context);root.setLayerType(View.LAYER_TYPE_SOFTWARE,null);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(20),dp(landscape?10:16),dp(20),dp(landscape?10:16));root.setBackground(shape(SURFACE));
-            LinearLayout brand=new LinearLayout(context);brand.setGravity(Gravity.CENTER_VERTICAL);brand.addView(BrandMark.view(context,landscape?24:36));
-            TextView wordmark=text("BOSS XI  /  MANAGER DESK",11,ACCENT);wordmark.setPadding(dp(10),0,0,0);wordmark.setLetterSpacing(.06f);brand.addView(wordmark);root.addView(brand);
-            TextView heading=text(title,landscape?18:20,INK);heading.setTypeface(Typeface.DEFAULT_BOLD);heading.setPadding(0,dp(landscape?8:12),0,dp(landscape?8:12));root.addView(heading);
+            LinearLayout brand=new LinearLayout(context);brand.setGravity(Gravity.CENTER_VERTICAL);brand.addView(BrandMark.view(context,landscape?24:28));
+            TextView wordmark=text("BOSS XI  •  MANAGER DESK",11,ACCENT);wordmark.setPadding(dp(10),0,0,0);wordmark.setLetterSpacing(.06f);brand.addView(wordmark);root.addView(brand);
+            TextView heading=text(title,landscape?18:20,INK);heading.setTypeface(BossStyle.DISPLAY);heading.setPadding(0,dp(landscape?8:12),0,dp(landscape?8:12));root.addView(heading);
             ScrollView scroll=new ScrollView(context);scroll.setClipToPadding(false);
             LinearLayout body=new LinearLayout(context);body.setOrientation(LinearLayout.VERTICAL);scroll.addView(body);
             if(message!=null){TextView copy=text(message,14,MUTED);copy.setLineSpacing(dp(3),1);copy.setPadding(0,0,0,dp(16));body.addView(copy);}
@@ -66,7 +66,7 @@ final class BossDialog {
             root.addView(footer);dialog.setContentView(root);
             Window window=dialog.getWindow();if(window!=null){window.setWindowAnimations(0);window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);}
             dialog.show();
-            if(window!=null){int width=Math.min(dp(520),context.getResources().getDisplayMetrics().widthPixels-dp(32));window.setLayout(width,-2);
+            if(window!=null){int width=Math.min(dp(520),context.getResources().getDisplayMetrics().widthPixels-dp(32));window.setLayout(width,-2);window.setGravity(landscape?Gravity.CENTER:Gravity.BOTTOM);WindowManager.LayoutParams attrs=window.getAttributes();attrs.dimAmount=.72f;attrs.y=landscape?0:dp(16);window.setAttributes(attrs);window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
                 // Re-evaluate after keyboard/inset changes; fixed footer remains reachable.
                 root.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{android.graphics.Rect visible=new android.graphics.Rect();root.getWindowVisibleDisplayFrame(visible);int cap=(int)(visible.height()*.88f);int used=root.getPaddingTop()+root.getPaddingBottom()+brand.getHeight()+heading.getHeight()+footer.getHeight();int available=Math.max(dp(52),cap-used);body.measure(View.MeasureSpec.makeMeasureSpec(Math.max(dp(100),width-dp(40)),View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED));int desired=Math.min(body.getMeasuredHeight(),available);if(scroll.getLayoutParams().height!=desired){scroll.getLayoutParams().height=desired;scroll.requestLayout();}});
             }

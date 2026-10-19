@@ -125,6 +125,39 @@ public final class SmokeRunner extends Instrumentation {
         if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)collectScreenText(((ViewGroup)view).getChildAt(i),text);
     }
     private String screenText(){StringBuilder b=new StringBuilder();collectScreenText(activity.getWindow().getDecorView(),b);return b.toString();}
+    private void premiumPage(String name,String method,Class<?>[] types,Object... values)throws Exception {
+        page("premium-"+name,method,types,values);
+        ui(()->{
+            View root=activity.getWindow().getDecorView().findViewWithTag("boss-premium-root");check(root!=null,name+" uses the shared premium shell");
+            View heading=root.findViewWithTag("boss-screen-title");check(heading!=null&&heading.getWidth()>0&&heading.getHeight()>0,name+" heading has a measured layout");
+            ViewGroup nav=root.findViewWithTag("boss-bottom-nav");if(nav!=null){check(nav.getChildCount()==5,name+" has all five navigation destinations");for(int i=0;i<5;i++){View item=nav.getChildAt(i);check(item.getWidth()>0&&item.getHeight()>=Math.round(48*activity.getResources().getDisplayMetrics().density),name+" navigation touch target "+i);}}
+        });
+    }
+    private void verifyPremiumUI()throws Exception {
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
+        try{
+            ui(()->check((Boolean)call("loadSave",new Class[]{int.class},0),"premium update loads the legacy career"));
+            premiumPage("career-hub","showMainMenu",new Class[0]);
+            ui(()->{seedRulesCareer("ENG",1,true);set("managerFirstName","Luis");set("managerLastName","Jardim");set("attributeMasking",false);call("saveCurrentGame",new Class[0]);});
+            int club=(Integer)get("selectedClub"),player=club*20;
+            premiumPage("dashboard","showDashboard",new Class[0]);tap("Squad");tap("GK");ui(()->check((Integer)get("squadFilter")==1,"goalkeeper filter responds to a real touch"));capture("premium-squad-goalkeepers");tap("All");ui(()->check((Integer)get("squadFilter")==0,"all-player filter restores the squad"));
+            premiumPage("squad","showTeamPlayers",new Class[]{int.class},club);
+            premiumPage("player","showPlayerProfile",new Class[]{int.class,int.class},player,club);
+            premiumPage("staff","showStaffHub",new Class[0]);premiumPage("staff-profile","showStaffProfile",new Class[]{String.class},"Assistant Manager");premiumPage("manager","showManagerProfile",new Class[0]);
+            premiumPage("tactics","showTactics",new Class[0]);
+            ui(()->{ViewGroup board=activity.getWindow().getDecorView().findViewWithTag("boss-squad-board");check(board!=null&&board.getChildCount()==12,"portrait tactics board has the pitch and eleven tokens");for(int i=1;i<board.getChildCount();i++){View token=board.getChildAt(i);check(token.getLeft()>=0&&token.getTop()>=0&&token.getRight()<=board.getWidth()&&token.getBottom()<=board.getHeight(),"portrait lineup token fits "+i);}check(board.getChildAt(1).performClick(),"portrait lineup opens its assignment action");});capture("premium-tactics-assignment");tap("Close");
+            premiumPage("training","showTraining",new Class[0]);premiumPage("transfers","showTransferHub",new Class[0]);premiumPage("world-market","showWorldMarket",new Class[0]);premiumPage("scouting","showScoutCentre",new Class[0]);premiumPage("scout-search","showScoutSearch",new Class[0]);
+            premiumPage("finances","showFinances",new Class[0]);premiumPage("stadium","showStadiumCentre",new Class[0]);premiumPage("table","showLeagueTable",new Class[0]);premiumPage("calendar","showCompetitionCalendar",new Class[0]);premiumPage("history","showHistoryHub",new Class[0]);premiumPage("board","showClubOffice",new Class[0]);premiumPage("inbox","showInbox",new Class[0]);premiumPage("more","showClubHub",new Class[0]);
+            ui(()->call("showSoundSettings",new Class[0]));capture("premium-audio-sheet");tap("Done");
+            ui(()->call("showDashboard",new Class[0]));tap("Tactics");ui(()->check(screenText().contains("TEAM TACTICS"),"floating navigation opens tactics"));tap("Inbox");ui(()->check(screenText().contains("Inbox"),"floating navigation opens inbox"));tap("More");ui(()->check(screenText().contains("Club hub"),"floating navigation opens the club hub"));tap("Home");ui(()->check(activity.getWindow().getDecorView().findViewWithTag("boss-fixture-hero")!=null,"floating Home returns to the next fixture"));
+            ui(()->{call("startLiveMatchday",new Class[0]);set("livePaused",true);});capture("premium-live-match");
+            ui(()->call("showLiveStatsDialog",new Class[0]));capture("premium-live-stats");tap("Close");
+            ui(()->call("showLiveTacticsScreen",new Class[0]));capture("premium-live-tactics");verifyTacticsMarkers();
+            ui(()->{call("stopLiveMatchTicker",new Class[0]);call("stopLiveMatchAudio",new Class[0]);set("matchInProgress",false);set("liveTacticsSessionActive",false);check((Boolean)call("loadSave",new Class[]{int.class},2),"premium career reloads after match preview");call("showDashboard",new Class[0]);});
+            check(true,"premium shell, all club screens, functional navigation, squad filters, lineup selection and live presentation verified");
+        }finally{ui(()->{call("stopLiveMatchTicker",new Class[0]);call("stopLiveMatchAudio",new Class[0]);set("matchInProgress",false);set("liveTacticsSessionActive",false);gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);call("loadSave",new Class[]{int.class},0);});}
+    }
+
     private void verifyFeedback()throws Exception {
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
         final String[] identity={null},reports={null};final int[] target={-1};final java.time.LocalDate[] started={null};
@@ -1427,6 +1460,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(savedWorld!=null&&savedWorld.getClass().getField("linked").getBoolean(savedWorld),"linked country survives release upgrade");
                 page("release-linked-table","showLeagueTable",new Class[0]);
                 check(true,"release bundle upgrade and feature navigation verified");
+            } else if(mode.equals("premium")) {
+                verifyPremiumUI();
             } else if(mode.equals("feedback")) {
                 verifyFeedback();
             } else if(mode.equals("europe")) {

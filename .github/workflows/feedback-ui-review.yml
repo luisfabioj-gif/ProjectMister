@@ -1,4 +1,4 @@
-name: BOSS XI device feedback visual review
+name: BOSS XI premium UI and device feedback review
 on:
   push:
     branches: [work/boss-xi-v2.3]
@@ -8,7 +8,11 @@ permissions:
 jobs:
   feedback:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [35, 36]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,6 +28,8 @@ jobs:
         with:
           gradle-version: '8.11.1'
       - run: sdkmanager 'platforms;android-35' 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Core regression tests
+        run: bash tools/test-core.sh
       - name: Build candidate and preserved baseline
         run: |
           gradle :app:assembleDebug --no-daemon
@@ -43,6 +49,8 @@ jobs:
           timeout 180s adb shell am instrument -w -e mode seed com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-feedback-output/baseline.txt
           grep -q 'PASS baseline career seeded' qa-feedback-output/baseline.txt
           adb install -r app/build/outputs/apk/debug/app-debug.apk
+          timeout 420s adb shell am instrument -w -e mode premium com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-feedback-output/premium.txt
+          grep -q 'PASS premium shell, all club screens, functional navigation, squad filters, lineup selection and live presentation verified' qa-feedback-output/premium.txt
           timeout 600s adb shell am instrument -w -e mode feedback com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-feedback-output/feedback.txt
           grep -q 'PASS all eleven feedback areas, exact identities, timed scouting, ordinal tables and sixty-four stadium upgrades verified' qa-feedback-output/feedback.txt
           adb shell wm size 720x1280
@@ -57,7 +65,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
       - uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: ${{ matrix.api }}
           arch: x86_64
           profile: pixel_6
           disable-animations: true
@@ -65,6 +73,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: BOSS-XI-feedback-visual-review
+          name: BOSS-XI-premium-UI-review-api${{ matrix.api }}
           path: qa-feedback-output/
           retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BOSS-XI-2.3.13-premium-apk-api${{ matrix.api }}
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30

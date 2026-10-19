@@ -1,5 +1,13 @@
 # BOSS XI completion status
 
+The 2.3.13 premium UI update is implemented and locally builds. Android 15/16
+navigation, interaction and screenshot review are pending; its new APK has not
+been delivered. The previous verified 2.3.12 handoff is recorded below.
+
+See [the UI release scope](PREMIUM_UI_2_3_13.md) and the JSON tracker for the
+current checkpoint. Ten of the fixed 100 points await renewed presentation,
+Android QA and delivery evidence; this is feature scope, not a time estimate.
+
 BOSS XI 2.3.12 / code 38 is ready for the real-world Android test. The signed
 `BOSS-XI-2.3.12.apk` is saved for the chat download. All 29 fixed milestones are
 verified, totalling 100 points: **0% estimated feature scope remains. This is not

@@ -430,14 +430,14 @@ public class MainActivity extends Activity {
     private float liveLooseBallX = 0.5f;
     private float liveLooseBallY = 0.5f;
 
-    private final int background = Color.rgb(11, 16, 24);
-    private final int panel = Color.rgb(20, 28, 39);
-    private final int panelLight = Color.rgb(31, 43, 57);
-    private final int accent = Color.rgb(89, 221, 167);
-    private final int danger = Color.rgb(185, 55, 62);
-    private final int warning = Color.rgb(230, 150, 35);
-    private final int text = Color.WHITE;
-    private final int muted = Color.rgb(180, 196, 205);
+    private final int background = BossStyle.BACKGROUND;
+    private final int panel = BossStyle.SURFACE;
+    private final int panelLight = BossStyle.RAISED;
+    private final int accent = BossStyle.LIME;
+    private final int danger = BossStyle.DANGER;
+    private final int warning = BossStyle.WARNING;
+    private final int text = BossStyle.INK;
+    private final int muted = BossStyle.MUTED;
 
     private static class Player {
         int id;
@@ -598,49 +598,85 @@ public class MainActivity extends Activity {
     private LinearLayout createPage(String title, String subtitle, boolean showHome) {
         stopLiveMatchTicker();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(background);
-        ScrollView scroll = new ScrollView(this);
-        scroll.setFillViewport(true);
-        scroll.setClipToPadding(false);
-        LinearLayout page = new LinearLayout(this);
-        page.setOrientation(LinearLayout.VERTICAL);
-        page.setPadding(dp(18), dp(16), dp(18), dp(20));
-        scroll.addView(page);
-        TextView brand = makeText("BOSS XI  •  CLUB MANAGEMENT", 11, accent);
-        brand.setLetterSpacing(.09f);
-        brand.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-        LinearLayout brandRow=new LinearLayout(this);brandRow.setGravity(Gravity.CENTER_VERTICAL);brandRow.addView(BrandMark.view(this,28));brand.setPadding(dp(12),0,0,0);brandRow.addView(brand);page.addView(brandRow);
-        TextView heading = makeText(title, 24, text);
-        heading.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-        heading.setPadding(0, dp(8), 0, dp(4));
-        page.addView(heading);
-        TextView sub = makeText(subtitle, 13, muted);
-        sub.setPadding(0, 0, 0, dp(18));
-        page.addView(sub);
-        root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
-        if (showHome && selectedClub >= 0 && !liveTacticsSessionActive) {
-            LinearLayout nav = new LinearLayout(this);
-            nav.setBackgroundColor(panel);
-            nav.setPadding(dp(8), dp(4), dp(8), dp(4));
-            String[] labels = {"Home", "Squad", "Tactics", "Inbox"};
-            Runnable[] actions = {this::showDashboard, () -> showTeamPlayers(selectedClub), this::showTactics, this::showInbox};
-            for (int i=0; i<labels.length; i++) {
-                final Runnable action=actions[i];
-                Button b=makeButton(labels[i], v -> action.run());
-                b.setTextSize(12);
-                b.setPadding(dp(4),0,dp(4),0);
-                boolean selected=(i==0 && title.equals(clubNames[selectedClub])) || (i==1 && title.endsWith(" Players")) || (i==2 && title.equals("Tactics")) || (i==3 && title.equals("Inbox"));
-                if(selected) {b.setTextColor(accent);b.setBackground(buttonBackground(panelLight));}
-                else b.setBackgroundColor(Color.TRANSPARENT);
-                nav.addView(b,new LinearLayout.LayoutParams(0,dp(48),1));
+        LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackground(BossStyle.atmosphere(this));root.setTag("boss-premium-root");
+        ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setClipToPadding(false);scroll.setVerticalScrollBarEnabled(false);
+        LinearLayout page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(20),dp(16),dp(20),dp(20));page.setTag("boss-premium-page");scroll.addView(page);
+        LinearLayout toolbar=new LinearLayout(this);toolbar.setGravity(Gravity.CENTER_VERTICAL);toolbar.setPadding(0,0,0,dp(22));
+        if(backAction!=null){View back=iconAction("back","Back",v->{if(backAction!=null)backAction.run();});toolbar.addView(back,new LinearLayout.LayoutParams(dp(44),dp(44)));}
+        LinearLayout wordmark=new LinearLayout(this);wordmark.setOrientation(LinearLayout.VERTICAL);wordmark.setPadding(backAction==null?0:dp(12),0,0,0);
+        TextView brand=makeText("BOSS XI",17,text);brand.setTypeface(BossStyle.DISPLAY);brand.setLetterSpacing(.07f);wordmark.addView(brand);
+        TextView edition=makeText("FOOTBALL MANAGEMENT",8,muted);edition.setLetterSpacing(.15f);edition.setPadding(0,dp(4),0,0);wordmark.addView(edition);
+        toolbar.addView(wordmark,new LinearLayout.LayoutParams(0,-2,1));
+        if(selectedClub>=0&&showHome)toolbar.addView(iconAction("bell","Open inbox",v->showInbox()),new LinearLayout.LayoutParams(dp(44),dp(44)));
+        else toolbar.addView(BrandMark.view(this,40));
+        page.addView(toolbar);
+        TextView heading=makeText(title,title.length()>23?26:32,text);heading.setTypeface(BossStyle.DISPLAY);heading.setLetterSpacing(-.035f);heading.setPadding(0,0,0,dp(8));heading.setTag("boss-screen-title");page.addView(heading);
+        TextView sub=makeText(subtitle,13,muted);sub.setPadding(0,0,0,dp(22));page.addView(sub);
+        root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
+        if(showHome&&selectedClub>=0&&!liveTacticsSessionActive){
+            LinearLayout nav=new LinearLayout(this);nav.setGravity(Gravity.CENTER_VERTICAL);nav.setPadding(dp(6),dp(8),dp(6),dp(8));nav.setBackground(BossStyle.shape(this,0xff20261a,32));nav.setElevation(dp(6));nav.setTag("boss-bottom-nav");
+            String[] labels={"Home","Squad","Tactics","Inbox","More"},icons={"home","squad","tactics","inbox","more"};
+            Runnable[] actions={this::showDashboard,()->showTeamPlayers(selectedClub),this::showTactics,this::showInbox,this::showClubHub};
+            int selected=title.equals(clubNames[selectedClub])?0:title.endsWith(" Players")?1:title.equals("Tactics")?2:title.equals("Inbox")?3:title.equals("Club hub")?4:-1;
+            for(int i=0;i<labels.length;i++){
+                final Runnable action=actions[i];boolean active=i==selected;
+                LinearLayout item=new LinearLayout(this);item.setOrientation(LinearLayout.VERTICAL);item.setGravity(Gravity.CENTER);item.setMinimumHeight(dp(52));item.setBackground(BossStyle.ripple(this,active?0xff344222:0xff20261a,24));item.setOnClickListener(v->action.run());item.setContentDescription(labels[i]);
+                FrameLayout bubble=new FrameLayout(this);bubble.setBackground(BossStyle.shape(this,active?accent:Color.TRANSPARENT,22));BossStyle.Icon icon=new BossStyle.Icon(this,icons[i],active?BossStyle.DARK:muted);FrameLayout.LayoutParams ip=new FrameLayout.LayoutParams(dp(20),dp(20),Gravity.CENTER);bubble.addView(icon,ip);item.addView(bubble,new LinearLayout.LayoutParams(dp(38),dp(30)));
+                TextView label=makeText(labels[i],10,active?text:muted);label.setPadding(0,dp(4),0,0);label.setTypeface(BossStyle.MEDIUM);item.addView(label);nav.addView(item,new LinearLayout.LayoutParams(0,-2,1));
             }
-            root.addView(nav);
+            LinearLayout.LayoutParams np=new LinearLayout.LayoutParams(-1,-2);np.setMargins(dp(16),dp(4),dp(16),dp(12));root.addView(nav,np);
         }
-        setContentView(root);
-        applySafeInsets(root);
-        return page;
+        setContentView(root);applySafeInsets(root);return page;
+    }
+
+    private View iconAction(String icon,String description,View.OnClickListener action){
+        FrameLayout holder=new FrameLayout(this);holder.setBackground(BossStyle.ripple(this,panelLight,24));holder.setContentDescription(description);holder.setTooltipText(description);holder.setOnClickListener(action);holder.setFocusable(true);
+        holder.addView(new BossStyle.Icon(this,icon,text),new FrameLayout.LayoutParams(dp(20),dp(20),Gravity.CENTER));return holder;
+    }
+
+    private TextView statusPill(String label,boolean bright){
+        TextView v=makeText(label,10,bright?BossStyle.DARK:accent);v.setTypeface(BossStyle.MEDIUM);v.setGravity(Gravity.CENTER);v.setPadding(dp(11),dp(7),dp(11),dp(7));v.setBackground(BossStyle.shape(this,bright?accent:panelLight,18));return v;
+    }
+
+    private FrameLayout careerBanner(){
+        FrameLayout hero=new FrameLayout(this);hero.setBackground(BossStyle.shape(this,panel,28));hero.setClipToOutline(true);hero.addView(new BossStyle.StadiumPhoto(this),new FrameLayout.LayoutParams(-1,-1));
+        LinearLayout copy=new LinearLayout(this);copy.setOrientation(LinearLayout.VERTICAL);copy.setPadding(dp(22),dp(22),dp(22),dp(22));
+        TextView season=statusPill("THE NEXT CHAPTER",true);copy.addView(season,new LinearLayout.LayoutParams(-2,-2));
+        TextView title=makeText("Your club.\nYour legacy.",34,text);title.setTypeface(BossStyle.DISPLAY);title.setLetterSpacing(-.04f);title.setPadding(0,dp(22),0,dp(10));copy.addView(title);
+        copy.addView(makeText("Build a team. Own the touchline.",13,0xffdae3d1));hero.addView(copy,new FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(242));lp.bottomMargin=dp(22);hero.setLayoutParams(lp);return hero;
+    }
+
+    private LinearLayout fixtureTeam(int team,boolean bright){
+        LinearLayout block=new LinearLayout(this);block.setOrientation(LinearLayout.VERTICAL);block.setGravity(Gravity.CENTER);
+        FrameLayout disc=new FrameLayout(this);disc.setBackground(BossStyle.shape(this,bright?0xffb0eb2b:panelLight,40));disc.addView(new ClubShieldView(team),new FrameLayout.LayoutParams(dp(44),dp(48),Gravity.CENTER));block.addView(disc,new LinearLayout.LayoutParams(dp(64),dp(64)));
+        TextView name=makeText(clubNames[team],13,bright?BossStyle.DARK:text);name.setTypeface(BossStyle.DISPLAY);name.setGravity(Gravity.CENTER);name.setMinLines(2);name.setMaxLines(2);name.setEllipsize(android.text.TextUtils.TruncateAt.END);name.setPadding(dp(2),dp(9),dp(2),0);block.addView(name,new LinearLayout.LayoutParams(-1,-2));return block;
+    }
+
+    private LinearLayout fixtureHero(int home,int away,String kicker,String detail,String score,String action,View.OnClickListener click){
+        LinearLayout card=makePanel();card.setPadding(dp(20),dp(20),dp(20),dp(18));card.setBackground(BossStyle.shape(this,accent,28));card.setTag("boss-fixture-hero");
+        TextView label=makeText(kicker,11,BossStyle.DARK);label.setTypeface(BossStyle.DISPLAY);label.setLetterSpacing(.05f);card.addView(label);
+        TextView comp=makeText(detail,12,0xff3a491e);comp.setPadding(0,dp(6),0,dp(18));card.addView(comp);
+        LinearLayout teams=new LinearLayout(this);teams.setGravity(Gravity.CENTER_VERTICAL);teams.addView(fixtureTeam(home,true),new LinearLayout.LayoutParams(0,-2,1));
+        LinearLayout middle=new LinearLayout(this);middle.setOrientation(LinearLayout.VERTICAL);middle.setGravity(Gravity.CENTER);TextView value=makeText(score,score.equals("VS")?22:32,BossStyle.DARK);value.setTypeface(BossStyle.DISPLAY);value.setGravity(Gravity.CENTER);middle.addView(value);TextView note=makeText(score.equals("VS")?"MATCHDAY":"FULL TIME",8,0xff3a491e);note.setPadding(0,dp(7),0,0);note.setLetterSpacing(.07f);middle.addView(note);teams.addView(middle,new LinearLayout.LayoutParams(dp(84),-2));teams.addView(fixtureTeam(away,true),new LinearLayout.LayoutParams(0,-2,1));card.addView(teams);
+        if(action!=null){Button button=makeButton(action,click);button.setTextColor(accent);button.setGravity(Gravity.CENTER);button.setBackground(BossStyle.ripple(this,BossStyle.DARK,24));LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,-2);bp.topMargin=dp(14);card.addView(button,bp);}return card;
+    }
+
+    private LinearLayout destination(String label,String hint,Runnable action){
+        LinearLayout tile=new LinearLayout(this);tile.setOrientation(LinearLayout.VERTICAL);tile.setPadding(dp(16),dp(16),dp(14),dp(16));tile.setBackground(BossStyle.ripple(this,panel,24));tile.setMinimumHeight(dp(100));tile.setOnClickListener(v->action.run());tile.setFocusable(true);
+        LinearLayout line=new LinearLayout(this);line.setGravity(Gravity.CENTER_VERTICAL);line.addView(new BossStyle.Icon(this,BossStyle.iconFor(label),accent),new LinearLayout.LayoutParams(dp(22),dp(22)));View space=new View(this);line.addView(space,new LinearLayout.LayoutParams(0,1,1));line.addView(new BossStyle.Icon(this,"arrow",muted),new LinearLayout.LayoutParams(dp(15),dp(15)));tile.addView(line);
+        TextView title=makeText(label,15,text);title.setTypeface(BossStyle.MEDIUM);title.setPadding(0,dp(14),0,dp(4));tile.addView(title);tile.addView(makeText(hint,11,muted));return tile;
+    }
+
+    private String destinationHint(String name){
+        switch(name){case "Squad":return "Players & development";case "Tactics":return "Shape your match plan";case "Training":return "Prepare the first team";case "Staff":return "Your backroom team";case "Transfers":return "Find your next signing";case "Scouting":return "Discover new talent";case "Fixtures":return "Your season ahead";case "League table":return "The race for silverware";case "Finances":return "Accounts & budgets";case "Stadium":return "Build your club complex";case "Board":return "Vision & expectations";case "Manager":return "Your career profile";default:return "Explore your club";}
+    }
+
+    private void showClubHub(){
+        backAction=this::showDashboard;LinearLayout page=createPage("Club hub",clubNames[selectedClub]+" • Everything in one place",true);
+        page.addView(profileSectionTitle("FIRST TEAM"));dashboardRow(page,"Squad",()->showTeamPlayers(selectedClub),"Tactics",this::showTactics);dashboardRow(page,"Training",this::showTraining,"Staff",this::showStaffHub);dashboardRow(page,"Transfers",this::showTransferHub,"Scouting",this::showScoutCentre);
+        page.addView(profileSectionTitle("CLUB & SEASON"));dashboardRow(page,"Fixtures",this::showCompetitionCalendar,"League table",this::showLeagueTable);dashboardRow(page,"Finances",this::showFinances,"Stadium",this::showStadiumCentre);dashboardRow(page,"Board",this::showClubOffice,"Manager",this::showManagerProfile);
+        page.addView(makeButton("History • competitions & career",v->showHistoryHub()));page.addView(makeButton("Player database",v->showAllTeamsPlayers()));page.addView(makeButton("Sound settings",v->showSoundSettings()));page.addView(makeButton("Back up & restore careers",v->showBackupTools()));
     }
 
     private void applySafeInsets(View root) {
@@ -655,23 +691,11 @@ public class MainActivity extends Activity {
         root.post(root::requestApplyInsets);
     }
 
-    private TextView makeText(String value, int size, int colour) {
-        TextView tv = new TextView(this);
-        tv.setText(value);
-        tv.setTextSize(size);
-        tv.setTextColor(colour);
-        tv.setLineSpacing(0, 1.10f);
-        tv.setFontFeatureSettings("tnum");
-        return tv;
+    private TextView makeText(String value,int size,int colour){
+        TextView tv=new TextView(this);tv.setText(value);BossStyle.type(tv,size,colour);return tv;
     }
 
-    private GradientDrawable rounded(int colour) {
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(colour);
-        bg.setCornerRadius(dp(14));
-        bg.setStroke(dp(1),0xff24313f);
-        return bg;
-    }
+    private GradientDrawable rounded(int colour){return BossStyle.shape(this,colour,24);}
 
     private int lighten(int colour, int amount) {
         return Color.rgb(
@@ -689,61 +713,24 @@ public class MainActivity extends Activity {
         );
     }
 
-    private GradientDrawable buttonBackground(int baseColour) {
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(baseColour);
-        bg.setCornerRadius(dp(10));
-        return bg;
-    }
+    private GradientDrawable buttonBackground(int baseColour){return BossStyle.shape(this,baseColour,20);}
 
     private int idealButtonTextColour(int backgroundColour) {
         int luminance = (Color.red(backgroundColour) * 299 + Color.green(backgroundColour) * 587 + Color.blue(backgroundColour) * 114) / 1000;
         return luminance > 168 ? Color.BLACK : Color.WHITE;
     }
 
-    private Button makeButton(String label, View.OnClickListener click) {
-        Button button = new Button(this);
-        button.setText(label.replaceFirst("^[^\\p{L}\\p{N}]+", ""));
-        button.setTextSize(14);
-        button.setMinimumHeight(dp(48));
-        button.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
-        button.setTextColor(idealButtonTextColour(panelLight));
-        button.setAllCaps(false);
-        button.setBackground(buttonBackground(panelLight));
-        button.setPadding(dp(14), dp(10), dp(14), dp(10));
-        button.setElevation(0);
-        button.setBackground(new android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(0x25FFFFFF), buttonBackground(panelLight), null));
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins(0, 0, 0, dp(10));
-        button.setLayoutParams(params);
-        if (click != null) button.setOnClickListener(click);
-        return button;
+    private Button makeButton(String label,View.OnClickListener click){
+        Button button=new Button(this);button.setText(label.replaceFirst("^[^\\p{L}\\p{N}]+", ""));BossStyle.type(button,14,text);button.setTypeface(BossStyle.MEDIUM);button.setTextColor(BossStyle.buttonInk(false));button.setAllCaps(false);button.setGravity(Gravity.CENTER);button.setMinHeight(dp(50));button.setMinimumHeight(dp(50));button.setMinWidth(0);button.setMinimumWidth(0);button.setPadding(dp(16),dp(13),dp(16),dp(13));button.setElevation(0);button.setStateListAnimator(null);button.setBackground(BossStyle.ripple(this,panelLight,24));
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(10);button.setLayoutParams(lp);if(click!=null)button.setOnClickListener(click);return button;
     }
 
-    private Button makeAccentButton(String label, View.OnClickListener click) {
-        Button button = makeButton(label, click);
-        button.setTextColor(idealButtonTextColour(accent));
-        button.setBackground(buttonBackground(accent));
-        return button;
+    private Button makeAccentButton(String label,View.OnClickListener click){
+        Button b=makeButton(label,click);b.setTextColor(BossStyle.buttonInk(true));b.setBackground(BossStyle.ripple(this,accent,24));b.setTypeface(BossStyle.DISPLAY);return b;
     }
 
-    private LinearLayout makePanel() {
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setPadding(dp(16), dp(16), dp(16), dp(16));
-        box.setBackground(rounded(panel));
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins(0, 0, 0, dp(14));
-        box.setLayoutParams(params);
-        return box;
+    private LinearLayout makePanel(){
+        LinearLayout box=new LinearLayout(this);box.setOrientation(LinearLayout.VERTICAL);box.setPadding(dp(18),dp(20),dp(18),dp(18));box.setBackground(rounded(panel));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(16);box.setLayoutParams(lp);return box;
     }
 
     private View makeSwatch(int colour) {
@@ -756,66 +743,22 @@ public class MainActivity extends Activity {
     }
 
 
-    private LinearLayout makeInfoStatRow(String label, String value) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setPadding(dp(10), dp(8), dp(10), dp(8));
-        row.setBackground(buttonBackground(Color.rgb(11, 60, 74)));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        lp.setMargins(0, 0, 0, dp(8));
-        row.setLayoutParams(lp);
+    private LinearLayout makeInfoStatRow(String label,String value){return profileInfoRow(label,value);}
 
-        TextView left = makeText(label, 13, muted);
-        left.setTypeface(Typeface.DEFAULT_BOLD);
-        LinearLayout.LayoutParams leftLp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        left.setLayoutParams(leftLp);
-        row.addView(left);
-
-        TextView right = makeText(value, 16, text);
-        right.setTypeface(Typeface.DEFAULT_BOLD);
-        row.addView(right);
-        return row;
+    private LinearLayout makeHighlightTile(String label,String value,int baseColour){
+        LinearLayout tile=profileMetricCard(label,value,baseColour);LinearLayout.LayoutParams lp=(LinearLayout.LayoutParams)tile.getLayoutParams();lp.bottomMargin=dp(10);return tile;
     }
 
-    private LinearLayout makeHighlightTile(String label, String value, int baseColour) {
-        LinearLayout tile = new LinearLayout(this);
-        tile.setOrientation(LinearLayout.VERTICAL);
-        tile.setPadding(dp(10), dp(10), dp(10), dp(10));
-        tile.setBackground(buttonBackground(baseColour));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        lp.setMargins(dp(3), 0, dp(3), dp(8));
-        tile.setLayoutParams(lp);
-
-        TextView t1 = makeText(label, 11, idealButtonTextColour(baseColour));
-        t1.setTypeface(Typeface.DEFAULT_BOLD);
-        tile.addView(t1);
-        TextView t2 = makeText(value, 18, idealButtonTextColour(baseColour));
-        t2.setTypeface(Typeface.DEFAULT_BOLD);
-        tile.addView(t2);
-        return tile;
-    }
-
-    private LinearLayout makeClubIdentityRow(int club) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        row.addView(makeSwatch(primaryColours[club]));
-        row.addView(makeSwatch(secondaryColours[club]));
-
-        TextView name = makeText(clubNames[club], 18, text);
-        name.setTypeface(Typeface.DEFAULT_BOLD);
-        name.setPadding(dp(4), 0, 0, 0);
-        row.addView(name);
-        return row;
+    private LinearLayout makeClubIdentityRow(int club){
+        LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);row.addView(new ClubShieldView(club),new LinearLayout.LayoutParams(dp(42),dp(46)));TextView name=makeText(clubNames[club],19,text);name.setTypeface(BossStyle.DISPLAY);name.setPadding(dp(12),0,0,0);row.addView(name,new LinearLayout.LayoutParams(0,-2,1));return row;
     }
 
     private void showMainMenu() {
         backAction = null;
-        LinearLayout page = createPage("Career Hub", "BOSS XI v2.3 • Matchday & Presentation", false);
+        LinearLayout page = createPage("Career Hub", "Your next football story starts here", false);
 
+        page.addView(careerBanner());
+        page.addView(profileSectionTitle("YOUR CAREERS"));
         for (int slot = 0; slot < SAVE_SLOTS; slot++) {
             final int s = slot;
             LinearLayout box = makePanel();
@@ -844,8 +787,7 @@ public class MainActivity extends Activity {
                 }));
 
                 Button delete = makeButton("Delete Save", v -> confirmDeleteSave(s));
-                delete.setTextColor(idealButtonTextColour(danger));
-                delete.setBackground(buttonBackground(danger));
+                delete.setTextColor(danger);
                 box.addView(delete);
             } else {
                 TextView empty = makeText("Empty career slot\nCreate your manager profile and begin a new journey.", 17, muted);
@@ -1045,7 +987,7 @@ public class MainActivity extends Activity {
         input.setHintTextColor(muted);
         input.setTextSize(17);
         input.setSingleLine(true);
-        input.setBackground(rounded(panel));
+        input.setBackground(BossStyle.ripple(this,panelLight,20));input.setMinHeight(dp(54));input.setTypeface(BossStyle.BODY);input.setSelectAllOnFocus(true);
         input.setPadding(dp(14), dp(12), dp(14), dp(12));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -1097,19 +1039,15 @@ public class MainActivity extends Activity {
     private void showDashboard() {
         backAction=() -> { saveCurrentGame(); showMainMenu(); };
         LinearLayout page=createPage(clubNames[selectedClub],currentDate.format(DATE_FORMAT)+"  •  Matchweek "+(matchday+1),true);
-        LinearLayout fixture=makePanel();
-        fixture.addView(profileSectionTitle("NEXT FIXTURE"));
-        int opponent=leagueOpponentForRound(matchday);
-        fixture.addView(makeText(opponent<0 ? (matchday>=seasonRounds()?"Season complete":"No fixture • bye round") : clubNames[selectedClub]+"  v  "+clubNames[opponent],21,text));
-        fixture.addView(makeText((opponent<0?"Rest week":selectedHomeForRound(matchday)?"Home":"Away")+"  •  "+leagueName()+"  •  "+tacticFormation,13,muted));
-        fixture.addView(makeAccentButton(matchday>=seasonRounds()?"Season review":opponent<0?"Advance bye round":"Match centre",v->startLiveMatchday()));
-        if(cupDue()) {
-            fixture.removeAllViews();
-            KnockoutTie tie=nextCupTie();
-            fixture.addView(profileSectionTitle("NEXT EVENT • "+nextCupName().toUpperCase(Locale.ROOT)));
-            fixture.addView(makeText(clubNames[tie.home()]+"  v  "+clubNames[tie.away()],21,text));
-            fixture.addView(makeText(nextCupDate().format(DATE_FORMAT)+" • "+nextCupRound(),13,muted));
-            fixture.addView(makeAccentButton(tie.home()==selectedClub||tie.away()==selectedClub?"Cup match centre":"Continue cup results",v->advanceLeagueCup()));
+        LinearLayout shortcuts=new LinearLayout(this);shortcuts.setGravity(Gravity.CENTER_VERTICAL);String[] sections={"Overview","Fixtures","Table"};Runnable[] sectionActions={null,this::showCompetitionCalendar,this::showLeagueTable};
+        for(int i=0;i<sections.length;i++){final Runnable open=sectionActions[i];TextView chip=statusPill(sections[i],i==0);if(open!=null){chip.setOnClickListener(v->open.run());chip.setMinimumHeight(dp(44));chip.setGravity(Gravity.CENTER);}LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,dp(44),1);cp.setMargins(0,0,dp(i==2?0:8),dp(16));shortcuts.addView(chip,cp);}page.addView(shortcuts);
+        int opponent=leagueOpponentForRound(matchday);LinearLayout fixture;
+        if(cupDue()){
+            KnockoutTie tie=nextCupTie();fixture=fixtureHero(tie.home(),tie.away(),"NEXT EVENT • "+nextCupName().toUpperCase(Locale.ROOT),nextCupDate().format(DATE_FORMAT)+" • "+nextCupRound(),"VS",tie.home()==selectedClub||tie.away()==selectedClub?"Cup match centre":"Continue cup results",v->advanceLeagueCup());
+        }else if(opponent>=0){
+            boolean home=selectedHomeForRound(matchday);fixture=fixtureHero(home?selectedClub:opponent,home?opponent:selectedClub,"NEXT FIXTURE",leagueName()+" • "+(home?"Home":"Away"),"VS","Match centre",v->startLiveMatchday());
+        }else{
+            fixture=makePanel();fixture.setBackground(BossStyle.hero(this));fixture.addView(profileSectionTitle("YOUR NEXT CHAPTER"));fixture.addView(makeText(matchday>=seasonRounds()?"Season complete":"Time to regroup",24,text));fixture.addView(makeAccentButton(matchday>=seasonRounds()?"Season review":"Advance bye round",v->startLiveMatchday()));
         }
         page.addView(fixture);
         if(matchday<seasonRounds()||cupDue())page.addView(makeButton("Quick result",v->new BossDialog.Builder(this)
@@ -1155,11 +1093,11 @@ public class MainActivity extends Activity {
         }
         int fit=0,count=0,injured=0;
         for(Player p:players) if(p.team==selectedClub) { fit+=p.fitness;count++;if(p.injuredWeeks>0)injured++; }
+        page.addView(profileSectionTitle("CLUB PULSE"));
+        LinearLayout pulse=new LinearLayout(this);pulse.addView(profileMetricCard("LEAGUE",DisplayFormat.ordinal(rank),accent));pulse.addView(profileMetricCard("BALANCE",moneyK(financeBalanceK),text));pulse.addView(profileMetricCard("CONDITION",(count==0?0:fit/count)+"%",count>0?conditionProfileColour(fit/count):muted));LinearLayout.LayoutParams pl=new LinearLayout.LayoutParams(-1,-2);pl.bottomMargin=dp(14);page.addView(pulse,pl);
         LinearLayout overview=makePanel();
-        overview.addView(profileSectionTitle("CLUB PULSE"));
         overview.addView(profileInfoRow("League position",DisplayFormat.ordinal(rank)+"  •  "+points[selectedClub]+" points"));
-        overview.addView(profileInfoRow("Bank balance",moneyK(financeBalanceK)));
-        overview.addView(profileInfoRow("Squad condition",(count==0?0:fit/count)+"%  •  "+injured+" injured"));
+        if(injured>0)overview.addView(profileInfoRow("Unavailable",injured+" injured"));
         overview.addView(profileInfoRow("Board confidence",boardConfidence+"%"));
         overview.addView(profileInfoRow("Manager",managerFullName()));
         if(matchday>0 && matchday-1<clubMatchGF.length && clubMatchGF[matchday-1]>=0) overview.addView(profileInfoRow("Last result",clubMatchGF[matchday-1]+" – "+clubMatchGA[matchday-1]));
@@ -1187,13 +1125,8 @@ public class MainActivity extends Activity {
         dashboardRow(page,"Player database",this::showAllTeamsPlayers,"Sound settings",this::showSoundSettings);
     }
 
-    private void dashboardRow(LinearLayout page,String a,Runnable ra,String b,Runnable rb) {
-        LinearLayout row=new LinearLayout(this);
-        Button left=makeButton(a,v->ra.run()),right=makeButton(b,v->rb.run());
-        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,dp(52),1); lp.setMargins(0,0,dp(5),dp(8));
-        row.addView(left,lp);
-        LinearLayout.LayoutParams rp=new LinearLayout.LayoutParams(0,dp(52),1); rp.setMargins(dp(5),0,0,dp(8));
-        row.addView(right,rp);page.addView(row);
+    private void dashboardRow(LinearLayout page,String a,Runnable ra,String b,Runnable rb){
+        LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.TOP);LinearLayout.LayoutParams left=new LinearLayout.LayoutParams(0,-2,1);left.setMargins(0,0,dp(6),dp(12));row.addView(destination(a,destinationHint(a),ra),left);LinearLayout.LayoutParams right=new LinearLayout.LayoutParams(0,-2,1);right.setMargins(dp(6),0,0,dp(12));row.addView(destination(b,destinationHint(b),rb),right);page.addView(row);
     }
 
     private void showSoundSettings() {
@@ -1211,7 +1144,7 @@ public class MainActivity extends Activity {
         LinearLayout page = createPage(
                 "Manager Profile",
                 clubNames[selectedClub] + " • " + name,
-                false
+                true
         );
 
         int mp = played[selectedClub];
@@ -1223,7 +1156,7 @@ public class MainActivity extends Activity {
         int winPct = mp == 0 ? 0 : Math.round(100f * mw / mp);
 
         LinearLayout hero = makePanel();
-        hero.setBackground(rounded(Color.rgb(9, 31, 43)));
+        hero.setBackground(BossStyle.hero(this));
         LinearLayout top = new LinearLayout(this);
         top.setOrientation(LinearLayout.HORIZONTAL);
         top.setGravity(Gravity.TOP);
@@ -1236,7 +1169,7 @@ public class MainActivity extends Activity {
                 43,
                 false
         );
-        LinearLayout.LayoutParams portraitLp = new LinearLayout.LayoutParams(dp(112), dp(112));
+        LinearLayout.LayoutParams portraitLp = new LinearLayout.LayoutParams(dp(116), dp(136));
         portraitLp.setMargins(0, 0, dp(16), 0);
         top.addView(portrait, portraitLp);
 
@@ -1335,7 +1268,7 @@ public class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setPadding(dp(5), dp(6), dp(5), dp(6));
-        row.setBackgroundColor(Color.rgb(29, 57, 82));
+        row.setBackgroundColor(panelLight);
         row.addView(makeManagerHistoryCell("CLUB", 2.3f, true));
         row.addView(makeManagerHistoryCell("P", 0.55f, true));
         row.addView(makeManagerHistoryCell("W", 0.55f, true));
@@ -1351,7 +1284,7 @@ public class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setPadding(dp(5), dp(8), dp(5), dp(8));
-        row.setBackgroundColor(Color.rgb(14, 39, 53));
+        row.setBackgroundColor(panel);
         row.addView(makeManagerHistoryCell(club, 2.3f, false));
         row.addView(makeManagerHistoryCell(String.valueOf(p), 0.55f, false));
         row.addView(makeManagerHistoryCell(String.valueOf(w), 0.55f, false));
@@ -1767,14 +1700,14 @@ public class MainActivity extends Activity {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(8), dp(5), dp(8), dp(5));
-        root.setBackgroundColor(background);
+        root.setBackground(BossStyle.atmosphere(this));
 
         // CM 03/04-inspired match header: club crests flank a bright central score/clock card.
         LinearLayout scoreboard = new LinearLayout(this);
         scoreboard.setOrientation(LinearLayout.HORIZONTAL);
         scoreboard.setGravity(Gravity.CENTER_VERTICAL);
         scoreboard.setPadding(dp(8), dp(3), dp(8), dp(3));
-        scoreboard.setBackground(rounded(Color.rgb(5, 28, 40)));
+        scoreboard.setBackground(rounded(panel));
 
         LinearLayout homeBlock = new LinearLayout(this);
         homeBlock.setOrientation(LinearLayout.HORIZONTAL);
@@ -1792,12 +1725,12 @@ public class MainActivity extends Activity {
         scoreCard.setOrientation(LinearLayout.VERTICAL);
         scoreCard.setGravity(Gravity.CENTER);
         scoreCard.setPadding(dp(12), dp(3), dp(12), dp(3));
-        scoreCard.setBackground(rounded(panelLight));
-        liveScoreText = makeText(liveHomeGoals + "  -  " + liveAwayGoals, 26, text);
+        scoreCard.setBackground(BossStyle.shape(this,accent,20));
+        liveScoreText = makeText(liveHomeGoals + "  -  " + liveAwayGoals, 26, BossStyle.DARK);
         liveScoreText.setTypeface(Typeface.DEFAULT_BOLD);
         liveScoreText.setGravity(Gravity.CENTER);
         scoreCard.addView(liveScoreText, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1.15f));
-        liveClockText = makeText("00:00      1st", 14, accent);
+        liveClockText = makeText("00:00      1st", 14, BossStyle.DARK);
         liveClockText.setTypeface(Typeface.DEFAULT_BOLD);
         liveClockText.setGravity(Gravity.CENTER);
         scoreCard.addView(liveClockText, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.85f));
@@ -1946,7 +1879,7 @@ public class MainActivity extends Activity {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.HORIZONTAL);
         root.setPadding(dp(8), dp(8), dp(8), dp(8));
-        root.setBackgroundColor(background);
+        root.setBackground(BossStyle.atmosphere(this));
 
         LinearLayout left = new LinearLayout(this);
         left.setOrientation(LinearLayout.VERTICAL);
@@ -3671,14 +3604,7 @@ public class MainActivity extends Activity {
         );
 
 
-        TextView mainResult = makeText(
-                clubNames[liveHome] + "  " + liveHomeGoals + " - " + liveAwayGoals + "  " + clubNames[liveAway],
-                22,
-                accent
-        );
-        mainResult.setTypeface(Typeface.DEFAULT_BOLD);
-        mainResult.setPadding(0, 0, 0, dp(14));
-        page.addView(mainResult);
+        page.addView(fixtureHero(liveHome,liveAway,"MATCH COMPLETE",leagueName(),liveHomeGoals+" – "+liveAwayGoals,null,null));
 
         LinearLayout summary = makePanel();
         summary.addView(profileSectionTitle("MATCH SUMMARY"));
@@ -4315,7 +4241,7 @@ public class MainActivity extends Activity {
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setPadding(dp(10), dp(8), dp(10), dp(8));
-        header.setBackground(buttonBackground(Color.rgb(35, 73, 110)));
+        header.setBackground(buttonBackground(panelLight));
         header.addView(makeTableHeadCell("#", 0.7f));
         header.addView(makeTableHeadCell("Club", 2.5f));
         header.addView(makeTableHeadCell("P", 0.55f));
@@ -4335,7 +4261,7 @@ public class MainActivity extends Activity {
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setGravity(Gravity.CENTER_VERTICAL);
             row.setPadding(dp(10), dp(8), dp(10), dp(8));
-            int rowColour = club == selectedClub ? Color.rgb(19, 86, 83) : (position % 2 == 0 ? Color.rgb(11, 48, 63) : Color.rgb(8, 39, 52));
+            int rowColour = club == selectedClub ? 0xff354622 : (position % 2 == 0 ? panel : 0xff171c13);
             row.setBackground(buttonBackground(rowColour));
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             rlp.setMargins(0, 0, 0, dp(7));
@@ -4512,6 +4438,8 @@ public class MainActivity extends Activity {
         return best;
     }
 
+    private int squadFilter=0;
+    private int squadFilterTeam=-1;
     private void showTeamPlayers(int team) {
         backAction = () -> {
             if (team == selectedClub) showDashboard();
@@ -4529,14 +4457,20 @@ public class MainActivity extends Activity {
         for (Player p : players) if (p.team == team) teamPlayers.add(p);
         sortPlayersByPositionThenOverall(teamPlayers);
 
+        if(squadFilterTeam!=team){squadFilter=0;squadFilterTeam=team;}
+        LinearLayout filters=new LinearLayout(this);String[] roles={"All","GK","DEF","MID","ATT"};
+        for(int i=0;i<roles.length;i++){final int filter=i;Button chip=squadFilter==i?makeAccentButton(roles[i],v->{squadFilter=filter;showTeamPlayers(team);}):makeButton(roles[i],v->{squadFilter=filter;showTeamPlayers(team);});chip.setTextSize(11);chip.setPadding(dp(2),dp(10),dp(2),dp(10));LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(0,-2,1);cp.setMargins(dp(2),0,dp(2),dp(14));filters.addView(chip,cp);}page.addView(filters);
         for (Player p : teamPlayers) {
+            int category=positionRank(p.position)==0?1:positionRank(p.position)<=3?2:positionRank(p.position)<=8?3:4;if(squadFilter!=0&&squadFilter!=category)continue;
             String status = "";
             if (p.transferListed) status += "  [T]";
             if (p.loanListed) status += "  [L]";
             if (p.onLoan) status += "  [LOAN]";
             if (team == selectedClub) status += "  [" + tacticsStatusLabel(p.id) + "]";
-            String label = p.position + "  " + p.name + "   " + knownOverallLabel(p) + status;
-            page.addView(makeButton(label, v -> showPlayerProfile(p.id, team)));
+            LinearLayout row=makePanel();row.setOrientation(LinearLayout.HORIZONTAL);row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(12),dp(14),dp(12),dp(14));row.setBackground(BossStyle.ripple(this,panel,22));row.setOnClickListener(v->showPlayerProfile(p.id,team));row.setFocusable(true);
+            View portrait=new RealisticHumanPortraitView(playerPortraitIdentity(p),"PLAYER",primaryColours[p.team],secondaryColours[p.team],p.age,true);LinearLayout.LayoutParams pp=new LinearLayout.LayoutParams(dp(52),dp(58));pp.rightMargin=dp(12);row.addView(portrait,pp);
+            LinearLayout copy=new LinearLayout(this);copy.setOrientation(LinearLayout.VERTICAL);TextView name=makeText(p.name,15,text);name.setTypeface(BossStyle.MEDIUM);copy.addView(name);TextView meta=makeText(p.position+"  •  "+p.age+"  •  "+p.nationality,10,muted);meta.setPadding(0,dp(5),0,dp(4));copy.addView(meta);if(!status.trim().isEmpty())copy.addView(makeText(status.trim().replace("[","").replace("]",""),9,accent));row.addView(copy,new LinearLayout.LayoutParams(0,-2,1));
+            TextView overall=makeText(knownOverallLabel(p),22,accent);overall.setTypeface(BossStyle.DISPLAY);overall.setPadding(dp(8),0,0,0);row.addView(overall);page.addView(row);
         }
 
         if (team != selectedClub) page.addView(makeButton("Back to Player Database", v -> showAllTeamsPlayers()));
@@ -4583,7 +4517,7 @@ public class MainActivity extends Activity {
         );
 
         LinearLayout hero = makePanel();
-        hero.setBackground(rounded(Color.rgb(9, 31, 43)));
+        hero.setBackground(BossStyle.hero(this));
 
         LinearLayout top = new LinearLayout(this);
         top.setOrientation(LinearLayout.HORIZONTAL);
@@ -4597,7 +4531,7 @@ public class MainActivity extends Activity {
                 p.age,
                 true
         );
-        LinearLayout.LayoutParams portraitParams = new LinearLayout.LayoutParams(dp(112), dp(112));
+        LinearLayout.LayoutParams portraitParams = new LinearLayout.LayoutParams(dp(116), dp(136));
         portraitParams.setMargins(0, 0, dp(16), 0);
         top.addView(portrait, portraitParams);
 
@@ -4742,48 +4676,18 @@ public class MainActivity extends Activity {
         page.addView(makeButton("← Back to " + clubNames[returnTeam], v -> showTeamPlayers(returnTeam)));
     }
 
-    private TextView profileSectionTitle(String title) {
-        TextView tv = makeText(title, 12, accent);
-        tv.setTypeface(Typeface.DEFAULT_BOLD);
-        tv.setLetterSpacing(0.05f);
-        tv.setPadding(0, 0, 0, dp(8));
-        return tv;
+    private TextView profileSectionTitle(String title){
+        TextView tv=makeText(title,11,muted);tv.setTypeface(BossStyle.MEDIUM);tv.setLetterSpacing(.09f);tv.setPadding(0,dp(4),0,dp(14));return tv;
     }
 
-    private LinearLayout profileMetricCard(String label, String value, int highlight) {
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setGravity(Gravity.CENTER);
-        card.setPadding(dp(6), dp(8), dp(6), dp(8));
-        card.setBackground(rounded(Color.rgb(17, 47, 60)));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        lp.setMargins(dp(2), 0, dp(2), 0);
-        card.setLayoutParams(lp);
-        TextView v = makeText(value, 19, highlight);
-        v.setTypeface(Typeface.DEFAULT_BOLD);
-        v.setGravity(Gravity.CENTER);
-        card.addView(v);
-        TextView l = makeText(label, 9, muted);
-        l.setTypeface(Typeface.DEFAULT_BOLD);
-        l.setGravity(Gravity.CENTER);
-        l.setLetterSpacing(0.05f);
-        card.addView(l);
-        return card;
+    private LinearLayout profileMetricCard(String label,String value,int highlight){
+        LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setGravity(Gravity.CENTER);card.setPadding(dp(5),dp(16),dp(5),dp(16));card.setBackground(BossStyle.shape(this,panelLight,20));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(3),0,dp(3),0);card.setLayoutParams(lp);
+        TextView v=makeText(value,value.length()>8?16:22,highlight);v.setTypeface(BossStyle.DISPLAY);v.setGravity(Gravity.CENTER);card.addView(v);TextView l=makeText(label,8,muted);l.setGravity(Gravity.CENTER);l.setLetterSpacing(.06f);l.setPadding(0,dp(7),0,0);card.addView(l);return card;
     }
 
-    private LinearLayout profileInfoRow(String label, String value) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(0, dp(7), 0, dp(7));
-        TextView left = makeText(label, 13, muted);
-        left.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        row.addView(left);
-        TextView right = makeText(value, 13, text);
-        right.setTypeface(Typeface.DEFAULT_BOLD);
-        right.setGravity(Gravity.END);
-        row.addView(right);
-        return row;
+    private LinearLayout profileInfoRow(String label,String value){
+        LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(0,dp(11),0,dp(11));
+        TextView left=makeText(label,12,muted),right=makeText(value,13,text);left.setPadding(0,0,dp(12),0);right.setTypeface(BossStyle.MEDIUM);right.setGravity(Gravity.END);row.addView(left,new LinearLayout.LayoutParams(0,-2,.85f));row.addView(right,new LinearLayout.LayoutParams(0,-2,1.35f));return row;
     }
 
     private LinearLayout makeModernAttributeRow(String label, int value, int barColour) {
@@ -4808,7 +4712,7 @@ public class MainActivity extends Activity {
         int filled = Math.round(v / 2f);
         for (int i = 0; i < 10; i++) {
             View block = new View(this);
-            block.setBackgroundColor(i < filled ? barColour : Color.rgb(42, 63, 72));
+            block.setBackgroundColor(i < filled ? barColour : BossStyle.LINE);
             LinearLayout.LayoutParams bp = new LinearLayout.LayoutParams(0, dp(5), 1f);
             bp.setMargins(i == 0 ? 0 : dp(1), 0, 0, 0);
             bar.addView(block, bp);
@@ -5516,7 +5420,7 @@ public class MainActivity extends Activity {
         LinearLayout page = createPage(role + " Profile", clubNames[selectedClub] + " • " + name, true);
 
         LinearLayout hero = makePanel();
-        hero.setBackground(rounded(Color.rgb(9, 31, 43)));
+        hero.setBackground(BossStyle.hero(this));
         LinearLayout top = new LinearLayout(this);
         top.setOrientation(LinearLayout.HORIZONTAL);
         top.setGravity(Gravity.TOP);
@@ -5525,7 +5429,7 @@ public class MainActivity extends Activity {
                 name.hashCode() + role.hashCode(), role,
                 primaryColours[selectedClub], secondaryColours[selectedClub], age, false
         );
-        LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(dp(112), dp(112));
+        LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(dp(116), dp(136));
         pp.setMargins(0, 0, dp(16), 0);
         top.addView(portrait, pp);
 
@@ -5676,7 +5580,7 @@ public class MainActivity extends Activity {
         // Classic Championship Manager-inspired tactical board:
         // compact controls at the top, then the squad split into XI / subs / reserves.
         LinearLayout classicHeader = makePanel();
-        classicHeader.setBackground(rounded(Color.rgb(54, 88, 126)));
+        classicHeader.setBackground(rounded(panelLight));
 
         TextView title = makeText("TEAM TACTICS", 18, Color.WHITE);
         title.setTypeface(Typeface.DEFAULT_BOLD);
@@ -5691,6 +5595,7 @@ public class MainActivity extends Activity {
         nextMatch.setPadding(0, dp(5), 0, 0);
         classicHeader.addView(nextMatch);
         page.addView(classicHeader);
+        LinearLayout board=makePanel();board.setPadding(dp(6),dp(6),dp(6),dp(12));board.setClipToOutline(true);board.addView(new SquadBoard(),new LinearLayout.LayoutParams(-1,dp(346)));TextView pitchHint=makeText("Tap a player to adjust your starting XI",11,muted);pitchHint.setGravity(Gravity.CENTER);pitchHint.setPadding(0,dp(10),0,0);board.addView(pitchHint);page.addView(board);
 
         LinearLayout tabs = new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
@@ -5762,11 +5667,29 @@ public class MainActivity extends Activity {
             TextView warningText = makeText(
                     "Select exactly 11 starters before beginning the next match.",
                     14,
-                    Color.WHITE
+                    BossStyle.DARK
             );
             warningText.setTypeface(Typeface.DEFAULT_BOLD);
             warningBox.addView(warningText);
             page.addView(warningBox);
+        }
+    }
+
+    /** Portrait lineup preview: each token opens the existing assignment action. */
+    private final class SquadBoard extends FrameLayout {
+        SquadBoard(){super(MainActivity.this);setTag("boss-squad-board");setBackground(BossStyle.shape(MainActivity.this,panel,22));setClipToOutline(true);}
+        @Override protected void onSizeChanged(int w,int h,int ow,int oh){super.onSizeChanged(w,h,ow,oh);post(()->arrange());}
+        private void arrange(){
+            removeAllViews();View turf=new View(MainActivity.this){private final PitchArt art=new PitchArt();@Override protected void onDraw(Canvas c){c.save();c.translate(0,getHeight());c.rotate(-90);art.draw(c,getHeight(),getWidth());c.restore();}};addView(turf,new FrameLayout.LayoutParams(-1,-1));
+            float[] xs=new float[11],ys=new float[11];fillMiniFormation(xs,ys,tacticFormation,true);String[] positions=formationSlots();
+            int tokenW=Math.min(dp(58),Math.max(dp(42),getWidth()/6)),tokenH=dp(55);
+            for(int slot=0;slot<11;slot++){
+                Player chosen=null;for(Player p:players)if(p.team==selectedClub&&playerRoleStatus[p.id]==2&&playerSelectedSlot[p.id]==slot){chosen=p;break;}final Player player=chosen;
+                LinearLayout token=new LinearLayout(MainActivity.this);token.setOrientation(LinearLayout.VERTICAL);token.setGravity(Gravity.CENTER);token.setMinimumHeight(dp(48));token.setTag("boss-lineup-"+slot);
+                TextView number=makeText(player==null?"+":String.valueOf((player.id%PLAYERS_PER_TEAM)+1),13,player==null?text:contrastText(primaryColours[selectedClub]));number.setGravity(Gravity.CENTER);number.setTypeface(BossStyle.DISPLAY);GradientDrawable disc=BossStyle.shape(MainActivity.this,player==null?panelLight:primaryColours[selectedClub],20);disc.setStroke(dp(1),0xfff5f7ee);number.setBackground(disc);token.addView(number,new LinearLayout.LayoutParams(dp(30),dp(30)));
+                String[] names=player==null?new String[]{positions[slot]}:player.name.split(" ");TextView name=makeText(names[names.length-1],9,text);name.setSingleLine(true);name.setEllipsize(android.text.TextUtils.TruncateAt.END);name.setGravity(Gravity.CENTER);name.setPadding(0,dp(5),0,0);token.addView(name,new LinearLayout.LayoutParams(-1,-2));
+                FrameLayout.LayoutParams lp=new FrameLayout.LayoutParams(tokenW,tokenH);lp.leftMargin=Math.round(getWidth()*(.12f+ys[slot]*.76f)-tokenW/2f);lp.topMargin=Math.round(getHeight()*(.86f-xs[slot]*.72f)-tokenH/2f);addView(token,lp);token.setOnClickListener(v->{if(player!=null)showTacticsAssignmentDialog(player);else showTacticsFormationDialog();});token.setContentDescription((player==null?"Unassigned":player.name)+", "+positions[slot]);
+            }
         }
     }
 
@@ -5803,7 +5726,7 @@ public class MainActivity extends Activity {
         );
         sectionTitle.setTypeface(Typeface.DEFAULT_BOLD);
         sectionTitle.setPadding(dp(8), dp(8), dp(8), dp(8));
-        sectionTitle.setBackgroundColor(Color.rgb(54, 88, 126));
+        sectionTitle.setBackgroundColor(panelLight);
         section.addView(sectionTitle);
 
         section.addView(makeTacticsTableHeader());
@@ -5832,7 +5755,7 @@ public class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setPadding(dp(5), dp(6), dp(5), dp(6));
-        row.setBackgroundColor(Color.rgb(29, 57, 82));
+        row.setBackgroundColor(panelLight);
 
         row.addView(makeTacticsCell("CON", 0.75f, true, muted));
         row.addView(makeTacticsCell("No", 0.55f, true, muted));
@@ -5850,7 +5773,7 @@ public class MainActivity extends Activity {
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(5), dp(7), dp(5), dp(7));
-        row.setBackgroundColor(rowIndex % 2 == 0 ? Color.rgb(14, 39, 53) : Color.rgb(18, 47, 62));
+        row.setBackgroundColor(rowIndex % 2 == 0 ? panel : 0xff232a1b);
 
         int conditionColour = p.fitness >= 90 ? accent : p.fitness >= 75 ? warning : danger;
         row.addView(makeTacticsCell(p.fitness + "%", 0.75f, false, conditionColour));
@@ -6329,7 +6252,7 @@ public class MainActivity extends Activity {
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setPadding(dp(6), dp(6), dp(6), dp(6));
-        header.setBackgroundColor(Color.rgb(45, 78, 108));
+        header.setBackgroundColor(panelLight);
         header.addView(calendarCell("DATE", 1.15f, true, Color.WHITE));
         header.addView(calendarCell("V", .38f, true, Color.WHITE));
         header.addView(calendarCell("OPPONENT", 2.15f, true, Color.WHITE));
@@ -6343,7 +6266,7 @@ public class MainActivity extends Activity {
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setGravity(Gravity.CENTER_VERTICAL);
             row.setPadding(dp(6), dp(4), dp(6), dp(4));
-            row.setBackgroundColor(i % 2 == 0 ? Color.rgb(12, 37, 50) : Color.rgb(16, 44, 58));
+            row.setBackgroundColor(i % 2 == 0 ? panel : 0xff232a1b);
 
             String venue = f.home ? "H" : "A";
             String status = f.played ? ("FT  " + f.goalsFor + "-" + f.goalsAgainst) : "Upcoming";
@@ -6816,7 +6739,7 @@ public class MainActivity extends Activity {
         page.addView(makeButton(archive?"History":"European competitions",v->{if(archive)showHistoryHub();else showCalendarTab("Europe");}));
     }
     private View europeanTableRow(String rank,String club,String points,String difference,String goals,boolean header,boolean managed){
-        LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(8),dp(header?8:12),dp(8),dp(header?8:12));row.setBackground(rounded(header?panelLight:managed?Color.rgb(14,53,61):panel));
+        LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.CENTER_VERTICAL);row.setPadding(dp(8),dp(header?8:12),dp(8),dp(header?8:12));row.setBackground(rounded(header?panelLight:managed?0xff354622:panel));
         LinearLayout.LayoutParams layout=new LinearLayout.LayoutParams(-1,-2);layout.setMargins(0,0,0,dp(5));row.setLayoutParams(layout);
         row.addView(makeLeagueCell(rank,.7f,header?muted:accent,true));TextView name=makeLeagueCell(club,2.6f,header?muted:text,true);name.setSingleLine(false);name.setMaxLines(2);name.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);row.addView(name);
         row.addView(makeLeagueCell(points,.55f,header?muted:text,true));row.addView(makeLeagueCell(difference,.55f,header?muted:accent,false));row.addView(makeLeagueCell(goals,.55f,muted,false));return row;
@@ -8550,7 +8473,7 @@ public class MainActivity extends Activity {
 
         if (selectedClub >= 0 && matchday < seasonRounds() && leagueOpponentForRound(matchday)>=0) {
             LinearLayout report = makePanel();
-            report.setBackground(buttonBackground(Color.rgb(20, 72, 88)));
+            report.setBackground(buttonBackground(panelLight));
 
             TextView category = makeText("ASSISTANT MANAGER • PRE-MATCH REPORT", 12, accent);
             category.setTypeface(Typeface.DEFAULT_BOLD);
@@ -8703,6 +8626,7 @@ public class MainActivity extends Activity {
         int seasonProfit = financeSeasonIncomeK - financeSeasonExpenseK;
         int lastYearProfit = financeLastYearIncomeK - financeLastYearExpenseK;
 
+        LinearLayout balance=makePanel();balance.setBackground(BossStyle.hero(this));balance.addView(profileSectionTitle("AVAILABLE BALANCE"));TextView cash=makeText(moneyK(financeBalanceK),36,text);cash.setTypeface(BossStyle.DISPLAY);cash.setPadding(0,0,0,dp(18));balance.addView(cash);LinearLayout budgetsRow=new LinearLayout(this);budgetsRow.addView(profileMetricCard("TRANSFER BUDGET","€"+currentTransferBudget+"m",accent));budgetsRow.addView(profileMetricCard("WEEKLY WAGES",moneyK(totalWeeklyWages),text));balance.addView(budgetsRow);page.addView(balance);
         LinearLayout overview = makePanel();
         TextView overviewTitle = makeText("FINANCIAL OVERVIEW", 13, accent);
         overviewTitle.setTypeface(Typeface.DEFAULT_BOLD);

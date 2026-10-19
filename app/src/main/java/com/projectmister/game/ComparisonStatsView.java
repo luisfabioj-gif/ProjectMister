@@ -27,7 +27,7 @@ public final class ComparisonStatsView extends LinearLayout {
             TextView x=text("—",compact?10:16,true),title=text(label,compact?9:13,false),y=text("—",compact?10:16,true);
             x.setGravity(Gravity.START);title.setGravity(Gravity.CENTER);y.setGravity(Gravity.END);
             row.addView(x,new LayoutParams(0,-2,1));row.addView(title,new LayoutParams(0,-2,compact?3.4f:2.6f));row.addView(y,new LayoutParams(0,-2,1));item.addView(row);
-            Bar bar=new Bar(context);item.addView(bar,new LayoutParams(-1,dp(compact?2:4)));addView(item);left.add(x);right.add(y);bars.add(bar);
+            Bar bar=new Bar(context);LayoutParams barParams=new LayoutParams(-1,dp(compact?2:4));barParams.topMargin=dp(compact?1:6);item.addView(bar,barParams);addView(item);left.add(x);right.add(y);bars.add(bar);
         }
     }
     public void row(int row,String a,String b,int av,int bv){
@@ -37,11 +37,11 @@ public final class ComparisonStatsView extends LinearLayout {
         bars.get(row).values(av,bv);
     }
     private int dp(int n){return Math.round(n*getResources().getDisplayMetrics().density);}
-    private TextView text(String value,int size,boolean bold){TextView t=new TextView(getContext());t.setText(value);t.setTextSize(size);t.setTextColor(bold?0xfff4f7fb:0xffa4b6c6);t.setIncludeFontPadding(!compact);t.setFontFeatureSettings("tnum");if(bold)t.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));return t;}
+    private TextView text(String value,int size,boolean bold){TextView t=new TextView(getContext());t.setText(value);t.setTextSize(size);t.setTextColor(bold?BossStyle.INK:BossStyle.MUTED);t.setTypeface(bold?BossStyle.MEDIUM:BossStyle.BODY);t.setIncludeFontPadding(!compact);t.setFontFeatureSettings("tnum");if(bold)t.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));return t;}
     private final class Bar extends View {
         private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);private int a=-1,b=-1;
         Bar(Context context){super(context);setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);}
         void values(int left,int right){if(a==left&&b==right)return;a=left;b=right;invalidate();}
-        @Override protected void onDraw(Canvas c){float h=getHeight(),r=h/2;p.setColor(0xff263746);c.drawRoundRect(0,0,getWidth(),h,r,r,p);if(a<0||b<0||a+b==0)return;float gap=Math.max(1,getWidth()*.008f),width=(getWidth()-gap)*a/(float)(a+b);p.setColor(homeColour);c.drawRoundRect(0,0,width,h,r,r,p);p.setColor(awayColour);c.drawRoundRect(width+gap,0,getWidth(),h,r,r,p);}
+        @Override protected void onDraw(Canvas c){float h=getHeight(),r=h/2;p.setColor(BossStyle.LINE);c.drawRoundRect(0,0,getWidth(),h,r,r,p);if(a<0||b<0||a+b==0)return;float gap=Math.max(1,getWidth()*.008f),width=(getWidth()-gap)*a/(float)(a+b);p.setColor(homeColour);c.drawRoundRect(0,0,width,h,r,r,p);p.setColor(awayColour);c.drawRoundRect(width+gap,0,getWidth(),h,r,r,p);}
     }
 }

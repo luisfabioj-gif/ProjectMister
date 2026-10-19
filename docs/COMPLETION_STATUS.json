@@ -2,58 +2,15 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-17T11:15:00Z",
-  "complete": true,
+  "updated_utc": "2026-10-19T12:50:09.901014+00:00",
+  "complete": false,
   "latest_checkpoint": {
-    "conclusion": "success",
-    "source": "9ccdf0210e6823daf4bbaa2280ca71a0d6b22e97",
-    "production_source": "85d4de03593b22a0bf9d3d6e5a34e00ea838aa37",
-    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38992435601",
-    "android_api": [
-      35,
-      36
-    ],
-    "jobs": [
-      117273668694,
-      117277538737
-    ],
-    "evidence_runs": [
-      {
-        "api": 35,
-        "run": 38991170087,
-        "job": 117273668694,
-        "conclusion": "success",
-        "source": "577283a3cc66ac63a2eb46233712713157f97a01"
-      },
-      {
-        "api": 36,
-        "run": 38992435601,
-        "job": 117277538737,
-        "conclusion": "success",
-        "source": "9ccdf0210e6823daf4bbaa2280ca71a0d6b22e97"
-      }
-    ],
-    "new_evidence": "Both final Android jobs pass. Each verifies its API-specific 25 completed modes from run 38984023562 for unchanged game code, rebuilds that source and requires an identical APK, then reruns live/upgrade setup, all 40 standalone/linked division careers with 871 assertions, backups, compact layouts, release-bundle installation and different-key restoration. The earlier failed division fixture is corrected and retained only as diagnostics. All 11 feedback areas and 64 stand/facility upgrades pass. Both candidate artifacts contain identical signed APK bytes, verified and saved for the chat download.",
+    "conclusion": "in_progress",
+    "version": "2.3.13",
+    "scope": "Reference-led premium UI overhaul",
+    "new_evidence": "The native game and independent QA APK compile and sign locally. Shared olive/charcoal/lime shell, five-destination navigation, fixture/results heroes, photo career banner, portrait squad filters, clickable formation preview, finance/profile cards, dialogs and competition tables are implemented. Android 15/16 screenshot and touch checks are pending.",
     "blocker": null,
-    "limitations": "API 35/36 emulator evidence does not claim physical Samsung Galaxy S25 Ultra testing or Play publication. Players and portraits are fictional. Budgets and strength are labelled game estimates calibrated from dated public squad valuations; observed nationality counts are apportioned to 20 players.",
-    "supplementary_full_run": {
-      "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38991170087",
-      "conclusion": "success",
-      "android_jobs": [
-        {
-          "api": 35,
-          "job": 117273668694,
-          "conclusion": "success"
-        },
-        {
-          "api": 36,
-          "job": 117273667879,
-          "conclusion": "success"
-        }
-      ],
-      "completed_utc": "2026-10-17T03:27:08Z",
-      "note": "The main workflow also completed successfully on both APIs. The separately verified Android 16 final artifact remains the matched delivered candidate."
-    }
+    "previous_verified_release": "docs/BOSS_XI_2_3_12_RELEASE.md"
   },
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
@@ -61,9 +18,9 @@
     {
       "id": "presentation",
       "weight": 6,
-      "status": "verified",
+      "status": "implemented_pending_verification",
       "acceptance": "Dashboard, navigation, profiles, tactics, finance and stadium readable in Android screenshots and compact landscape.",
-      "evidence": {
+      "previous_release_evidence": {
         "android_jobs": [
           117273668694,
           117277538737
@@ -725,24 +682,9 @@
     {
       "id": "full_game_qa",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_pending_verification",
       "acceptance": "Full Android 35/36 navigation, live matches, long-career, expanded competitions, save/backup and release installation gates pass; screenshots reviewed; defects fixed.",
       "previous_release_evidence": {
-        "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
-        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
-        "android_api": [
-          35,
-          36
-        ],
-        "jobs": [
-          115985935375,
-          115985934651
-        ],
-        "qa_artifact_api35": 11917728577,
-        "qa_artifact_api36": 11919157922,
-        "checks": "Both full jobs pass all modes, including natural full-time, half-time tactics/resume, forty standalone/linked careers, compact layouts, legacy upgrades, non-debuggable release-bundle installation and different-key restoration. Current 35/36 screenshots and byte-identical preceding dashboard/profile/market/stadium/history screenshots are reviewed. No game fatal exception or app ANR is present in final logcats."
-      },
-      "evidence": {
         "android_jobs": [
           117273668694,
           117277538737
@@ -756,30 +698,9 @@
     {
       "id": "finished_test_apk",
       "weight": 2,
-      "status": "verified",
+      "status": "implemented_pending_verification",
       "acceptance": "Verified installable APK, provenance, complete change notes and real-world testing instructions delivered. Play publication and physical phone testing are outside the accessible development gate.",
       "previous_release_evidence": {
-        "source": "bd5059b96a93c91655d56db2402d0142c6c195bf",
-        "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38602775811",
-        "android_api": [
-          35,
-          36
-        ],
-        "jobs": [
-          115985935375,
-          115985934651
-        ],
-        "qa_artifact_api35": 11917728577,
-        "qa_artifact_api36": 11919157922,
-        "checks": "The APK from passing Android 35 artifact 11917973416 is byte-identical to passing Android 36 artifact 11920215445. ZIP digests, manifest, APK SHA-256 and preserved v2 signing certificate verify. The actual APK is saved for download with provenance, complete change notes and real-world installation/test instructions.",
-        "apk_artifact_api35": 11917973416,
-        "apk_artifact_api36": 11920215445,
-        "apk_sha256": "005d9e0cb9eb0394bb638dcd67b704f051b65064552b0e7adfaa6f3e268981a5",
-        "apk_size_bytes": 2637610,
-        "delivered": true,
-        "provenance": "docs/BOSS_XI_2_3_11_RELEASE.md"
-      },
-      "evidence": {
         "android_jobs": [
           117273668694,
           117277538737
@@ -794,22 +715,11 @@
     }
   ],
   "delivery": {
-    "file_name": "BOSS-XI-2.3.12.apk",
-    "available_in_chat": true,
-    "version": "2.3.12",
-    "version_code": 38,
-    "package": "com.projectmister.game",
-    "minimum_sdk": 26,
-    "target_sdk": 36,
-    "size_bytes": 4336932,
-    "sha256": "41562ea6edd9a483baa60ecff5e25846f3364fe84e538d2c8947801a8558d385",
-    "artifact_id": 12086166773,
-    "artifact_url": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38992435601/artifacts/12086166773",
-    "matching_api35_artifact_id": 12085910283,
-    "signing_certificate_sha256": "06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e",
-    "kind": "Signed development sideload test APK; retains the existing development update key.",
-    "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md",
-    "test_guide": "docs/ANDROID_TEST_GUIDE.md"
+    "version": "2.3.13",
+    "version_code": 39,
+    "file_name": "BOSS-XI-2.3.13.apk",
+    "available_in_chat": false,
+    "kind": "Candidate pending native UI review"
   },
   "previous_release": {
     "version": "2.3.11",
@@ -848,5 +758,23 @@
       "test_guide": "docs/ANDROID_TEST_GUIDE.md"
     }
   },
-  "scope_note": "All eleven device-feedback changes are verified within the existing 100-point development-test scope. Weights remain fixed. Both API-specific native gates and the signed APK handoff are complete; physical phone testing is the next step."
+  "scope_note": "All eleven device-feedback changes are verified within the existing 100-point development-test scope. Weights remain fixed. Both API-specific native gates and the signed APK handoff are complete; physical phone testing is the next step.",
+  "previous_delivery": {
+    "file_name": "BOSS-XI-2.3.12.apk",
+    "available_in_chat": true,
+    "version": "2.3.12",
+    "version_code": 38,
+    "package": "com.projectmister.game",
+    "minimum_sdk": 26,
+    "target_sdk": 36,
+    "size_bytes": 4336932,
+    "sha256": "41562ea6edd9a483baa60ecff5e25846f3364fe84e538d2c8947801a8558d385",
+    "artifact_id": 12086166773,
+    "artifact_url": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/38992435601/artifacts/12086166773",
+    "matching_api35_artifact_id": 12085910283,
+    "signing_certificate_sha256": "06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e",
+    "kind": "Signed development sideload test APK; retains the existing development update key.",
+    "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md",
+    "test_guide": "docs/ANDROID_TEST_GUIDE.md"
+  }
 }
