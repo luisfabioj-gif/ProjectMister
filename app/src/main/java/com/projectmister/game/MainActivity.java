@@ -1961,7 +1961,7 @@ public class MainActivity extends Activity {
         TextView tip = makeText("Pitch view of the starting XI. Tap a bench player below, then tap a starter to swap.", 12, muted);
         tip.setPadding(0, dp(2), 0, dp(6));
         right.addView(tip);
-        TextView roleLegend = makeText("● GK  GOLD    ● DEF  BLUE    ● MID  GREEN    ● ATT  RED    •    CA = ability / 100 • Condition %", 11, muted);
+        TextView roleLegend = makeText("Club shirts & squad numbers    •    CA = ability / 100    •    Condition %", 11, muted);
         roleLegend.setPadding(0, 0, 0, dp(5));
         right.addView(roleLegend);
 
@@ -5281,12 +5281,12 @@ public class MainActivity extends Activity {
         position.setOnClickListener(v->new BossDialog.Builder(this).setTitle("Position").setItems(positions,(d,w)->{choices[0]=positions[w];position.setText("Position: "+choices[0]);}).show());
         country.setOnClickListener(v->new BossDialog.Builder(this).setTitle("League country").setItems(countries,(d,w)->{choices[1]=countries[w];country.setText("League country: "+choices[1]);}).show());form.addView(position);form.addView(country);
         EditText club=new EditText(this);styleCareerInput(club,"Club name contains…");club.setText(recruitmentFilter.club);form.addView(club);
-        EditText minAge=recruitmentNumber(form,"Minimum age",recruitmentFilter.minAge,16),maxAge=recruitmentNumber(form,"Maximum age",recruitmentFilter.maxAge,60);
+        EditText minAge=recruitmentNumber(form,"Minimum age",recruitmentFilter.minAge,0),maxAge=recruitmentNumber(form,"Maximum age",recruitmentFilter.maxAge,150);
         EditText ca=recruitmentNumber(form,"Minimum current ability / 100",recruitmentFilter.minCurrent,0),pa=recruitmentNumber(form,"Minimum future ability / 100",recruitmentFilter.minPotential,0);
         EditText fee=recruitmentNumber(form,"Maximum transfer fee (€m)",recruitmentFilter.maxFee,9999),wage=recruitmentNumber(form,"Maximum weekly wage (€k)",recruitmentFilter.maxWage,9999),chance=recruitmentNumber(form,"Minimum signing chance (%)",recruitmentFilter.minChance,0);
         android.widget.CheckBox available=new android.widget.CheckBox(this);available.setText("Only players available within my budgets");available.setTextColor(text);available.setButtonTintList(android.content.res.ColorStateList.valueOf(accent));available.setChecked(recruitmentFilter.availableOnly);form.addView(available);
         new BossDialog.Builder(this).setTitle("Filter players").setView(form).setNegativeButton("Reset",(d,w)->{String q=recruitmentFilter.query;recruitmentFilter=new Recruitment.Filter();recruitmentFilter.query=q;recruitmentPage=0;render.run();}).setPositiveButton("Apply filters",(d,w)->{
-            Recruitment.Filter f=new Recruitment.Filter();f.query=recruitmentFilter.query;f.position=choices[0];f.country=choices[1];f.club=club.getText().toString().trim();f.minAge=recruitmentValue(minAge,16,0,80);f.maxAge=recruitmentValue(maxAge,60,0,80);f.minCurrent=recruitmentValue(ca,0,0,100);f.minPotential=recruitmentValue(pa,0,0,100);f.maxFee=recruitmentValue(fee,9999,0,9999);f.maxWage=recruitmentValue(wage,9999,0,9999);f.minChance=recruitmentValue(chance,0,0,100);f.availableOnly=available.isChecked();
+            Recruitment.Filter f=new Recruitment.Filter();f.query=recruitmentFilter.query;f.position=choices[0];f.country=choices[1];f.club=club.getText().toString().trim();f.minAge=recruitmentValue(minAge,0,0,150);f.maxAge=recruitmentValue(maxAge,150,0,150);f.minCurrent=recruitmentValue(ca,0,0,100);f.minPotential=recruitmentValue(pa,0,0,100);f.maxFee=recruitmentValue(fee,9999,0,9999);f.maxWage=recruitmentValue(wage,9999,0,9999);f.minChance=recruitmentValue(chance,0,0,100);f.availableOnly=available.isChecked();
             if(f.minAge>f.maxAge){Toast.makeText(this,"Minimum age must not exceed maximum age.",Toast.LENGTH_LONG).show();return;}recruitmentFilter=f;recruitmentPage=0;render.run();
         }).show();
     }

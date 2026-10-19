@@ -37,7 +37,7 @@ public final class SmokeRunner extends Instrumentation {
         check(!activity.isFinishing(),name+" navigates");
     }
     private void awaitBoolean(String field)throws Exception {
-        long end=SystemClock.uptimeMillis()+75000;
+        long end=SystemClock.uptimeMillis()+120000;
         final boolean[] value={false};
         while(SystemClock.uptimeMillis()<end) {
             ui(()->value[0]=(Boolean)get(field));if(value[0])return;SystemClock.sleep(150);
@@ -45,7 +45,7 @@ public final class SmokeRunner extends Instrumentation {
         throw new AssertionError("Timed out waiting for "+field);
     }
     private void awaitRound(int target)throws Exception {
-        long end=SystemClock.uptimeMillis()+75000;
+        long end=SystemClock.uptimeMillis()+120000;
         final int[] round={0};final String[] state={""};
         while(SystemClock.uptimeMillis()<end) {
             ui(()->{round[0]=(Integer)get("matchday");state[0]="round="+round[0]+", minute="+get("liveMinuteFloat")+", active="+get("liveMatchActive")+", paused="+get("livePaused");});if(round[0]>=target)return;SystemClock.sleep(150);

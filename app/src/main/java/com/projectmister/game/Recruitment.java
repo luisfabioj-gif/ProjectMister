@@ -16,9 +16,9 @@ public final class Recruitment {
     }
     public static final class Filter {
         public String query="",position="All",country="All",club="";
-        public int minAge=16,maxAge=60,minCurrent=0,minPotential=0,maxFee=9999,maxWage=9999,minChance=0;
+        public int minAge=0,maxAge=150,minCurrent=0,minPotential=0,maxFee=9999,maxWage=9999,minChance=0;
         public boolean availableOnly;
-        public boolean active(){return !query.isEmpty()||!position.equals("All")||!country.equals("All")||!club.isEmpty()||minAge!=16||maxAge!=60||minCurrent>0||minPotential>0||maxFee!=9999||maxWage!=9999||minChance>0||availableOnly;}
+        public boolean active(){return !query.isEmpty()||!position.equals("All")||!country.equals("All")||!club.isEmpty()||minAge!=0||maxAge!=150||minCurrent>0||minPotential>0||maxFee!=9999||maxWage!=9999||minChance>0||availableOnly;}
         public boolean accepts(Row row){
             String haystack=(row.name+" "+row.club+" "+row.country+" "+row.nationality+" "+row.position).toLowerCase(Locale.ROOT);
             for(String part:query.trim().toLowerCase(Locale.ROOT).split("\\s+"))if(!haystack.contains(part))return false;
