@@ -621,9 +621,9 @@ public class MainActivity extends Activity {
             int selected=title.equals(clubNames[selectedClub])?0:title.endsWith(" Players")?1:title.equals("Tactics")?2:title.equals("Inbox")?3:title.equals("Club hub")?4:-1;
             for(int i=0;i<labels.length;i++){
                 final Runnable action=actions[i];boolean active=i==selected;
-                LinearLayout item=new LinearLayout(this);item.setOrientation(LinearLayout.VERTICAL);item.setGravity(Gravity.CENTER);item.setMinimumHeight(dp(52));item.setBackground(BossStyle.ripple(this,active?0xff344222:0xff20261a,24));item.setOnClickListener(v->action.run());item.setContentDescription(labels[i]);
+                LinearLayout item=new LinearLayout(this);item.setOrientation(LinearLayout.VERTICAL);item.setGravity(Gravity.CENTER);item.setMinimumHeight(dp(52));item.setSelected(active);item.setBackground(BossStyle.ripple(this,active?0xff344222:0xff20261a,24));item.setOnClickListener(v->action.run());item.setContentDescription(labels[i]);
                 FrameLayout bubble=new FrameLayout(this);bubble.setBackground(BossStyle.shape(this,active?accent:Color.TRANSPARENT,22));BossStyle.Icon icon=new BossStyle.Icon(this,icons[i],active?BossStyle.DARK:muted);FrameLayout.LayoutParams ip=new FrameLayout.LayoutParams(dp(20),dp(20),Gravity.CENTER);bubble.addView(icon,ip);item.addView(bubble,new LinearLayout.LayoutParams(dp(38),dp(30)));
-                TextView label=makeText(labels[i],10,active?text:muted);label.setPadding(0,dp(4),0,0);label.setTypeface(BossStyle.MEDIUM);item.addView(label);nav.addView(item,new LinearLayout.LayoutParams(0,-2,1));
+                TextView label=makeText(labels[i],10,active?text:muted);label.setGravity(Gravity.CENTER);label.setPadding(0,dp(4),0,0);label.setTypeface(BossStyle.MEDIUM);item.addView(label);nav.addView(item,new LinearLayout.LayoutParams(0,-2,1));
             }
             LinearLayout.LayoutParams np=new LinearLayout.LayoutParams(-1,-2);np.setMargins(dp(16),dp(4),dp(16),dp(12));root.addView(nav,np);
         }
@@ -5682,9 +5682,13 @@ public class MainActivity extends Activity {
         private void arrange(){
             removeAllViews();View turf=new View(MainActivity.this){private final PitchArt art=new PitchArt();@Override protected void onDraw(Canvas c){c.save();c.translate(0,getHeight());c.rotate(-90);art.draw(c,getHeight(),getWidth());c.restore();}};addView(turf,new FrameLayout.LayoutParams(-1,-1));
             float[] xs=new float[11],ys=new float[11];fillMiniFormation(xs,ys,tacticFormation,true);String[] positions=formationSlots();
+            // Auto-picked careers have role assignments without explicit slots. Match
+            // the same stable selected-XI ordering used by the live match, without
+            // changing any saved assignments while drawing the preview.
+            ArrayList<Player> lineup=new ArrayList<>();for(Player p:players)if(p.team==selectedClub&&playerRoleStatus[p.id]==2)lineup.add(p);Collections.sort(lineup,(a,b)->Integer.compare(playerSelectedSlot[a.id],playerSelectedSlot[b.id]));
             int tokenW=Math.min(dp(58),Math.max(dp(42),getWidth()/6)),tokenH=dp(55);
             for(int slot=0;slot<11;slot++){
-                Player chosen=null;for(Player p:players)if(p.team==selectedClub&&playerRoleStatus[p.id]==2&&playerSelectedSlot[p.id]==slot){chosen=p;break;}final Player player=chosen;
+                final Player player=slot<lineup.size()?lineup.get(slot):null;
                 LinearLayout token=new LinearLayout(MainActivity.this);token.setOrientation(LinearLayout.VERTICAL);token.setGravity(Gravity.CENTER);token.setMinimumHeight(dp(48));token.setTag("boss-lineup-"+slot);
                 TextView number=makeText(player==null?"+":String.valueOf((player.id%PLAYERS_PER_TEAM)+1),13,player==null?text:contrastText(primaryColours[selectedClub]));number.setGravity(Gravity.CENTER);number.setTypeface(BossStyle.DISPLAY);GradientDrawable disc=BossStyle.shape(MainActivity.this,player==null?panelLight:primaryColours[selectedClub],20);disc.setStroke(dp(1),0xfff5f7ee);number.setBackground(disc);token.addView(number,new LinearLayout.LayoutParams(dp(30),dp(30)));
                 String[] names=player==null?new String[]{positions[slot]}:player.name.split(" ");TextView name=makeText(names[names.length-1],9,text);name.setSingleLine(true);name.setEllipsize(android.text.TextUtils.TruncateAt.END);name.setGravity(Gravity.CENTER);name.setPadding(0,dp(5),0,0);token.addView(name,new LinearLayout.LayoutParams(-1,-2));
