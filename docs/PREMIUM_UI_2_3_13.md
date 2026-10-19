@@ -17,8 +17,9 @@ systems. The UI does not add betting or streaming controls from the references.
 All drawing, icons and imagery work offline without new dependencies.
 
 Version 2.3.13 / code 39 retains the existing application ID and development update
-key. The candidate compiles and signs locally. Native Android 15/16 navigation,
-touch, screenshot, feedback and compact-layout gates must pass before delivery.
+key. The APK compiles, signs and verifies. Full native suites and the dedicated
+Android 15/16 navigation, touch, screenshot, feedback and compact-layout gates
+pass. The APK is saved for download; see [the release record](BOSS_XI_2_3_13_RELEASE.md).
 
 The dedicated premium mode visits all management areas, exercises actual squad
 filters and floating navigation, checks eleven lineup bounds and selection,

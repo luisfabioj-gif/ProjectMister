@@ -1,9 +1,9 @@
 # BOSS XI Android real-world test
 
-Install `BOSS-XI-2.3.12.apk`, version 2.3.12 / code 38,
-from the final chat handoff. [The exact build record](BOSS_XI_2_3_12_RELEASE.md)
+Install `BOSS-XI-2.3.13.apk`, version 2.3.13 / code 39,
+from the final chat handoff. [The exact build record](BOSS_XI_2_3_13_RELEASE.md)
 identifies its source, passing Android 35/36 workflow, signature and checksum.
-This development test build includes the changes from your Samsung Galaxy S25 Ultra feedback.
+This build adds the olive, charcoal and lime UI overhaul to the previously verified game.
 
 ## Install and keep your saves
 
@@ -13,6 +13,18 @@ This development test build includes the changes from your Samsung Galaxy S25 Ul
    backup before changing installations.
 3. Open an existing save and check your manager, squad, budget and completed
    result. The development gate tests upgrades and restoration across keys.
+
+## Try the new presentation
+
+- Use the bottom Home, Squad, Tactics, Inbox and More destinations.
+- In Squad, use All / GK / DEF / MID / ATT and open a player portrait card.
+- In Tactics, check that the pitch shows your selected XI and tap a marker to
+  open that player's assignment. Auto-picked and manually assigned XIs work.
+- Open the new fixture hero, profiles, club accounts, stadium and scouting pages.
+- Play a watched match, check the lime score card and open statistics/tactics.
+
+Existing saves are compatible with the UI update. You do not need to start a
+new career just for the new appearance.
 
 ## Start the expanded game
 

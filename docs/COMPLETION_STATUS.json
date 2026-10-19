@@ -2,15 +2,51 @@
   "schema": 1,
   "product": "BOSS XI",
   "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-19T12:50:09.901014+00:00",
-  "complete": false,
+  "updated_utc": "2026-10-19T16:59:41.754040+00:00",
+  "complete": true,
   "latest_checkpoint": {
-    "conclusion": "in_progress",
+    "conclusion": "success",
+    "source": "efaed35a48ae0bdc2455bc1b588aa945f009170b",
     "version": "2.3.13",
-    "scope": "Reference-led premium UI overhaul",
-    "new_evidence": "The native game and independent QA APK compile and sign locally. Shared olive/charcoal/lime shell, five-destination navigation, fixture/results heroes, photo career banner, portrait squad filters, clickable formation preview, finance/profile cards, dialogs and competition tables are implemented. Android 15/16 screenshot and touch checks are pending.",
+    "run": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/39256483506",
+    "android_api": [
+      35,
+      36
+    ],
+    "jobs": [
+      118072959549,
+      118072959751
+    ],
+    "evidence_runs": [
+      {
+        "api": 35,
+        "run": 39256483506,
+        "job": 118072959549,
+        "conclusion": "success",
+        "assertions": 10272
+      },
+      {
+        "api": 36,
+        "run": 39256483506,
+        "job": 118072959751,
+        "conclusion": "success",
+        "assertions": 10270
+      }
+    ],
+    "premium_ui": {
+      "run": 39256483536,
+      "jobs": [
+        118072960105,
+        118072959564
+      ],
+      "assertions_each": 300,
+      "feedback_assertions_each": 357,
+      "compact_assertions_each": 396,
+      "conclusion": "success"
+    },
+    "new_evidence": "Both complete native suites pass freshly on the current source: thirty-one top-level reports per API, forty standalone/linked careers, ten combined European careers, national cups/rules, watched matches, baseline upgrades, backups, compact layouts, non-debuggable release installation and different-key restoration. Dedicated premium presentation suites additionally pass actual navigation, squad filters, eleven selected-XI tokens and their assignment actions. Final screens were visually reviewed. Both UI APKs and the full-gate candidate match the delivered APK bytes; its signature and update certificate verify. The APK is saved for chat download.",
     "blocker": null,
-    "previous_verified_release": "docs/BOSS_XI_2_3_12_RELEASE.md"
+    "limitations": "Android 15/16 emulator testing does not claim a physical Samsung test or Play publication. Existing game data boundaries remain: fictional players/portraits, labelled budget/strength estimates and simulated career outcomes."
   },
   "method": "Estimated feature-scope completion, not hours remaining. Sum the weights of verified milestones; remaining_percent = 100 - verified_weight. Implemented but unverified work earns no completed weight. Weights total 100 and stay fixed unless explicitly documented scope changes require a new baseline.",
   "baseline_evidence": "Playable 2.3.7 source 2c78c64f49b38209090a7bb10f122dea6d50531c; Android 35/36 run 37764185028; prior feature evidence in docs/VALIDATION.md and versioned change notes.",
@@ -18,7 +54,7 @@
     {
       "id": "presentation",
       "weight": 6,
-      "status": "implemented_pending_verification",
+      "status": "verified",
       "acceptance": "Dashboard, navigation, profiles, tactics, finance and stadium readable in Android screenshots and compact landscape.",
       "previous_release_evidence": {
         "android_jobs": [
@@ -32,6 +68,23 @@
           "release.txt"
         ],
         "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      },
+      "evidence": {
+        "android_jobs": [
+          118072959549,
+          118072959751
+        ],
+        "reports": [
+          "premium.txt",
+          "feedback.txt",
+          "compact.txt",
+          "reviewed native screenshots"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md",
+        "premium_ui_jobs": [
+          118072960105,
+          118072959564
+        ]
       }
     },
     {
@@ -41,8 +94,8 @@
       "acceptance": "Startup, save compatibility, three slots, backup validation, upgrade and different-key restore pass Android QA.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "candidate.txt",
@@ -50,7 +103,7 @@
           "migration-restore.txt",
           "release.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -60,14 +113,14 @@
       "acceptance": "Playable 2D match, spatial passing, ball flight, tactical movement, opponent substitutions and truthful watched-team results.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "candidate.txt",
           "compact.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -77,15 +130,15 @@
       "acceptance": "Half-time tactics, substitutions, undo and match resume preserve the active match.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "candidate.txt",
           "compact.txt",
           "release.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -95,14 +148,14 @@
       "acceptance": "Crowd/event audio, volume controls, lifecycle and audio-focus handling integrated.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "candidate.txt",
           "release.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -112,14 +165,14 @@
       "acceptance": "Existing finance, stadium and facility purchases retain accounting and saves.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "feedback.txt",
           "candidate.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -129,15 +182,15 @@
       "acceptance": "Squads, player/staff profiles, training, scouting, board and inbox remain playable.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "feedback.txt",
           "candidate.txt",
           "release.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -147,13 +200,13 @@
       "acceptance": "Ten countries, twenty real-club divisions and linked first/second tier promotion pass Android QA.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "divisions.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -163,14 +216,14 @@
       "acceptance": "Recruitment from all twenty catalog divisions and free agents works from Portuguese and other careers.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "candidate.txt",
           "rules.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -180,15 +233,15 @@
       "acceptance": "Sourced real competition winners and saved career league/cup history appear in History.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "feedback.txt",
           "europe-*.txt",
           "cups-*.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -198,15 +251,15 @@
       "acceptance": "Stable fictional photographic portraits and stadium/upgrade images are displayed.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "feedback.txt",
           "candidate.txt",
           "release.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -216,14 +269,14 @@
       "acceptance": "Recurring Ta\u00e7a de Portugal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "candidate.txt",
           "europe-PT.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -233,13 +286,13 @@
       "acceptance": "Recurring DFB-Pokal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA.",
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "national-cups.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -263,13 +316,13 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "cups-ENG.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -293,13 +346,13 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "cups-ES.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -323,13 +376,13 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "cups-IT.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -353,13 +406,13 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "cups-FR.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -383,13 +436,13 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "cups-NL.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -413,13 +466,13 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "cups-BE.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -443,13 +496,13 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "cups-SCO.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -473,13 +526,13 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "cups-TR.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -505,14 +558,14 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "candidate.txt",
           "europe-PT.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -537,14 +590,14 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "europe-*.txt",
           "uefa-players.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -568,15 +621,15 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "europe-*.txt",
           "cups-*.txt",
           "candidate.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -601,14 +654,14 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "rules.txt",
           "candidate.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -633,8 +686,8 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "rules.txt",
@@ -642,7 +695,7 @@
           "uefa-players.txt",
           "divisions.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
@@ -667,8 +720,8 @@
       },
       "evidence": {
         "android_jobs": [
-          117273668694,
-          117277538737
+          118072959549,
+          118072959751
         ],
         "reports": [
           "candidate.txt",
@@ -676,13 +729,13 @@
           "cups-*.txt",
           "rules.txt"
         ],
-        "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
       "id": "full_game_qa",
       "weight": 2,
-      "status": "implemented_pending_verification",
+      "status": "verified",
       "acceptance": "Full Android 35/36 navigation, live matches, long-career, expanded competitions, save/backup and release installation gates pass; screenshots reviewed; defects fixed.",
       "previous_release_evidence": {
         "android_jobs": [
@@ -693,12 +746,32 @@
           "all API-specific mode reports, original source/ZIP hashes and APK equivalence proof"
         ],
         "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      },
+      "evidence": {
+        "android_jobs": [
+          118072959549,
+          118072959751
+        ],
+        "reports": [
+          "candidate.txt",
+          "europe-*.txt",
+          "cups-*.txt",
+          "national-cups.txt",
+          "rules.txt",
+          "divisions.txt",
+          "cup-players.txt",
+          "uefa-players.txt",
+          "compact.txt",
+          "release.txt",
+          "migration-*.txt"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     },
     {
       "id": "finished_test_apk",
       "weight": 2,
-      "status": "implemented_pending_verification",
+      "status": "verified",
       "acceptance": "Verified installable APK, provenance, complete change notes and real-world testing instructions delivered. Play publication and physical phone testing are outside the accessible development gate.",
       "previous_release_evidence": {
         "android_jobs": [
@@ -711,15 +784,41 @@
           "matched API35/API36 APK and saved chat download"
         ],
         "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md"
+      },
+      "evidence": {
+        "android_jobs": [
+          118072959549,
+          118072959751
+        ],
+        "reports": [
+          "matched signed APK artifacts",
+          "docs/BOSS_XI_2_3_13_RELEASE.md",
+          "docs/ANDROID_TEST_GUIDE.md",
+          "saved chat download"
+        ],
+        "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md"
       }
     }
   ],
   "delivery": {
+    "file_name": "BOSS-XI-2.3.13.apk",
+    "available_in_chat": true,
     "version": "2.3.13",
     "version_code": 39,
-    "file_name": "BOSS-XI-2.3.13.apk",
-    "available_in_chat": false,
-    "kind": "Candidate pending native UI review"
+    "package": "com.projectmister.game",
+    "minimum_sdk": 26,
+    "target_sdk": 36,
+    "size_bytes": 4348576,
+    "sha256": "93c141c01e23d14ff97af7fe8983785576f316a3a2a8d19869e8b0c2a96441f9",
+    "artifact_id": 12188570378,
+    "artifact_url": "https://github.com/luisfabioj-gif/ProjectMister/actions/runs/39256483536/artifacts/12188570378",
+    "matching_api36_artifact_id": 12188705289,
+    "full_gate_api35_artifact_id": 12196256500,
+    "full_gate_api36_artifact_id": 12192872980,
+    "signing_certificate_sha256": "06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e",
+    "kind": "Signed development sideload test APK; retains the existing development update key.",
+    "provenance": "docs/BOSS_XI_2_3_13_RELEASE.md",
+    "test_guide": "docs/ANDROID_TEST_GUIDE.md"
   },
   "previous_release": {
     "version": "2.3.11",
@@ -758,7 +857,7 @@
       "test_guide": "docs/ANDROID_TEST_GUIDE.md"
     }
   },
-  "scope_note": "All eleven device-feedback changes are verified within the existing 100-point development-test scope. Weights remain fixed. Both API-specific native gates and the signed APK handoff are complete; physical phone testing is the next step.",
+  "scope_note": "All 29 milestones are verified within the fixed 100-point development-test scope, including the premium UI update. Full native suites and the dedicated UI suite pass on both APIs. Physical phone testing is the next step.",
   "previous_delivery": {
     "file_name": "BOSS-XI-2.3.12.apk",
     "available_in_chat": true,
