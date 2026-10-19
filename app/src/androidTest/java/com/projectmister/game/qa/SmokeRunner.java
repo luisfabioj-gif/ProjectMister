@@ -1470,17 +1470,19 @@ public final class SmokeRunner extends Instrumentation {
                 });
                 capture("different-key-restored-career");
                 check(true,"different signing key uninstall-install career migration verified");
-            } else if(mode.equals("seed")) {
+            } else if(mode.equals("seed")||mode.equals("seed-feedback")) {
                 ui(()->{
                     set("selectedSlot",0);set("selectedClub",0);call("initialiseNewManagerDefaults",new Class[0]);
                     set("managerFirstName","Upgrade");set("managerLastName","Test");
                     call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
                     call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
-                    // The full regression mode deliberately exercises the original
-                    // fixture order. Seed it explicitly when the baseline app is newer.
-                    set("fixtureVersion",0);call("saveCurrentGame",new Class[0]);
-                    seedRulesCareer("PT",1,true);set("selectedSlot",1);set("managerFirstName","UpgradeLinked");call("saveCurrentGame",new Class[0]);
-                    call("loadSave",new Class[]{int.class},0);
+                    if(mode.equals("seed-feedback")){
+                        // This gate upgrades from 2.3.13, which can seed both formats.
+                        // Keep the original seed compatible with the older baseline gate.
+                        set("fixtureVersion",0);call("saveCurrentGame",new Class[0]);
+                        seedRulesCareer("PT",1,true);set("selectedSlot",1);set("managerFirstName","UpgradeLinked");call("saveCurrentGame",new Class[0]);
+                        call("loadSave",new Class[]{int.class},0);
+                    }else call("saveCurrentGame",new Class[0]);
                 });
                 // Instrumentation.finish ends the process without a normal Activity stop.
                 // Flush pending apply() writes before installing the candidate over it.

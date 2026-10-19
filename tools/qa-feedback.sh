@@ -5,7 +5,7 @@ trap 'adb logcat -d > qa-output/logcat.txt; adb pull /sdcard/Android/data/com.pr
 adb install -r /tmp/boss-baseline/app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/test-manual/qa.apk
 adb logcat -c
-timeout 180s adb shell am instrument -w -e mode seed com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/baseline.txt
+timeout 180s adb shell am instrument -w -e mode seed-feedback com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner | tee qa-output/baseline.txt
 grep -q 'PASS baseline career seeded' qa-output/baseline.txt
 ! grep -q 'FAIL\|INSTRUMENTATION_FAILED' qa-output/baseline.txt
 adb install -r app/build/outputs/apk/debug/app-debug.apk
