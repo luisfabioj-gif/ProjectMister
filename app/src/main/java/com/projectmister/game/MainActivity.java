@@ -585,6 +585,7 @@ public class MainActivity extends Activity {
 
 
     private LinearLayout createPage(String title, String subtitle, boolean showHome) {
+        dismissKeyboard();
         stopLiveMatchTicker();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
@@ -666,6 +667,10 @@ public class MainActivity extends Activity {
         page.addView(profileSectionTitle("FIRST TEAM"));dashboardRow(page,"Squad",()->showTeamPlayers(selectedClub),"Tactics",this::showTactics);dashboardRow(page,"Training",this::showTraining,"Staff",this::showStaffHub);dashboardRow(page,"Transfers",this::showTransferHub,"Scouting",this::showScoutCentre);
         page.addView(profileSectionTitle("CLUB & SEASON"));dashboardRow(page,"Fixtures",this::showCompetitionCalendar,"League table",this::showLeagueTable);dashboardRow(page,"Finances",this::showFinances,"Stadium",this::showStadiumCentre);dashboardRow(page,"Board",this::showClubOffice,"Manager",this::showManagerProfile);
         page.addView(makeButton("History • competitions & career",v->showHistoryHub()));page.addView(makeButton("Player database",v->showAllTeamsPlayers()));page.addView(makeButton("Sound settings",v->showSoundSettings()));page.addView(makeButton("Back up & restore careers",v->showBackupTools()));
+    }
+
+    private void dismissKeyboard(){
+        View focus=getCurrentFocus();if(focus!=null){android.view.inputmethod.InputMethodManager keyboard=(android.view.inputmethod.InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);if(keyboard!=null)keyboard.hideSoftInputFromWindow(focus.getWindowToken(),0);}
     }
 
     private void applySafeInsets(View root) {
@@ -1679,6 +1684,7 @@ public class MainActivity extends Activity {
     }
 
     private void showLiveMatch() {
+        dismissKeyboard();
         stopLiveMatchTicker();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         safeEnableImmersiveNavigation();
@@ -1853,6 +1859,7 @@ public class MainActivity extends Activity {
     }
 
     private void showLiveTacticsScreen() {
+        dismissKeyboard();
         stopLiveMatchTicker();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         safeEnableImmersiveNavigation();
@@ -1958,10 +1965,10 @@ public class MainActivity extends Activity {
         TextView teamTitle = makeText(clubNames[selectedClub] + " • " + liveFormation, 18, text);
         teamTitle.setTypeface(Typeface.DEFAULT_BOLD);
         right.addView(teamTitle);
-        TextView tip = makeText("Pitch view of the starting XI. Tap a bench player below, then tap a starter to swap.", 12, muted);
+        TextView tip = makeText("Select a substitute below, then tap a starter to swap.", 12, muted);
         tip.setPadding(0, dp(2), 0, dp(6));
         right.addView(tip);
-        TextView roleLegend = makeText("Club shirts & squad numbers    •    CA = ability / 100    •    Condition %", 11, muted);
+        TextView roleLegend = makeText("CA: current ability / 100    •    Condition %", 11, muted);
         roleLegend.setPadding(0, 0, 0, dp(5));
         right.addView(roleLegend);
 
@@ -1970,7 +1977,7 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams pitchLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
         pitchFrame.setTag("live-tactics-pitch");
         int widestLine=("3-5-2".equals(liveFormation)||"5-3-2".equals(liveFormation))?5:4;
-        pitchFrame.setMinimumHeight(dp(widestLine*66+16));
+        pitchFrame.setMinimumHeight(dp(widestLine*34+12));
         ScrollView pitchScroll=new ScrollView(this);
         pitchScroll.setFillViewport(true);
         pitchScroll.addView(pitchFrame,new ScrollView.LayoutParams(-1,-2));
@@ -2122,7 +2129,8 @@ public class MainActivity extends Activity {
 
         int fw = frame.getWidth();
         int fh = frame.getHeight();
-        int tokenSize=dp(62);
+        int lines=("3-5-2".equals(liveFormation)||"5-3-2".equals(liveFormation))?5:4;
+        int tokenSize=Math.min(dp(58),Math.max(dp(34),(fh-dp(16))/lines));
         int tokenWidth=Math.max(dp(56),Math.min(dp(82),(fw-dp(32))/5));
         int padX = tokenWidth/2+dp(10);
         int padY = tokenSize/2+dp(4);
@@ -2134,7 +2142,7 @@ public class MainActivity extends Activity {
             if (p == null) continue;
             String liveRole = slots[Math.min(i, slots.length - 1)];
             int roleColour = liveRoleColour(liveRole);
-            LinearLayout chip=tacticsPlayerToken(p,liveRole,true);
+            LinearLayout chip=tacticsPlayerToken(p,liveRole,tokenSize);
             chip.setContentDescription(p.name+", "+liveRole+", CA "+p.currentAbility/2+", condition "+p.fitness+" percent");
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(tokenWidth, tokenSize);
             chip.setLayoutParams(lp);
@@ -2169,12 +2177,13 @@ public class MainActivity extends Activity {
     }
 
 
-    private LinearLayout tacticsPlayerToken(Player p,String role,boolean live){
+    private LinearLayout tacticsPlayerToken(Player p,String role,int height){
         LinearLayout token=new LinearLayout(this);token.setOrientation(LinearLayout.VERTICAL);token.setGravity(Gravity.CENTER);token.setFocusable(true);
-        TextView number=makeText(String.valueOf(p.id%PLAYERS_PER_TEAM+1),13,contrastText(primaryColours[selectedClub]));number.setTypeface(BossStyle.DISPLAY);number.setGravity(Gravity.CENTER);
-        GradientDrawable disc=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{lighten(primaryColours[selectedClub],24),primaryColours[selectedClub],darken(primaryColours[selectedClub],25)});disc.setCornerRadius(dp(20));disc.setStroke(dp(1),text);number.setBackground(disc);number.setElevation(dp(2));token.addView(number,new LinearLayout.LayoutParams(dp(28),dp(28)));
-        TextView name=makeText(shortPlayerName(p),9,text);name.setSingleLine(true);name.setEllipsize(android.text.TextUtils.TruncateAt.END);name.setGravity(Gravity.CENTER);name.setPadding(0,dp(3),0,0);token.addView(name,new LinearLayout.LayoutParams(-1,-2));
-        if(live){TextView ability=makeText("CA "+p.currentAbility/2+" · "+p.fitness+"%",8,conditionProfileColour(p.fitness));ability.setGravity(Gravity.CENTER);ability.setSingleLine(true);token.addView(ability,new LinearLayout.LayoutParams(-1,-2));}
+        int discSize=Math.max(dp(16),Math.min(dp(28),height-dp(22)));boolean compact=height<dp(46);
+        TextView number=makeText(String.valueOf(p.id%PLAYERS_PER_TEAM+1),compact?11:13,contrastText(primaryColours[selectedClub]));number.setTypeface(BossStyle.DISPLAY);number.setGravity(Gravity.CENTER);
+        GradientDrawable disc=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{lighten(primaryColours[selectedClub],24),primaryColours[selectedClub],darken(primaryColours[selectedClub],25)});disc.setCornerRadius(dp(20));disc.setStroke(dp(1),text);number.setBackground(disc);number.setElevation(dp(2));token.addView(number,new LinearLayout.LayoutParams(discSize,discSize));
+        TextView name=makeText(shortPlayerName(p),compact?7:9,text);name.setLineSpacing(0,1);name.setSingleLine(true);name.setEllipsize(android.text.TextUtils.TruncateAt.END);name.setGravity(Gravity.CENTER);name.setPadding(0,dp(1),0,0);token.addView(name,new LinearLayout.LayoutParams(-1,-2));
+        {TextView ability=makeText("CA "+p.currentAbility/2+" · "+p.fitness+"%",compact?7:8,conditionProfileColour(p.fitness));ability.setLineSpacing(0,1);ability.setGravity(Gravity.CENTER);ability.setSingleLine(true);token.addView(ability,new LinearLayout.LayoutParams(-1,-2));}
         return token;
     }
 
@@ -4146,7 +4155,7 @@ public class MainActivity extends Activity {
                 float oldSize=labelPaint.getTextSize();
                 labelPaint.setTextSize(dp(9));
                 labelPaint.setColor(contrastText(c));
-                canvas.drawText(String.valueOf(i+1),px,py+dp(3),labelPaint);
+                canvas.drawText(String.valueOf(playerForPitchSlot(team,i).id%PLAYERS_PER_TEAM+1),px,py+dp(3),labelPaint);
                 labelPaint.setColor(Color.WHITE);labelPaint.setTextSize(oldSize);
                 if (!name.isEmpty() && (carrier || ballTravel<1f && i==ballTargetSlot && team==ballTargetTeam)) canvas.drawText(name, px, py - radius - dp(3), labelPaint);
             }
@@ -5266,7 +5275,7 @@ public class MainActivity extends Activity {
         sort.setOnClickListener(v->new BossDialog.Builder(this).setTitle("Sort players").setSingleChoiceItems(Recruitment.SORTS,recruitmentSort,(d,w)->{recruitmentSort=w;recruitmentPage=0;render[0].run();}).setNegativeButton("Cancel",null).show());
         filter.setOnClickListener(v->showRecruitmentFilters(rows,render[0]));
         query.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int a,int c,int d){}public void onTextChanged(CharSequence s,int a,int b,int c){}public void afterTextChanged(android.text.Editable value){recruitmentFilter.query=value.toString();recruitmentPage=0;render[0].run();}});
-        render[0].run();
+        render[0].run();page.setFocusableInTouchMode(true);page.requestFocus();
     }
     private EditText recruitmentNumber(LinearLayout form,String label,int value,int empty){
         form.addView(makeText(label,12,muted));EditText field=new EditText(this);styleCareerInput(field,"Any");field.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);field.setSingleLine(true);if(value!=empty)field.setText(String.valueOf(value));form.addView(field);return field;

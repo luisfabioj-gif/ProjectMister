@@ -89,6 +89,7 @@ public final class SmokeRunner extends Instrumentation {
             for(int i=1;i<pitch.getChildCount();i++) {
                 View a=pitch.getChildAt(i);
                 check(a.getWidth()>0&&a.getHeight()>0&&a.isShown(),"tactics marker has visible layout "+i);
+                android.graphics.Rect visible=new android.graphics.Rect();check(a.getLocalVisibleRect(visible)&&visible.top==0&&visible.bottom==a.getHeight(),"entire tactics token visible without pitch scrolling "+i);
                 android.graphics.RectF ar=new android.graphics.RectF(a.getX(),a.getY(),a.getX()+a.getWidth(),a.getY()+a.getHeight());
                 check(ar.left>=0&&ar.top>=0&&ar.right<=pitch.getWidth()&&ar.bottom<=pitch.getHeight(),"tactics marker in bounds "+i);
                 for(int j=i+1;j<pitch.getChildCount();j++) {
@@ -163,7 +164,7 @@ public final class SmokeRunner extends Instrumentation {
     private void verifyRequestedFixes()throws Exception{
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
         try{
-            ui(()->{check((Boolean)call("loadSave",new Class[]{int.class},0),"2.3.13 career upgrades into 2.3.14");seedRulesCareer("PT",1,true);set("managerFirstName","Luis");set("managerLastName","Jardim");call("saveCurrentGame",new Class[0]);});
+            ui(()->{check((Boolean)call("loadSave",new Class[]{int.class},1)&&get("division")!=null&&(Integer)get("fixtureVersion")==6,"2.3.13 linked modern career upgrades into 2.3.14");check((Boolean)call("loadSave",new Class[]{int.class},0)&&(Integer)get("fixtureVersion")==0,"legacy fixture order upgrades into 2.3.14");seedRulesCareer("PT",1,true);set("managerFirstName","Luis");set("managerLastName","Jardim");call("saveCurrentGame",new Class[0]);});
             page("fixes-home","showDashboard",new Class[0]);
             ui(()->{ViewGroup tabs=activity.getWindow().getDecorView().findViewWithTag("boss-home-tabs");check(tabs!=null&&tabs.getChildCount()==3,"all dashboard tabs exist");for(int i=0;i<3;i++){View tab=tabs.getChildAt(i);check(tab.getTop()>=0&&tab.getBottom()<=tabs.getHeight(),"dashboard tab fully inside row "+i);android.graphics.Rect visible=new android.graphics.Rect();check(tab.getLocalVisibleRect(visible)&&visible.top==0&&visible.bottom==tab.getHeight(),"dashboard tab fully visible "+i);check(tab.getElevation()>0,"tab has raised surface "+i);}check(!screenText().contains("MANAGER BRIEFING"),"manager briefing removed");});
             page("fixes-world-market","showWorldMarket",new Class[0]);tap("All players");capture("fixes-database");
@@ -1475,7 +1476,11 @@ public final class SmokeRunner extends Instrumentation {
                     set("managerFirstName","Upgrade");set("managerLastName","Test");
                     call("resetCareerState",new Class[0]);call("generatePlayers",new Class[0]);
                     call("initialiseTacticsForClub",new Class[0]);call("initialiseClassicCareerSystems",new Class[0]);
-                    call("saveCurrentGame",new Class[0]);
+                    // The full regression mode deliberately exercises the original
+                    // fixture order. Seed it explicitly when the baseline app is newer.
+                    set("fixtureVersion",0);call("saveCurrentGame",new Class[0]);
+                    seedRulesCareer("PT",1,true);set("selectedSlot",1);set("managerFirstName","UpgradeLinked");call("saveCurrentGame",new Class[0]);
+                    call("loadSave",new Class[]{int.class},0);
                 });
                 // Instrumentation.finish ends the process without a normal Activity stop.
                 // Flush pending apply() writes before installing the candidate over it.
