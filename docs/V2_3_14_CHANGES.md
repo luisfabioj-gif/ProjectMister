@@ -29,7 +29,25 @@ Version code 40 retains the package and development update certificate.
   and settle in their own-half kickoff positions before play resumes. Tactics
   retain the existing pitch animation state, including during minute zero.
 
-Validation evidence is recorded after the Android feedback workflow completes.
-The workflow tests the previous APK-to-update path, all nine requested areas,
-shared screens, a complete live match/save, and all five compact formations on
-Android 35 and 36. Core tests cover existing competitions and the new models.
+Validated source: `78f8a6c9dacac8bd54b9c049cba3bf6f29a3042c`.
+Both jobs in [feedback verification run 39335429890](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/39335429890)
+passed on 19 October 2026 using Android 15 (API 35) and Android 16 (API 36)
+emulators. This includes installing the update over 2.3.13, preserving legacy and
+current career saves, all nine requested fixes, shared screens, a complete live
+match and reload, and all five compact landscape formations. Core regression
+tests, including 49 new recruitment, inbox and restart checks, also passed.
+Final home, database, unattached-player, inbox, contribution and normal/compact
+tactics screenshots were visually reviewed. Physical-device play feel remains
+subject to user feedback.
+
+The APKs tested by both Android jobs are byte-identical:
+
+- Package: `com.projectmister.game`, version `2.3.14`, code `40`.
+- APK SHA-256: `8f947b2f283e7e0a8741f1904413b476d4976061881ffc9ef298c4e89fbfe4f9`.
+- Signing certificate SHA-256: `06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e`.
+- Tested APK artifacts: `12226714290` (API 35), `12227310875` (API 36).
+- Screenshots/reports: `12226413940` (API 35), `12226728783` (API 36).
+
+The delivered `BOSS-XI-v2.3.14-Feedback-Fixes.apk` is the verified API 35 artifact,
+renamed without modification. Install it over the existing signed installation
+to preserve app data and career saves.
