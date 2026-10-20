@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        api: [35, 36]
+        api: ${{ fromJSON(contains(github.event.head_commit.message, '[focused-api35]') && '[35]' || '[35,36]') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,7 +54,7 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
-          script: bash tools/qa-refinements.sh
+          script: ${{ contains(github.event.head_commit.message, '[focused-api35]') && 'BOSS_QA_FOCUSED=1 bash tools/qa-refinements.sh' || 'bash tools/qa-refinements.sh' }}
       - name: Preserve Android screenshots and reports
         if: always()
         uses: actions/upload-artifact@v4

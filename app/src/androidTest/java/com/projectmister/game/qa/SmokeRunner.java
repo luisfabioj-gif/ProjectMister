@@ -52,6 +52,29 @@ public final class SmokeRunner extends Instrumentation {
         }
         throw new AssertionError("Timed out waiting for full-time (target="+target+", "+state[0]+")");
     }
+    private void awaitNaturalMatchPhase(boolean halfTime,int targetRound)throws Exception {
+        long started=SystemClock.uptimeMillis(),end=started+240000,lastProgress=started,lastLog=started;
+        float previous=-1;final float[] minute={0};final boolean[] done={false};final String[] state={""};
+        while(SystemClock.uptimeMillis()<end){
+            ui(()->{minute[0]=(Float)get("liveMinuteFloat");done[0]=halfTime?(Boolean)get("liveHalfTimeTacticsActive"):(Integer)get("matchday")>=targetRound;state[0]="round="+get("matchday")+", minute="+minute[0]+", active="+get("liveMatchActive")+", paused="+get("livePaused");});
+            if(done[0])return;
+            long now=SystemClock.uptimeMillis();if(minute[0]>previous+.0001f){previous=minute[0];lastProgress=now;}
+            if(now-lastLog>=10000){android.util.Log.i("BOSSXI_QA_PROGRESS",state[0]);lastLog=now;}
+            if(now-lastProgress>45000)throw new AssertionError("Natural match stopped advancing for 45 seconds ("+state[0]+")");
+            SystemClock.sleep(150);
+        }
+        throw new AssertionError("Natural match exceeded four-minute phase deadline ("+state[0]+")");
+    }
+    @SuppressWarnings("unchecked") private void verifyNaturalMatch()throws Exception{
+        ui(()->{check((Boolean)call("loadSave",new Class[]{int.class},0),"natural match loads upgraded career");((java.util.Random)get("random")).setSeed(35);call("startLiveMatchday",new Class[0]);call("setLiveSpeed",new Class[]{int.class},2);});
+        awaitNaturalMatchPhase(true,1);capture("natural-progress-halftime");verifyTacticsMarkers();check(true,"natural first half reaches half-time without clock jumps");
+        ui(()->call("returnFromLiveTactics",new Class[0]));awaitNaturalMatchPhase(false,1);capture("natural-progress-fulltime");
+        int shots=(Integer)get("liveHomeShots")+(Integer)get("liveAwayShots"),target=(Integer)get("liveHomeOnTarget")+(Integer)get("liveAwayOnTarget"),goals=(Integer)get("liveHomeGoals")+(Integer)get("liveAwayGoals"),recorded=0;
+        for(int n:((Map<Integer,Integer>)get("matchGoals")).values())recorded+=n;
+        check(shots>0&&goals<=target&&target<=shots&&recorded==goals,"natural match event totals and scorers are consistent");
+        ui(()->check((Boolean)call("loadSave",new Class[]{int.class},0)&&(Integer)get("matchday")==1,"natural full-time result survives career reload"));
+        check(true,"natural full match advances without stalls and preserves its result");
+    }
     private void dismissEmulatorSystemAnr() throws Exception {
         android.view.accessibility.AccessibilityNodeInfo root=getUiAutomation().getRootInActiveWindow();
         if(root==null || !"android".contentEquals(root.getPackageName())) return;
@@ -1553,6 +1576,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(true,"release bundle upgrade and feature navigation verified");
             } else if(mode.equals("refinements")) {
                 verifyRefinements();
+            } else if(mode.equals("natural-match")) {
+                verifyNaturalMatch();
             } else if(mode.equals("fixes")) {
                 verifyRequestedFixes();
             } else if(mode.equals("premium")) {
@@ -1663,9 +1688,9 @@ public final class SmokeRunner extends Instrumentation {
                 capture("20-reloaded");
                 // Exercise complete event chains and AI reviews, not only time-boundary jumps.
                 ui(()->{call("startLiveMatchday",new Class[0]);call("setLiveSpeed",new Class[]{int.class},2);});
-                awaitBoolean("liveHalfTimeTacticsActive");capture("21-natural-halftime");
+                awaitNaturalMatchPhase(true,2);capture("21-natural-halftime");
                 ui(()->call("returnFromLiveTactics",new Class[0]));
-                awaitRound(2);capture("22-natural-fulltime");
+                awaitNaturalMatchPhase(false,2);capture("22-natural-fulltime");
                 int shots=(Integer)get("liveHomeShots")+(Integer)get("liveAwayShots");
                 int target=(Integer)get("liveHomeOnTarget")+(Integer)get("liveAwayOnTarget");
                 int goals=(Integer)get("liveHomeGoals")+(Integer)get("liveAwayGoals");
