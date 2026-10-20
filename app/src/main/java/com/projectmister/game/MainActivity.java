@@ -3266,7 +3266,7 @@ public class MainActivity extends Activity {
 
     private ComparisonStatsView matchStatsCard(boolean compact) {
         String[] labels=compact?new String[]{"Possession","Shots","On target","Pass accuracy","Fouls"}:new String[]{"Possession","Shots","Shots on target","Corners","Pass accuracy","Tackles","Fouls"};
-        ComparisonStatsView view=new ComparisonStatsView(this,clubNames[liveHome],clubNames[liveAway],primaryColours[liveHome],primaryColours[liveAway],compact,labels);
+        ComparisonStatsView view=new ComparisonStatsView(this,GameNames.display(clubNames[liveHome]),GameNames.display(clubNames[liveAway]),primaryColours[liveHome],primaryColours[liveAway],compact,labels);
         updateMatchStats(view,compact);return view;
     }
     private void updateMatchStats(ComparisonStatsView view,boolean compact) {
