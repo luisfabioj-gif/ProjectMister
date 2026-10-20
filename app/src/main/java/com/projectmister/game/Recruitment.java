@@ -10,7 +10,7 @@ public final class Recruitment {
         public final int age,current,potential,fee,wage,chance;
         public final boolean free,owned;
         public Row(String key,String name,String club,String country,String nationality,String position,int age,int current,int potential,int fee,int wage,int chance,boolean free,boolean owned,String status){
-            this.key=key;this.name=name;this.club=GameNames.display(club);this.country=country;this.nationality=nationality;this.position=position;
+            GameNames.protectPerson(name);this.key=key;this.name=name;this.club=GameNames.display(club);this.country=country;this.nationality=nationality;this.position=position;
             this.age=age;this.current=current;this.potential=potential;this.fee=fee;this.wage=wage;this.chance=chance;this.free=free;this.owned=owned;this.status=status;
         }
     }

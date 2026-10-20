@@ -587,6 +587,7 @@ public class MainActivity extends Activity {
 
 
     private LinearLayout createPage(String title, String subtitle, boolean showHome) {
+        for(Player person:players)GameNames.protectPerson(person.name);GameNames.protectPerson(managerFullName());GameNames.protectPerson(assistantManagerName);GameNames.protectPerson(headCoachName);GameNames.protectPerson(chiefScoutName);
         dismissKeyboard();
         stopLiveMatchTicker();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

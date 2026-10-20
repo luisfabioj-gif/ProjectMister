@@ -5,6 +5,16 @@ import java.util.regex.*;
 public final class GameNames {
  private static final Map<String,String> NAMES=new HashMap<>();
  private static final Pattern MATCH;
+ private static final Set<String> KNOWN_PEOPLE=new HashSet<>();
+ private static final Map<String,List<PersonName>> PEOPLE=new HashMap<>();
+ private static final Pattern WORD=Pattern.compile("[\\p{L}\\p{M}’'-]+");
+ private static final class PersonName {final String name;final int offset;PersonName(String name,int offset){this.name=name;this.offset=offset;}}
+ public static void protectPerson(String name){
+  if(name==null||!name.contains(" ")||!KNOWN_PEOPLE.add(name))return;
+  Matcher words=WORD.matcher(name);while(words.find()){String key=words.group().toLowerCase(Locale.ROOT);if(NAMES.containsKey(key))PEOPLE.computeIfAbsent(key,k->new ArrayList<>()).add(new PersonName(name,words.start()));}
+ }
+ private static boolean personReference(String value,Matcher match){List<PersonName> people=PEOPLE.get(match.group().toLowerCase(Locale.ROOT));if(people==null)return false;for(PersonName person:people){int start=match.start()-person.offset;if(start>=0&&value.regionMatches(true,start,person.name,0,person.name.length()))return true;}return false;}
+
  static {
   String[] pairs={"1. FC Heidenheim 1846\tHeidenheim 1846 Athletic",
 "1. FC Kaiserslautern\tKaiserslautern Athletic",
@@ -1544,7 +1554,7 @@ public final class GameNames {
  }
  public static String display(String value){
   if(value==null)return "";String direct=NAMES.get(value.toLowerCase(Locale.ROOT));if(direct!=null)return direct;
-  Matcher m=MATCH.matcher(value);StringBuffer out=new StringBuffer();while(m.find())m.appendReplacement(out,Matcher.quoteReplacement(NAMES.get(m.group().toLowerCase(Locale.ROOT))));m.appendTail(out);return out.toString();
+  Matcher m=MATCH.matcher(value);StringBuffer out=new StringBuffer();while(m.find())m.appendReplacement(out,Matcher.quoteReplacement(personReference(value,m)?m.group():NAMES.get(m.group().toLowerCase(Locale.ROOT))));m.appendTail(out);return out.toString();
  }
  public static String division(String country,int tier){String name;
   switch(country){case "PT":name="Portugal";break;case "ES":name="Spain";break;case "ENG":name="England";break;case "DE":name="Germany";break;case "IT":name="Italy";break;case "FR":name="France";break;case "NL":name="Netherlands";break;case "BE":name="Belgium";break;case "SCO":name="Scotland";break;case "TR":name="Turkey";break;default:name=country;}

@@ -9,6 +9,7 @@ public class RefinementTests {
         check(GameNames.display("Interview with Luis").equals("Interview with Luis"),"Inter alias does not change interview text");
         check(GameNames.display("SL Benfica B").equals("Lisbon Eagles B"),"reserve identity stays distinguishable");
         check(GameNames.display("My Custom Club").equals("My Custom Club"),"custom name retained");
+        GameNames.protectPerson("Milan Novak");GameNames.protectPerson("Marco Milan");check(GameNames.display("Milan Novak • GK").equals("Milan Novak • GK"),"player first name is not replaced with club identity");check(GameNames.display("Marco Milan plays the pass").equals("Marco Milan plays the pass"),"player surname is not replaced in commentary");check(GameNames.display("Milan come into the week").equals("Milano Rossoneri come into the week"),"club references still change beside protected personal names");
         for(String country:new String[]{"PT","ES","ENG","DE","IT","FR","NL","BE","SCO","TR"})for(int tier=1;tier<=2;tier++)check(GameNames.division(country,tier).endsWith(tier==1?" 1st Division":" 2nd Division"),"generic division "+country+tier);
         check(GameNames.display("Liga Portugal Betclic").equals("Portugal 1st Division"),"legacy top division label");
         check(GameNames.display("Liga Portugal Meu Super").equals("Portugal 2nd Division"),"legacy second division label");
