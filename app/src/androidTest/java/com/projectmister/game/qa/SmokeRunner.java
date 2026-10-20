@@ -348,8 +348,8 @@ public final class SmokeRunner extends Instrumentation {
             call("showCalendarTab",new Class[]{String.class},"Play-offs");
             StringBuilder text=new StringBuilder();collectScreenText(activity.getWindow().getDecorView(),text);
             String[] names=(String[])get("clubNames");
-            check(text.toString().contains("Penalties: "+names[15]+" 4–2 "+names[3]),"playoff penalties identify return-leg home and away clubs");
-            check(text.toString().contains("Winner: "+names[15]),"playoff calendar shows the stored winner");
+            check(text.toString().contains((String)gameClass("GameNames").getMethod("display",String.class).invoke(null,"Penalties: "+names[15]+" 4–2 "+names[3])),"playoff penalties identify return-leg home and away clubs");
+            check(text.toString().contains((String)gameClass("GameNames").getMethod("display",String.class).invoke(null,"Winner: "+names[15])),"playoff calendar shows the stored winner");
             check(text.toString().contains("dates have not been scheduled"),"playoff calendar does not invent match dates");
             check(before.equals(pc.getMethod("snapshot").invoke(p)),"calendar projection preserves saved playoff state");
         });
@@ -1442,7 +1442,7 @@ public final class SmokeRunner extends Instrumentation {
     @SuppressWarnings("unchecked") private void verifyRefinements()throws Exception{
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
         try{
-            ui(()->{seedRulesCareer("ES",1,true);call("saveCurrentGame",new Class[0]);call("showDashboard",new Class[0]);});capture("refine-brand-header");
+            ui(()->{seedRulesCareer("ES",1,true);set("managerFirstName","Luis");set("managerLastName","Jardim");call("saveCurrentGame",new Class[0]);call("showDashboard",new Class[0]);});capture("refine-brand-header");
             ui(()->{
                 View logo=activity.getWindow().getDecorView().findViewWithTag("boss-centered-logo"),header=activity.getWindow().getDecorView().findViewWithTag("boss-brand-header");int[] lp=new int[2],hp=new int[2];logo.getLocationOnScreen(lp);header.getLocationOnScreen(hp);check(Math.abs(lp[0]+logo.getWidth()/2f-hp[0]-header.getWidth()/2f)<2,"logo horizontally centred in the main header");
                 String raw=((String[])get("clubNames"))[(Integer)get("selectedClub")],alias=(String)gameClass("GameNames").getMethod("display",String.class).invoke(null,raw);check(!alias.equals(raw)&&screenText().contains(alias),"alternate club name visible in existing career UI");

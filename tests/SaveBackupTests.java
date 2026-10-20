@@ -8,6 +8,7 @@ public final class SaveBackupTests {
     public static void main(String[] args)throws Exception {
         Map<String,Object> values=new HashMap<>();values.put("save_0_exists",true);values.put("save_0_club",7);
         values.put("save_0_manager_first","Luís ⚽");values.put("save_0_classic_notes","first\u001Esecond\u001Fthird");
+        values.put("save_0_stad_designs","1;,,0,1,;,,0,1,;,,0,1,;,,0,1,");
         values.put("save_0_national_cups","CS1\nGerman cup current edition and history");
         for(int slot=0;slot<3;slot++) {
             values.put("save_"+slot+"_discipline_version",1);

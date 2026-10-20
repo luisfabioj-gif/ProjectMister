@@ -1853,8 +1853,8 @@ public class MainActivity extends Activity {
             p.setColor(secondaryColours[team]); c.drawRect(cx, top, right, bottom, p);
             p.setColor(Color.argb(34,255,255,255)); c.drawRect(left, top, right, h*.30f, p);
             c.restore();
-            p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(dp(3)); p.setColor(Color.rgb(220,226,230)); c.drawPath(shield,p); p.setStyle(Paint.Style.FILL);
-            p.setColor(contrastText(primaryColours[team])); p.setTextAlign(Paint.Align.CENTER); p.setTypeface(Typeface.DEFAULT_BOLD); p.setTextSize(dp(10));
+            p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(Math.min(dp(3),w*.06f)); p.setColor(Color.rgb(220,226,230)); c.drawPath(shield,p); p.setStyle(Paint.Style.FILL);
+            p.setColor(contrastText(primaryColours[team])); p.setTextAlign(Paint.Align.CENTER); p.setTypeface(Typeface.DEFAULT_BOLD); p.setTextSize(Math.min(dp(10),w*.25f));
             c.drawText(shortNames[team], cx, h*.57f, p);
         }
     }
@@ -4031,7 +4031,7 @@ public class MainActivity extends Activity {
                 boolean deadRunner=deadBallStage>0&&team==deadBallTeam&&i==deadBallSlot;
                 if(collecting){tx=ballX;ty=ballY;maxSpeed=.17f*mobility;}
                 if(deadRunner){tx=deadBallStage==1?ballX:restartX;ty=deadBallStage==1?ballY:restartY;maxSpeed=.21f*mobility;}
-                MatchMotion.arrive(xs,ys,vx,vy,i,clamp(tx,collecting||deadRunner?.012f:.035f,collecting||deadRunner?.988f:.965f),clamp(ty,collecting||deadRunner?.012f:.035f,collecting||deadRunner?.988f:.965f),maxSpeed,.44f*mobility,dt);
+                MatchMotion.arrive(xs,ys,vx,vy,i,clamp(tx,collecting||deadRunner?.012f:.035f,collecting||deadRunner?.988f:.965f),clamp(ty,collecting||deadRunner?.012f:.035f,collecting||deadRunner?.988f:.965f),maxSpeed,.44f*mobility,dt,collecting||deadRunner?.012f:.035f);
             }
         }
 
@@ -4165,6 +4165,7 @@ public class MainActivity extends Activity {
         TextView tableTitle=makeText(GameNames.display(division==null?leagueName():division.nameFor(tableTier))+"  •  STANDINGS",13,BossStyle.DARK);tableTitle.setTypeface(BossStyle.DISPLAY);tableTitle.setPadding(dp(12),dp(12),dp(12),dp(12));tableTitle.setBackgroundColor(accent);table.addView(tableTitle);
         LinearLayout header=new LinearLayout(this);header.setPadding(dp(8),dp(10),dp(8),dp(10));header.setBackgroundColor(0xff10140e);
         for(String label:new String[]{"POS","CLUB","P","W","D","L","F","A","GD","PTS","LAST 10"})header.addView(gridCell(label,label.equals("CLUB")?200:label.equals("LAST 10")?140:label.equals("POS")?42:36,true,text));table.addView(header);
+        TextView tableHint=makeText("Swipe across for all stats and recent form →",11,muted);tableHint.setPadding(0,0,0,dp(8));page.addView(tableHint);
         HorizontalScrollView tableScroll=new HorizontalScrollView(this);tableScroll.setTag("boss-league-scroll");tableScroll.setHorizontalScrollBarEnabled(true);tableScroll.setFillViewport(true);tableScroll.addView(table,new HorizontalScrollView.LayoutParams(Math.max(dp(686),getResources().getDisplayMetrics().widthPixels-dp(40)),-2));page.addView(tableScroll);
         TextView scrollHint=makeText("Swipe across for goals and recent form. Tap a club for its squad.",11,muted);scrollHint.setPadding(0,dp(8),0,dp(10));page.addView(scrollHint);
         for (int position = 0; position < order.length; position++) {

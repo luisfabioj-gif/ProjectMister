@@ -2,7 +2,7 @@ package com.projectmister.game;
 public class RefinementTests {
     private static int checks;
     private static void check(boolean value,String name){if(!value)throw new AssertionError(name);checks++;}
-    public static void main(String[] args){
+    public static void main(String[] args)throws Exception{
         check(GameNames.display("SL Benfica").equals("Lisbon Eagles"),"Portuguese alternate identity");
         check(GameNames.display("Real Madrid 2–1 FC Barcelona").equals("Madrid Royals 2–1 Barcelona Blaugrana"),"old news is presented with alternate names");
         check(GameNames.display("Roma Wolves").equals("Roma Wolves"),"alias rendering is idempotent");
@@ -21,6 +21,9 @@ public class RefinementTests {
         check(StandDesigns.text("  A\nB  ").equals("AB"),"stand labels exclude control characters");
         check(StandDesigns.text("a".repeat(100)).length()==36,"stand text bounded");
         boolean invalid=false;try{StandDesigns.restore(designs.snapshot().replace(",2,3,",",99,3,"));}catch(IllegalArgumentException expected){invalid=true;}check(invalid,"invalid palette rejected before restore");
+        java.util.Map<String,Object> backup=new java.util.HashMap<>();backup.put("save_0_stad_designs",designs.snapshot());StandDesigns backed=StandDesigns.restore((String)SaveBackup.decode(SaveBackup.encode(backup)).get("save_0_stad_designs"));check(backed.get(101).banner.equals(north.banner)&&backed.get(101).openDay.equals(north.openDay),"stand design survives complete backup serialization");
+        float[] x={.5f},y={.5f},vx={0},vy={0};for(int i=0;i<3000;i++)MatchMotion.arrive(x,y,vx,vy,0,.015f,.015f,.21f,.44f,1f/120,.012f);check(Math.hypot(x[0]-.015f,(y[0]-.015f)*.648f)<.009,"restart taker reaches the actual corner");
+        x[0]=y[0]=.5f;vx[0]=vy[0]=0;for(int i=0;i<3000;i++)MatchMotion.arrive(x,y,vx,vy,0,.015f,.015f,.21f,.44f,1f/120);check(x[0]>=.035f&&y[0]>=.035f,"normal play keeps its original bounds");
         ShotQuality open=new ShotQuality(true,.90f,.50f,.72f,.75f,true,90,90,0),guarded=new ShotQuality(true,.90f,.50f,.96f,.50f,true,90,90,0);
         check(open.openGoal&&!open.keeperCanReach&&open.saveChance==0,"beaten keeper cannot make remote save");
         check(open.onTarget>.8,"close central open goal rewards accurate finishing");

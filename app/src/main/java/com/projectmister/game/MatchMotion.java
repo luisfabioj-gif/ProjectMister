@@ -3,6 +3,9 @@ package com.projectmister.game;
 /** Original bounded arrival steering, in pitch-length units (105 x 68 metre aspect). */
 final class MatchMotion {
     static void arrive(float[] x,float[] y,float[] vx,float[] vy,int i,float tx,float ty,float speed,float acceleration,float dt){
+        arrive(x,y,vx,vy,i,tx,ty,speed,acceleration,dt,.035f);
+    }
+    static void arrive(float[] x,float[] y,float[] vx,float[] vy,int i,float tx,float ty,float speed,float acceleration,float dt,float inset){
         float dx=tx-x[i],dy=(ty-y[i])*68f/105f;
         float distance=(float)Math.hypot(dx,dy);
         float desired=Math.min(speed,(float)Math.sqrt(2*acceleration*distance));
@@ -17,7 +20,7 @@ final class MatchMotion {
         float magnitude=(float)Math.hypot(vx[i],oldY);
         if(magnitude>speed){vx[i]*=speed/magnitude;oldY*=speed/magnitude;}
         vy[i]=oldY*105f/68f;
-        x[i]=MatchMath.clamp(x[i]+vx[i]*dt,.035f,.965f);
-        y[i]=MatchMath.clamp(y[i]+vy[i]*dt,.035f,.965f);
+        x[i]=MatchMath.clamp(x[i]+vx[i]*dt,inset,1-inset);
+        y[i]=MatchMath.clamp(y[i]+vy[i]*dt,inset,1-inset);
     }
 }
