@@ -5233,7 +5233,7 @@ public class MainActivity extends Activity {
         page.addView(makeAccentButton("All players",v->showPlayerDatabase()));
         page.addView(makeButton("Free agents • no transfer fee",v->showMarketClub("free","Unattached players",0)));
         if(catalog!=null)for(CompetitionCatalog.Division d:catalog.divisions)
-            page.addView(makeButton(d.country+" • "+d.name,v->{
+            page.addView(makeButton(d.name,v->{
                 backAction=()->showWorldMarket();
                 LinearLayout clubs=createPage(d.name,"Select a club",true);
                 for(CompetitionCatalog.Club c:d.clubs)clubs.addView(makeButton(c.name,w->{
@@ -7257,7 +7257,7 @@ public class MainActivity extends Activity {
             LEAGUE_OPTIONS=new String[catalog.divisions.size()];
             for(int i=0;i<catalog.divisions.size();i++) {
                 CompetitionCatalog.Division d=catalog.divisions.get(i);
-                LEAGUE_OPTIONS[i]=d.country+" • "+d.name;
+                LEAGUE_OPTIONS[i]=d.name;
             }
         }catch(Exception error){android.util.Log.w("BOSSXI","Optional competition catalog unavailable",error);}
     }
