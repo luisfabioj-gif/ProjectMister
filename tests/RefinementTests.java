@@ -26,7 +26,7 @@ public class RefinementTests {
         check(guarded.keeperCanReach&&guarded.saveChance>.4,"correctly positioned keeper can intervene");
         ShotQuality empty=new ShotQuality(true,.90f,.50f,.96f,.50f,false,90,90,0);check(empty.saveChance==0,"absent keeper cannot save");
         ShotQuality wide=new ShotQuality(true,.90f,.15f,.72f,.75f,true,90,90,0),far=new ShotQuality(true,.60f,.50f,.72f,.75f,true,90,90,0);
-        check(wide.angle<open.angle&&wide.onTarget<open.onTarget,"narrow angles reduce shot quality");check(far.distance>open.distance&&far.onTarget<open.onTarget,"distance reduces accuracy");
+        check(wide.angle<open.angle&&wide.onTarget<open.onTarget,"narrow angles reduce shot quality");check(far.distance>open.distance&&far.onTarget<open.onTarget,"distance reduces accuracy");ShotQuality distant=new ShotQuality(true,.5f,.5f,.96f,.5f,true,75,75,0);check(distant.onTarget<.4&&distant.saveChance>.8,"halfway-line shots remain low probability against a set keeper");
         ShotQuality mirror=new ShotQuality(false,.10f,.50f,.28f,.75f,true,90,90,0);check(Math.abs(mirror.onTarget-open.onTarget)<.0001&&mirror.saveChance==open.saveChance,"both ends have symmetric geometry");
         check(ShotQuality.screens(.7f,.5f,.985f,.46f,.85f,.48f),"defender in shot lane detected");check(!ShotQuality.screens(.7f,.5f,.985f,.46f,.6f,.48f),"defender behind shooter cannot block");
         check(InboxNews.pressText("Maya • The Touchline • fictional journalist").equals("Maya • The Touchline"),"old journalist suffix removed");

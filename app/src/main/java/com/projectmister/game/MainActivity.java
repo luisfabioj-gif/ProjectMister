@@ -688,7 +688,7 @@ public class MainActivity extends Activity {
     }
 
     private LinearLayout pulseStat(String icon,String label,String value,String hint,int progress,int colour,Runnable action){
-        LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(dp(14),dp(16),dp(12),dp(16));card.setBackground(BossStyle.raised(this,panelLight,20));BossStyle.lift(card);
+        LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(dp(14),dp(16),dp(12),dp(16));card.setBackground(BossStyle.raised(this,panelLight,20));card.setMinimumHeight(dp(136));BossStyle.lift(card);
         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(3),0,dp(3),dp(12));card.setLayoutParams(lp);
         LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);top.addView(new BossStyle.Icon(this,icon,accent),new LinearLayout.LayoutParams(dp(17),dp(17)));TextView title=makeText(label,9,muted);title.setPadding(dp(7),0,0,0);top.addView(title,new LinearLayout.LayoutParams(0,-2,1));card.addView(top);
         TextView number=makeText(value,23,colour);number.setMaxLines(1);number.setAutoSizeTextTypeUniformWithConfiguration(13,23,1,android.util.TypedValue.COMPLEX_UNIT_SP);number.setPadding(0,dp(12),0,dp(8));card.addView(number,new LinearLayout.LayoutParams(-1,dp(48)));card.addView(makeText(hint,10,muted));
@@ -2639,10 +2639,15 @@ public class MainActivity extends Activity {
     }
     private void resolveLooseBall() {
         if(livePitchView.looseRecovery)return;
-        livePitchView.beginLooseRecovery(nearestDefenderSlot(liveHome,liveLooseBallX,liveLooseBallY),nearestDefenderSlot(liveAway,liveLooseBallX,liveLooseBallY));
+        livePitchView.beginLooseRecovery(nearestLooseBallSlot(liveHome),nearestLooseBallSlot(liveAway));
         liveActionTimer=.08f;livePendingPossessionTeam=livePendingCarrierSlot=-1;recordCommentary(-1,"Both teams race to reach the loose ball.");
     }
 
+    private int nearestLooseBallSlot(int team){
+        int best=nearestDefenderSlot(team,liveLooseBallX,liveLooseBallY);float bestDistance=Float.MAX_VALUE;
+        for(int slot=0;slot<11;slot++)if(playerForPitchSlot(team,slot)!=null){if(slot==0&&!(team==liveHome?liveLooseBallX<.21f:liveLooseBallX>.79f))continue;float distance=(float)Math.hypot(livePitchView.getPlayerX(team,slot)-liveLooseBallX,(livePitchView.getPlayerY(team,slot)-liveLooseBallY)*.648f);if(distance<bestDistance){bestDistance=distance;best=slot;}}
+        return best;
+    }
     private boolean isOffsidePass(int team, int targetSlot) {
         int defending = team == liveHome ? liveAway : liveHome;
         float targetX = livePitchView.getPlayerX(team, targetSlot);
@@ -8954,7 +8959,7 @@ public class MainActivity extends Activity {
         else details.addView(new StadiumComplexView(this,stadiumLevels(),0,code,null,code),new LinearLayout.LayoutParams(-1,-2));details.addView(profileInfoRow("Current level",stand?standLevelLabel(level):facilityLevelLabel(level)));
         if(level<5){int cost=stand?2500+level*3500+stadiumCapacity/25:facilityUpgradeCostK(code,level);int weeks=stand?4+level*2:facilityUpgradeWeeks(code,level);details.addView(profileInfoRow("Upgrade cost",moneyK(cost)));details.addView(profileInfoRow("Build time",weeks+" weeks"));details.addView(profileInfoRow("Benefit",stand?"+"+DisplayFormat.number(Math.min(1200+level*900,Math.max(0,stadiumExpansionLimit-stadiumCapacity)))+" seats":facilityImpact(code)));details.addView(makeText("The next architectural stage appears in this part of the complex after the project completes.",12,muted));}else details.addView(makeText("Elite standard reached",16,accent));
         BossDialog.Builder dialog=new BossDialog.Builder(this).setTitle(name).setView(details).setNegativeButton("Close",null);
-        if(stand){details.addView(makeButton("Personalise stand",v->{if(standDialog!=null)standDialog.dismiss();showStandDesigner(code);}));details.addView(makeButton("Host supporter open day • €10k",v->{if(standDialog!=null)standDialog.dismiss();confirmStandOpenDay(code);}));}
+        if(stand){details.addView(makeButton("Personalise stand",v->{if(standDialog!=null)standDialog.dismiss();showStandDesigner(code);}));details.addView(makeButton("Host supporter open day • €10k",v->{if(standDialog!=null)standDialog.dismiss();confirmStandOpenDay(code);}));details.addView(makeButton("View stand architecture",v->{if(standDialog!=null)standDialog.dismiss();new BossDialog.Builder(this).setTitle(name+" • "+standLevelLabel(level)).setView(new StadiumComplexView(this,stadiumLevels(),0,code,null,code)).setNegativeButton("Close",null).setPositiveButton("Back to stand",(d,w)->showStadiumPart(code)).show();}));}
         if(stadiumProjectWeeks==0&&level<5&&(!stand||stadiumCapacity<stadiumExpansionLimit))dialog.setPositiveButton("Plan upgrade",(d,w)->{if(stand)confirmStandUpgrade(code==101?"North":code==102?"East":code==103?"South":"West",code,stadiumPartLevel(code));else startStadiumProject(facilityName(code)+" upgrade",code,facilityUpgradeCostK(code,facilityLevel(code)),facilityUpgradeWeeks(code,facilityLevel(code)),0);});
         else if(stadiumProjectWeeks>0)details.addView(makeText(stadiumProjectType+" • "+stadiumProjectWeeks+" weeks remaining",12,warning));standDialog=dialog.show();
     }

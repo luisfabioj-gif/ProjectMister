@@ -21,8 +21,8 @@ public final class ShotQuality {
         openGoal=!keeperCanReach&&screens==0;
         contactX=x+(goal-x)*bounded;contactY=y+(aimY-y)*bounded;
         float aperture=Math.min(1,angle/.65f),skill=Math.max(0,Math.min(1,finishing/100f));
-        onTarget=bound(.45+.22*skill+.23*aperture-distance*.0025-Math.min(3,screens)*.035,.18,.96);
-        saveChance=keeperCanReach?bound(.79+(keeperAbility-finishing)*.0025-aperture*.14+Math.min(3,screens)*.02-(separation/Math.max(1,reach))*.14,.24,.94):0;
+        onTarget=bound(.45+.22*skill+.23*aperture-distance*.0025-Math.max(0,distance-22)*.008-Math.min(3,screens)*.035,.18,.96);
+        saveChance=keeperCanReach?bound(.79+(keeperAbility-finishing)*.0025-aperture*.14+Math.min(3,screens)*.02+Math.max(0,distance-18)*.006-(separation/Math.max(1,reach))*.14,.24,.94):0;
     }
     public static boolean screens(float sx,float sy,float gx,float gy,float dx,float dy){
         float vx=(gx-sx)*105,vy=(gy-sy)*68,px=(dx-sx)*105,py=(dy-sy)*68;
