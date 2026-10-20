@@ -34,9 +34,9 @@ final class BossDialog {
         Builder setPositiveButton(CharSequence v,DialogInterface.OnClickListener l){positive=v;positiveListener=l;return this;}
         Builder setNegativeButton(CharSequence v,DialogInterface.OnClickListener l){negative=v;negativeListener=l;return this;}
         int dp(float n){return Math.round(n*context.getResources().getDisplayMetrics().density);}
-        TextView text(CharSequence value,int size,int color){TextView t=new TextView(context);t.setText(value);BossStyle.type(t,size,color);return t;}
+        TextView text(CharSequence value,int size,int color){TextView t=new TextView(context);t.setText(GameNames.display(value==null?"":value.toString()));BossStyle.type(t,size,color);return t;}
         GradientDrawable shape(int color){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(28));d.setStroke(dp(1),0x22ffffff);return d;}
-        Button button(CharSequence label,boolean primary){Button b=new Button(context);b.setText(label);b.setTextSize(14);b.setTextColor(BossStyle.buttonInk(primary));b.setTypeface(BossStyle.MEDIUM);BossStyle.lift(b);b.setAllCaps(false);b.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);b.setPadding(dp(16),dp(10),dp(16),dp(10));b.setMinHeight(dp(52));b.setMinimumHeight(dp(52));b.setBackground(BossStyle.raised(context,primary?ACCENT:ROW,24));return b;}
+        Button button(CharSequence label,boolean primary){Button b=new Button(context);b.setText(GameNames.display(label==null?"":label.toString()));b.setTextSize(14);b.setTextColor(BossStyle.buttonInk(primary));b.setTypeface(BossStyle.MEDIUM);BossStyle.lift(b);b.setAllCaps(false);b.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);b.setPadding(dp(16),dp(10),dp(16),dp(10));b.setMinHeight(dp(52));b.setMinimumHeight(dp(52));b.setBackground(BossStyle.raised(context,primary?ACCENT:ROW,24));return b;}
         Dialog show(){
             Dialog dialog=new Dialog(context);dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             boolean landscape=context.getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE;

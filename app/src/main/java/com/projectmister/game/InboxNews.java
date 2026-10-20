@@ -23,13 +23,14 @@ public final class InboxNews {
         for(String line:value.split("\u001e",-1)){
             String[] p=line.split("\u001f",modern?-1:3);if(p.length!=(modern?8:3))continue;
             LocalDate date=null;try{if(modern&&!p[3].isEmpty())date=LocalDate.parse(p[3]);}catch(java.time.DateTimeException ignored){}
-            Item n=new Item(p[0],p[1],p[2],date);
-            if(modern){n.read=p[4].equals("1");n.source=p[5];n.action=p[6];n.response=p[7];}out.add(n);
+            Item n=new Item(p[0],p[1],pressText(p[2]),date);
+            if(modern){n.read=p[4].equals("1");n.source=pressText(p[5]);n.action=p[6];n.response=p[7];}out.add(n);
             if(out.size()==100)break;
         }
         return out;
     }
     public static boolean hasAction(List<Item> items,String action){for(Item n:items)if(n.action.equals(action))return true;return false;}
     public static boolean reply(Item item,String response){if(!item.action.startsWith("interview:")||!item.response.isEmpty())return false;item.response=response;item.read=true;return true;}
+    public static String pressText(String value){return value.replace(" • fictional newspaper", "").replace(" • fictional journalist", "").replace(" This is a fictional press interview.", "");}
     private InboxNews(){}
 }

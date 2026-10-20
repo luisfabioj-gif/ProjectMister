@@ -81,7 +81,7 @@ public final class CareerDivision {
         return ids;
     }
     public boolean contains(int club){return club>=0&&club<clubTiers.length&&clubTiers[club]==tier;}
-    public String nameFor(int level){return tierNames[level-1];}
+    public String nameFor(int level){return GameNames.division(country,level);}
     public int rounds(int level) {
         int count=members(level).length;if(count==0)return 0;
         return country.equals("SCO")&&level==1?38:(count+count%2-1)*(country.equals("SCO")?4:2);

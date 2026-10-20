@@ -349,6 +349,8 @@ public class MainActivity extends Activity {
 
     private int stadiumTab=0,selectedStadiumPart=101;
     private StadiumComplexView stadiumMap;
+    private android.app.Dialog standDialog;
+    private StandDesigns standDesigns=new StandDesigns();
     private int stadiumNorthLevel = 1;
     private int stadiumEastLevel = 1;
     private int stadiumSouthLevel = 1;
@@ -592,14 +594,14 @@ public class MainActivity extends Activity {
         root.setBackground(BossStyle.atmosphere(this));root.setTag("boss-premium-root");
         ScrollView scroll=new ScrollView(this);scroll.setFillViewport(true);scroll.setClipToPadding(false);scroll.setVerticalScrollBarEnabled(false);scroll.setClipChildren(false);
         LinearLayout page=new LinearLayout(this);page.setOrientation(LinearLayout.VERTICAL);page.setPadding(dp(20),dp(16),dp(20),dp(20));page.setTag("boss-premium-page");page.setClipChildren(false);page.setClipToPadding(false);scroll.addView(page);
-        LinearLayout toolbar=new LinearLayout(this);toolbar.setGravity(Gravity.CENTER_VERTICAL);toolbar.setPadding(0,0,0,dp(22));
-        if(backAction!=null){View back=iconAction("back","Back",v->{if(backAction!=null)backAction.run();});toolbar.addView(back,new LinearLayout.LayoutParams(dp(44),dp(44)));}
-        LinearLayout wordmark=new LinearLayout(this);wordmark.setOrientation(LinearLayout.VERTICAL);wordmark.setPadding(backAction==null?0:dp(12),0,0,0);
-        TextView brand=makeText("BOSS XI",17,text);brand.setTypeface(BossStyle.DISPLAY);brand.setLetterSpacing(.07f);wordmark.addView(brand);
-        TextView edition=makeText("FOOTBALL MANAGEMENT",8,muted);edition.setLetterSpacing(.15f);edition.setPadding(0,dp(4),0,0);wordmark.addView(edition);
-        toolbar.addView(wordmark,new LinearLayout.LayoutParams(0,-2,1));
-        if(selectedClub>=0&&showHome)toolbar.addView(iconAction("bell","Open inbox",v->showInbox()),new LinearLayout.LayoutParams(dp(44),dp(44)));
-        else toolbar.addView(BrandMark.view(this,40));
+        FrameLayout toolbar=new FrameLayout(this);toolbar.setPadding(0,0,0,dp(14));toolbar.setTag("boss-brand-header");
+        LinearLayout wordmark=new LinearLayout(this);wordmark.setOrientation(LinearLayout.VERTICAL);wordmark.setGravity(Gravity.CENTER);
+        ImageView logo=BrandMark.view(this,54);logo.setTag("boss-centered-logo");wordmark.addView(logo);
+        TextView brand=makeText("BOSS XI",11,text);brand.setTypeface(BossStyle.DISPLAY);brand.setLetterSpacing(.16f);brand.setGravity(Gravity.CENTER);brand.setPadding(0,dp(3),0,0);wordmark.addView(brand);
+        toolbar.addView(wordmark,new FrameLayout.LayoutParams(dp(150),dp(76),Gravity.TOP|Gravity.CENTER_HORIZONTAL));
+        if(backAction!=null)toolbar.addView(iconAction("back","Back",v->{if(backAction!=null)backAction.run();}),new FrameLayout.LayoutParams(dp(44),dp(44),Gravity.TOP|Gravity.LEFT));
+        if(selectedClub>=0&&showHome)toolbar.addView(iconAction("bell","Open inbox",v->showInbox()),new FrameLayout.LayoutParams(dp(44),dp(44),Gravity.TOP|Gravity.RIGHT));
+        toolbar.setMinimumHeight(dp(92));
         page.addView(toolbar);
         TextView heading=makeText(title,title.length()>23?26:32,text);heading.setTypeface(BossStyle.DISPLAY);heading.setLetterSpacing(-.035f);heading.setPadding(0,0,0,dp(8));heading.setTag("boss-screen-title");page.addView(heading);
         TextView sub=makeText(subtitle,13,muted);sub.setPadding(0,0,0,dp(22));page.addView(sub);
@@ -685,8 +687,23 @@ public class MainActivity extends Activity {
         root.post(root::requestApplyInsets);
     }
 
+    private LinearLayout pulseStat(String icon,String label,String value,String hint,int progress,int colour,Runnable action){
+        LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(dp(14),dp(16),dp(12),dp(16));card.setBackground(BossStyle.raised(this,panelLight,20));BossStyle.lift(card);
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(3),0,dp(3),dp(12));card.setLayoutParams(lp);
+        LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);top.addView(new BossStyle.Icon(this,icon,accent),new LinearLayout.LayoutParams(dp(17),dp(17)));TextView title=makeText(label,9,muted);title.setPadding(dp(7),0,0,0);top.addView(title,new LinearLayout.LayoutParams(0,-2,1));card.addView(top);
+        TextView number=makeText(value,23,colour);number.setMaxLines(1);number.setAutoSizeTextTypeUniformWithConfiguration(13,23,1,android.util.TypedValue.COMPLEX_UNIT_SP);number.setPadding(0,dp(12),0,dp(8));card.addView(number,new LinearLayout.LayoutParams(-1,dp(48)));card.addView(makeText(hint,10,muted));
+        if(progress>=0){android.widget.ProgressBar bar=new android.widget.ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);bar.setMax(100);bar.setProgress(progress);bar.setProgressTintList(android.content.res.ColorStateList.valueOf(colour));bar.setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(0xff11170e));LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,dp(4));bp.topMargin=dp(12);card.addView(bar,bp);}
+        card.setOnClickListener(v->action.run());card.setFocusable(true);card.setContentDescription(label+", "+GameNames.display(value)+". "+hint);return card;
+    }
+    private TextView gridCell(String label,int width,boolean bold,int colour){TextView t=makeText(label,bold?11:12,colour);t.setTypeface(bold?BossStyle.DISPLAY:BossStyle.BODY);t.setGravity(Gravity.CENTER_VERTICAL|Gravity.CENTER_HORIZONTAL);t.setSingleLine(true);t.setLayoutParams(new LinearLayout.LayoutParams(dp(width),-1));return t;}
+    private LinearLayout formStrip(int club,int size){
+        ArrayList<LeagueResults.Result> scores=new ArrayList<>();for(LeagueResults.Result r:leagueResults.results())if(r.home==club||r.away==club)scores.add(r);scores.sort((a,b)->Integer.compare(a.round,b.round));ArrayList<String> marks=new ArrayList<>();
+        for(LeagueResults.Result r:scores){int gf=r.home==club?r.homeGoals:r.awayGoals,ga=r.home==club?r.awayGoals:r.homeGoals;marks.add(gf>ga?"W":gf<ga?"L":"D");}
+        if(marks.isEmpty()&&club==selectedClub)for(int i=0;i<Math.min(matchday,clubMatchGF.length);i++)if(clubMatchGF[i]>=0)marks.add(clubMatchGF[i]>clubMatchGA[i]?"W":clubMatchGF[i]<clubMatchGA[i]?"L":"D");
+        LinearLayout form=new LinearLayout(this);form.setGravity(Gravity.CENTER_VERTICAL);form.setContentDescription("Recent form, oldest to newest");int missing=Math.max(0,size-marks.size());for(int i=0;i<size;i++){String mark=i<missing?"–":marks.get(Math.max(0,marks.size()-size)+i-missing);int colour=mark.equals("W")?0xff4caf72:mark.equals("L")?0xffdf7166:mark.equals("D")?0xff858e88:0xff35402c;TextView cell=makeText(size>5?"":mark,11,Color.WHITE);cell.setGravity(Gravity.CENTER);cell.setBackground(BossStyle.shape(this,colour,size>5?1:6));cell.setContentDescription(mark.equals("–")?"No recorded result":mark.equals("W")?"Win":mark.equals("D")?"Draw":"Loss");LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(size>5?10:30),dp(size>5?6:28));cp.rightMargin=dp(3);form.addView(cell,cp);}return form;
+    }
     private TextView makeText(String value,int size,int colour){
-        TextView tv=new TextView(this);tv.setText(value);BossStyle.type(tv,size,colour);return tv;
+        TextView tv=new TextView(this);tv.setText(GameNames.display(value));BossStyle.type(tv,size,colour);return tv;
     }
 
     private GradientDrawable rounded(int colour){return BossStyle.shape(this,colour,24);}
@@ -715,7 +732,7 @@ public class MainActivity extends Activity {
     }
 
     private Button makeButton(String label,View.OnClickListener click){
-        Button button=new Button(this);button.setText(label.replaceFirst("^[^\\p{L}\\p{N}]+", ""));BossStyle.type(button,14,text);button.setTypeface(BossStyle.MEDIUM);button.setTextColor(BossStyle.buttonInk(false));button.setAllCaps(false);button.setGravity(Gravity.CENTER);button.setMinHeight(dp(50));button.setMinimumHeight(dp(50));button.setMinWidth(0);button.setMinimumWidth(0);button.setPadding(dp(16),dp(13),dp(16),dp(13));BossStyle.lift(button);button.setBackground(BossStyle.raised(this,panelLight,24));
+        Button button=new Button(this);button.setText(GameNames.display(label).replaceFirst("^[^\\p{L}\\p{N}]+", ""));BossStyle.type(button,14,text);button.setTypeface(BossStyle.MEDIUM);button.setTextColor(BossStyle.buttonInk(false));button.setAllCaps(false);button.setGravity(Gravity.CENTER);button.setMinHeight(dp(50));button.setMinimumHeight(dp(50));button.setMinWidth(0);button.setMinimumWidth(0);button.setPadding(dp(16),dp(13),dp(16),dp(13));BossStyle.lift(button);button.setBackground(BossStyle.raised(this,panelLight,24));
         LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(10);button.setLayoutParams(lp);if(click!=null)button.setOnClickListener(click);return button;
     }
 
@@ -951,7 +968,7 @@ public class MainActivity extends Activity {
                 .show());
         page.addView(leagueButton);
 
-        TextView note = makeText("Choose a country and division. Real club names with fictional players, budgets and ratings. Fixture dates currently follow a simulated weekly calendar.", 13, muted);
+        TextView note = makeText("Choose a country and division. Build your career with original players, club identities and a full football calendar.", 13, muted);
         note.setPadding(0, 0, 0, dp(12));
         page.addView(note);
 
@@ -1093,17 +1110,14 @@ public class MainActivity extends Activity {
         int fit=0,count=0,injured=0;
         for(Player p:players) if(p.team==selectedClub) { fit+=p.fitness;count++;if(p.injuredWeeks>0)injured++; }
         page.addView(profileSectionTitle("CLUB PULSE"));
-        LinearLayout pulse=new LinearLayout(this);pulse.addView(profileMetricCard("LEAGUE",DisplayFormat.ordinal(rank),accent));pulse.addView(profileMetricCard("BALANCE",moneyK(financeBalanceK),text));pulse.addView(profileMetricCard("CONDITION",(count==0?0:fit/count)+"%",count>0?conditionProfileColour(fit/count):muted));LinearLayout.LayoutParams pl=new LinearLayout.LayoutParams(-1,-2);pl.bottomMargin=dp(14);page.addView(pulse,pl);
-        LinearLayout overview=makePanel();
-        overview.addView(profileInfoRow("League position",DisplayFormat.ordinal(rank)+"  •  "+points[selectedClub]+" points"));
-        if(injured>0)overview.addView(profileInfoRow("Unavailable",injured+" injured"));
-        overview.addView(profileInfoRow("Board confidence",boardConfidence+"%"));
-        overview.addView(profileInfoRow("Manager",managerFullName()));
-        if(matchday>0 && matchday-1<clubMatchGF.length && clubMatchGF[matchday-1]>=0) overview.addView(profileInfoRow("Last result",clubMatchGF[matchday-1]+" – "+clubMatchGA[matchday-1]));
-        StringBuilder form=new StringBuilder();
-        for(int i=Math.max(0,matchday-5);i<Math.min(matchday,clubMatchGF.length);i++) if(clubMatchGF[i]>=0) form.append(clubMatchGF[i]>clubMatchGA[i]?"W  ":clubMatchGF[i]<clubMatchGA[i]?"L  ":"D  ");
-        overview.addView(profileInfoRow("Recent form",form.length()==0?"Season opening":form.toString()));
-        page.addView(overview);
+        LinearLayout leaguePulse=makePanel();leaguePulse.setTag("boss-pulse-league");leaguePulse.setBackground(BossStyle.hero(this));leaguePulse.setOnClickListener(v->showLeagueTable());leaguePulse.setContentDescription("League position. Open league table");leaguePulse.setFocusable(true);
+        LinearLayout leagueLine=new LinearLayout(this);leagueLine.setGravity(Gravity.CENTER_VERTICAL);leagueLine.addView(new ClubShieldView(selectedClub),new LinearLayout.LayoutParams(dp(48),dp(52)));
+        LinearLayout leagueText=new LinearLayout(this);leagueText.setOrientation(LinearLayout.VERTICAL);leagueText.setPadding(dp(12),0,0,0);leagueText.addView(makeText("LEAGUE POSITION  ↗",10,accent));leagueText.addView(makeText(DisplayFormat.ordinal(rank)+"  •  "+points[selectedClub]+" points",25,text));leagueText.addView(makeText(leagueName(),11,muted));leagueLine.addView(leagueText,new LinearLayout.LayoutParams(0,-2,1));leaguePulse.addView(leagueLine);page.addView(leaguePulse);
+        LinearLayout financePulse=new LinearLayout(this);financePulse.addView(pulseStat("finance","CLUB BALANCE",moneyK(financeBalanceK),"Open finances",-1,text,this::showFinances));financePulse.addView(pulseStat("squad","SQUAD CONDITION",(count==0?0:fit/count)+"%",injured==0?"All players available":injured+" injured",count==0?0:fit/count,conditionProfileColour(count==0?0:fit/count),()->showTeamPlayers(selectedClub)));page.addView(financePulse);
+        LinearLayout peoplePulse=new LinearLayout(this);peoplePulse.addView(pulseStat("trophy","BOARD CONFIDENCE",boardConfidence+"%","Open board room",boardConfidence,boardConfidence>=55?accent:warning,this::showClubOffice));peoplePulse.addView(pulseStat("squad","MANAGER",managerFullName(),"View manager profile",-1,text,this::showManagerProfile));page.addView(peoplePulse);
+        LinearLayout recent=makePanel();recent.addView(profileSectionTitle("RECENT FORM"));recent.addView(formStrip(selectedClub,5));
+        if(matchday>0&&matchday-1<clubMatchGF.length&&clubMatchGF[matchday-1]>=0)recent.addView(profileInfoRow("Last result",clubMatchGF[matchday-1]+" – "+clubMatchGA[matchday-1]));
+        recent.setOnClickListener(v->showCompetitionCalendar());page.addView(recent);
         page.addView(profileSectionTitle("FIRST TEAM"));
         dashboardRow(page,"Squad",()->showTeamPlayers(selectedClub),"Tactics",this::showTactics);
         dashboardRow(page,"Training",this::showTraining,"Staff",this::showStaffHub);
@@ -2438,7 +2452,7 @@ public class MainActivity extends Activity {
             substitutions.commit();substitutionsPending=false;
             liveUsedOffIds.clear();matchParticipants.addAll(liveXIIds);
         }
-        if(livePitchView!=null&&livePitchView.restartInProgress()){livePitchView.stepSimulation(dt);return;}
+        if(livePitchView!=null&&(livePitchView.restartInProgress()||livePitchView.deadBallInProgress())){livePitchView.stepSimulation(dt);return;}
         float nextMinute = liveMinuteFloat + dt;
         if(pendingGoalTeam>=0)nextMinute=Math.min(nextMinute,!liveHalfTimeBreakTaken?44.999f:89.999f);
         if (!liveHalfTimeBreakTaken && nextMinute >= 45f) nextMinute = 45f;
@@ -2502,6 +2516,7 @@ public class MainActivity extends Activity {
 
     private void beginNextLiveAction() {
         if (livePitchView == null || liveMinute >= 90 || livePitchView.restartInProgress()) return;
+        if(livePitchView.contactPending()){liveActionTimer=.08f;return;}
         int review=liveMinute/10;
         if(liveMinute>=45 && review!=lastAiReview) {lastAiReview=review;manageOpposition(liveMinute);}
 
@@ -2546,6 +2561,9 @@ public class MainActivity extends Activity {
             if (carrier == null) return;
         }
 
+        if(!livePitchView.ballIsAt(livePossessionTeam,liveCarrierSlot,.030f)){
+            liveLooseBall=true;liveLooseBallX=livePitchView.getBallX();liveLooseBallY=livePitchView.getBallY();resolveLooseBall();return;
+        }
         float ballX = livePitchView.getBallX();
         float progress = livePossessionTeam == liveHome ? ballX : 1f - ballX;
         livePhase = calculateLivePhase(livePossessionTeam, progress);
@@ -2566,7 +2584,9 @@ public class MainActivity extends Activity {
         if (carrier.longShots && progress > 0.54f) shotChance += 0.035;
         if (livePossessionTeam == selectedClub && "Attacking".equals(liveMentality)) shotChance += 0.025;
         if (transition && progress > 0.56f) shotChance += 0.045;
-        shotChance = Math.min(0.39, shotChance);
+        ShotQuality opening=shotQuality(livePossessionTeam,liveCarrierSlot);
+        if(progress>.67f&&opening.openGoal&&opening.angle>.16f)shotChance=Math.max(shotChance,.82);
+        shotChance = Math.min(0.90, shotChance);
 
         double r = random.nextDouble();
         if ("BUILD_UP".equals(livePhase)) {
@@ -2598,85 +2618,29 @@ public class MainActivity extends Activity {
 
     private void scheduleSetPiece(String type, int team, float x, float y) {
         livePendingSetPiece = type;
+        livePendingPossessionTeam=livePendingCarrierSlot=-1;
         liveSetPieceTeam = team;
         liveSetPieceX = Math.max(0.015f, Math.min(0.985f, x));
         liveSetPieceY = Math.max(0.015f, Math.min(0.985f, y));
     }
 
     private void performPendingSetPiece() {
-        String type = livePendingSetPiece;
-        int team = liveSetPieceTeam;
-        livePendingSetPiece = "";
-        liveSetPieceTeam = -1;
-        if (team < 0) return;
-        livePossessionTeam = team;
-        liveLastPossessionTeam = team;
-
-        if ("CORNER".equals(type)) {
-            int takerSlot = liveSetPieceY < 0.5f ? 8 : 10;
-            if (playerForPitchSlot(team, takerSlot) == null) takerSlot = wideAttackSlot(team);
-            int targetSlot = bestBoxTarget(team, takerSlot);
-            Player taker = playerForPitchSlot(team, takerSlot);
-            Player target = playerForPitchSlot(team, targetSlot);
-            livePitchView.placePlayer(team, takerSlot, liveSetPieceX, liveSetPieceY);
-            livePitchView.placeBall(liveSetPieceX, liveSetPieceY);
-            livePitchView.prepareReceivingRun(team, targetSlot, true);
-            liveActionDuration = 1.05f;
-            liveActionTimer = liveActionDuration;
-            livePitchView.animateBallToSlot(team, takerSlot, team, targetSlot, liveActionDuration);
-            livePendingPossessionTeam = team;
-            livePendingCarrierSlot = targetSlot;
-            recordCommentary(team, (taker == null ? clubNames[team] : taker.name) + " whips the corner into the danger area"
-                    + (target == null ? "." : " towards " + target.name + "."));
-            return;
-        }
-
-        if ("THROW_IN".equals(type)) {
-            int throwerSlot = nearestDefenderSlot(team, liveSetPieceX, liveSetPieceY);
-            if (throwerSlot <= 0) throwerSlot = 2;
-            int targetSlot = choosePassTarget(team, throwerSlot, false);
-            Player thrower = playerForPitchSlot(team, throwerSlot);
-            Player target = playerForPitchSlot(team, targetSlot);
-            livePitchView.placePlayer(team, throwerSlot, liveSetPieceX, liveSetPieceY);
-            livePitchView.placeBall(liveSetPieceX, liveSetPieceY);
-            livePitchView.prepareReceivingRun(team, targetSlot, false);
-            liveActionDuration = 0.78f;
-            liveActionTimer = liveActionDuration;
-            livePitchView.animateBallToSlot(team, throwerSlot, team, targetSlot, liveActionDuration);
-            livePendingPossessionTeam = team;
-            livePendingCarrierSlot = targetSlot;
-            recordCommentary(team, (thrower == null ? clubNames[team] : thrower.name) + " takes the throw quickly"
-                    + (target == null ? "." : " into " + target.name + "'s feet."));
-            return;
-        }
-
-        if ("GOAL_KICK".equals(type)) {
-            liveCarrierSlot = 0;
-            livePitchView.placeBall(team == liveHome ? 0.08f : 0.92f, 0.50f);
-            Player keeper = playerForPitchSlot(team, 0);
-            recordCommentary(team, (keeper == null ? "The goalkeeper" : keeper.name) + " sets the ball for the goal kick.");
-            performPassAction(team, 0, shouldPlayLongPass(team));
-        }
+        String type=livePendingSetPiece;int team=liveSetPieceTeam;if(team<0)return;
+        int takerSlot="GOAL_KICK".equals(type)?0:"CORNER".equals(type)?(liveSetPieceY<.5f?8:10):nearestDefenderSlot(team,liveSetPieceX,liveSetPieceY);
+        if(playerForPitchSlot(team,takerSlot)==null)takerSlot=nearestDefenderSlot(team,liveSetPieceX,liveSetPieceY);
+        if(!livePitchView.deadBallReady){livePitchView.beginDeadBall(team,takerSlot,liveSetPieceX,liveSetPieceY);liveActionTimer=.1f;recordCommentary(team,clubNames[team]+" retrieve the ball and prepare the "+type.toLowerCase(Locale.UK).replace('_',' ')+".");return;}
+        takerSlot=livePitchView.deadBallSlot;livePitchView.deadBallReady=false;livePendingSetPiece="";liveSetPieceTeam=-1;livePossessionTeam=liveLastPossessionTeam=team;liveCarrierSlot=takerSlot;lastPasserId=lastPassTeam=-1;
+        livePitchView.holdBallAt(team,takerSlot);Player taker=playerForPitchSlot(team,takerSlot);
+        if("GOAL_KICK".equals(type)||"FREE_KICK".equals(type)){recordCommentary(team,(taker==null?clubNames[team]:taker.name)+" restarts with a "+type.toLowerCase(Locale.UK).replace('_',' ')+".");performPassAction(team,takerSlot,shouldPlayLongPass(team));return;}
+        int targetSlot="CORNER".equals(type)?bestBoxTarget(team,takerSlot):choosePassTarget(team,takerSlot,false);Player target=playerForPitchSlot(team,targetSlot);
+        livePitchView.prepareReceivingRun(team,targetSlot,"CORNER".equals(type));liveActionDuration="CORNER".equals(type)?1.05f:.78f;liveActionTimer=liveActionDuration;
+        livePitchView.animateBallToSlot(team,takerSlot,team,targetSlot,liveActionDuration);livePendingPossessionTeam=team;livePendingCarrierSlot=targetSlot;playLiveSound("kick");
+        recordCommentary(team,(taker==null?clubNames[team]:taker.name)+("CORNER".equals(type)?" delivers the corner":" takes the throw-in")+(target==null?".":" towards "+target.name+"."));
     }
-
     private void resolveLooseBall() {
-        int homeSlot = nearestDefenderSlot(liveHome, liveLooseBallX, liveLooseBallY);
-        int awaySlot = nearestDefenderSlot(liveAway, liveLooseBallX, liveLooseBallY);
-        Player hp = playerForPitchSlot(liveHome, homeSlot);
-        Player ap = playerForPitchSlot(liveAway, awaySlot);
-        double homeScore = hp == null ? 50 : hp.pace * 0.35 + hp.physical * 0.35 + hp.overall * 0.30;
-        double awayScore = ap == null ? 50 : ap.pace * 0.35 + ap.physical * 0.35 + ap.overall * 0.30;
-        double homeChance = homeScore / Math.max(1.0, homeScore + awayScore);
-        int winner = random.nextDouble() < homeChance ? liveHome : liveAway;
-        int slot = winner == liveHome ? homeSlot : awaySlot;
-        Player p = playerForPitchSlot(winner, slot);
-        liveLooseBall = false;
-        livePitchView.animateBallToSlot(winner, slot, winner, slot, 0.42f);
-        livePendingPossessionTeam = winner;
-        livePendingCarrierSlot = slot;
-        liveActionDuration = 0.46f;
-        liveActionTimer = liveActionDuration;
-        recordCommentary(winner, (p == null ? clubNames[winner] : p.name) + " reacts first to the loose ball.");
+        if(livePitchView.looseRecovery)return;
+        livePitchView.beginLooseRecovery(nearestDefenderSlot(liveHome,liveLooseBallX,liveLooseBallY),nearestDefenderSlot(liveAway,liveLooseBallX,liveLooseBallY));
+        liveActionTimer=.08f;livePendingPossessionTeam=livePendingCarrierSlot=-1;recordCommentary(-1,"Both teams race to reach the loose ball.");
     }
 
     private boolean isOffsidePass(int team, int targetSlot) {
@@ -2726,8 +2690,7 @@ public class MainActivity extends Activity {
             livePitchView.flashOffsideLine(team == liveHome
                     ? Math.max(livePitchView.getBallX(), livePitchView.getPlayerX(defending, 1))
                     : Math.min(livePitchView.getBallX(), livePitchView.getPlayerX(defending, 1)));
-            livePendingPossessionTeam = defending;
-            livePendingCarrierSlot = Math.min(4, Math.max(1, nearestDefenderSlot(defending, livePitchView.getPlayerX(team, targetSlot), livePitchView.getPlayerY(team, targetSlot))));
+            scheduleSetPiece("FREE_KICK",defending,livePitchView.getPlayerX(team,targetSlot),livePitchView.getPlayerY(team,targetSlot));
             liveSequencePasses = 0;
             recordCommentary(defending, "The flag is up! " + target.name + " went too early and is caught offside.");
             return;
@@ -2804,7 +2767,7 @@ public class MainActivity extends Activity {
         float bestScore=-Float.MAX_VALUE,dir=team==liveHome?1:-1;
         Player passer=playerForPitchSlot(team,fromSlot);
         float vision=passer==null?.6f:passer.passing/100f;
-        for(int i=0;i<11;i++) if(i!=fromSlot) {
+        for(int i=0;i<11;i++) if(i!=fromSlot&&playerForPitchSlot(team,i)!=null) {
             float tx=livePitchView.getPlayerX(team,i),ty=livePitchView.getPlayerY(team,i);
             float dx=tx-x,dy=ty-y,dist=(float)Math.hypot(dx,dy),space=1,blocked=0;
             for(int j=1;j<11;j++) {
@@ -2980,75 +2943,31 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void performShotAction(int team, int slot) {
-        playLiveSound("shot");
-        Player shooter = playerForPitchSlot(team, slot);
-        int defending = team == liveHome ? liveAway : liveHome;
-        Player keeper = playerForPitchSlot(defending, 0);
-        if (shooter == null) return;
-
-        if (team == liveHome) liveHomeShots++; else liveAwayShots++;
-        double attackQ = effectiveTeamQuality(team, true);
-        double defenceQ = effectiveTeamQuality(defending, false);
-        double onTarget = 0.42 + (shooter.finishing - 65) / 170.0 + (attackQ - defenceQ) / 300.0;
-        if ("Windy".equals(liveWeather) || "Heavy Rain".equals(liveWeather)) onTarget -= 0.04;
-        onTarget = Math.max(0.25, Math.min(0.73, onTarget));
-
-        liveActionDuration = 0.78f;
-        liveActionTimer = liveActionDuration;
-        float goalX = team == liveHome ? 0.985f : 0.015f;
-        float goalY = 0.44f + random.nextFloat() * 0.12f;
-
-        if (random.nextDouble() < onTarget) {
-            if (team == liveHome) liveHomeOnTarget++; else liveAwayOnTarget++;
-            double goalChance = 0.19 + (shooter.finishing - 68) / 235.0 + (attackQ - defenceQ) / 430.0;
-            if (liveMinute > 75) goalChance += (shooter.importantMatches - 10) / 390.0;
-            goalChance = Math.max(0.10, Math.min(0.37, goalChance));
-
-            if (random.nextDouble() < goalChance) {
-                livePitchView.animateBallToPoint(team, slot, goalX, goalY, liveActionDuration);
-                pendingGoalTeam=team;pendingGoalSlot=slot;pendingGoalDelay=liveActionDuration;
-                pendingAssistId=lastPassTeam==team?lastPasserId:-1;
-                recordCommentary(team,shooter.name+" strikes towards goal!");
-                livePendingPossessionTeam = defending;
-                livePendingCarrierSlot = 9;
-                liveNeedsKickoffReset = true;
-                liveActionTimer += 1.80f;
-            } else {
-                double keeperQuality = keeper == null ? 68 : keeper.overall * 0.65 + keeper.technicalGoalkeeperScore() * 0.35;
-                double holdChance = Math.max(0.32, Math.min(0.72, 0.40 + (keeperQuality - shooter.finishing) / 170.0));
-                if (random.nextDouble() < holdChance) {
-                    livePitchView.animateBallToSlot(team, slot, defending, 0, liveActionDuration);
-                    livePendingPossessionTeam = defending;
-                    livePendingCarrierSlot = 0;
-                    queueContactSound("catch");
-                    recordCommentary(defending, (keeper == null ? "The goalkeeper" : keeper.name) + " gets both hands behind " + shooter.name + "'s effort and holds it.");
-                } else {
-                    float reboundX = team == liveHome ? 0.83f + random.nextFloat() * 0.08f : 0.17f - random.nextFloat() * 0.08f;
-                    float reboundY = 0.28f + random.nextFloat() * 0.44f;
-                    livePitchView.animateBallToPoint(team, slot, reboundX, reboundY, liveActionDuration);
-                    liveLooseBall = true;
-                    liveLooseBallX = reboundX;
-                    liveLooseBallY = reboundY;
-                    queueContactSound("save");
-                    recordCommentary(-1, (keeper == null ? "The goalkeeper" : keeper.name) + " can only parry it — the ball is loose in the area!");
-                }
+    private ShotQuality shotQuality(int team,int slot){
+        int defending=team==liveHome?liveAway:liveHome;Player shooter=playerForPitchSlot(team,slot),keeper=playerForPitchSlot(defending,0);float x=livePitchView.getPlayerX(team,slot),y=livePitchView.getPlayerY(team,slot);int screens=0;float aim=livePitchView.getPlayerY(defending,0)>=.5f?.458f:.542f;
+        for(int i=1;i<11;i++)if(playerForPitchSlot(defending,i)!=null&&ShotQuality.screens(x,y,team==liveHome?.985f:.015f,aim,livePitchView.getPlayerX(defending,i),livePitchView.getPlayerY(defending,i)))screens++;
+        return new ShotQuality(team==liveHome,x,y,livePitchView.getPlayerX(defending,0),livePitchView.getPlayerY(defending,0),keeper!=null,shooter==null?50:shooter.finishing,keeper==null?0:keeper.overall,screens);
+    }
+    private void performShotAction(int team,int slot){
+        Player shooter=playerForPitchSlot(team,slot);if(shooter==null)return;int defending=team==liveHome?liveAway:liveHome;Player keeper=playerForPitchSlot(defending,0);ShotQuality q=shotQuality(team,slot);playLiveSound("shot");
+        if(team==liveHome)liveHomeShots++;else liveAwayShots++;
+        liveActionDuration=Math.max(.34f,Math.min(.9f,q.distance/42f));liveActionTimer=liveActionDuration+.10f;float goalX=team==liveHome?.985f:.015f;
+        int blocker=-1;float blockerDistance=Float.MAX_VALUE;for(int i=1;i<11;i++)if(playerForPitchSlot(defending,i)!=null){float bx=livePitchView.getPlayerX(defending,i),by=livePitchView.getPlayerY(defending,i);if(ShotQuality.screens(livePitchView.getPlayerX(team,slot),livePitchView.getPlayerY(team,slot),goalX,q.aimY,bx,by)){float distance=Math.abs(bx-livePitchView.getPlayerX(team,slot));if(distance<blockerDistance){blockerDistance=distance;blocker=i;}}}
+        if(blocker>=0&&random.nextDouble()<.30){float bx=livePitchView.getPlayerX(defending,blocker),by=livePitchView.getPlayerY(defending,blocker);livePitchView.animateBallToSlot(team,slot,defending,blocker,liveActionDuration);livePitchView.queueParry(MatchMath.clamp(bx+(team==liveHome?-.05f:.05f),.04f,.96f),MatchMath.clamp(by+(random.nextBoolean()?.08f:-.08f),.04f,.96f));liveActionTimer+=.42f;recordCommentary(defending,playerForPitchSlot(defending,blocker).name+" gets in the shooting lane and blocks the effort!");return;}
+        double accuracy=q.onTarget-(("Windy".equals(liveWeather)||"Heavy Rain".equals(liveWeather))?.04:0);
+        if(random.nextDouble()<accuracy){
+            if(team==liveHome)liveHomeOnTarget++;else liveAwayOnTarget++;
+            if(random.nextDouble()>=q.saveChance){
+                livePitchView.animateBallToPoint(team,slot,goalX,q.aimY,liveActionDuration);pendingGoalTeam=team;pendingGoalSlot=slot;pendingGoalDelay=liveActionDuration;pendingAssistId=lastPassTeam==team?lastPasserId:-1;liveActionTimer+=1.8f;recordCommentary(team,shooter.name+(q.openGoal?" sees the exposed goal and places the shot!":" strikes towards the far corner!"));
+            }else{
+                livePitchView.startRun(defending,0,q.contactX,q.contactY,liveActionDuration+.4f);
+                livePitchView.animateBallToPoint(team,slot,q.contactX,q.contactY,liveActionDuration);
+                boolean held=random.nextDouble()<.48+(keeper==null?0:keeper.overall-shooter.finishing)/200.0;
+                if(held){livePendingPossessionTeam=defending;livePendingCarrierSlot=0;queueContactSound("catch");recordCommentary(defending,(keeper==null?"The goalkeeper":keeper.name)+" moves across the shot and gathers it.");}
+                else{float reboundX=MatchMath.clamp(q.contactX+(team==liveHome?-.055f:.055f),.04f,.96f),reboundY=MatchMath.clamp(q.contactY+(random.nextBoolean()?.14f:-.14f),.06f,.94f);livePitchView.queueParry(reboundX,reboundY);liveActionTimer+=.42f;queueContactSound("save");recordCommentary(-1,(keeper==null?"The goalkeeper":keeper.name)+" reaches the shot and parries it back into the area!");}
             }
-        } else {
-            if (random.nextDouble() < 0.23) {
-                if (team == liveHome) liveHomeCorners++; else liveAwayCorners++;
-                float cornerY = random.nextBoolean() ? 0.012f : 0.988f;
-                livePitchView.animateBallToPoint(team, slot, goalX, cornerY, liveActionDuration);
-                scheduleSetPiece("CORNER", team, goalX, cornerY);
-                recordCommentary(team, shooter.name + " sees the shot take a deflection and spin behind for a corner.");
-            } else {
-                float missY = random.nextBoolean() ? 0.28f : 0.72f;
-                livePitchView.animateBallToPoint(team, slot, goalX, missY, liveActionDuration);
-                scheduleSetPiece("GOAL_KICK", defending, defending == liveHome ? 0.08f : 0.92f, 0.50f);
-                queueContactSound("miss");
-                String[] miss = {"drags the shot wide.", "fires over the bar.", "pulls the effort past the post.", "cannot keep the shot down."};
-                recordCommentary(team, shooter.name + " " + miss[random.nextInt(miss.length)] + " Goal kick.");
-            }
+        }else{
+            float missY=q.aimY<.5f?.39f:.61f;livePitchView.animateBallToPoint(team,slot,goalX,missY,liveActionDuration);scheduleSetPiece("GOAL_KICK",defending,defending==liveHome?.065f:.935f,.5f);queueContactSound("miss");recordCommentary(team,shooter.name+(q.openGoal?" rushes the finish and misses the exposed goal. Goal kick.":" sends the shot just wide. Goal kick."));
         }
     }
 
@@ -3321,7 +3240,7 @@ public class MainActivity extends Activity {
         }
 
         if (liveCommentaryText != null) {
-            liveCommentaryText.setText(liveCommentary);
+            liveCommentaryText.setText(GameNames.display(liveCommentary));
             int colour = liveCommentaryTeam >= 0 && liveCommentaryTeam < primaryColours.length
                     ? primaryColours[liveCommentaryTeam] : panelLight;
             GradientDrawable commentaryBg=rounded(panelLight);
@@ -3669,6 +3588,16 @@ public class MainActivity extends Activity {
         private final MatchRestart restart=new MatchRestart();
         private int kickoffTeam=-1,kickoffSlot=9;
         private float touchTime;
+        private boolean looseRecovery=false,deadBallReady=false,parryPending=false;
+        private int recoveryHomeSlot=-1,recoveryAwaySlot=-1,deadBallStage=0,deadBallTeam=-1,deadBallSlot=-1;
+        private float restartX,restartY,parryX,parryY;
+        boolean deadBallInProgress(){return deadBallStage>0;}
+        boolean contactPending(){return looseRecovery||deadBallInProgress()||ballTravel<1f;}
+        boolean ballIsAt(int team,int slot,float tolerance){return Math.hypot((getPlayerX(team,slot)-ballX),(getPlayerY(team,slot)-ballY)*.648f)<=tolerance;}
+        void beginLooseRecovery(int home,int away){looseRecovery=true;recoveryHomeSlot=home;recoveryAwaySlot=away;trackTarget=false;dribbleTeam=dribbleSlot=-1;ballHeight=0;}
+        void beginDeadBall(int team,int slot,float x,float y){deadBallTeam=team;deadBallSlot=slot;restartX=x;restartY=y;deadBallStage=1;deadBallReady=false;trackTarget=false;dribbleTeam=dribbleSlot=-1;looseRecovery=false;lastPasserId=lastPassTeam=-1;}
+        void queueParry(float x,float y){parryPending=true;parryX=x;parryY=y;}
+
         private final Paint carrierPaint=new Paint(Paint.ANTI_ALIAS_FLAG);
         private float celebrationTargetX = 0.5f;
         private float celebrationTargetY = 0.5f;
@@ -3762,7 +3691,7 @@ public class MainActivity extends Activity {
         private void prepareKickoffReset(){
             refreshFormationAnchors();
             kickoffSlot=9;if(playerForPitchSlot(kickoffTeam,kickoffSlot)==null)for(int slot=10;slot>=0;slot--)if(playerForPitchSlot(kickoffTeam,slot)!=null){kickoffSlot=slot;break;}
-            placeBall(.5f,.5f);dribbleTeam=dribbleSlot=-1;goalCelebrationTime=0;goalCelebrationTeam=-1;goalCelebrationScorerSlot=-1;
+            placeBall(.5f,.5f);deadBallStage=0;deadBallReady=looseRecovery=parryPending=false;dribbleTeam=dribbleSlot=-1;goalCelebrationTime=0;goalCelebrationTeam=-1;goalCelebrationScorerSlot=-1;
             Arrays.fill(homeRunTime,0);Arrays.fill(awayRunTime,0);
         }
         private boolean returnTeamForKickoff(int team,float[] xs,float[] ys,float[] vx,float[] vy,float[] baseX,float[] baseY,float dt){
@@ -3802,13 +3731,8 @@ public class MainActivity extends Activity {
         }
 
         void animateBallToSlot(int fromTeam, int fromSlot, int toTeam, int toSlot, float duration) {
-            if(trackTarget&&ballTravel>=1f)ballAtFeet(fromTeam,fromSlot);
             ballStartX = ballX;
             ballStartY = ballY;
-            if (Math.abs(ballStartX - 0.5f) < 0.001f && Math.abs(ballStartY - 0.5f) < 0.001f) {
-                ballStartX = getPlayerX(fromTeam, fromSlot);
-                ballStartY = getPlayerY(fromTeam, fromSlot);
-            }
             ballTargetTeam = toTeam;
             ballTargetSlot = toSlot;
             ballTargetX = getPlayerX(toTeam, toSlot);
@@ -3838,7 +3762,6 @@ public class MainActivity extends Activity {
         }
 
         void animateBallToPoint(int fromTeam, int fromSlot, float x, float y, float duration) {
-            if(trackTarget&&ballTravel>=1f)ballAtFeet(fromTeam,fromSlot);
             ballStartX = ballX;
             ballStartY = ballY;
             ballTargetX = clamp(x, 0.01f, 0.99f);
@@ -3978,6 +3901,10 @@ public class MainActivity extends Activity {
                 ballTravel=Math.min(1f,ballTravel+dt/ballTravelDuration);float progress=MatchMath.flightProgress(ballTravel);
                 ballX=ballStartX+(ballTargetX-ballStartX)*progress;ballY=ballStartY+(ballTargetY-ballStartY)*progress;ballHeight=MatchMath.arc(ballTravel,ballPeakHeight);
             }
+            if(ballTravel>=1f&&parryPending){parryPending=false;ballStartX=ballX;ballStartY=ballY;ballTargetX=parryX;ballTargetY=parryY;ballTravel=0;ballTravelDuration=.34f;ballPeakHeight=.018f;trackTarget=false;liveLooseBall=true;liveLooseBallX=parryX;liveLooseBallY=parryY;}
+            if(looseRecovery&&ballTravel>=1f){int home=recoveryHomeSlot,away=recoveryAwaySlot;boolean h=ballIsAt(liveHome,home,.018f),a=ballIsAt(liveAway,away,.018f);if(h||a){int winner=h?liveHome:liveAway,slot=h?home:away;looseRecovery=false;liveLooseBall=false;livePossessionTeam=winner;liveCarrierSlot=slot;livePendingPossessionTeam=livePendingCarrierSlot=-1;holdBallAt(winner,slot);liveActionTimer=.25f;Player player=playerForPitchSlot(winner,slot);recordCommentary(winner,(player==null?clubNames[winner]:player.name)+" reaches the ball and takes control.");}}
+            if(deadBallStage==1&&ballIsAt(deadBallTeam,deadBallSlot,.018f)){holdBallAt(deadBallTeam,deadBallSlot);deadBallStage=2;}
+            if(deadBallStage==2&&Math.hypot(getPlayerX(deadBallTeam,deadBallSlot)-restartX,(getPlayerY(deadBallTeam,deadBallSlot)-restartY)*.648f)<.012f){deadBallStage=0;deadBallReady=true;liveActionTimer=.05f;}
             if(ballTravel>=1f&&trackTarget&&ballTargetTeam>=0&&ballTargetSlot>=0)ballAtFeet(ballTargetTeam,ballTargetSlot);
         }
 
@@ -4009,14 +3936,9 @@ public class MainActivity extends Activity {
                 float ty = baseY[i];
 
                 if (i == 0) {
-                    boolean threat = team == liveHome ? ballX < 0.38f : ballX > 0.62f;
-                    boolean deepThreat = team == liveHome ? ballX < 0.22f : ballX > 0.78f;
-                    tx = baseX[i] + attackDir * (deepThreat ? 0.072f : threat ? 0.040f : 0.012f);
-                    ty = 0.50f + (ballY - 0.50f) * (deepThreat ? 0.42f : 0.25f);
-                    if (liveLooseBall && ((team == liveHome && liveLooseBallX < 0.23f) || (team == liveAway && liveLooseBallX > 0.77f))) {
-                        tx += (liveLooseBallX - tx) * 0.28f;
-                        ty += (liveLooseBallY - ty) * 0.28f;
-                    }
+                    float ownGoal=team==liveHome?.025f:.975f,depth=Math.abs(ballX-ownGoal);
+                    tx=ownGoal+attackDir*(depth>.4f?.045f:depth>.2f?.030f:.014f);
+                    ty=.5f+(ballY-.5f)*Math.max(.12f,Math.min(.62f,.07f/Math.max(.06f,depth)));
                 } else {
                     tx += horizontalBallShift * (hasBall ? 0.90f : 0.56f) + selectedShapeShift;
                     ty += verticalBallPull * (hasBall ? 0.65f : 0.46f);
@@ -4099,7 +4021,11 @@ public class MainActivity extends Activity {
                         tx+=dx/distance*clearance;ty+=dy/distance*clearance/.648f;
                     }
                 }
-                MatchMotion.arrive(xs,ys,vx,vy,i,clamp(tx,.035f,.965f),clamp(ty,.035f,.965f),maxSpeed,.32f*mobility,dt);
+                boolean collecting=looseRecovery&&i==(team==liveHome?recoveryHomeSlot:recoveryAwaySlot);
+                boolean deadRunner=deadBallStage>0&&team==deadBallTeam&&i==deadBallSlot;
+                if(collecting){tx=ballX;ty=ballY;maxSpeed=.17f*mobility;}
+                if(deadRunner){tx=deadBallStage==1?ballX:restartX;ty=deadBallStage==1?ballY:restartY;maxSpeed=.21f*mobility;}
+                MatchMotion.arrive(xs,ys,vx,vy,i,clamp(tx,collecting||deadRunner?.012f:.035f,collecting||deadRunner?.988f:.965f),clamp(ty,collecting||deadRunner?.012f:.035f,collecting||deadRunner?.988f:.965f),maxSpeed,.44f*mobility,dt);
             }
         }
 
@@ -4207,11 +4133,6 @@ public class MainActivity extends Activity {
     private void showLeagueTable(int tableTier) {
         backAction = () -> showDashboard();
         LinearLayout page = createPage(division==null?leagueName():division.nameFor(tableTier), "Season " + careerSeasonStart.getYear()+"/"+(careerSeasonStart.getYear()+1)+" • Matchday " + matchday, true);
-        if(division!=null&&division.linked)page.addView(makeButton(division.nameFor(3-tableTier),v->showLeagueTable(3-tableTier)));
-        if(division!=null)page.addView(makeButton("League results",v->showLeagueResults(Math.max(0,matchday-1),tableTier)));
-        page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
-        page.addView(makeText(division!=null && tableTier==2 ? (hasPromotionRules()?"Promotion play-offs use completed league results. Portuguese careers also simulate Liga 3 and lower qualifying.":"Promotion rules are unavailable for this competition.") : europeanCampaign!=null?"Next season’s European admissions use final standings, cup winners, titleholders and European performance places. Future access lists are projected.":"European reference allocations are available in the qualification guide.", 12, muted));
-
         Integer[] order = tableMembers(tableTier);
         ScottishStandings scottish=division!=null&&division.country.equals("SCO")?scottishStandings(tableTier):null;
         GermanStandings german=division!=null&&division.country.equals("DE")?germanStandings(tableTier):null;
@@ -4234,39 +4155,32 @@ public class MainActivity extends Activity {
         else Arrays.sort(order, this::compareLeagueClubs);
         if(tableTier==1&&scottishSplitProvisional)page.addView(makeText("Split allocation is provisional: the deciding-match case remains unresolved.",12,danger));
 
-        LinearLayout header = new LinearLayout(this);
-        header.setOrientation(LinearLayout.HORIZONTAL);
-        header.setPadding(dp(10), dp(8), dp(10), dp(8));
-        header.setBackground(buttonBackground(panelLight));
-        header.addView(makeTableHeadCell("#", 0.7f));
-        header.addView(makeTableHeadCell("Club", 2.5f));
-        header.addView(makeTableHeadCell("P", 0.55f));
-        header.addView(makeTableHeadCell("W", 0.55f));
-        header.addView(makeTableHeadCell("D", 0.55f));
-        header.addView(makeTableHeadCell("L", 0.55f));
-        header.addView(makeTableHeadCell("GD", 0.75f));
-        header.addView(makeTableHeadCell("PTS", 0.8f));
-        page.addView(header);
-
+        LinearLayout table=new LinearLayout(this);table.setOrientation(LinearLayout.VERTICAL);table.setTag("boss-league-grid");
+        TextView tableTitle=makeText(GameNames.display(division==null?leagueName():division.nameFor(tableTier))+"  •  STANDINGS",13,BossStyle.DARK);tableTitle.setTypeface(BossStyle.DISPLAY);tableTitle.setPadding(dp(12),dp(12),dp(12),dp(12));tableTitle.setBackgroundColor(accent);table.addView(tableTitle);
+        LinearLayout header=new LinearLayout(this);header.setPadding(dp(8),dp(10),dp(8),dp(10));header.setBackgroundColor(0xff10140e);
+        for(String label:new String[]{"POS","CLUB","P","W","D","L","F","A","GD","PTS","LAST 10"})header.addView(gridCell(label,label.equals("CLUB")?200:label.equals("LAST 10")?140:label.equals("POS")?42:36,true,text));table.addView(header);
+        HorizontalScrollView tableScroll=new HorizontalScrollView(this);tableScroll.setTag("boss-league-scroll");tableScroll.setHorizontalScrollBarEnabled(true);tableScroll.setFillViewport(true);tableScroll.addView(table,new HorizontalScrollView.LayoutParams(Math.max(dp(686),getResources().getDisplayMetrics().widthPixels-dp(40)),-2));page.addView(tableScroll);
+        TextView scrollHint=makeText("Swipe across for goals and recent form. Tap a club for its squad.",11,muted);scrollHint.setPadding(0,dp(8),0,dp(10));page.addView(scrollHint);
         for (int position = 0; position < order.length; position++) {
             int club = order[position];
             if(division!=null && division.country.equals("SCO") && tableTier==1 && splitOrder.length==12 && (position==0||position==6))
-                page.addView(profileSectionTitle(position==0?"CHAMPIONSHIP GROUP":"LOWER GROUP"));
+                table.addView(profileSectionTitle(position==0?"CHAMPIONSHIP GROUP":"LOWER GROUP"));
             int gd = goalsFor[club] - goalsAgainst[club];
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(dp(10), dp(8), dp(10), dp(8));
+            row.setPadding(dp(8), dp(8), dp(8), dp(8));
             int rowColour = club == selectedClub ? 0xff354622 : (position % 2 == 0 ? panel : 0xff171c13);
-            row.setBackground(buttonBackground(rowColour));
+            row.setBackgroundColor(rowColour);row.setMinimumHeight(dp(46));row.setTag("boss-league-row-"+club);final int rowClub=club;row.setOnClickListener(v->showTeamPlayers(rowClub));
             LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            rlp.setMargins(0, 0, 0, dp(7));
+            rlp.setMargins(0, 0, 0, dp(1));
             row.setLayoutParams(rlp);
             boolean tied=scottish!=null&&(scottish.tiedAt(position)||scottish.tiedAt(position-1))||german!=null&&(german.tiedAt(position)||german.tiedAt(position-1))||turkish!=null&&(turkish.tiedAt(position)||turkish.tiedAt(position-1))||iberian!=null&&(iberian.tiedAt(position)||iberian.tiedAt(position-1))||belgian!=null&&(belgian.tiedAt(position)||belgian.tiedAt(position-1))||french!=null&&(french.tiedAt(position)||french.tiedAt(position-1))||english!=null&&(english.tiedAt(position)||english.tiedAt(position-1))||italian!=null&&(italian.tiedAt(position)||italian.tiedAt(position-1))||dutch!=null&&(dutch.tiedAt(position)||dutch.tiedAt(position-1));
-            row.addView(makeLeagueCell(DisplayFormat.ordinal(position+1), 0.7f, accent, true));
+            row.addView(gridCell(String.valueOf(position+1),42,false,club==selectedClub?accent:muted));
+            ClubShieldView crest=new ClubShieldView(club);crest.setTag("boss-table-crest");row.addView(crest,new LinearLayout.LayoutParams(dp(24),dp(28)));
             LinearLayout clubCell = new LinearLayout(this);
             clubCell.setOrientation(LinearLayout.VERTICAL);
-            clubCell.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 2.5f));
+            clubCell.setPadding(dp(7),0,dp(6),0);clubCell.setLayoutParams(new LinearLayout.LayoutParams(dp(176), -2));
             TextView clubName = makeText(clubNames[club], 13, text);
             clubName.setSingleLine(true);clubName.setEllipsize(android.text.TextUtils.TruncateAt.END);
             clubName.setTypeface(Typeface.DEFAULT_BOLD);clubCell.addView(clubName);
@@ -4334,17 +4248,25 @@ public class MainActivity extends Activity {
                     if(rank>order.length-2)zone="Relegation · inactive";
                 }
             }
-            if (!zone.isEmpty()) clubCell.addView(makeText(zone, 10, zone.startsWith("Relegation")||zone.startsWith("Lower-league") ? danger : accent));
+            if(!zone.isEmpty()){
+                int zoneColour=zone.startsWith("Relegation")||zone.startsWith("Lower-league")?danger:accent;
+                View stripe=new View(this);stripe.setBackgroundColor(zoneColour);clubCell.addView(stripe,new LinearLayout.LayoutParams(dp(28),dp(2)));
+            }
+            row.setContentDescription(GameNames.display(clubNames[club])+", position "+rank+", "+points[club]+" points"+(zone.isEmpty()?"":", "+zone)+(tied?", unresolved tie":""));
+            row.setTooltipText(zone.isEmpty()?GameNames.display(clubNames[club]):zone);
             row.addView(clubCell);
-            row.addView(makeLeagueCell(String.valueOf(played[club]), 0.55f, muted, false));
-            row.addView(makeLeagueCell(String.valueOf(won[club]), 0.55f, muted, false));
-            row.addView(makeLeagueCell(String.valueOf(drawn[club]), 0.55f, muted, false));
-            row.addView(makeLeagueCell(String.valueOf(lost[club]), 0.55f, muted, false));
-            row.addView(makeLeagueCell((gd > 0 ? "+" : "") + gd, 0.75f, gd >= 0 ? accent : danger, false));
-            row.addView(makeLeagueCell(String.valueOf(points[club]), 0.8f, Color.WHITE, true));
-            page.addView(row);
+            for(int stat:new int[]{played[club],won[club],drawn[club],lost[club],goalsFor[club],goalsAgainst[club]})row.addView(gridCell(String.valueOf(stat),36,false,muted));
+            row.addView(gridCell((gd>0?"+":"")+gd,36,false,gd>=0?accent:danger));row.addView(gridCell(String.valueOf(points[club]),36,true,text));
+            LinearLayout form=formStrip(club,10);form.setGravity(Gravity.CENTER_VERTICAL);row.addView(form,new LinearLayout.LayoutParams(dp(140),dp(28)));table.addView(row);
         }
+        LinearLayout legend=new LinearLayout(this);legend.setPadding(0,dp(6),0,dp(12));for(int i=0;i<3;i++){TextView key=makeText(new String[]{"● Win  ","● Draw  ","● Loss  "}[i],11,new int[]{0xff4caf72,0xff858e88,0xffdf7166}[i]);legend.addView(key);}legend.addView(makeText("Latest on right",10,muted));page.addView(legend);
+        if(division!=null&&division.linked)page.addView(makeButton(division.nameFor(3-tableTier),v->showLeagueTable(3-tableTier)));
+        if(division!=null)page.addView(makeButton("League results",v->showLeagueResults(Math.max(0,matchday-1),tableTier)));
+        page.addView(makeButton("Qualification & relegation rules", v -> showQualificationGuide()));
+        page.addView(makeText(division!=null && tableTier==2 ? (hasPromotionRules()?"Promotion play-offs use completed league results. Portuguese careers also simulate Liga 3 and lower qualifying.":"Promotion rules are unavailable for this competition.") : europeanCampaign!=null?"Next season’s European admissions use final standings, cup winners, titleholders and European performance places. Future access lists are projected.":"European reference allocations are available in the qualification guide.", 12, muted));
+
     }
+
 
     private void showQualificationGuide() {
         backAction = () -> showLeagueTable();
@@ -5302,7 +5224,7 @@ public class MainActivity extends Activity {
 
     private void showWorldMarket() {
         backAction=()->showTransferHub();
-        LinearLayout page=createPage("Worldwide transfers","20 divisions • fictional players • saved recruitment",true);
+        LinearLayout page=createPage("Worldwide transfers","20 divisions • global player database • saved recruitment",true);
         page.addView(makeAccentButton("All players",v->showPlayerDatabase()));
         page.addView(makeButton("Free agents • no transfer fee",v->showMarketClub("free","Unattached players",0)));
         if(catalog!=null)for(CompetitionCatalog.Division d:catalog.divisions)
@@ -7190,7 +7112,7 @@ public class MainActivity extends Activity {
 
     private void showTeamEditor() {
         backAction = () -> showMainMenu();
-        LinearLayout page = createPage("Game Editor", "Edit fictional club names and primary/secondary colours", true);
+        LinearLayout page = createPage("Game Editor", "Edit club names and primary/secondary colours", true);
 
         TextView note = makeText("Changes apply across all three career saves.", 14, muted);
         note.setPadding(0, 0, 0, dp(14));
@@ -7231,7 +7153,7 @@ public class MainActivity extends Activity {
         page.addView(nameLabel);
 
         EditText nameInput = new EditText(this);
-        nameInput.setText(clubNames[club]);
+        nameInput.setText(GameNames.display(clubNames[club]));
         nameInput.setTextColor(text);
         nameInput.setHintTextColor(muted);
         nameInput.setTextSize(18);
@@ -7374,7 +7296,7 @@ public class MainActivity extends Activity {
         }catch(Exception ignored){}
         return "Saved club";
     }
-    private String leagueName(){return division==null?"Liga Portugal":division.name;}
+    private String leagueName(){return GameNames.division(division==null?"PT":division.country,division==null?1:division.tier);}
     private int leagueRounds(){return division==null?34:division.rounds();}
     private int seasonRounds(){return division==null?34:division.linked?Math.max(division.rounds(1),division.rounds(2)):division.rounds();}
     private Integer[] tableMembers(int tier) {
@@ -8543,9 +8465,9 @@ public class MainActivity extends Activity {
         else summary="A new chapter is taking shape at "+club+". ";
         int opponent=matchday<seasonRounds()?leagueOpponentForRound(matchday):-1;
         summary+=(opponent>=0?"A league meeting with "+clubNames[opponent]+" is on the horizon. ":"The next challenge will test the depth of the squad. ")+"Our columnist is watching the manager’s "+tacticFormation+" system, squad rotation and transfer plans. These are editorial talking points rather than confirmed transfer news.";
-        addNews("NEWSPAPER",club+": the week ahead",summary);InboxNews.Item story=inbox.get(0);story.source=papers[index]+" • "+writers[index]+" • fictional newspaper";story.action=key;
-        addNews("INTERVIEW","Interview request from "+writers[index],writers[index]+" of "+papers[index]+" asks: “How will you approach the next challenge? Will you back the current squad or demand more from your players?” Choose your response below. This is a fictional press interview.");
-        InboxNews.Item interview=inbox.get(0);interview.source=writers[index]+" • "+papers[index]+" • fictional journalist";interview.action="interview:"+edition;
+        addNews("NEWSPAPER",club+": the week ahead",summary);InboxNews.Item story=inbox.get(0);story.source=papers[index]+" • "+writers[index];story.action=key;
+        addNews("INTERVIEW","Interview request from "+writers[index],writers[index]+" of "+papers[index]+" asks: “How will you approach the next challenge? Will you back the current squad or demand more from your players?” Choose your response below.");
+        InboxNews.Item interview=inbox.get(0);interview.source=writers[index]+" • "+papers[index];interview.action="interview:"+edition;
     }
     private void showInbox(){
         ensureMediaNews();saveCurrentGame();backAction=this::showDashboard;
@@ -9018,21 +8940,42 @@ public class MainActivity extends Activity {
             LinearLayout ground=makePanel();ground.addView(profileSectionTitle("YOUR GROUND"));ground.addView(profileInfoRow("Stadium",stadiumName));ground.addView(profileInfoRow("Capacity",DisplayFormat.number(stadiumCapacity)));ground.addView(profileInfoRow("Seats",DisplayFormat.number(stadiumSeatedCapacity)));ground.addView(profileInfoRow("Expansion limit",DisplayFormat.number(stadiumExpansionLimit)));ground.addView(profileInfoRow("Average attendance",stadiumAverageAttendance==0?"Season opening":DisplayFormat.number(stadiumAverageAttendance)));ground.addView(profileInfoRow("Covered stands",stadiumCovered?"Yes":"Partially"));ground.addView(profileInfoRow("Undersoil heating",stadiumUndersoilHeating?"Installed":"Not installed"));ground.addView(profileInfoRow("Matchday commercial income",moneyK(estimatedStadiumCommercialIncomeK())));page.addView(ground);
             page.addView(makeText("Club-complex artwork reflects your saved upgrades; it is an illustration of your club’s development.",11,muted));
         }else if(stadiumTab==1){
-            for(int code=101;code<=104;code++){final int part=code;LinearLayout card=makePanel();card.addView(profileSectionTitle(StadiumComplexView.name(code).toUpperCase(Locale.UK)));card.addView(new StadiumComplexView(this,stadiumLevels(),0,code,null,code),new LinearLayout.LayoutParams(-1,-2));card.addView(profileInfoRow("Current stand",standLevelLabel(stadiumPartLevel(code))));card.addView(makeButton(stadiumPartLevel(code)>=5?"View elite stand":"Review upgrade",v->showStadiumPart(part)));page.addView(card);}
+            for(int code=101;code<=104;code++){final int part=code;LinearLayout card=makePanel();card.addView(profileSectionTitle(standName(code).toUpperCase(Locale.UK)));card.addView(new StandDesignView(this,standDesigns.get(code),clubNames[selectedClub],secondaryColours[selectedClub]),new LinearLayout.LayoutParams(-1,-2));card.addView(profileInfoRow("Current stand",standLevelLabel(stadiumPartLevel(code))));card.addView(makeButton(stadiumPartLevel(code)>=5?"View elite stand":"Review upgrade",v->showStadiumPart(part)));page.addView(card);}
         }else{
             for(int first=1;first<=12;first+=2){LinearLayout row=new LinearLayout(this);row.setGravity(Gravity.TOP);for(int code=first;code<=Math.min(12,first+1);code++){final int part=code;LinearLayout card=makePanel();LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(0,-2,1);lp.setMargins(dp(3),0,dp(3),dp(10));card.setLayoutParams(lp);card.setPadding(dp(10),dp(10),dp(10),dp(10));card.addView(new StadiumComplexView(this,stadiumLevels(),0,code,null,code),new LinearLayout.LayoutParams(-1,-2));card.addView(makeText(facilityName(code),14,text));card.addView(makeText(facilityLevelLabel(facilityLevel(code)),11,accent));card.addView(makeButton("View details",v->showStadiumPart(part)));row.addView(card);}page.addView(row);}
         }
         page.addView(makeButton("Plan a new stadium",v->confirmNewStadium()));page.addView(makeButton("Club finances",v->showFinances()));
     }
+    private String standName(int code){String name=standDesigns.get(code).name;return name.isEmpty()?StadiumComplexView.name(code):name;}
     private void showStadiumPart(int code) {
-        int level=stadiumPartLevel(code);boolean stand=code>=101;String name=StadiumComplexView.name(code);
-        LinearLayout details=makePanel();details.addView(new StadiumComplexView(this,stadiumLevels(),0,code,null,code),new LinearLayout.LayoutParams(-1,-2));details.addView(profileInfoRow("Current level",stand?standLevelLabel(level):facilityLevelLabel(level)));
+        int level=stadiumPartLevel(code);boolean stand=code>=101;String name=stand?standName(code):StadiumComplexView.name(code);
+        LinearLayout details=makePanel();
+        if(stand){details.addView(new StandDesignView(this,standDesigns.get(code),clubNames[selectedClub],secondaryColours[selectedClub]),new LinearLayout.LayoutParams(-1,-2));details.addView(makeText("YOUR STAND DESIGN",10,accent));}
+        else details.addView(new StadiumComplexView(this,stadiumLevels(),0,code,null,code),new LinearLayout.LayoutParams(-1,-2));details.addView(profileInfoRow("Current level",stand?standLevelLabel(level):facilityLevelLabel(level)));
         if(level<5){int cost=stand?2500+level*3500+stadiumCapacity/25:facilityUpgradeCostK(code,level);int weeks=stand?4+level*2:facilityUpgradeWeeks(code,level);details.addView(profileInfoRow("Upgrade cost",moneyK(cost)));details.addView(profileInfoRow("Build time",weeks+" weeks"));details.addView(profileInfoRow("Benefit",stand?"+"+DisplayFormat.number(Math.min(1200+level*900,Math.max(0,stadiumExpansionLimit-stadiumCapacity)))+" seats":facilityImpact(code)));details.addView(makeText("The next architectural stage appears in this part of the complex after the project completes.",12,muted));}else details.addView(makeText("Elite standard reached",16,accent));
         BossDialog.Builder dialog=new BossDialog.Builder(this).setTitle(name).setView(details).setNegativeButton("Close",null);
+        if(stand){details.addView(makeButton("Personalise stand",v->{if(standDialog!=null)standDialog.dismiss();showStandDesigner(code);}));details.addView(makeButton("Host supporter open day • €10k",v->{if(standDialog!=null)standDialog.dismiss();confirmStandOpenDay(code);}));}
         if(stadiumProjectWeeks==0&&level<5&&(!stand||stadiumCapacity<stadiumExpansionLimit))dialog.setPositiveButton("Plan upgrade",(d,w)->{if(stand)confirmStandUpgrade(code==101?"North":code==102?"East":code==103?"South":"West",code,stadiumPartLevel(code));else startStadiumProject(facilityName(code)+" upgrade",code,facilityUpgradeCostK(code,facilityLevel(code)),facilityUpgradeWeeks(code,facilityLevel(code)),0);});
-        else if(stadiumProjectWeeks>0)details.addView(makeText(stadiumProjectType+" • "+stadiumProjectWeeks+" weeks remaining",12,warning));dialog.show();
+        else if(stadiumProjectWeeks>0)details.addView(makeText(stadiumProjectType+" • "+stadiumProjectWeeks+" weeks remaining",12,warning));standDialog=dialog.show();
     }
 
+    private void showStandDesigner(int code){
+        backAction=this::showStadiumCentre;LinearLayout page=createPage("Personalise stand",standName(code)+" • changes saved to this career",true);StandDesigns.Design current=standDesigns.get(code),draft=new StandDesigns.Design();draft.name=current.name;draft.banner=current.banner;draft.colour=current.colour;draft.pattern=current.pattern;
+        StandDesignView preview=new StandDesignView(this,draft,clubNames[selectedClub],secondaryColours[selectedClub]);page.addView(preview,new LinearLayout.LayoutParams(-1,-2));
+        page.addView(profileSectionTitle("STAND NAME"));EditText name=new EditText(this);styleCareerInput(name,StadiumComplexView.name(code));name.setText(current.name);name.setSingleLine(true);name.setTag("boss-stand-name");name.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(36)});page.addView(name);
+        page.addView(profileSectionTitle("BANNER"));EditText banner=new EditText(this);styleCareerInput(banner,GameNames.display(clubNames[selectedClub]));banner.setText(current.banner);banner.setSingleLine(true);banner.setTag("boss-stand-banner");banner.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(36)});page.addView(banner);
+        banner.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int st,int c,int a){}public void onTextChanged(CharSequence value,int st,int before,int count){draft.banner=value.toString();preview.invalidate();}public void afterTextChanged(android.text.Editable e){}});
+        page.addView(makeButton("Use club name on banner",v->banner.setText(GameNames.display(clubNames[selectedClub]))));
+        Button colour=makeButton("Seat colour: "+StandDesigns.COLOUR_NAMES[draft.colour],null);colour.setOnClickListener(v->new BossDialog.Builder(this).setTitle("Seat colour").setItems(StandDesigns.COLOUR_NAMES,(d,w)->{draft.colour=w;colour.setText("Seat colour: "+StandDesigns.COLOUR_NAMES[w]);preview.invalidate();}).show());page.addView(colour);
+        Button pattern=makeButton("Seat pattern: "+StandDesigns.PATTERNS[draft.pattern],null);pattern.setOnClickListener(v->new BossDialog.Builder(this).setTitle("Seat pattern").setItems(StandDesigns.PATTERNS,(d,w)->{draft.pattern=w;pattern.setText("Seat pattern: "+StandDesigns.PATTERNS[w]);preview.invalidate();}).show());page.addView(pattern);
+        page.addView(makeAccentButton("Save stand design",v->{current.name=StandDesigns.text(name.getText().toString());current.banner=StandDesigns.text(banner.getText().toString());current.colour=draft.colour;current.pattern=draft.pattern;saveCurrentGame();showStadiumCentre();showStadiumPart(code);}));page.addView(makeButton("Cancel changes",v->showStadiumCentre()));page.setFocusableInTouchMode(true);page.requestFocus();
+    }
+    private void confirmStandOpenDay(int code){
+        String month=java.time.YearMonth.from(currentDate).toString();StandDesigns.Design design=standDesigns.get(code);
+        if(design.openDay.equals(month)){new BossDialog.Builder(this).setTitle("Supporter open day").setMessage("This stand has already hosted its open day this month. Plan the next one in a new month.").setPositiveButton("Close",null).show();return;}
+        if(financeBalanceK<10){new BossDialog.Builder(this).setTitle("Supporter open day").setMessage("Your club needs €10k available to host the event.").setPositiveButton("Close",null).show();return;}
+        new BossDialog.Builder(this).setTitle("Host an open day at "+standName(code)+"?").setMessage("Spend €10k to welcome supporters, meet the first team and unveil the stand design. Squad morale +1 and board confidence +1. Each stand can host once per calendar month.").setNegativeButton("Cancel",null).setPositiveButton("Host open day",(d,w)->{if(design.openDay.equals(month)||financeBalanceK<10)return;design.openDay=month;financeBalanceK-=10;financeOtherExpenseK+=10;financeSeasonExpenseK+=10;financeCurrentMonthExpenseK+=10;for(Player player:players)if(player.team==selectedClub)player.morale=Math.min(100,player.morale+1);boardConfidence=Math.min(100,boardConfidence+1);addNews("CLUB","Supporters welcomed to "+standName(code),"The first team met supporters at the stand open day. The event cost €10k; morale and board confidence each improved by one.");saveCurrentGame();showStadiumCentre();}).show();
+    }
     private String standLevelLabel(int level) {
         if (level <= 1) return "Level 1 • Single-tier stand";
         if (level == 2) return "Level 2 • Extended single-tier";
@@ -9265,6 +9208,7 @@ public class MainActivity extends Activity {
     }
 
     private void resetFinanceStadiumState() {
+        standDesigns=new StandDesigns();
         int clubStrength = selectedClub >= 0 ? strength[selectedClub] : 70;
         int baseLevel = clubStrength >= 85 ? 4 : clubStrength >= 76 ? 3 : 2;
 
@@ -9358,6 +9302,7 @@ public class MainActivity extends Activity {
                 .putInt(key(selectedSlot, "fin_travel"), financeTravelK)
                 .putInt(key(selectedSlot, "fin_youth"), financeYouthScoutingK)
                 .putInt(key(selectedSlot, "fin_other_e"), financeOtherExpenseK)
+                .putString(key(selectedSlot,"stad_designs"),standDesigns.snapshot())
                 .putString(key(selectedSlot, "stad_name"), stadiumName)
                 .putInt(key(selectedSlot, "stad_cap"), stadiumCapacity)
                 .putInt(key(selectedSlot, "stad_seats"), stadiumSeatedCapacity)
@@ -9422,6 +9367,7 @@ public class MainActivity extends Activity {
         financeYouthScoutingK = prefs.getInt(key(slot, "fin_youth"), 0);
         financeOtherExpenseK = prefs.getInt(key(slot, "fin_other_e"), 0);
 
+        try{standDesigns=StandDesigns.restore(prefs.getString(key(slot,"stad_designs"),""));}catch(RuntimeException invalid){standDesigns=new StandDesigns();}
         stadiumName = prefs.getString(key(slot, "stad_name"), clubNames[selectedClub] + " Stadium");
         stadiumCapacity = prefs.getInt(key(slot, "stad_cap"), 18000);
         stadiumSeatedCapacity = prefs.getInt(key(slot, "stad_seats"), stadiumCapacity);

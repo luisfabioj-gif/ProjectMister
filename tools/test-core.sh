@@ -78,7 +78,7 @@ java -cp "$out" com.projectmister.game.PortuguesePyramidTests
 
 java -cp "$out" com.projectmister.game.EuropeanCampaignTests
 
-javac -cp "$out:tools/test-deps/json.jar" -d "$out" app/src/main/java/com/projectmister/game/{CompetitionCatalog,ClubProfiles,CareerDivision,GermanCupCatalog,DomesticCupCatalog,EuropeanCatalog,NationalCupCatalog,PortugueseLowerCatalog}.java tests/EuropeanAdmissionsTests.java tests/RecurringEuropeanTests.java
+javac -cp "$out:tools/test-deps/json.jar" -d "$out" app/src/main/java/com/projectmister/game/{GameNames,CompetitionCatalog,ClubProfiles,CareerDivision,GermanCupCatalog,DomesticCupCatalog,EuropeanCatalog,NationalCupCatalog,PortugueseLowerCatalog}.java tests/EuropeanAdmissionsTests.java tests/RecurringEuropeanTests.java
 java -cp "$out:tools/test-deps/json.jar" com.projectmister.game.EuropeanAdmissionsTests
 java -cp "$out:tools/test-deps/json.jar" com.projectmister.game.RecurringEuropeanTests
 
@@ -89,3 +89,6 @@ java -cp "$out:tools/test-deps/json.jar" com.projectmister.game.ClubProfilesTest
 
 javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{Recruitment,InboxNews,MatchRestart}.java tests/FeedbackTests.java
 java -cp "$out" com.projectmister.game.FeedbackTests
+
+javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{GameNames,StandDesigns,ShotQuality}.java tests/RefinementTests.java
+java -cp "$out" com.projectmister.game.RefinementTests

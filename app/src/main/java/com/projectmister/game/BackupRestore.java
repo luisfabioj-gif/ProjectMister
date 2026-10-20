@@ -33,6 +33,7 @@ public final class BackupRestore {
                     for(String id:ids){int i=Integer.parseInt(id);if(i<0||i>=size||division.clubTiers[i]!=1||!seen.add(i))throw new IllegalArgumentException("Invalid split club");}
                 } else if(division!=null&&division.country.equals("SCO")&&(division.linked||division.splitSeason())&&round>33)throw new IllegalArgumentException("Missing split");
                 WorldMarket.restore((String)data.getOrDefault(prefix+"market_hires",""));
+                StandDesigns.restore((String)data.getOrDefault(prefix+"stad_designs",""));
                 SeasonHistory.restore((String)data.getOrDefault(prefix+"season_history",""));
                 String domestic=(String)data.getOrDefault(prefix+"domestic_cup","");
                 int calendarWeeks=(Integer)data.getOrDefault(prefix+"career_weeks",0);if(calendarWeeks<0||calendarWeeks>80)throw new IllegalArgumentException("Invalid calendar weeks");

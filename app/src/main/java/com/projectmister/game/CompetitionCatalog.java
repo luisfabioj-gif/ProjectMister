@@ -25,7 +25,7 @@ public final class CompetitionCatalog {
         public final List<Club> clubs;
         private Division(JSONObject o, HashSet<String> clubIds) throws Exception {
             id=required(o,"id"); countryCode=required(o,"countryCode");country=required(o,"country");
-            name=required(o,"name");source=required(o,"source");tier=o.getInt("tier");
+            tier=o.getInt("tier");name=GameNames.division(countryCode,tier);source=required(o,"source");
             if(tier<1 || tier>2 || !source.startsWith("https://"))throw new IllegalArgumentException("Invalid division metadata");
             JSONArray a=o.getJSONArray("clubs");List<Club> list=new ArrayList<>();
             if(a.length()<2 || a.length()>32)throw new IllegalArgumentException("Invalid division size");
