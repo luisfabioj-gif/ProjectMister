@@ -1846,10 +1846,16 @@ public class MainActivity extends Activity {
     }
 
     private class ClubShieldView extends View {
-        private final int team;
+        private final int primary,secondary;
+        private final String initials;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Path shield = new Path();
-        ClubShieldView(int team) { super(MainActivity.this); this.team = team; }
+        ClubShieldView(int team) {
+            super(MainActivity.this);
+            primary=team>=0&&team<primaryColours.length?primaryColours[team]:panelLight;
+            secondary=team>=0&&team<secondaryColours.length?secondaryColours[team]:panel;
+            initials=team>=0&&team<shortNames.length?shortNames[team]:"XI";
+        }
         @Override protected void onDraw(Canvas c) {
             super.onDraw(c);
             float w=getWidth(), h=getHeight();
@@ -1858,13 +1864,13 @@ public class MainActivity extends Activity {
             shield.moveTo(left, top); shield.lineTo(right, top); shield.lineTo(right, mid);
             shield.quadTo(right, h*.82f, cx, bottom); shield.quadTo(left, h*.82f, left, mid); shield.close();
             c.save(); c.clipPath(shield);
-            p.setColor(primaryColours[team]); c.drawRect(left, top, cx, bottom, p);
-            p.setColor(secondaryColours[team]); c.drawRect(cx, top, right, bottom, p);
+            p.setColor(primary); c.drawRect(left, top, cx, bottom, p);
+            p.setColor(secondary); c.drawRect(cx, top, right, bottom, p);
             p.setColor(Color.argb(34,255,255,255)); c.drawRect(left, top, right, h*.30f, p);
             c.restore();
             p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(Math.min(dp(3),w*.06f)); p.setColor(Color.rgb(220,226,230)); c.drawPath(shield,p); p.setStyle(Paint.Style.FILL);
-            p.setColor(contrastText(primaryColours[team])); p.setTextAlign(Paint.Align.CENTER); p.setTypeface(Typeface.DEFAULT_BOLD); p.setTextSize(Math.min(dp(10),w*.25f));
-            c.drawText(shortNames[team], cx, h*.57f, p);
+            p.setColor(contrastText(primary)); p.setTextAlign(Paint.Align.CENTER); p.setTypeface(Typeface.DEFAULT_BOLD); p.setTextSize(Math.min(dp(10),w*.25f));
+            c.drawText(initials, cx, h*.57f, p);
         }
     }
 
@@ -3770,6 +3776,7 @@ public class MainActivity extends Activity {
         private void finishFlightPass(boolean completed){
             if(flightPasser<0)return;
             if(completed){
+                lastPasserId=flightPasser;lastPassTeam=flightPassTeam;
                 if(flightPassTeam==liveHome)liveHomePassesComplete++;else if(flightPassTeam==liveAway)liveAwayPassesComplete++;
                 matchCompletedPasses.put(flightPasser,matchCompletedPasses.getOrDefault(flightPasser,0)+1);
             }else matchMissedPasses.put(flightPasser,matchMissedPasses.getOrDefault(flightPasser,0)+1);

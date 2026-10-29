@@ -7,7 +7,8 @@ Version code 43 preserves the application ID, save format and update signing key
   the ball no longer bends or changes its endpoint to follow a moving receiver.
   Control requires physical contact. Unreachable passes remain loose and wait
   for a player to recover them. Completed passes are recorded on reception,
-  including crosses, with missed receptions recorded as missed passes.
+  including crosses, with missed receptions recorded as missed passes. A received
+  cross credits the crosser as the potential assister.
 - Defenders must be within challenge distance before a dribble can be lost or a
   duel can award a tackle/foul. Distant defenders close down while the attacker
   carries into space. Successful close challenges also populate the player's
@@ -18,6 +19,9 @@ Version code 43 preserves the application ID, save format and update signing key
   formations, in addition to the existing visibility/overlap checks.
 - Resuming at half-time immediately enters the physical kickoff reset, clearing
   an unfinished first-half flight before either side can act in the second half.
+- Club crests retain their own colours and initials. An old view can finish
+  drawing safely after another career loads a smaller club list, fixing the
+  country-switch crash found during the Android 15 checks.
 
 Validation is pending native Android checks. The independent runner covers fixed
 trajectories under receiver movement, contact-based completions, missed-pass

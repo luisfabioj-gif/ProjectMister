@@ -1504,6 +1504,11 @@ public final class SmokeRunner extends Instrumentation {
                 for(int i=0;i<30;i++)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
                 check(((Map<Integer,Integer>)get("matchCompletedPasses")).getOrDefault(passerId,0)==1,"one reception cannot count twice "+forward);
 
+                prepareFlowScene(pitch,team);set("lastPasserId",-1);set("lastPassTeam",-1);((Random)get("random")).setSeed(1);call("performCrossAction",new Class[]{int.class,int.class},team,5);
+                check((Integer)objectGet(pitch,"flightPasser")==passerId,"actual cross defers its completion until reception "+forward);
+                for(int i=0;i<240;i++)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
+                check(((Map<Integer,Integer>)get("matchCompletedPasses")).getOrDefault(passerId,0)==1&&(Integer)get("lastPasserId")==passerId&&(Integer)get("lastPassTeam")==team,"received cross credits its crosser for completion and potential assist "+forward);
+
                 prepareFlowScene(pitch,team);objectCall(pitch,"animateBallToSlot",new Class[]{int.class,int.class,int.class,int.class,float.class},team,5,team,9,.60f);objectCall(pitch,"countPassOnReception",new Class[]{int.class,int.class},team,passerId);
                 Object receiver=call("playerForPitchSlot",new Class[]{int.class,int.class},team,9);objectSet(receiver,"pace",1);objectSet(receiver,"fitness",35);((float[])objectGet(pitch,forward?"homeX":"awayX"))[9]=forward?.95f:.05f;
                 for(int i=0;i<200;i++)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
@@ -1520,6 +1525,12 @@ public final class SmokeRunner extends Instrumentation {
                 float[] opponentX=(float[])objectGet(pitch,forward?"awayX":"homeX"),opponentY=(float[])objectGet(pitch,forward?"awayY":"homeY");opponentX[1]=forward?.415f:.585f;opponentY[1]=.45f;
                 Object defender=call("playerForPitchSlot",new Class[]{int.class,int.class},other,1);objectSet(defender,"defending",100);objectSet(defender,"physical",100);objectSet(passer,"technique",30);objectSet(passer,"pace",30);((Random)get("random")).setSeed(0);call("performDuelAction",new Class[]{int.class,int.class},team,5);
                 check((Integer)get("livePendingPossessionTeam")==other&&(Integer)get(forward?"liveAwayTackles":"liveHomeTackles")==1,"nearby defender can still win a physical challenge "+forward);check(((Map<Integer,Integer>)get("matchTackles")).getOrDefault(playerInt(defender,"id"),0)>0,"physical challenge appears in the player contribution record "+forward);
+            });
+            ui(()->{
+                seedRulesCareer("ENG",1,true);int oldTeam=((String[])get("clubNames")).length-1;int primary=((int[])get("primaryColours"))[oldTeam],secondary=((int[])get("secondaryColours"))[oldTeam];String name=((String[])get("shortNames"))[oldTeam];
+                Constructor<?> ctor=gameClass("MainActivity$ClubShieldView").getDeclaredConstructor(activity.getClass(),int.class);ctor.setAccessible(true);View crest=(View)ctor.newInstance(activity,oldTeam);crest.layout(0,0,96,112);
+                seedRulesCareer("PT",1,true);check(oldTeam>=((String[])get("clubNames")).length,"crest regression switches to a smaller country world");
+                Bitmap bitmap=Bitmap.createBitmap(96,112,Bitmap.Config.ARGB_8888);try{crest.draw(new android.graphics.Canvas(bitmap));check((Integer)objectGet(crest,"primary")==primary&&(Integer)objectGet(crest,"secondary")==secondary&&name.equals(objectGet(crest,"initials")),"old crest keeps its original identity after a country switch");}finally{bitmap.recycle();}
             });
             check(true,"fixed pass flights physical receptions and contact-range challenges verified");
         }finally{ui(()->{call("stopLiveMatchTicker",new Class[0]);call("stopLiveMatchAudio",new Class[0]);set("matchInProgress",false);gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"original career retained after match-flow checks");});}
