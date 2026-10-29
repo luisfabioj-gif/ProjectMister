@@ -24,14 +24,49 @@ Package and update signing key are retained; version code advances to 42.
 - Club names now use closer edited spellings, including SL Benfika, FC Portu,
   Arsenel and Manchester Unitas. All 365 playable identities remain distinct;
   older display aliases migrate in presentation without changing career IDs,
-  fixtures, standings, personal names or custom text. These are alternative
+  fixtures, standings, personal names or saved custom text. These are alternative
   names, without a licensing-clearance claim.
 - Goal commentary alternates the scoring team's colour and a light background
   for 3.6 seconds, retaining the goal message while later commentary arrives.
   The effect uses wall time, stops when leaving the match, and returns to the
   current commentary after its deadline.
 
-Validation will be recorded after native Android screenshot and feature checks.
+## Validation
+
+Verified source: `4dc582f7f5b0075f6cc49568468e203de53ed987`.
+GitHub Actions run `40870543262` passed on Android 15 / API 35 and Android 16 /
+API 36. Both jobs built and installed the delivered 2.3.15 baseline, seeded a
+career, and upgraded it in place to this version using the existing signing key.
+
+- Core checks passed, including 3,109 identity, stand, news and shot-geometry
+  checks and 1,982 pitch projection and goal-flash lifecycle checks. Backup,
+  domestic cup, recruitment, inbox and match restart regressions also passed.
+- Each API passed 492 new presentation assertions, 368 retained refinement
+  assertions, 184 earlier requested-fix assertions, 311 screen/navigation
+  assertions, 95 natural-match assertions and 451 compact-layout assertions.
+  The natural-match test played both halves without clock jumps and reloaded
+  the saved result. Compact checks exercised all five formations at 720 x 1280,
+  density 320, in landscape.
+- The current-division result filter was exercised for all 10 countries and
+  both tiers. Other-division fixtures still simulated and were saved.
+- Native screenshots were inspected for the live stadium, half-time controls,
+  substitutes, five-match table, goal banner, both result tiers and compact
+  tactics. The photo asset decoded on the device; field, player and ball
+  coordinates shared the tested projection. Goal-banner tests verified both
+  colour phases, expiry and callback cleanup when leaving the match.
+- Reports and screenshots: artifacts `12896940146` (API 35) and `12895534054`
+  (API 36). Tested APK artifacts: `12895798760` and `12895434091` respectively.
+  Both APKs were byte-identical, 7,555,087 bytes, and their downloaded artifact
+  archives matched GitHub's SHA-256 digests before extraction.
+
+Delivered APK SHA-256:
+`8f4dea12794f7526f6941533108bc0e365f34ff8f12a0eb0e051abaca0e154f3`.
+Signing certificate SHA-256:
+`06d91de19adf5add10e5a54dbf14bc81d6604cdad7b783e3137a8eed55c24d0e`.
+Manifest verified as `com.projectmister.game`, version `2.3.16`, version code
+`42`, minimum API 26, target API 36. Validation used emulators; no physical
+phone verification is claimed. This validation record is a documentation-only
+addition after the tested source above.
 
 ## Stadium asset
 
