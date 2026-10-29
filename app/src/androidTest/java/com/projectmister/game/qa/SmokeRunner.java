@@ -115,6 +115,11 @@ public final class SmokeRunner extends Instrumentation {
                 android.graphics.Rect visible=new android.graphics.Rect();check(a.getLocalVisibleRect(visible)&&visible.top==0&&visible.bottom==a.getHeight(),"entire tactics token visible without pitch scrolling "+i);
                 android.graphics.RectF ar=new android.graphics.RectF(a.getX(),a.getY(),a.getX()+a.getWidth(),a.getY()+a.getHeight());
                 check(ar.left>=0&&ar.top>=0&&ar.right<=pitch.getWidth()&&ar.bottom<=pitch.getHeight(),"tactics marker in bounds "+i);
+                for(String tag:new String[]{"boss-live-ability","boss-live-condition"}){
+                    android.widget.TextView stat=a.findViewWithTag(tag);check(stat!=null&&stat.getLayout()!=null,"tactics stat is laid out "+tag+"/"+i);
+                    check(stat.getPaint().measureText(stat.getText().toString())<=stat.getWidth()-stat.getPaddingLeft()-stat.getPaddingRight()+.5f&&stat.getLayout().getEllipsisCount(0)==0,"complete tactics stat fits without clipping "+tag+"/"+i);
+                    check(stat.getPaint().getFontMetrics().descent-stat.getPaint().getFontMetrics().ascent<=stat.getHeight()+.5f,"tactics stat fits its row height "+tag+"/"+i);
+                }
                 for(int j=i+1;j<pitch.getChildCount();j++) {
                     View b=pitch.getChildAt(j);
                     android.graphics.RectF br=new android.graphics.RectF(b.getX(),b.getY(),b.getX()+b.getWidth(),b.getY()+b.getHeight());
@@ -183,6 +188,7 @@ public final class SmokeRunner extends Instrumentation {
     }
 
     private Object objectGet(Object object,String name)throws Exception{Field f=object.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(object);}
+    private void objectSet(Object object,String name,Object value)throws Exception{Field f=object.getClass().getDeclaredField(name);f.setAccessible(true);f.set(object,value);}
     private Object objectCall(Object object,String name,Class<?>[] types,Object... values)throws Exception{Method m=object.getClass().getDeclaredMethod(name,types);m.setAccessible(true);return m.invoke(object,values);}
     private void verifyRequestedFixes()throws Exception{
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
@@ -1463,6 +1469,61 @@ public final class SmokeRunner extends Instrumentation {
     }
 
     private void taggedViews(View view,String tag,List<View> out){if(tag.equals(view.getTag()))out.add(view);if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)taggedViews(((ViewGroup)view).getChildAt(i),tag,out);}
+    private void prepareFlowScene(Object pitch,int team)throws Exception{
+        int home=(Integer)get("liveHome"),away=(Integer)get("liveAway");boolean forward=team==home;set("livePaused",false);set("livePossessionTeam",team);set("liveCarrierSlot",5);set("livePendingPossessionTeam",-1);set("livePendingCarrierSlot",-1);set("liveLooseBall",false);set("livePendingSetPiece","");set("liveHomePassesComplete",0);set("liveAwayPassesComplete",0);set("liveHomeTackles",0);set("liveAwayTackles",0);set("liveHomeFouls",0);set("liveAwayFouls",0);
+        objectCall(objectGet(pitch,"restart"),"step",new Class[]{float.class,boolean.class},1f,true);
+        objectSet(pitch,"looseRecovery",false);objectSet(pitch,"deadBallStage",0);objectSet(pitch,"parryPending",false);
+        for(String field:new String[]{"homeVX","homeVY","awayVX","awayVY","homeRunTime","awayRunTime"})Arrays.fill((float[])objectGet(pitch,field),0);
+        for(int side:new int[]{home,away}){float[] xs=(float[])objectGet(pitch,side==home?"homeX":"awayX"),ys=(float[])objectGet(pitch,side==home?"homeY":"awayY");for(int i=0;i<11;i++){xs[i]=side==team?(forward?.2f:.8f):(forward?.9f:.1f);ys[i]=.15f+i*.065f;}if(side==team){xs[5]=forward?.4f:.6f;ys[5]=.45f;xs[9]=forward?.55f:.45f;ys[9]=.45f;}}
+        objectCall(pitch,"holdBallAt",new Class[]{int.class,int.class},team,5);
+        ((Map<?,?>)get("matchCompletedPasses")).clear();((Map<?,?>)get("matchMissedPasses")).clear();
+        Object receiver=call("playerForPitchSlot",new Class[]{int.class,int.class},team,9);objectSet(receiver,"pace",90);objectSet(receiver,"fitness",100);
+    }
+    @SuppressWarnings("unchecked") private void verifyMatchFlow()throws Exception{
+        SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
+        try{
+            ui(()->{seedRulesCareer("ENG",1,true);call("startLiveMatchday",new Class[0]);call("stopLiveMatchTicker",new Class[0]);});
+            for(boolean forward:new boolean[]{true,false})ui(()->{
+                int home=(Integer)get("liveHome"),away=(Integer)get("liveAway"),team=forward?home:away,other=forward?away:home;Object pitch=get("livePitchView");prepareFlowScene(pitch,team);
+                Object passer=call("playerForPitchSlot",new Class[]{int.class,int.class},team,5);int passerId=playerInt(passer,"id");
+                objectCall(pitch,"animateBallToSlot",new Class[]{int.class,int.class,int.class,int.class,float.class},team,5,team,9,.85f);objectCall(pitch,"countPassOnReception",new Class[]{int.class,int.class},team,passerId);
+                float sx=(Float)objectGet(pitch,"ballStartX"),sy=(Float)objectGet(pitch,"ballStartY"),tx=(Float)objectGet(pitch,"ballTargetX"),ty=(Float)objectGet(pitch,"ballTargetY");
+                check(((Map<?,?>)get("matchCompletedPasses")).isEmpty(),"pass is not completed at release "+forward);
+                for(int frame=0;frame<102;frame++){
+                    if(frame==10)((float[])objectGet(pitch,forward?"homeX":"awayX"))[9]+=forward?.08f:-.08f;
+                    objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
+                    if((Float)objectGet(pitch,"ballTravel")<1f){
+                        check(Math.abs((Float)objectGet(pitch,"ballTargetX")-tx)<.000001&&Math.abs((Float)objectGet(pitch,"ballTargetY")-ty)<.000001,"pass endpoint stays fixed while receiver changes position "+forward+"/"+frame);
+                        float bx=(Float)objectGet(pitch,"ballX"),by=(Float)objectGet(pitch,"ballY");check(Math.abs((bx-sx)*(ty-sy)-(by-sy)*(tx-sx))<.00001,"ball follows the released ground trajectory "+forward+"/"+frame);
+                        check(((Map<?,?>)get("matchCompletedPasses")).isEmpty(),"airborne pass has no fabricated completion "+forward+"/"+frame);
+                    }
+                }
+                for(int i=0;i<90&&(Boolean)objectGet(pitch,"awaitingReception");i++)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
+                check(!(Boolean)objectGet(pitch,"awaitingReception")&&!(Boolean)get("liveLooseBall")&&(Boolean)objectCall(pitch,"ballIsAt",new Class[]{int.class,int.class,float.class},team,9,.02f),"receiver reaches the fixed destination before controlling the ball "+forward);
+                check(((Map<Integer,Integer>)get("matchCompletedPasses")).getOrDefault(passerId,0)==1&&(Integer)get(forward?"liveHomePassesComplete":"liveAwayPassesComplete")==1,"physical reception counts one player and team completion "+forward);
+                for(int i=0;i<30;i++)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
+                check(((Map<Integer,Integer>)get("matchCompletedPasses")).getOrDefault(passerId,0)==1,"one reception cannot count twice "+forward);
+
+                prepareFlowScene(pitch,team);objectCall(pitch,"animateBallToSlot",new Class[]{int.class,int.class,int.class,int.class,float.class},team,5,team,9,.60f);objectCall(pitch,"countPassOnReception",new Class[]{int.class,int.class},team,passerId);
+                Object receiver=call("playerForPitchSlot",new Class[]{int.class,int.class},team,9);objectSet(receiver,"pace",1);objectSet(receiver,"fitness",35);((float[])objectGet(pitch,forward?"homeX":"awayX"))[9]=forward?.95f:.05f;
+                for(int i=0;i<200;i++)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
+                check((Boolean)get("liveLooseBall")&&!(Boolean)objectGet(pitch,"trackTarget")&&!(Boolean)objectGet(pitch,"awaitingReception"),"unreachable pass stays unowned instead of snapping to a receiver "+forward);
+                check(((Map<?,?>)get("matchCompletedPasses")).isEmpty()&&((Map<Integer,Integer>)get("matchMissedPasses")).getOrDefault(passerId,0)==1,"missed reception records a missed pass without a completion "+forward);
+                float bx=(Float)objectGet(pitch,"ballX"),by=(Float)objectGet(pitch,"ballY");for(int i=0;i<20;i++)objectCall(pitch,"stepSimulation",new Class[]{float.class},1f/120);
+                check(Math.abs((Float)objectGet(pitch,"ballX")-bx)<.00001&&Math.abs((Float)objectGet(pitch,"ballY")-by)<.00001,"missed pass waits for a real recovery "+forward);
+
+                prepareFlowScene(pitch,team);
+                for(int seed=0;seed<20;seed++){
+                    ((Random)get("random")).setSeed(seed);call("performDuelAction",new Class[]{int.class,int.class},team,5);
+                    check((Integer)get("livePendingPossessionTeam")==team&&(Integer)get("liveHomeTackles")==0&&(Integer)get("liveAwayTackles")==0&&(Integer)get("liveHomeFouls")==0&&(Integer)get("liveAwayFouls")==0,"distant defender cannot be awarded a tackle or foul "+forward+"/"+seed);
+                }
+                float[] opponentX=(float[])objectGet(pitch,forward?"awayX":"homeX"),opponentY=(float[])objectGet(pitch,forward?"awayY":"homeY");opponentX[1]=forward?.415f:.585f;opponentY[1]=.45f;
+                Object defender=call("playerForPitchSlot",new Class[]{int.class,int.class},other,1);objectSet(defender,"defending",100);objectSet(defender,"physical",100);objectSet(passer,"technique",30);objectSet(passer,"pace",30);((Random)get("random")).setSeed(0);call("performDuelAction",new Class[]{int.class,int.class},team,5);
+                check((Integer)get("livePendingPossessionTeam")==other&&(Integer)get(forward?"liveAwayTackles":"liveHomeTackles")==1,"nearby defender can still win a physical challenge "+forward);check(((Map<Integer,Integer>)get("matchTackles")).getOrDefault(playerInt(defender,"id"),0)>0,"physical challenge appears in the player contribution record "+forward);
+            });
+            check(true,"fixed pass flights physical receptions and contact-range challenges verified");
+        }finally{ui(()->{call("stopLiveMatchTicker",new Class[0]);call("stopLiveMatchAudio",new Class[0]);set("matchInProgress",false);gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"original career retained after match-flow checks");});}
+    }
     @SuppressWarnings("unchecked") private void verifyPresentation()throws Exception{
         SharedPreferences prefs=getTargetContext().getSharedPreferences("project_mister",Context.MODE_PRIVATE);byte[] original=backupBytes(prefs.getAll());
         try{
@@ -1490,7 +1551,7 @@ public final class SmokeRunner extends Instrumentation {
                 View formation=activity.getWindow().getDecorView().findViewWithTag("boss-tactic-Formation");check(formation!=null&&formation.performClick(),"formation button opens its real choice dialog");
             });tap("4-4-2");ui(()->check(get("liveFormation").equals("4-4-2"),"formation choice updates live tactics"));verifyTacticsMarkers();
             final int[] off={-1},on={-1};ui(()->{on[0]=((List<Integer>)get("liveBenchIds")).get(0);View bench=activity.getWindow().getDecorView().findViewWithTag("boss-bench-"+on[0]);check(bench.performClick(),"bench selection responds to touch");});
-            ui(()->{ViewGroup pitch=activity.getWindow().getDecorView().findViewWithTag("live-tactics-pitch");off[0]=((List<Integer>)get(get("selectedClub").equals(get("liveHome"))?"liveHomeLineupIds":"liveAwayLineupIds")).get(5);check(pitch.getChildAt(6).performClick(),"starter opens substitution confirmation");});tap("Confirm");ui(()->{check((Integer)get("liveSubsUsed")==1&&((List<Integer>)get(get("selectedClub").equals(get("liveHome"))?"liveHomeLineupIds":"liveAwayLineupIds")).contains(on[0])&&!((List<Integer>)get(get("selectedClub").equals(get("liveHome"))?"liveHomeLineupIds":"liveAwayLineupIds")).contains(off[0]),"confirmed bench player replaces the selected starter");});capture("presentation-substitution");ui(()->{check(activity.getWindow().getDecorView().findViewWithTag("boss-tactics-return").performClick(),"start second half responds to touch");check((Boolean)get("liveHalfTimeBreakTaken")&&!(Boolean)get("liveTacticsSessionActive"),"half-time controls resume the actual second half");});
+            ui(()->{ViewGroup pitch=activity.getWindow().getDecorView().findViewWithTag("live-tactics-pitch");off[0]=((List<Integer>)get(get("selectedClub").equals(get("liveHome"))?"liveHomeLineupIds":"liveAwayLineupIds")).get(5);check(pitch.getChildAt(6).performClick(),"starter opens substitution confirmation");});tap("Confirm");ui(()->{check((Integer)get("liveSubsUsed")==1&&((List<Integer>)get(get("selectedClub").equals(get("liveHome"))?"liveHomeLineupIds":"liveAwayLineupIds")).contains(on[0])&&!((List<Integer>)get(get("selectedClub").equals(get("liveHome"))?"liveHomeLineupIds":"liveAwayLineupIds")).contains(off[0]),"confirmed bench player replaces the selected starter");});capture("presentation-substitution");ui(()->{check(activity.getWindow().getDecorView().findViewWithTag("boss-tactics-return").performClick(),"start second half responds to touch");check((Boolean)get("liveHalfTimeBreakTaken")&&!(Boolean)get("liveTacticsSessionActive"),"half-time controls resume the actual second half");check((Boolean)objectCall(get("livePitchView"),"restartInProgress",new Class[0]),"second half starts with a physical kickoff reset");});
             for(String country:new String[]{"PT","ENG","ES","IT","DE","FR","NL","BE","SCO","TR"})for(int tier=1;tier<=2;tier++){
                 final int level=tier;ui(()->{
                     call("stopLiveMatchTicker",new Class[0]);set("matchInProgress",false);set("liveTacticsSessionActive",false);seedRulesCareer(country,level,true);
@@ -1618,6 +1679,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(savedWorld!=null&&savedWorld.getClass().getField("linked").getBoolean(savedWorld),"linked country survives release upgrade");
                 page("release-linked-table","showLeagueTable",new Class[0]);
                 check(true,"release bundle upgrade and feature navigation verified");
+            } else if(mode.equals("matchflow")) {
+                verifyMatchFlow();
             } else if(mode.equals("presentation")) {
                 verifyPresentation();
             } else if(mode.equals("refinements")) {
@@ -1647,6 +1710,7 @@ public final class SmokeRunner extends Instrumentation {
                 verifyBackups();
             } else if(mode.equals("compact")) {
                 ui(()->{call("loadSave",new Class[]{int.class},0);call("startLiveMatchday",new Class[0]);set("livePaused",true);});
+                ui(()->{int selected=(Integer)get("selectedClub");for(Object p:(List<?>)get("players"))if(playerInt(p,"team")==selected){objectSet(p,"currentAbility",200);objectSet(p,"fitness",100);}});
                 capture("23-compact-match");
                 for(String formation:new String[]{"4-3-3","4-2-3-1","4-4-2","3-5-2","5-3-2"}) {
                     ui(()->{set("liveFormation",formation);call("showLiveTacticsScreen",new Class[0]);});

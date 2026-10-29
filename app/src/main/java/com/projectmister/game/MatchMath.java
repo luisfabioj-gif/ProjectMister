@@ -2,6 +2,9 @@ package com.projectmister.game;
 
 /** Platform-independent match tuning, shared by both teams. */
 final class MatchMath {
+    static boolean canChallenge(float x,float y,float opponentX,float opponentY) {
+        return Math.hypot(x-opponentX,(y-opponentY)*68f/105f)<=.03f;
+    }
     static float playbackRate(int speed) { return speed<=0?.45f:speed==1?.70f:1.05f; }
     static float clamp(float n, float lo, float hi) { return Math.max(lo, Math.min(hi, n)); }
     static float mobility(int pace, int fitness) {

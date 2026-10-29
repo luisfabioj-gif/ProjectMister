@@ -5,6 +5,12 @@ public final class FeedbackTests {
     private static int checks;
     private static void check(boolean ok,String label){if(!ok)throw new AssertionError(label);checks++;}
     public static void main(String[] args){
+        check(MatchMath.canChallenge(.5f,.5f,.528f,.5f),"nearby defender can challenge");
+        check(!MatchMath.canChallenge(.5f,.5f,.532f,.5f),"defender outside physical reach cannot tackle");
+        check(MatchMath.canChallenge(.5f,.5f,.5f,.544f),"challenge distance uses pitch width in metres");
+        check(!MatchMath.canChallenge(.5f,.5f,.5f,.55f),"wide separation cannot create a remote tackle");
+        check(!MatchMath.canChallenge(.5f,.5f,.526f,.526f),"diagonal challenge requires actual contact range");
+        check(MatchMath.canChallenge(.528f,.5f,.5f,.5f),"both sides use symmetric challenge reach");
         List<Recruitment.Row> rows=Arrays.asList(
             new Recruitment.Row("a","Ana Forward","Porto","PT","Portugal","ST",19,70,91,8,14,45,false,false,""),
             new Recruitment.Row("b","Ben Keeper","Free agent","Unattached","England","GK",31,80,82,0,10,100,true,false,""),

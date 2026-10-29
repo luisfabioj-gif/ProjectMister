@@ -1928,6 +1928,7 @@ public class MainActivity extends Activity {
             livePendingPossessionTeam = liveAway;
             livePendingCarrierSlot = 9;
             liveNeedsKickoffReset = true;
+            if(livePitchView!=null)livePitchView.resetForKickoff(liveAway);
             liveActionTimer = 0.45f;
             playLiveSound("whistle");
             recordCommentary(-1, "The second half is ready to begin.");
@@ -2037,11 +2038,14 @@ public class MainActivity extends Activity {
 
 
     private LinearLayout liveTacticsPlayerToken(Player p,String role,int height){
-        LinearLayout token=new LinearLayout(this);token.setOrientation(LinearLayout.HORIZONTAL);token.setGravity(Gravity.CENTER_VERTICAL);token.setPadding(dp(2),dp(2),dp(2),dp(2));token.setFocusable(true);token.setBackground(BossStyle.shape(this,0xdd16261b,7));token.setElevation(dp(2));
-        boolean compact=height<dp(29);int discSize=Math.min(dp(24),height-dp(4));
-        TextView number=makeText(String.valueOf(p.id%PLAYERS_PER_TEAM+1),compact?9:11,contrastText(primaryColours[selectedClub]));number.setGravity(Gravity.CENTER);number.setTypeface(BossStyle.DISPLAY);number.setIncludeFontPadding(false);GradientDrawable disc=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{lighten(primaryColours[selectedClub],24),primaryColours[selectedClub],darken(primaryColours[selectedClub],25)});disc.setCornerRadius(dp(24));disc.setStroke(dp(1),text);number.setBackground(disc);token.addView(number,new LinearLayout.LayoutParams(discSize,discSize));
-        LinearLayout copy=new LinearLayout(this);copy.setOrientation(LinearLayout.VERTICAL);copy.setPadding(dp(3),0,0,0);token.addView(copy,new LinearLayout.LayoutParams(0,-1,1));
-        TextView name=makeText(shortPlayerName(p),compact?7:9,text),ability=makeText("CA "+p.currentAbility/2+" · "+p.fitness+"%",compact?6:7,conditionProfileColour(p.fitness));for(TextView field:new TextView[]{name,ability}){field.setSingleLine(true);field.setIncludeFontPadding(false);field.setEllipsize(android.text.TextUtils.TruncateAt.END);field.setGravity(Gravity.CENTER_VERTICAL);copy.addView(field,new LinearLayout.LayoutParams(-1,0,1));}return token;
+        LinearLayout token=new LinearLayout(this);token.setOrientation(LinearLayout.VERTICAL);token.setPadding(dp(2),dp(2),dp(2),dp(2));token.setFocusable(true);token.setBackground(BossStyle.shape(this,0xdd16261b,7));token.setElevation(dp(2));
+        boolean compact=height<dp(29);int discSize=Math.min(dp(22),Math.max(dp(8),height-dp(15)));
+        LinearLayout identity=new LinearLayout(this);identity.setGravity(Gravity.CENTER_VERTICAL);identity.setBaselineAligned(false);token.addView(identity,new LinearLayout.LayoutParams(-1,0,1));
+        TextView number=makeText(String.valueOf(p.id%PLAYERS_PER_TEAM+1),height<dp(24)?7:compact?9:11,contrastText(primaryColours[selectedClub]));number.setGravity(Gravity.CENTER);number.setTypeface(BossStyle.DISPLAY);number.setIncludeFontPadding(false);GradientDrawable disc=new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{lighten(primaryColours[selectedClub],24),primaryColours[selectedClub],darken(primaryColours[selectedClub],25)});disc.setCornerRadius(dp(24));disc.setStroke(dp(1),text);number.setBackground(disc);identity.addView(number,new LinearLayout.LayoutParams(discSize,discSize));
+        TextView name=makeText(shortPlayerName(p),compact?7:9,text);name.setSingleLine(true);name.setIncludeFontPadding(false);name.setEllipsize(android.text.TextUtils.TruncateAt.END);name.setGravity(Gravity.CENTER_VERTICAL);name.setPadding(dp(2),0,0,0);identity.addView(name,new LinearLayout.LayoutParams(0,-1,1));
+        LinearLayout stats=new LinearLayout(this);stats.setBaselineAligned(false);token.addView(stats,new LinearLayout.LayoutParams(-1,dp(9)));
+        TextView ability=makeText("CA"+p.currentAbility/2,7,accent),condition=makeText(p.fitness+"%",7,conditionProfileColour(p.fitness));ability.setTag("boss-live-ability");condition.setTag("boss-live-condition");
+        for(TextView field:new TextView[]{ability,condition}){field.setSingleLine(true);field.setIncludeFontPadding(false);field.setGravity((field==ability?Gravity.START:Gravity.END)|Gravity.CENTER_VERTICAL);stats.addView(field,new LinearLayout.LayoutParams(0,-1,1));}return token;
     }
 
     private LinearLayout tacticsPlayerToken(Player p,String role,int height){
@@ -2575,9 +2579,8 @@ public class MainActivity extends Activity {
         liveActionTimer = liveActionDuration;
 
         if (random.nextDouble() < success) {
-            if (team == liveHome) liveHomePassesComplete++; else liveAwayPassesComplete++;
-            matchCompletedPasses.put(passer.id,matchCompletedPasses.getOrDefault(passer.id,0)+1);
             livePitchView.animateBallToSlot(team, fromSlot, team, targetSlot, liveActionDuration);
+            livePitchView.countPassOnReception(team,passer.id);
             livePendingPossessionTeam = team;
             livePendingCarrierSlot = targetSlot;
             liveSequencePasses++;
@@ -2687,20 +2690,22 @@ public class MainActivity extends Activity {
         Player defender = playerForPitchSlot(defending, defenderSlot);
         if (carrier == null) return;
 
+        boolean challenged=defender!=null&&MatchMath.canChallenge(livePitchView.getPlayerX(team,slot),livePitchView.getPlayerY(team,slot),livePitchView.getPlayerX(defending,defenderSlot),livePitchView.getPlayerY(defending,defenderSlot));
+
         double duel = 0.58 + (carrier.pace + carrier.technique - 140) / 260.0;
         if (defender != null) duel -= (defender.defending + defender.physical - 140) / 330.0;
         duel = Math.max(0.35, Math.min(0.78, duel));
         liveActionDuration = 0.72f + random.nextFloat() * 0.20f;
         liveActionTimer = liveActionDuration;
 
-        if (random.nextDouble() < duel) {
+        if (!challenged || random.nextDouble() < duel) {
             float x = livePitchView.getPlayerX(team, slot) + (team == liveHome ? 0.075f : -0.075f);
             float y = livePitchView.getPlayerY(team, slot) + (random.nextFloat() - 0.5f) * 0.08f;
             livePitchView.animateDribble(team, slot, x, y, liveActionDuration);
             livePendingPossessionTeam = team;
             livePendingCarrierSlot = slot;
             String opponentName = defender == null ? "his marker" : defender.name;
-            recordCommentary(team, carrier.name + " takes on " + opponentName + " and carries the ball forward.");
+            recordCommentary(team, carrier.name + (challenged?" takes on " + opponentName + " and carries the ball forward.":" carries the ball into space as the defence closes down."));
         } else {
             if (defender != null) {
                 if (defending == liveHome) liveHomeTackles++; else liveAwayTackles++;
@@ -2716,12 +2721,17 @@ public class MainActivity extends Activity {
     }
 
     private void performDuelAction(int attacking, int attackerSlot) {
-        playLiveSound("tackle");
         int defending = attacking == liveHome ? liveAway : liveHome;
         Player attacker = playerForPitchSlot(attacking, attackerSlot);
         int defenderSlot = nearestDefenderSlot(defending, livePitchView.getPlayerX(attacking, attackerSlot), livePitchView.getPlayerY(attacking, attackerSlot));
         Player defender = playerForPitchSlot(defending, defenderSlot);
         if (attacker == null || defender == null) { performPassAction(attacking, attackerSlot, false); return; }
+        if(!MatchMath.canChallenge(livePitchView.getPlayerX(attacking,attackerSlot),livePitchView.getPlayerY(attacking,attackerSlot),livePitchView.getPlayerX(defending,defenderSlot),livePitchView.getPlayerY(defending,defenderSlot))){
+            livePitchView.startRun(defending,defenderSlot,livePitchView.getPlayerX(attacking,attackerSlot),livePitchView.getPlayerY(attacking,attackerSlot),1.1f);
+            performDribbleAction(attacking,attackerSlot);
+            return;
+        }
+        playLiveSound("tackle");
 
         double foulChance = 0.08 + liveRefereeStrictness * 0.005;
         if (defending == selectedClub && "Hard".equals(tacklingInstruction)) foulChance += 0.09;
@@ -2750,6 +2760,7 @@ public class MainActivity extends Activity {
         win = Math.max(0.30, Math.min(0.72, win));
         if (random.nextDouble() < win) {
             if (defending == liveHome) liveHomeTackles++; else liveAwayTackles++;
+            matchTackles.put(defender.id,matchTackles.getOrDefault(defender.id,0)+1);
             livePitchView.animateBallToSlot(attacking, attackerSlot, defending, defenderSlot, liveActionDuration);
             livePendingPossessionTeam = defending;
             livePendingCarrierSlot = defenderSlot;
@@ -2780,8 +2791,8 @@ public class MainActivity extends Activity {
         int defending = team == liveHome ? liveAway : liveHome;
 
         if (random.nextDouble() < success) {
-            if (team == liveHome) liveHomePassesComplete++; else liveAwayPassesComplete++;
             livePitchView.animateBallToSlot(team, fromSlot, team, targetSlot, liveActionDuration);
+            livePitchView.countPassOnReception(team,crosser.id);
             livePendingPossessionTeam = team;
             livePendingCarrierSlot = targetSlot;
             recordCommentary(team, crosser.name + " gets his head up and bends a cross into the run of " + target.name + ".");
@@ -3458,6 +3469,9 @@ public class MainActivity extends Activity {
         private float ballTravelDuration = 0.6f;
         private float ballHeight = 0f;
         private float ballPeakHeight = 0f;
+        private boolean awaitingReception;
+        private float receptionWait;
+        private int flightPasser=-1,flightPassTeam=-1;
         private int goalCelebrationTeam = -1;
         private int goalCelebrationScorerSlot = -1;
         private float goalCelebrationTime = 0f;
@@ -3468,7 +3482,7 @@ public class MainActivity extends Activity {
         private int recoveryHomeSlot=-1,recoveryAwaySlot=-1,deadBallStage=0,deadBallTeam=-1,deadBallSlot=-1;
         private float restartX,restartY,parryX,parryY;
         boolean deadBallInProgress(){return deadBallStage>0;}
-        boolean contactPending(){return looseRecovery||deadBallInProgress()||ballTravel<1f;}
+        boolean contactPending(){return looseRecovery||deadBallInProgress()||ballTravel<1f||awaitingReception;}
         boolean ballIsAt(int team,int slot,float tolerance){return Math.hypot((getPlayerX(team,slot)-ballX),(getPlayerY(team,slot)-ballY)*.648f)<=tolerance;}
         void beginLooseRecovery(int home,int away){looseRecovery=true;recoveryHomeSlot=home;recoveryAwaySlot=away;trackTarget=false;dribbleTeam=dribbleSlot=-1;ballHeight=0;}
         void beginDeadBall(int team,int slot,float x,float y){deadBallTeam=team;deadBallSlot=slot;restartX=x;restartY=y;deadBallStage=1;deadBallReady=false;trackTarget=false;dribbleTeam=dribbleSlot=-1;looseRecovery=false;lastPasserId=lastPassTeam=-1;}
@@ -3597,6 +3611,7 @@ public class MainActivity extends Activity {
         }
 
         void holdBallAt(int team, int slot) {
+            finishFlightPass(false);awaitingReception=false;
             ballTravel = 1f;
             ballHeight = 0f;
             ballPeakHeight = 0f;
@@ -3607,6 +3622,7 @@ public class MainActivity extends Activity {
         }
 
         void animateBallToSlot(int fromTeam, int fromSlot, int toTeam, int toSlot, float duration) {
+            finishFlightPass(false);awaitingReception=true;receptionWait=0;
             ballStartX = ballX;
             ballStartY = ballY;
             ballTargetTeam = toTeam;
@@ -3638,6 +3654,7 @@ public class MainActivity extends Activity {
         }
 
         void animateBallToPoint(int fromTeam, int fromSlot, float x, float y, float duration) {
+            finishFlightPass(false);awaitingReception=false;
             ballStartX = ballX;
             ballStartY = ballY;
             ballTargetX = clamp(x, 0.01f, 0.99f);
@@ -3685,6 +3702,7 @@ public class MainActivity extends Activity {
         }
 
         void placeBall(float x, float y) {
+            finishFlightPass(false);awaitingReception=false;
             ballX = ballStartX = ballTargetX = clamp(x, 0.01f, 0.99f);
             ballY = ballStartY = ballTargetY = clamp(y, 0.01f, 0.99f);
             ballTravel = 1f;
@@ -3748,6 +3766,27 @@ public class MainActivity extends Activity {
         float getBallX() { return ballX; }
         float getBallY() { return ballY; }
 
+        void countPassOnReception(int team,int passer){flightPassTeam=team;flightPasser=passer;}
+        private void finishFlightPass(boolean completed){
+            if(flightPasser<0)return;
+            if(completed){
+                if(flightPassTeam==liveHome)liveHomePassesComplete++;else if(flightPassTeam==liveAway)liveAwayPassesComplete++;
+                matchCompletedPasses.put(flightPasser,matchCompletedPasses.getOrDefault(flightPasser,0)+1);
+            }else matchMissedPasses.put(flightPasser,matchMissedPasses.getOrDefault(flightPasser,0)+1);
+            flightPasser=flightPassTeam=-1;
+        }
+        private void receiveAtDestination(float dt){
+            if(!awaitingReception||ballTravel<1f)return;
+            receptionWait+=dt;
+            if(playerForPitchSlot(ballTargetTeam,ballTargetSlot)!=null&&ballIsAt(ballTargetTeam,ballTargetSlot,.018f)){
+                finishFlightPass(true);holdBallAt(ballTargetTeam,ballTargetSlot);
+            }else if(receptionWait>=.65f||playerForPitchSlot(ballTargetTeam,ballTargetSlot)==null){
+                finishFlightPass(false);awaitingReception=false;trackTarget=false;parryPending=false;
+                livePendingPossessionTeam=livePendingCarrierSlot=-1;lastPasserId=lastPassTeam=-1;
+                liveLooseBall=true;liveLooseBallX=ballX;liveLooseBallY=ballY;liveActionTimer=.05f;
+            }
+        }
+
         void stepSimulation(float dt) {
             if (livePaused) return;
 
@@ -3770,18 +3809,16 @@ public class MainActivity extends Activity {
             updateTeamMovement(liveAway, awayX, awayY, awayBaseX, awayBaseY, teamShift, verticalPull, dt);
 
             if(ballTravel<1f){
-                if(trackTarget&&ballTargetTeam>=0&&ballTargetSlot>=0){
-                    // Aim at the receiver’s actual feet on the arrival frame, including running receptions.
-                    float savedX=ballX,savedY=ballY;ballAtFeet(ballTargetTeam,ballTargetSlot);ballTargetX=ballX;ballTargetY=ballY;ballX=savedX;ballY=savedY;
-                }
+                // The kick fixes the endpoint. Receivers run to the ball; its flight cannot home in on them.
                 ballTravel=Math.min(1f,ballTravel+dt/ballTravelDuration);float progress=MatchMath.flightProgress(ballTravel);
                 ballX=ballStartX+(ballTargetX-ballStartX)*progress;ballY=ballStartY+(ballTargetY-ballStartY)*progress;ballHeight=MatchMath.arc(ballTravel,ballPeakHeight);
             }
-            if(ballTravel>=1f&&parryPending){parryPending=false;ballStartX=ballX;ballStartY=ballY;ballTargetX=parryX;ballTargetY=parryY;ballTravel=0;ballTravelDuration=.34f;ballPeakHeight=.018f;trackTarget=false;liveLooseBall=true;liveLooseBallX=parryX;liveLooseBallY=parryY;}
+            receiveAtDestination(dt);
+            if(ballTravel>=1f&&!awaitingReception&&parryPending){parryPending=false;ballStartX=ballX;ballStartY=ballY;ballTargetX=parryX;ballTargetY=parryY;ballTravel=0;ballTravelDuration=.34f;ballPeakHeight=.018f;trackTarget=false;liveLooseBall=true;liveLooseBallX=parryX;liveLooseBallY=parryY;}
             if(looseRecovery&&ballTravel>=1f){int home=recoveryHomeSlot,away=recoveryAwaySlot;boolean h=ballIsAt(liveHome,home,.018f),a=ballIsAt(liveAway,away,.018f);if(h||a){int winner=h?liveHome:liveAway,slot=h?home:away;looseRecovery=false;liveLooseBall=false;livePossessionTeam=winner;liveCarrierSlot=slot;livePendingPossessionTeam=livePendingCarrierSlot=-1;holdBallAt(winner,slot);liveActionTimer=.25f;Player player=playerForPitchSlot(winner,slot);recordCommentary(winner,(player==null?clubNames[winner]:player.name)+" reaches the ball and takes control.");}}
             if(deadBallStage==1&&ballIsAt(deadBallTeam,deadBallSlot,.018f)){holdBallAt(deadBallTeam,deadBallSlot);deadBallStage=2;}
             if(deadBallStage==2&&Math.hypot(getPlayerX(deadBallTeam,deadBallSlot)-restartX,(getPlayerY(deadBallTeam,deadBallSlot)-restartY)*.648f)<.012f){deadBallStage=0;deadBallReady=true;liveActionTimer=.05f;}
-            if(ballTravel>=1f&&trackTarget&&ballTargetTeam>=0&&ballTargetSlot>=0)ballAtFeet(ballTargetTeam,ballTargetSlot);
+            if(ballTravel>=1f&&!awaitingReception&&trackTarget&&ballTargetTeam>=0&&ballTargetSlot>=0)ballAtFeet(ballTargetTeam,ballTargetSlot);
         }
 
         private void updateTeamMovement(int team, float[] xs, float[] ys, float[] baseX, float[] baseY,
@@ -3861,7 +3898,7 @@ public class MainActivity extends Activity {
                     tx = tx * 0.22f + runX[i] * 0.78f;
                     ty = ty * 0.22f + runY[i] * 0.78f;
                 }
-                if(trackTarget&&ballTravel>=1f&&team==ballTargetTeam&&i==ballTargetSlot&&runTime[i]<=0&&!restart.active()){
+                if(trackTarget&&!awaitingReception&&ballTravel>=1f&&team==ballTargetTeam&&i==ballTargetSlot&&runTime[i]<=0&&!restart.active()){
                     tx=xs[i]+attackDir*.012f;ty=ys[i];
                 }
                 if (team == dribbleTeam && i == dribbleSlot) {
@@ -3901,6 +3938,7 @@ public class MainActivity extends Activity {
                 boolean deadRunner=deadBallStage>0&&team==deadBallTeam&&i==deadBallSlot;
                 if(collecting){tx=ballX;ty=ballY;maxSpeed=.17f*mobility;}
                 if(deadRunner){tx=deadBallStage==1?ballX:restartX;ty=deadBallStage==1?ballY:restartY;maxSpeed=.21f*mobility;}
+                if(awaitingReception&&team==ballTargetTeam&&i==ballTargetSlot){tx=ballTargetX;ty=ballTargetY;maxSpeed=Math.max(maxSpeed,.17f*mobility);}
                 MatchMotion.arrive(xs,ys,vx,vy,i,clamp(tx,collecting||deadRunner?.012f:.035f,collecting||deadRunner?.988f:.965f),clamp(ty,collecting||deadRunner?.012f:.035f,collecting||deadRunner?.988f:.965f),maxSpeed,.44f*mobility,dt,collecting||deadRunner?.012f:.035f);
             }
         }
@@ -3945,7 +3983,7 @@ public class MainActivity extends Activity {
                 float px = projection.x(xs[i],ys[i]);
                 float py = projection.y(xs[i],ys[i]);
                 float baseRadius=radius;radius=baseRadius*projection.scale(ys[i]);
-                boolean carrier=trackTarget&&ballTravel>=1f&&team==ballTargetTeam&&i==ballTargetSlot&&!restart.active();
+                boolean carrier=trackTarget&&!awaitingReception&&ballTravel>=1f&&team==ballTargetTeam&&i==ballTargetSlot&&!restart.active();
                 if(carrier){carrierPaint.setStyle(Paint.Style.STROKE);carrierPaint.setStrokeWidth(dp(1.7f));carrierPaint.setColor(accent);canvas.drawCircle(px,py,radius+dp(3),carrierPaint);}
                 canvas.drawCircle(px + dp(1), py + dp(2), radius * 1.05f, shadowPaint);
                 int c = i == 0 ? Color.rgb(238, 190, 45) : team==liveAway?liveAwayKitColour:primaryColours[team];
