@@ -3,13 +3,18 @@ public class RefinementTests {
     private static int checks;
     private static void check(boolean value,String name){if(!value)throw new AssertionError(name);checks++;}
     public static void main(String[] args)throws Exception{
-        check(GameNames.display("SL Benfica").equals("Lisbon Eagles"),"Portuguese alternate identity");
-        check(GameNames.display("Real Madrid 2–1 FC Barcelona").equals("Madrid Royals 2–1 Barcelona Blaugrana"),"old news is presented with alternate names");
-        check(GameNames.display("Roma Wolves").equals("Roma Wolves"),"alias rendering is idempotent");
+        check(GameNames.display("SL Benfica").equals("SL Benfika"),"Portuguese alternate identity");
+        check(GameNames.display("Real Madrid 2–1 FC Barcelona").equals("Real Madrida 2–1 FC Barceluna"),"old news is presented with alternate names");
+        check(GameNames.display("Roma Wolves").equals("AS Romae"),"older club alias follows the closer display identity");
         check(GameNames.display("Interview with Luis").equals("Interview with Luis"),"Inter alias does not change interview text");
-        check(GameNames.display("SL Benfica B").equals("Lisbon Eagles B"),"reserve identity stays distinguishable");
+        check(GameNames.display("SL Benfica B").equals("SL Benfika B"),"reserve identity stays distinguishable");
         check(GameNames.display("My Custom Club").equals("My Custom Club"),"custom name retained");
-        GameNames.protectPerson("Milan Novak");GameNames.protectPerson("Marco Milan");check(GameNames.display("Milan Novak • GK").equals("Milan Novak • GK"),"player first name is not replaced with club identity");check(GameNames.display("Marco Milan plays the pass").equals("Marco Milan plays the pass"),"player surname is not replaced in commentary");check(GameNames.display("Milan come into the week").equals("Milano Rossoneri come into the week"),"club references still change beside protected personal names");
+        GameNames.protectPerson("Milan Novak");GameNames.protectPerson("Marco Milan");check(GameNames.display("Milan Novak • GK").equals("Milan Novak • GK"),"player first name is not replaced with club identity");check(GameNames.display("Marco Milan plays the pass").equals("Marco Milan plays the pass"),"player surname is not replaced in commentary");check(GameNames.display("Milan come into the week").equals("AC Milano come into the week"),"club references still change beside protected personal names");
+        check(GameNames.display("FC Porto").equals("FC Portu")&&GameNames.display("Arsenal").equals("Arsenel"),"closer recognisable Portuguese and English names");
+        check(GameNames.display("Lisbon Eagles v North London Gunners").equals("SL Benfika v Arsenel"),"older saved display names follow updated identities");
+        java.lang.reflect.Field nameField=GameNames.class.getDeclaredField("NAMES");nameField.setAccessible(true);
+        @SuppressWarnings("unchecked") java.util.Map<String,String> names=(java.util.Map<String,String>)nameField.get(null);
+        for(String alias:new java.util.HashSet<>(names.values())){check(GameNames.display(alias).equals(alias),"new alternate name remains stable on repeat rendering: "+alias);check(GameNames.display("Club update: "+alias+" • match report").contains(alias),"alternate name remains stable inside news: "+alias);}
         for(String country:new String[]{"PT","ES","ENG","DE","IT","FR","NL","BE","SCO","TR"})for(int tier=1;tier<=2;tier++)check(GameNames.division(country,tier).endsWith(tier==1?" 1st Division":" 2nd Division"),"generic division "+country+tier);
         check(GameNames.display("Liga Portugal Betclic").equals("Portugal 1st Division"),"legacy top division label");
         check(GameNames.display("Liga Portugal Meu Super").equals("Portugal 2nd Division"),"legacy second division label");

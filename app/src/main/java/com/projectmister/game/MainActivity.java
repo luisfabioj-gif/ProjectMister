@@ -1908,9 +1908,9 @@ public class MainActivity extends Activity {
         FrameLayout pitch=new FrameLayout(this);pitch.setTag("live-tactics-pitch");pitch.setBackground(BossStyle.shape(this,0xff152019,12));right.addView(pitch,new LinearLayout.LayoutParams(-1,0,1));
         pitch.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob)->{if(r>l&&b>t&&(r-l!=or-ol||b-t!=ob-ot||pitch.getChildCount()==0))pitch.post(()->{if(pitch.isAttachedToWindow())populateLiveTacticsPitch(pitch);});});
         TextView benchTitle=makeText("SUBSTITUTES  •  "+liveSubsUsed+" / 5 used     CA: ability  •  %: condition",9,accent);benchTitle.setTypeface(BossStyle.MEDIUM);benchTitle.setGravity(Gravity.CENTER_VERTICAL);right.addView(benchTitle,new LinearLayout.LayoutParams(-1,dp(21)));
-        LinearLayout bench=new LinearLayout(this);bench.setTag("boss-live-bench");bench.setGravity(Gravity.CENTER_VERTICAL);
-        for(int id:liveBenchIds){Player player=findPlayer(id);if(player==null)continue;Button button=new Button(this);button.setAllCaps(false);button.setMinWidth(0);button.setMinimumWidth(0);button.setMinHeight(0);button.setMinimumHeight(0);button.setMaxLines(3);button.setTextSize(9);button.setPadding(dp(2),dp(4),dp(2),dp(4));button.setEllipsize(android.text.TextUtils.TruncateAt.END);int colour=livePlayerPositionColour(player);button.setText(shortPlayerName(player)+"\n"+player.position+" · CA "+player.currentAbility/2+"\n"+player.fitness+"%");button.setTextColor(idealButtonTextColour(colour));button.setBackground(liveBenchBackground(colour,id==livePendingSubOnId));button.setElevation(dp(id==livePendingSubOnId?4:2));button.setEnabled(!substitutions.hasDeparted(id));button.setAlpha(button.isEnabled()?1f:.40f);button.setTag("boss-bench-"+id);button.setContentDescription(player.name+", "+player.position+", current ability "+player.currentAbility/2+", condition "+player.fitness+" percent");button.setOnClickListener(v->{livePendingSubOnId=id;showLiveTacticsScreen();});LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,dp(54),1);bp.setMargins(dp(2),0,dp(2),dp(2));bench.addView(button,bp);}
-        if(bench.getChildCount()==0)bench.addView(makeText("No substitutes available",11,muted));right.addView(bench,new LinearLayout.LayoutParams(-1,dp(57)));
+        LinearLayout bench=new LinearLayout(this);bench.setTag("boss-live-bench");bench.setBaselineAligned(false);bench.setGravity(Gravity.CENTER_VERTICAL);
+        for(int id:liveBenchIds){Player player=findPlayer(id);if(player==null)continue;Button button=new Button(this);button.setAllCaps(false);button.setMinWidth(0);button.setMinimumWidth(0);button.setMinHeight(0);button.setMinimumHeight(0);button.setMaxLines(3);button.setTextSize(9);button.setPadding(dp(2),dp(4),dp(2),dp(4));button.setEllipsize(android.text.TextUtils.TruncateAt.END);int colour=livePlayerPositionColour(player);button.setText(shortPlayerName(player)+"\n"+player.position+" · CA "+player.currentAbility/2+"\n"+player.fitness+"%");button.setTextColor(idealButtonTextColour(colour));button.setBackground(liveBenchBackground(colour,id==livePendingSubOnId));button.setStateListAnimator(null);button.setElevation(dp(id==livePendingSubOnId?4:2));button.setEnabled(!substitutions.hasDeparted(id));button.setAlpha(button.isEnabled()?1f:.40f);button.setTag("boss-bench-"+id);button.setContentDescription(player.name+", "+player.position+", current ability "+player.currentAbility/2+", condition "+player.fitness+" percent");button.setOnClickListener(v->{livePendingSubOnId=id;showLiveTacticsScreen();});LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,dp(48),1);bp.setMargins(dp(2),0,dp(2),dp(2));bench.addView(button,bp);}
+        if(bench.getChildCount()==0)bench.addView(makeText("No substitutes available",11,muted));right.addView(bench,new LinearLayout.LayoutParams(-1,dp(62)));
         root.addView(right,new LinearLayout.LayoutParams(0,-1,2.65f));setContentView(root);applySafeInsets(root);
     }
 
@@ -1978,7 +1978,7 @@ public class MainActivity extends Activity {
 
     private void populateLiveTacticsPitch(FrameLayout frame) {
         frame.removeAllViews();
-        View bg=new View(this){private final StadiumPitch art=new StadiumPitch();@Override protected void onDraw(Canvas c){art.draw(c,getWidth(),getHeight(),true);}};
+        View bg=new View(this){private final StadiumPitch art=new StadiumPitch(MainActivity.this);@Override protected void onDraw(Canvas c){art.draw(c,getWidth(),getHeight(),true);}};
         bg.setTag("boss-stadium-tactics");frame.addView(bg,new FrameLayout.LayoutParams(frame.getWidth(),frame.getHeight()));
 
         ArrayList<Integer> lineup = selectedClub == liveHome ? liveHomeLineupIds : liveAwayLineupIds;
@@ -3430,7 +3430,7 @@ public class MainActivity extends Activity {
         private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint bitmapPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
-        private final StadiumPitch pitchArt=new StadiumPitch();
+        private final StadiumPitch pitchArt=new StadiumPitch(MainActivity.this);
         private PitchProjection projection;
 
         private final float[] homeX = new float[11];

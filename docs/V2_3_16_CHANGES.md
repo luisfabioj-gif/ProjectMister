@@ -19,9 +19,25 @@ Package and update signing key are retained; version code advances to 42.
 - Post-match results show the manager's current division. Background fixtures
   from the other division are still simulated and saved so standings and the
   season continue correctly.
+- Club names now use closer edited spellings, including SL Benfika, FC Portu,
+  Arsenel and Manchester Unitas. All 365 playable identities remain distinct;
+  older display aliases migrate in presentation without changing career IDs,
+  fixtures, standings, personal names or custom text. These are alternative
+  names, without a licensing-clearance claim.
 - Goal commentary alternates the scoring team's colour and a light background
   for 3.6 seconds, retaining the goal message while later commentary arrives.
   The effect uses wall time, stops when leaving the match, and returns to the
   current commentary after its deadline.
 
 Validation will be recorded after native Android screenshot and feature checks.
+
+## Stadium asset
+
+Asset: `app/src/main/assets/match/stadium-daylight-v16.png`.
+Created with the built-in image generation tool using the supplied tracker
+stadium as a camera and style reference. The bitmap supplies the stadium
+surroundings and grass texture; code supplies the exact pitch geometry.
+
+Final generation prompt:
+
+> Use case: photorealistic-natural. Asset type: panoramic stadium backdrop for the BOSS XI mobile football game. Input image 1 is a STYLE AND CAMERA REFERENCE ONLY: use ONLY the empty stadium inside the Live tracker card; ignore all the surrounding phone app interface, logos, players and text. Create a clean, original, photorealistic empty football stadium view that closely matches that reference's roof structure, black and grey seating bowl, daylight, elevated sideline camera, gently receding far stand and rich green turf. Landscape composition, very wide panoramic view. Upper 30 percent: a large detailed metal roof truss and densely detailed curved seating bowl reaching both left and right edges, grey stairs and aisles, stadium structure with realistic sunlight and shadows, no sky visible. Lower 70 percent: a perfectly empty continuous green football grass surface, subtle natural mowing texture and daylight. CRITICAL: the grass must have NO white pitch markings whatsoever, NO goal nets, NO goalposts, NO corner flags, NO football, NO people, NO advertising text or logos, NO labels, NO app UI, NO border, NO watermark; the game will add all exact field markings, goals and animated players later in code. Keep the stadium realistic and highly detailed, not an illustration, not vector art, not a diagram. Wide horizontal 1536 by 1024 or wider composition.

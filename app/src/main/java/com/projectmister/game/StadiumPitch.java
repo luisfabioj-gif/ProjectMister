@@ -1,10 +1,20 @@
 package com.projectmister.game;
 
 import android.graphics.*;
+import android.content.Context;
+import java.io.InputStream;
 
 /** Original stadium artwork drawn on the same metric perspective as the live play. */
 final class StadiumPitch {
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint imagePaint=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG);
+    private static Bitmap sharedScene;
+    private final Bitmap scene;
+    StadiumPitch(Context context){scene=loadScene(context);}
+    private static synchronized Bitmap loadScene(Context context){
+        if(sharedScene==null)try(InputStream in=context.getAssets().open("match/stadium-daylight-v16.png")){BitmapFactory.Options options=new BitmapFactory.Options();options.inPreferredConfig=Bitmap.Config.RGB_565;sharedScene=BitmapFactory.decodeStream(in,null,options);}catch(java.io.IOException ignored){}
+        return sharedScene;
+    }
     private final Path path=new Path();
     private Bitmap backdrop;
     private int cachedW,cachedH;
@@ -13,7 +23,7 @@ final class StadiumPitch {
     void draw(Canvas canvas,int w,int h,boolean tactics){
         if(w<=0||h<=0)return;
         if(backdrop==null||cachedW!=w||cachedH!=h||cachedTactics!=tactics){
-            if(backdrop!=null)backdrop.recycle();cachedW=w;cachedH=h;cachedTactics=tactics;
+            cachedW=w;cachedH=h;cachedTactics=tactics;
             backdrop=Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);plane=new PitchProjection(w,h,tactics);
             paintStadium(new Canvas(backdrop),w,h,tactics);
         }
@@ -36,6 +46,12 @@ final class StadiumPitch {
     }
     private void spot(Canvas c,float x,float y,float radius){float nx=PitchProjection.mx(x),ny=PitchProjection.my(y);p.setStyle(Paint.Style.FILL);c.drawCircle(plane.x(nx,ny),plane.y(nx,ny),radius*plane.scale(ny),p);p.setStyle(Paint.Style.STROKE);}
     private void paintStadium(Canvas c,int w,int h,boolean tactics){
+        if(scene!=null){
+            float join=h*(tactics?.16f:.30f);int cut=Math.round(scene.getHeight()*.40f),top=Math.round(scene.getHeight()*.02f);
+            c.drawBitmap(scene,new Rect(0,top,scene.getWidth(),cut),new RectF(0,0,w,join),imagePaint);
+            c.drawBitmap(scene,new Rect(0,cut,scene.getWidth(),scene.getHeight()),new RectF(0,join,w,h),imagePaint);
+            for(int i=0;i<14;i++)patch(c,i%2==0?0x145f951f:0x1a173309,i*105f/14,0,(i+1)*105f/14,68);
+        }else{
         c.drawColor(0xff17221b);
         float skyline=h*(tactics?.015f:.04f),standBottom=h*(tactics?.135f:.235f);
         p.setStyle(Paint.Style.FILL);p.setShader(new LinearGradient(0,0,0,standBottom,0xff45514c,0xff141c1b,Shader.TileMode.CLAMP));c.drawRect(0,0,w,standBottom,p);p.setShader(null);
@@ -64,6 +80,7 @@ final class StadiumPitch {
         p.setShader(new LinearGradient(0,standBottom,0,h,0xff34582a,0xff3f6e23,Shader.TileMode.CLAMP));p.setStyle(Paint.Style.FILL);c.drawRect(0,standBottom,w,h,p);p.setShader(null);
         patch(c,0xff4a7628,-10,-12,115,80);
         for(int i=0;i<14;i++)patch(c,i%2==0?0xff4f7d2c:0xff608e35,i*105f/14,-1,(i+1)*105f/14,69);
+        }
         // Subtle cross-cut turf texture remains deterministic and is cached once per size.
         for(int row=0;row<90;row++){
             float yy=row*68f/90;p.setColor(row%2==0?0x0840a431:0x090a2609);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(Math.max(.5f,h*.001f));line(c,0,yy,105,yy);
