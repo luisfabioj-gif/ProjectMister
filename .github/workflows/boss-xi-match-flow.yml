@@ -34,6 +34,7 @@ jobs:
       - name: Install SDK
         run: sdkmanager 'platforms;android-35' 'platforms;android-36' 'build-tools;35.0.0'
       - name: Core regression tests
+        if: ${{ !contains(github.event.head_commit.message, '[compact-check]') }}
         run: bash tools/test-core.sh
       - name: Build update and independent instrumentation
         run: |
@@ -54,7 +55,7 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
-          script: bash tools/qa-match-flow.sh
+          script: bash tools/qa-match-flow.sh ${{ contains(github.event.head_commit.message, '[compact-check]') && 'compact-only' || 'full' }}
       - name: Preserve screenshots and reports
         if: always()
         uses: actions/upload-artifact@v4

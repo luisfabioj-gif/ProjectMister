@@ -126,6 +126,12 @@ public final class SmokeRunner extends Instrumentation {
                     check(!android.graphics.RectF.intersects(ar,br),"tactics markers separate "+i+"/"+j);
                 }
             }
+            ViewGroup bench=activity.getWindow().getDecorView().findViewWithTag("boss-live-bench");
+            for(int i=0;i<bench.getChildCount();i++)for(String tag:new String[]{"boss-bench-ability","boss-bench-condition"}){
+                android.widget.TextView stat=bench.getChildAt(i).findViewWithTag(tag);check(stat!=null&&stat.getLayout()!=null,"bench stat is laid out "+tag+"/"+i);
+                check(stat.getPaint().measureText(stat.getText().toString())<=stat.getWidth()-stat.getPaddingLeft()-stat.getPaddingRight()+.5f&&stat.getLayout().getLineCount()==1&&stat.getLayout().getEllipsisCount(0)==0,"bench ability and condition fit one complete line "+tag+"/"+i);
+                check(stat.getPaint().getFontMetrics().descent-stat.getPaint().getFontMetrics().ascent<=stat.getHeight()+.5f,"bench stat fits its row height "+tag+"/"+i);
+            }
         });
     }
     private android.view.accessibility.AccessibilityNodeInfo node(String text)throws Exception {

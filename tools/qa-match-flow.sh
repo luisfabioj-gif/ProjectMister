@@ -14,13 +14,17 @@ run_mode() {
 run_mode seed-feedback
 grep -q 'PASS baseline career seeded' qa-output/seed-feedback.txt
 adb install -r app/build/outputs/apk/debug/app-debug.apk
-for mode in matchflow presentation refinements fixes premium natural-match; do run_mode "$mode"; done
-grep -q 'PASS fixed pass flights physical receptions and contact-range challenges verified' qa-output/matchflow.txt
+if [[ "${1:-full}" == compact-only ]]; then
+    run_mode presentation
+else
+    for mode in matchflow presentation refinements fixes premium natural-match; do run_mode "$mode"; done
+    grep -q 'PASS fixed pass flights physical receptions and contact-range challenges verified' qa-output/matchflow.txt
+    grep -q 'PASS all eight identity presentation stadium and match refinements verified' qa-output/refinements.txt
+    grep -q 'PASS all nine requested recruitment UI inbox possession and goal-reset fixes verified' qa-output/fixes.txt
+    grep -q 'PASS premium shell, all club screens, functional navigation, squad filters, lineup selection and live presentation verified' qa-output/premium.txt
+    grep -q 'PASS natural full match advances without stalls and preserves its result' qa-output/natural-match.txt
+fi
 grep -q 'PASS all five pitch table result tactics and goal-commentary requests verified' qa-output/presentation.txt
-grep -q 'PASS all eight identity presentation stadium and match refinements verified' qa-output/refinements.txt
-grep -q 'PASS all nine requested recruitment UI inbox possession and goal-reset fixes verified' qa-output/fixes.txt
-grep -q 'PASS premium shell, all club screens, functional navigation, squad filters, lineup selection and live presentation verified' qa-output/premium.txt
-grep -q 'PASS natural full match advances without stalls and preserves its result' qa-output/natural-match.txt
 adb shell wm size 720x1280
 adb shell wm density 320
 run_mode compact

@@ -15,7 +15,9 @@ Version code 43 preserves the application ID, save format and update signing key
   contribution statistics.
 - Live tactics tokens give current ability and condition their own full-width
   row. The numbered identity and name stay above, so compact layouts retain both
-  statistics. Native checks measure glyph widths and row heights in all five
+  statistics. Bench names, role/ability and condition also have independent
+  single-line rows, including maximum CA100 and 100% condition. Native checks
+  measure glyph widths and row heights in all five
   formations, in addition to the existing visibility/overlap checks.
 - Resuming at half-time immediately enters the physical kickoff reset, clearing
   an unfinished first-half flight before either side can act in the second half.
@@ -23,7 +25,10 @@ Version code 43 preserves the application ID, save format and update signing key
   drawing safely after another career loads a smaller club list, fixing the
   country-switch crash found during the Android 15 checks.
 
-Validation is pending native Android checks. The independent runner covers fixed
+Full native verification passed on both APIs at source
+`15001d66f426c23acd3422716ca7fa700cc22e4d`, run `40939110325`.
+The final bench-only follow-up is awaiting focused Android layout checks.
+The independent runner covers fixed
 trajectories under receiver movement, contact-based completions, missed-pass
 recovery, distant and close challenges, saved-career upgrades and the retained
 2.3.16 feature checks. No new bitmap or audio assets are added.
