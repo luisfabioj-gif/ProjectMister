@@ -8,8 +8,8 @@ public final class PitchProjection {
     private final float farY,nearY,nearWidth,perspective;
     public PitchProjection(float width,float height,boolean tactics){
         this.width=width;this.height=height;
-        farY=height*(tactics?.20f:.39f);nearY=height*(tactics?.94f:.88f);
-        nearWidth=width*.925f;perspective=tactics?1.20f:1.42f;
+        farY=height*(tactics?.20f:.425f);nearY=height*(tactics?.94f:.78f);
+        nearWidth=width*(tactics?.925f:.94f);perspective=tactics?1.20f:1.51f;
     }
     private float depth(float y){return (y-TOP)/(BOTTOM-TOP);}
     public float scale(float y){return 1f/(perspective-(perspective-1f)*depth(y));}

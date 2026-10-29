@@ -8,6 +8,10 @@ public final class PitchPresentationTests {
             PitchProjection p=new PitchProjection(size[0],size[1],tactics);
             float far=p.x(PitchProjection.RIGHT,PitchProjection.TOP)-p.x(PitchProjection.LEFT,PitchProjection.TOP),near=p.x(PitchProjection.RIGHT,PitchProjection.BOTTOM)-p.x(PitchProjection.LEFT,PitchProjection.BOTTOM);
             check(far<near,"far touchline recedes");
+            if(!tactics){
+                check(Math.abs(p.y(PitchProjection.LEFT,PitchProjection.TOP)-size[1]*.425f)<.001&&Math.abs(p.y(PitchProjection.LEFT,PitchProjection.BOTTOM)-size[1]*.78f)<.001,"live view retains reference foreground and far-side camera framing");
+                check(Math.abs(near/size[0]-.94f)<.0001&&Math.abs(far/size[0]-.94f/1.51f)<.0001,"touchline widths follow the supplied stadium perspective");
+            }
             check(Math.abs(p.x(.5f,.5f)-size[0]/2f)<.001,"halfway line stays central");
             for(int x=0;x<=10;x++)for(int y=0;y<=10;y++){
                 float gx=PitchProjection.mx(x*10.5f),gy=PitchProjection.my(y*6.8f),sx=p.x(gx,gy),sy=p.y(gx,gy);

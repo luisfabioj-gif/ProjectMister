@@ -9,6 +9,8 @@ Package and update signing key are retained; version code advances to 42.
   field, 16.5 m penalty areas, 5.5 m goal areas, 9.15 m centre circle and correct
   penalty arcs. Players, ball, ball shadow and offside line use one ground-plane
   projection, aligned with the match's actual goal and touchline coordinates.
+  The live camera is calibrated to the reference's foreshortened field and
+  foreground apron; the higher tactics camera keeps all player cards readable.
 - Half-time and live tactics share the stadium renderer with a higher camera
   angle for lineup readability. Paired instruction buttons, a fixed primary
   resume button, compact player cards with ability and condition, and a complete
