@@ -3121,7 +3121,8 @@ public class MainActivity extends Activity {
         int team=goal?liveGoalFlash.team:liveCommentaryTeam;
         int colour=team>=0&&team<primaryColours.length?primaryColours[team]:panelLight;
         int fill=goal?(liveGoalFlashPhase==0?colour:Color.rgb(247,248,233)):panelLight;
-        GradientDrawable bg=goal?BossStyle.raised(this,fill,18):rounded(fill);
+        GradientDrawable bg=goal?new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,new int[]{lighten(fill,15),fill,darken(fill,18)}):rounded(fill);
+        if(goal)bg.setCornerRadius(dp(18));
         bg.setStroke(dp(goal?2:1),goal?lighten(colour,35):colour);liveCommentaryText.setBackground(bg);
         liveCommentaryText.setTextColor(goal?contrastText(fill):text);
         liveCommentaryText.setElevation(dp(goal?4:0));

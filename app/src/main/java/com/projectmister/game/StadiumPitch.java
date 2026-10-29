@@ -78,7 +78,7 @@ final class StadiumPitch {
         spot(c,52.5f,34,Math.max(1,h*.0032f));spot(c,11,34,Math.max(.8f,h*.0028f));spot(c,94,34,Math.max(.8f,h*.0028f));
         goal(c,0,-2.5f,h);goal(c,105,107.5f,h);
         for(float x:new float[]{0,105})for(float y:new float[]{0,68}){
-            float px=plane.x(PitchProjection.mx(x),PitchProjection.my(y)),py=plane.y(PitchProjection.mx(x),PitchProjection.my(y));float flag=Math.max(4,h*.032f)*plane.scale(PitchProjection.my(y));p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(Math.max(1,h*.002));p.setColor(0xffe6dfbd);c.drawLine(px,py,px,py-flag,p);polygon(c,0xffdb493b,px,py-flag,px+flag*.55f,py-flag*.86f,px,py-flag*.60f);
+            float px=plane.x(PitchProjection.mx(x),PitchProjection.my(y)),py=plane.y(PitchProjection.mx(x),PitchProjection.my(y));float flag=Math.max(4,h*.032f)*plane.scale(PitchProjection.my(y));p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(Math.max(1,h*.002f));p.setColor(0xffe6dfbd);c.drawLine(px,py,px,py-flag,p);polygon(c,0xffdb493b,px,py-flag,px+flag*.55f,py-flag*.86f,px,py-flag*.60f);
         }
         // Soft bowl shadows and a vignette keep the bright pitch central.
         p.setStyle(Paint.Style.FILL);p.setShader(new RadialGradient(w*.5f,h*.65f,w*.7f,new int[]{0x00000000,0x00000000,0x44202b15},new float[]{0,.54f,1},Shader.TileMode.CLAMP));c.drawRect(0,0,w,h,p);p.setShader(null);
