@@ -92,3 +92,6 @@ java -cp "$out" com.projectmister.game.FeedbackTests
 
 javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{GameNames,StandDesigns,ShotQuality}.java tests/RefinementTests.java
 java -cp "$out" com.projectmister.game.RefinementTests
+
+javac -cp "$out" -d "$out" app/src/main/java/com/projectmister/game/{PitchProjection,GoalFlash}.java tests/PitchPresentationTests.java
+java -cp "$out" com.projectmister.game.PitchPresentationTests

@@ -1,0 +1,79 @@
+name: BOSS XI 2.3.16 pitch and match presentation
+on:
+  push:
+    branches: [work/boss-xi-v2.3.16-pitch]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: boss-pitch-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [35, 36]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+          log-accepted-android-sdk-licenses: false
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Install SDK
+        run: sdkmanager 'platforms;android-35' 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Preserve local build tooling
+        if: matrix.api == 35
+        run: tar -czf /tmp/boss-local-sdk.tgz -C "$ANDROID_HOME" build-tools/35.0.0 platforms/android-35/android.jar platforms/android-36/android.jar
+      - uses: actions/upload-artifact@v4
+        if: matrix.api == 35
+        with:
+          name: BOSS-XI-2.3.16-local-sdk
+          path: /tmp/boss-local-sdk.tgz
+          retention-days: 5
+      - name: Core regression tests
+        run: bash tools/test-core.sh
+      - name: Build update and independent instrumentation
+        run: |
+          gradle :app:assembleDebug --no-daemon
+          bash tools/build-test-sdk.sh
+          git worktree add --detach /tmp/boss-baseline d2fd8bb04eaf8df94cdcd21566c841599a23c6c4
+          cd /tmp/boss-baseline
+          gradle :app:assembleDebug --no-daemon
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Verify all five requests and retained features
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: bash tools/qa-pitch.sh
+      - name: Preserve screenshots and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOSS-XI-2.3.16-QA-api${{ matrix.api }}
+          path: qa-output/
+          retention-days: 30
+      - name: Upload tested APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BOSS-XI-2.3.16-tested-api${{ matrix.api }}
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
