@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 125
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(contains(github.event.head_commit.message, '[extra-device-check]') && '{"include":[{"api":"26","suite":"minimum"},{"api":"37.0","suite":"latest"}]}' || '{"include":[{"api":"26","suite":"minimum"},{"api":"35","suite":"match"},{"api":"36","suite":"deep"},{"api":"37.0","suite":"latest"}]}') }}
+      matrix: ${{ fromJSON(contains(github.event.head_commit.message, '[deep-audit]') && '{"include":[{"api":"36","suite":"deep"},{"api":"36","suite":"europe-west"},{"api":"36","suite":"europe-east"},{"api":"36","suite":"cups"}]}' || contains(github.event.head_commit.message, '[extra-device-check]') && '{"include":[{"api":"26","suite":"minimum"},{"api":"37.0","suite":"latest"}]}' || '{"include":[{"api":"26","suite":"minimum"},{"api":"35","suite":"match"},{"api":"36","suite":"deep"},{"api":"36","suite":"europe-west"},{"api":"36","suite":"europe-east"},{"api":"36","suite":"cups"},{"api":"37.0","suite":"latest"}]}') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -66,14 +66,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: BOSS-XI-2.3.18-QA-api${{ matrix.api }}
+          name: BOSS-XI-2.3.18-QA-api${{ matrix.api }}-${{ matrix.suite }}
           path: qa-output/
           retention-days: 30
       - name: Tested bundles
-        if: success()
+        if: success() && !startsWith(matrix.suite, 'europe-') && matrix.suite != 'cups'
         uses: actions/upload-artifact@v4
         with:
-          name: BOSS-XI-2.3.18-builds-api${{ matrix.api }}
+          name: BOSS-XI-2.3.18-builds-api${{ matrix.api }}-${{ matrix.suite }}
           path: |
             app/build/outputs/bundle/release/app-release.aab
             app/build/outputs/apk/debug/app-debug.apk

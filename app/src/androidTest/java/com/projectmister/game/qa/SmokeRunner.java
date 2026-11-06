@@ -335,7 +335,19 @@ public final class SmokeRunner extends Instrumentation {
             Map<String,Object> good=new HashMap<>(prefs.getAll());for(String field:new String[]{"p_identity","scouting_reports"}){Map<String,Object> bad=new HashMap<>(good);bad.put("save_2_"+field,"corrupted");boolean rejected=false;try{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,(Object)backupBytes(bad));}catch(InvocationTargetException expected){rejected=true;}check(rejected&&prefs.getAll().equals(good),"corrupt "+field+" rejected before any career changes");}
             call("showScoutingReport",new Class[]{String.class},"P"+target[0]);
         });capture("feedback-completed-scout-report");
-        ui(()->{call("resetLeagueStandings",new Class[0]);call("showLeagueTable",new Class[0]);String t=screenText();check(t.contains("1st")&&t.contains("2nd")&&t.contains("3rd")&&t.contains("20th")&&!t.contains("Equal position")&&!t.contains("=2"),"level league table displays unique sequential ordinal positions");});capture("feedback-ordinal-table");
+        ui(() -> {
+            call("resetLeagueStandings", new Class[0]);
+            call("showLeagueTable", new Class[0]);
+            ViewGroup grid = activity.getWindow().getDecorView().findViewWithTag("boss-league-grid");
+            int rank = 0;
+            for (int i = 0; i < grid.getChildCount(); i++) {
+                View candidate = grid.getChildAt(i);
+                if (!(candidate.getTag() instanceof String) || !candidate.getTag().toString().startsWith("boss-league-row-")) continue;
+                String position = ((android.widget.TextView)((ViewGroup)candidate).getChildAt(0)).getText().toString();
+                check(position.equals(String.valueOf(++rank)), "compact table displays sequential rank " + rank);
+            }
+            check(rank == 20, "level league table contains all twenty uniquely ranked clubs");
+        });capture("feedback-ordinal-table");
         ui(()->{call("showDashboard",new Class[0]);check(!screenText().contains("1/20"),"dashboard uses readable league position");});capture("feedback-dashboard");
         ui(()->{set("liveHome",0);set("liveAway",1);set("liveHomePasses",0);set("liveAwayPasses",0);View stats=(View)call("matchStatsCard",new Class[]{boolean.class},false);StringBuilder t=new StringBuilder();collectScreenText(stats,t);check(t.toString().contains("Possession")&&t.toString().contains("Shots")&&t.toString().contains("—"),"match summary has separate comparison rows and honest unavailable details");call("showLiveStatsDialog",new Class[0]);});capture("feedback-match-comparison");tap("Close");
         ui(()->{

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-suite="${1:?Expected minimum, match, deep or latest}"
+suite="${1:?Specify a release QA suite}"
 runner=com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner
 mkdir -p qa-output
 trap 'adb logcat -d > qa-output/logcat.txt; adb pull /sdcard/Android/data/com.projectmister.game/files/qa qa-output/ >/dev/null 2>&1 || true' EXIT
@@ -22,7 +22,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 run_mode editor-lock
 grep -q 'PASS editor lock, mutation guard, privacy and free career verified' qa-output/editor-lock.txt
 cp qa-output/editor-lock.txt qa-output/debug-editor-lock.txt
-if [[ "$suite" != minimum ]]; then
+if [[ "$suite" == match || "$suite" == latest ]]; then
     for mode in matchflow presentation refinements fixes premium natural-match; do run_mode "$mode"; done
     grep -q 'PASS natural full match advances without stalls and preserves its result' qa-output/natural-match.txt
     adb shell wm size 720x1280
@@ -32,27 +32,36 @@ if [[ "$suite" != minimum ]]; then
     adb shell wm size reset
     adb shell wm density reset
 fi
-if [[ "$suite" == deep ]]; then
-    for mode in feedback full rules uefa-players cup-players divisions national-cups; do run_mode "$mode"; done
-    grep -q 'PASS all twenty standalone and twenty linked division careers verified' qa-output/divisions.txt
-    grep -q 'PASS career backup export, validation, cancellation, restore and load verified' qa-output/divisions.txt
-    for country in ENG ES PT DE IT FR NL BE SCO TR; do
+if [[ "$suite" == europe-* ]]; then
+    countries=(ENG ES PT FR NL)
+    if [[ "$suite" == europe-east ]]; then countries=(DE IT BE SCO TR); fi
+    for country in "${countries[@]}"; do
         run_mode europe "$country"
         grep -q "PASS $country combined UEFA qualifying domestic calendars two seasons watched quick matches exact archives and backups verified" "qa-output/europe-$country.txt"
     done
+elif [[ "$suite" == cups ]]; then
+    run_mode national-cups
     for country in ENG ES IT FR NL BE SCO TR; do
         run_mode expanded-cups "$country"
         grep -q "PASS $country recurring cups watched and quick matches two seasons reloads history and backup rejection verified" "qa-output/expanded-cups-$country.txt"
     done
+elif [[ "$suite" == deep ]]; then
     # Capture genuine game screens at the recommended Play listing aspect ratio.
     adb shell wm size 1080x1920
     adb shell wm density 420
 fi
-bash tools/qa-release-bundle.sh
-run_mode editor-lock
-cp qa-output/editor-lock.txt qa-output/release-editor-lock.txt
-if [[ "$suite" == latest ]]; then bash tools/qa-configured-bundle.sh; fi
-if [[ "$suite" != minimum ]]; then bash tools/qa-key-migration.sh play; fi
+if [[ "$suite" != europe-* && "$suite" != cups ]]; then
+    bash tools/qa-release-bundle.sh
+    run_mode editor-lock
+    cp qa-output/editor-lock.txt qa-output/release-editor-lock.txt
+    if [[ "$suite" == latest ]]; then bash tools/qa-configured-bundle.sh; fi
+    if [[ "$suite" == deep ]]; then
+        for mode in feedback full rules uefa-players cup-players divisions; do run_mode "$mode"; done
+        grep -q 'PASS all twenty standalone and twenty linked division careers verified' qa-output/divisions.txt
+        grep -q 'PASS career backup export, validation, cancellation, restore and load verified' qa-output/divisions.txt
+    fi
+    if [[ "$suite" != minimum ]]; then bash tools/qa-key-migration.sh play; fi
+fi
 adb shell wm size reset
 adb shell wm density reset
 sha256sum app/build/outputs/apk/debug/app-debug.apk app/build/outputs/bundle/release/app-release.aab > qa-output/build-sha256.txt
