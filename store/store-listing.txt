@@ -1,0 +1,19 @@
+APP NAME
+BOSS XI
+
+SHORT DESCRIPTION
+Manage your football club, build your squad and take charge on matchday.
+
+FULL DESCRIPTION
+Take charge of a football club and make it yours. Pick your country and division, put together a starting XI and lead your team from the opening fixture to the final whistle.
+
+• Build a squad: scout players across the database, compare ability and potential, and negotiate signings.
+• Set your tactics: choose a formation, pick your starters and adjust your game plan at half-time.
+• Follow the action: watch matches unfold on the live pitch, read commentary and review each player's contribution.
+• Run the club: manage the budget, improve training facilities, and personalise your stadium stands.
+• Play for more than one season: compete for promotion and trophies across domestic and continental competitions.
+
+Core careers and matches are free. An optional, one-time Game Editor purchase lets you rename clubs and change team colours across your careers. The game uses alternate club identities and is an independent football management simulation.
+
+RELEASE NOTES
+Start a career, build a squad and manage matches across ten countries. The optional Game Editor can be unlocked through a one-time Google Play purchase. Back up or restore careers from Career Hub.

@@ -198,6 +198,38 @@ public final class SmokeRunner extends Instrumentation {
         });
         check(true, "editor lock, mutation guard, privacy and free career verified");
     }
+    private void verifyConfiguredEditor() throws Exception {
+        ui(() -> {
+            call("showEditorAccess", new Class[0]);
+            check((Boolean)objectCall(get("editorBilling"), "configured", new Class[0]), "valid public billing key reaches the real Play adapter");
+            check(button(activity.getWindow().getDecorView(), "Restore purchase").getVisibility() == View.VISIBLE,
+                    "configured editor offers restore");
+        });
+        long deadline = SystemClock.uptimeMillis() + 25000;
+        boolean settled = false;
+        while (SystemClock.uptimeMillis() < deadline) {
+            final String[] state = {""};
+            ui(() -> {
+                Object billing = get("editorBilling");
+                state[0] = objectCall(billing, "state", new Class[0]).toString();
+                if (!"CHECKING".equals(state[0])) {
+                    check(!(Boolean)objectCall(billing, "owned", new Class[0]), "device without a completed Play purchase cannot unlock the editor");
+                    check(!screenText().contains("Open editor"), "no editor controls are exposed by Play connection");
+                    check(!(Boolean)call("saveEditorTeam", new Class[]{int.class, String.class, int.class, int.class},
+                            0, "Unpaid rename", 0xff121212, 0xffababab), "configured app also guards direct writes");
+                }
+            });
+            if (!"CHECKING".equals(state[0])) { settled = true; break; }
+            SystemClock.sleep(200);
+        }
+        check(settled, "Play ownership check returned on the emulator");
+        ui(() -> {
+            call("showMainMenu", new Class[0]);
+            check(button(activity.getWindow().getDecorView(), "Privacy policy").performClick(), "configured privacy page opens");
+            check(screenText().contains("support@example.invalid") && screenText().contains("Read full policy online"), "configured policy and support data load from the bundle");
+        });
+        check(true, "configured bundle checks Play and remains locked without a purchase");
+    }
     private void premiumPage(String name,String method,Class<?>[] types,Object... values)throws Exception {
         page("premium-"+name,method,types,values);
         ui(()->{
@@ -1714,6 +1746,8 @@ public final class SmokeRunner extends Instrumentation {
                 check(true,"baseline career seeded");
             } else if(mode.equals("editor-lock")) {
                 verifyEditorLocked();
+            } else if(mode.equals("editor-configured")) {
+                verifyConfiguredEditor();
             } else if(mode.equals("release")) {
                 check((getTargetContext().getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)==0,"installed bundle application is non-debuggable");
                 ui(()->check((Boolean)call("loadSave",new Class[]{int.class},0),"release loads legacy save"));

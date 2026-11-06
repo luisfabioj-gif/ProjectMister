@@ -1,5 +1,8 @@
 # Google Play preparation — 29 September 2026
 
+Historical pre-billing audit. For current publication steps and the 2.3.18
+bundle, see [Google Play launch guide](GOOGLE_PLAY_LAUNCH.md).
+
 NOT approved for publication. Competition expansion and release QA are ongoing.
 
 ## Build preparation

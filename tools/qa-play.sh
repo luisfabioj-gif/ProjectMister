@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-suite="${1:?Expected minimum, match or deep}"
+suite="${1:?Expected minimum, match, deep or latest}"
 runner=com.projectmister.game.test/com.projectmister.game.qa.SmokeRunner
 mkdir -p qa-output
 trap 'adb logcat -d > qa-output/logcat.txt; adb pull /sdcard/Android/data/com.projectmister.game/files/qa qa-output/ >/dev/null 2>&1 || true' EXIT
@@ -15,12 +15,13 @@ run_mode() {
 }
 adb install -r /tmp/boss-baseline/app/build/outputs/apk/debug/app-debug.apk
 adb install -r app/build/test-manual/qa.apk
-adb logcat -c
+adb logcat -c || echo 'Fresh emulator log could not be cleared; crash checks still apply.'
 run_mode seed-feedback
 grep -q 'PASS baseline career seeded' qa-output/seed-feedback.txt
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 run_mode editor-lock
 grep -q 'PASS editor lock, mutation guard, privacy and free career verified' qa-output/editor-lock.txt
+cp qa-output/editor-lock.txt qa-output/debug-editor-lock.txt
 if [[ "$suite" != minimum ]]; then
     for mode in matchflow presentation refinements fixes premium natural-match; do run_mode "$mode"; done
     grep -q 'PASS natural full match advances without stalls and preserves its result' qa-output/natural-match.txt
@@ -50,6 +51,7 @@ fi
 bash tools/qa-release-bundle.sh
 run_mode editor-lock
 cp qa-output/editor-lock.txt qa-output/release-editor-lock.txt
+if [[ "$suite" == latest ]]; then bash tools/qa-configured-bundle.sh; fi
 if [[ "$suite" != minimum ]]; then bash tools/qa-key-migration.sh play; fi
 adb shell wm size reset
 adb shell wm density reset

@@ -1,4 +1,10 @@
-# BOSS XI 2.3.11 Android test build
+# BOSS XI
+
+The current release candidate is **2.3.18 (44)**. See the
+[Google Play launch guide](docs/GOOGLE_PLAY_LAUNCH.md) for the one-time editor
+product, release signing, store listing and career migration.
+
+## Earlier 2.3.11 test build
 
 Android football-management game, package `com.projectmister.game`.
 
@@ -63,5 +69,5 @@ fictional players; unknown prior appearances are not invented. Special medical
 hearings, licensing decisions and competitions outside the modeled career world
 are not presented as fully simulated regulations.
 
-See [2.3.11 changes](docs/V2_3_11_CHANGES.md) for the current handoff scope and
+See [2.3.11 changes](docs/V2_3_11_CHANGES.md) for that build's handoff scope and
 [validation](docs/VALIDATION.md) for dated evidence.
