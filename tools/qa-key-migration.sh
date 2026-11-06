@@ -28,13 +28,11 @@ keytool -exportcert -keystore project-mister-dev.keystore -alias projectmister -
 # separately so the final capture cannot overwrite startup/report files.
 mkdir -p qa-output/before-key-migration
 adb pull /sdcard/Android/data/com.projectmister.game/files/qa qa-output/before-key-migration/
-test -s qa-output/before-key-migration/qa/nl-promotion-review.png
-test -s qa-output/before-key-migration/qa/it-promotion-review.png
-test -s qa-output/before-key-migration/qa/fr-promotion-review.png
-test -s qa-output/before-key-migration/qa/eng-promotion-review.png
-test -s qa-output/before-key-migration/qa/be-promotion-review.png
-test -s qa-output/before-key-migration/qa/es-promotion-review.png
-test -s qa-output/before-key-migration/qa/pt-promotion-review.png
+if [[ "${1:-divisions}" == divisions ]]; then
+  for country in nl it fr eng be es pt; do
+    test -s "qa-output/before-key-migration/qa/$country-promotion-review.png"
+  done
+fi
 adb uninstall com.projectmister.game
 adb uninstall com.projectmister.game.test
 java -jar "$bundletool" install-apks --apks="$work/migration-test.apks"

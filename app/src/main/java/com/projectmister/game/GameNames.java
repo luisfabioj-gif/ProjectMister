@@ -1550,6 +1550,18 @@ public final class GameNames {
   for(String pair:pairs){String[] p=pair.split("\t",3);NAMES.put(p[0].toLowerCase(Locale.ROOT),p[1]);if(p.length==3)legacy.put(p[2].toLowerCase(Locale.ROOT),p[1]);}
   for(String alias:new HashSet<>(NAMES.values()))NAMES.putIfAbsent(alias.toLowerCase(Locale.ROOT),alias);
   for(Map.Entry<String,String> old:legacy.entrySet())NAMES.putIfAbsent(old.getKey(),old.getValue());
+  // Display-only competition names. Saved IDs, calendars and tournament rules are unchanged.
+  String[][] competitions={
+   {"UEFA Champions League","Continental Champions Cup"},{"Champions League","Continental Champions Cup"},
+   {"UEFA Europa League","Continental League Cup"},{"Europa League","Continental League Cup"},
+   {"UEFA Conference League","Continental Challenge Cup"},{"Conference League","Continental Challenge Cup"},
+   {"Taça de Portugal","Portugal National Cup"},{"DFB-Pokal","Germany National Cup"},
+   {"FA Cup","England National Cup"},{"Copa del Rey","Spain National Cup"},
+   {"Coppa Italia","Italy National Cup"},{"Coupe de France","France National Cup"},
+   {"KNVB Cup","Netherlands National Cup"},{"Türkiye Kupası","Turkey National Cup"},
+   {"Scottish Cup","Scotland National Cup"},{"Belgian Cup","Belgium National Cup"}
+  };
+  for(String[] competition:competitions)NAMES.put(competition[0].toLowerCase(Locale.ROOT),competition[1]);
   List<String> keys=new ArrayList<>(NAMES.keySet());keys.sort((a,b)->Integer.compare(b.length(),a.length()));
   StringJoiner regex=new StringJoiner("|","(?<![\\p{L}\\p{N}])(?:",")(?![\\p{L}\\p{N}])");for(String key:keys)regex.add(Pattern.quote(key));
   MATCH=Pattern.compile(regex.toString(),Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE);

@@ -160,6 +160,44 @@ public final class SmokeRunner extends Instrumentation {
         if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++)collectScreenText(((ViewGroup)view).getChildAt(i),text);
     }
     private String screenText(){StringBuilder b=new StringBuilder();collectScreenText(activity.getWindow().getDecorView(),b);return b.toString();}
+    private android.widget.Button button(View root, String label) {
+        if (root instanceof android.widget.Button && label.contentEquals(((android.widget.Button)root).getText())) {
+            return (android.widget.Button)root;
+        }
+        if (root instanceof ViewGroup) for (int i = 0; i < ((ViewGroup)root).getChildCount(); i++) {
+            android.widget.Button match = button(((ViewGroup)root).getChildAt(i), label);
+            if (match != null) return match;
+        }
+        return null;
+    }
+    private void verifyEditorLocked() throws Exception {
+        SharedPreferences prefs = getTargetContext().getSharedPreferences("project_mister", Context.MODE_PRIVATE);
+        Map<String,?> before = prefs.getAll();
+        ui(() -> {
+            call("showMainMenu", new Class[0]);
+            android.widget.Button entry = button(activity.getWindow().getDecorView(), "Game Editor • One-time purchase");
+            check(entry != null && entry.performClick(), "Career Hub editor button opens the purchase screen");
+            check(screenText().contains("The editor is locked") && !screenText().contains("Open editor"), "unconfigured Play build fails closed");
+        });
+        capture("editor-locked");
+        ui(() -> {
+            for (String method : new String[]{"showTeamEditor", "confirmResetAllTeams"}) {
+                call(method, new Class[0]);
+                check(screenText().contains("The editor is locked") && !screenText().contains("Edit Team"), method + " requires ownership");
+            }
+            call("showEditTeam", new Class[]{int.class}, 0);
+            check(!screenText().contains("Save Changes"), "direct team edit cannot bypass the paywall");
+            check(!(Boolean)call("saveEditorTeam", new Class[]{int.class, String.class, int.class, int.class},
+                    0, "Unpaid rename", 0xff121212, 0xffababab), "direct unpaid mutation is blocked");
+            check(!(Boolean)call("resetEditorTeam", new Class[]{int.class}, 0), "unpaid reset is blocked");
+            check(prefs.getAll().equals(before), "locked editor leaves all preferences intact");
+            call("showMainMenu", new Class[0]);
+            check(button(activity.getWindow().getDecorView(), "Privacy policy").performClick(), "privacy available from Career Hub");
+            check(screenText().contains("Google Play purchases") && screenText().contains("Backups and deletion"), "in-app privacy covers billing and save handling");
+            check((Boolean)call("loadSave", new Class[]{int.class}, 0), "unpaid user can still open their career");
+        });
+        check(true, "editor lock, mutation guard, privacy and free career verified");
+    }
     private void premiumPage(String name,String method,Class<?>[] types,Object... values)throws Exception {
         page("premium-"+name,method,types,values);
         ui(()->{
@@ -281,7 +319,7 @@ public final class SmokeRunner extends Instrumentation {
             ui(()->{duration[0]=(Integer)get("stadiumProjectWeeks");check(duration[0]>0&&(Integer)call("stadiumPartLevel",new Class[]{int.class},part)==level-1,"component "+part+" stage "+level+" waits for construction");for(int week=0;week<duration[0];week++)call("advanceStadiumProject",new Class[0]);check((Integer)call("stadiumPartLevel",new Class[]{int.class},part)==level,"component "+part+" completes architectural stage "+level);check((Integer)get("financeBalanceK")<bank[0]&&(part<100?(Integer)get("stadiumCapacity")==capacity[0]:(Integer)get("stadiumCapacity")>capacity[0]),"component "+part+" preserves charged cash and correct capacity");call("saveCurrentGame",new Class[0]);});
             if(code==12){ui(()->{check((Boolean)call("loadSave",new Class[]{int.class},2),"all sixteen upgraded components reload at stage "+level);call("showStadiumCentre",new Class[0]);});capture("feedback-complex-stage-"+stage);}
         }
-        ui(()->{call("showHistoryHub",new Class[0]);check(!screenText().contains("Official source"),"history hub has no source controls");});capture("feedback-history-hub");tap("UEFA Champions League");ui(()->{String t=screenText();check(t.contains("Real-world winners")&&!t.contains("Official source"),"history competition shows winner rows without source buttons");});capture("feedback-history-winners");
+        ui(()->{call("showHistoryHub",new Class[0]);check(!screenText().contains("Official source"),"history hub has no source controls");});capture("feedback-history-hub");tap("Continental Champions Cup");ui(()->{String t=screenText();check(t.contains("Real-world winners")&&!t.contains("Official source"),"history competition shows winner rows without source buttons");});capture("feedback-history-winners");
         ui(()->{call("showFinances",new Class[0]);check(!screenText().contains("Bank balance          "),"finance uses responsive labelled account rows");});capture("feedback-finances");
         ui(()->{gameClass("BackupRestore").getMethod("restore",SharedPreferences.class,byte[].class).invoke(null,prefs,original);check((Boolean)call("loadSave",new Class[]{int.class},0),"preserved baseline restored after feedback scenarios");});
         check(true,"all eleven feedback areas, exact identities, timed scouting, ordinal tables and sixty-four stadium upgrades verified");
@@ -1674,6 +1712,8 @@ public final class SmokeRunner extends Instrumentation {
                 ui(()->{set("managerFirstName","");call("loadSave",new Class[]{int.class},0);});
                 check("Upgrade".equals(get("managerFirstName")),"baseline save reloads");
                 check(true,"baseline career seeded");
+            } else if(mode.equals("editor-lock")) {
+                verifyEditorLocked();
             } else if(mode.equals("release")) {
                 check((getTargetContext().getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)==0,"installed bundle application is non-debuggable");
                 ui(()->check((Boolean)call("loadSave",new Class[]{int.class},0),"release loads legacy save"));

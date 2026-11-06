@@ -43,6 +43,13 @@ import java.util.Random;
 
 public class MainActivity extends Activity {
 
+    private PlayReleaseConfig playRelease;
+    private EditorBilling editorBilling;
+    private enum EditorPage { NONE, ACCESS, TEAMS, TEAM }
+    private EditorPage editorPage = EditorPage.NONE;
+    private TextView editorStatus;
+    private Button editorPrimary, editorRestore;
+
     private static final int SAVE_SLOTS = 3;
     private static final int PLAYERS_PER_TEAM = 20;
     private int TOTAL_PLAYERS = 18 * PLAYERS_PER_TEAM;
@@ -531,6 +538,7 @@ public class MainActivity extends Activity {
         getWindow().setNavigationBarColor(background);
         safeEnableImmersiveNavigation();
         prefs = getSharedPreferences("project_mister", MODE_PRIVATE);
+        playRelease = PlayReleaseConfig.load(this);
         loadCompetitionCatalog();
         loadEditorData();
         generatePlayers();
@@ -594,6 +602,9 @@ public class MainActivity extends Activity {
 
 
     private LinearLayout createPage(String title, String subtitle, boolean showHome) {
+        editorPage = EditorPage.NONE;
+        editorStatus = null;
+        editorPrimary = editorRestore = null;
         for(Player person:players)GameNames.protectPerson(person.name);GameNames.protectPerson(managerFullName());GameNames.protectPerson(assistantManagerName);GameNames.protectPerson(headCoachName);GameNames.protectPerson(chiefScoutName);
         dismissKeyboard();
         stopLiveMatchTicker();
@@ -677,6 +688,7 @@ public class MainActivity extends Activity {
         page.addView(profileSectionTitle("FIRST TEAM"));dashboardRow(page,"Squad",()->showTeamPlayers(selectedClub),"Tactics",this::showTactics);dashboardRow(page,"Training",this::showTraining,"Staff",this::showStaffHub);dashboardRow(page,"Transfers",this::showTransferHub,"Scouting",this::showScoutCentre);
         page.addView(profileSectionTitle("CLUB & SEASON"));dashboardRow(page,"Fixtures",this::showCompetitionCalendar,"League table",this::showLeagueTable);dashboardRow(page,"Finances",this::showFinances,"Stadium",this::showStadiumCentre);dashboardRow(page,"Board",this::showClubOffice,"Manager",this::showManagerProfile);
         page.addView(makeButton("History • competitions & career",v->showHistoryHub()));page.addView(makeButton("Player database",v->showAllTeamsPlayers()));page.addView(makeButton("Sound settings",v->showSoundSettings()));page.addView(makeButton("Back up & restore careers",v->showBackupTools()));
+        page.addView(makeButton("Privacy policy", v -> showPrivacyPolicy(this::showClubHub)));
     }
 
     private void dismissKeyboard(){
@@ -831,8 +843,33 @@ public class MainActivity extends Activity {
         editorTitle.setTypeface(Typeface.DEFAULT_BOLD);
         editorTitle.setPadding(0, dp(6), 0, dp(8));
         page.addView(editorTitle);
-        page.addView(makeButton("✏  Game Editor — Teams & Colours", v -> showTeamEditor()));
+        page.addView(makeButton("Game Editor • One-time purchase", v -> showEditorAccess()));
         page.addView(makeButton("Back up & restore careers", v -> showBackupTools()));
+        page.addView(makeButton("Privacy policy", v -> showPrivacyPolicy(this::showMainMenu)));
+    }
+
+    private void showPrivacyPolicy(Runnable returnTo) {
+        backAction = returnTo;
+        LinearLayout page = createPage("Privacy policy", "How BOSS XI handles your information", false);
+        privacySection(page, "Careers and settings",
+                "Your manager profile (including the name and date of birth you enter), saves, team edits and settings are stored in the app on your device. BOSS XI has no separate online account, ads or developer analytics.");
+        privacySection(page, "Google Play purchases",
+                "Google Play handles checkout using your Play account. BOSS XI checks the editor purchase and its status through Google Play. It does not receive your card details or send your purchase receipt to the game developer.");
+        privacySection(page, "Backups and deletion",
+                "Android may back up or transfer app data according to your device settings. If you export a career backup, it includes manager details and is not encrypted. You choose where to save it, including any cloud provider you select. Delete a career in Career Hub or clear BOSS XI's storage in Android Settings. Delete exported copies separately.");
+        privacySection(page, "Contact", playRelease.supportEmail.isEmpty()
+                ? "Use the developer contact listed for BOSS XI on Google Play for privacy questions."
+                : "For privacy or support questions, contact " + playRelease.supportEmail + ".");
+        if (!playRelease.privacyUrl.isEmpty()) {
+            page.addView(makeButton("Read full policy online", v -> openHistorySource(playRelease.privacyUrl)));
+        }
+    }
+
+    private void privacySection(LinearLayout page, String title, String detail) {
+        LinearLayout box = makePanel();
+        box.addView(profileSectionTitle(title));
+        box.addView(makeText(detail, 15, text));
+        page.addView(box);
     }
 
     private static final int EXPORT_BACKUP=8101, IMPORT_BACKUP=8102;
@@ -6649,7 +6686,7 @@ public class MainActivity extends Activity {
     }
     private void showEuropeanQualifying(EuropeanQualifying qualifying,boolean archive) {
         backAction=archive?this::showHistoryHub:()->showCalendarTab("Europe");EuropeanAdmissions admissions=qualifying.admissions();LinearLayout page=createPage("European qualifying",admissions.year+"/"+(admissions.year+1)+(archive?" • archive":" • annual admissions"),true);
-        page.addView(makeText("Projected access based on UEFA’s provisional 2027/28 list. Real club identities; foreign domestic results, coefficients, draws and future dates are career simulations. Qualifying losers transfer between competitions; league-phase eliminations do not.",12,muted));
+        page.addView(makeText("Projected access uses the provisional 2027/28 entry rules. Club identities, results, coefficients, draws and future dates are part of the career simulation. Qualifying losers can move between competitions.",12,muted));
         page.addView(profileInfoRow("European performance places",String.join(" & ",admissions.performanceAssociations())));
         page.addView(makeButton("Domestic finishes & cup winners",v->showEuropeanDomestic(qualifying,archive)));
         if(admissions.domestic().dutchPlayoff()!=null)page.addView(makeButton("Dutch European ticket • saved playoff",v->showDutchEuropeanPlayoff(admissions.domestic().dutchPlayoff(),true)));
@@ -7043,9 +7080,93 @@ public class MainActivity extends Activity {
         return players.get(id);
     }
 
-    private void showTeamEditor() {
+    private void showEditorAccess() {
+        if (editorBilling == null) editorBilling = new EditorBilling(this, playRelease.billingKey, this::updateEditorUi);
+        showEditorPaywall();
+        editorBilling.refresh();
+    }
+
+    private void showEditorPaywall() {
         backAction = () -> showMainMenu();
-        LinearLayout page = createPage("Game Editor", "Edit club names and primary/secondary colours", true);
+        LinearLayout page = createPage("Game Editor", "Optional upgrade • One-time purchase", false);
+        editorPage = EditorPage.ACCESS;
+        LinearLayout card = makePanel();
+        card.addView(profileSectionTitle("TEAMS & COLOURS"));
+        TextView intro = makeText("Rename clubs and choose their primary and secondary colours across your careers. Your career and match features are free.", 15, text);
+        intro.setPadding(0, 0, 0, dp(14));
+        card.addView(intro);
+        editorStatus = makeText("", 14, muted);
+        editorStatus.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        card.addView(editorStatus);
+        page.addView(card);
+        editorPrimary = makeAccentButton("", v -> {
+            if (editorBilling.owned()) showTeamEditor();
+            else editorBilling.buy(this);
+        });
+        editorRestore = makeButton("Restore purchase", v -> editorBilling.refresh());
+        page.addView(editorPrimary);
+        page.addView(editorRestore);
+        updateEditorUi();
+    }
+
+    private void updateEditorUi() {
+        if (editorPage == EditorPage.NONE || editorBilling == null) return;
+        EditorEntitlement.State state = editorBilling.state();
+        if (editorPage != EditorPage.ACCESS) {
+            if (state != EditorEntitlement.State.OWNED && state != EditorEntitlement.State.CHECKING) {
+                showEditorPaywall();
+            }
+            return;
+        }
+        String status;
+        String button = "";
+        switch (state) {
+            case OWNED:
+                status = "Editor unlocked on this Google Play account.";
+                button = "Open editor";
+                break;
+            case CHECKING:
+                status = "Checking Google Play for your purchase…";
+                break;
+            case PENDING:
+                status = "Payment pending. Google Play will unlock the editor after payment completes. Use Restore purchase to check again.";
+                break;
+            case LOCKED:
+                if (editorBilling.checkingOut()) status = "Opening Google Play checkout…";
+                else if (!editorBilling.price().isEmpty()) {
+                    status = "Pay once with Google Play. To restore access on another device, use the same Play account.";
+                    button = "Unlock editor • " + editorBilling.price();
+                } else status = editorBilling.loadingOffer() ? "Checking the Google Play price…"
+                        : "The editor is not available to buy on this Google Play account right now.";
+                break;
+            case ERROR:
+                status = "Google Play could not verify your purchase. Check your connection, then try Restore purchase.";
+                break;
+            default:
+                status = editorBilling.configured()
+                        ? "Google Play is unavailable. Open the Play Store, check that you are signed in, then try Restore purchase."
+                        : "The editor is locked. Purchases are unavailable in this build.";
+        }
+        if (!editorBilling.note().isEmpty()) status = editorBilling.note() + "\n\n" + status;
+        editorStatus.setText(status);
+        editorPrimary.setVisibility(button.isEmpty() ? View.GONE : View.VISIBLE);
+        editorPrimary.setText(button);
+        editorRestore.setVisibility(editorBilling.configured() && state != EditorEntitlement.State.OWNED
+                && !editorBilling.checkingOut() ? View.VISIBLE : View.GONE);
+    }
+
+    private boolean requireEditor() {
+        if (editorBilling != null && editorBilling.owned()) return true;
+        if (editorBilling == null) showEditorAccess();
+        else showEditorPaywall();
+        return false;
+    }
+
+    private void showTeamEditor() {
+        if (!requireEditor()) return;
+        backAction = this::showMainMenu;
+        LinearLayout page = createPage("Game Editor", "Edit club names and primary/secondary colours", false);
+        editorPage = EditorPage.TEAMS;
 
         TextView note = makeText("Changes apply across all three career saves.", 14, muted);
         note.setPadding(0, 0, 0, dp(14));
@@ -7074,8 +7195,10 @@ public class MainActivity extends Activity {
     }
 
     private void showEditTeam(int club) {
+        if (!requireEditor()) return;
         backAction = () -> showTeamEditor();
-        LinearLayout page = createPage("Edit Team", clubNames[club], true);
+        LinearLayout page = createPage("Edit Team", clubNames[club], false);
+        editorPage = EditorPage.TEAM;
 
         LinearLayout preview = makePanel();
         preview.addView(makeClubIdentityRow(club));
@@ -7128,29 +7251,29 @@ public class MainActivity extends Activity {
         page.addView(hint);
 
         page.addView(makeAccentButton("Save Changes", v -> {
+            if (!requireEditor()) return;
             String newName = nameInput.getText().toString().trim();
             if (newName.isEmpty()) {
                 Toast.makeText(this, "Team name cannot be empty.", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (newName.length() > 28) newName = newName.substring(0, 28);
-            clubNames[club] = newName;
-            primaryColours[club] = chosenPrimary[0];
-            secondaryColours[club] = chosenSecondary[0];
-            saveEditorTeam(club);
+            if (!saveEditorTeam(club, newName, chosenPrimary[0], chosenSecondary[0])) return;
             Toast.makeText(this, "Team updated.", Toast.LENGTH_SHORT).show();
             showTeamEditor();
         }));
 
-        page.addView(makeButton("Reset This Team", v -> new BossDialog.Builder(this)
+        page.addView(makeButton("Reset This Team", v -> {
+            if (!requireEditor()) return;
+            new BossDialog.Builder(this)
                 .setTitle("Reset team?")
                 .setMessage("Restore this club's default name and colours?")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Reset", (dialog, which) -> {
-                    resetEditorTeam(club);
-                    showTeamEditor();
+                    if (resetEditorTeam(club)) showTeamEditor();
                 })
-                .show()));
+                .show();
+        }));
         page.addView(makeButton("Cancel", v -> showTeamEditor()));
     }
 
@@ -7730,27 +7853,31 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void saveEditorTeam(int club) {
+    private boolean saveEditorTeam(int club, String name, int primary, int secondary) {
+        if (!requireEditor()) return false;
+        clubNames[club] = name;
+        primaryColours[club] = primary;
+        secondaryColours[club] = secondary;
         prefs.edit()
-                .putString(editorKey("name", club), clubNames[club])
-                .putInt(editorKey("primary", club), primaryColours[club])
-                .putInt(editorKey("secondary", club), secondaryColours[club])
+                .putString(editorKey("name", club), name)
+                .putInt(editorKey("primary", club), primary)
+                .putInt(editorKey("secondary", club), secondary)
                 .apply();
+        return true;
     }
 
-    private void resetEditorTeam(int club) {
-        clubNames[club] = defaultClubNames[club];
-        primaryColours[club] = defaultPrimary[club];
-        secondaryColours[club] = defaultSecondary[club];
-        saveEditorTeam(club);
+    private boolean resetEditorTeam(int club) {
+        return saveEditorTeam(club, defaultClubNames[club], defaultPrimary[club], defaultSecondary[club]);
     }
 
     private void confirmResetAllTeams() {
+        if (!requireEditor()) return;
         new BossDialog.Builder(this)
                 .setTitle("Reset all teams?")
                 .setMessage("Every edited team name and colour will return to its BOSS XI default.")
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Reset All", (dialog, which) -> {
+                    if (!requireEditor()) return;
                     for (int i = 0; i < clubNames.length; i++) resetEditorTeam(i);
                     showTeamEditor();
                 })
@@ -8857,7 +8984,8 @@ public class MainActivity extends Activity {
     private int[] stadiumLevels(){int[] codes=StadiumComplexView.codes(),levels=new int[codes.length];for(int i=0;i<codes.length;i++)levels[i]=stadiumPartLevel(codes[i]);return levels;}
     private void showStadiumCentre() {
         backAction=this::showDashboard;
-        LinearLayout page=createPage("Stadium & facilities",stadiumName,true);
+        String groundName = GameNames.display(clubNames[selectedClub]) + " Ground";
+        LinearLayout page=createPage("Stadium & facilities",groundName,true);
         LinearLayout view=makePanel();view.setPadding(dp(6),dp(6),dp(6),dp(10));
         stadiumMap=new StadiumComplexView(this,stadiumLevels(),stadiumProjectWeeks>0?stadiumProjectCode:0,selectedStadiumPart,code->{selectedStadiumPart=code;stadiumMap.select(code);showStadiumPart(code);});
         stadiumMap.setBackground(rounded(panel));stadiumMap.setClipToOutline(true);view.addView(stadiumMap,new LinearLayout.LayoutParams(-1,-2));
@@ -8870,7 +8998,7 @@ public class MainActivity extends Activity {
             LinearLayout project=makePanel();project.addView(profileSectionTitle("DEVELOPMENT"));
             if(stadiumProjectWeeks>0){project.addView(makeText(stadiumProjectType,18,text));project.addView(profileInfoRow("Time remaining",stadiumProjectWeeks+" weeks"));project.addView(profileInfoRow("Committed cost",moneyK(stadiumProjectCostK)));if(stadiumProjectCapacityGain>0)project.addView(profileInfoRow("Extra capacity","+"+DisplayFormat.number(stadiumProjectCapacityGain)));project.addView(makeText("Construction is highlighted on the complex. The completed building appears when work finishes.",12,muted));}
             else{project.addView(makeText("Build your club’s future",18,text));project.addView(makeText("Choose any stand or facility to review the next upgrade, its cost and the benefit to your club.",13,muted));}page.addView(project);
-            LinearLayout ground=makePanel();ground.addView(profileSectionTitle("YOUR GROUND"));ground.addView(profileInfoRow("Stadium",stadiumName));ground.addView(profileInfoRow("Capacity",DisplayFormat.number(stadiumCapacity)));ground.addView(profileInfoRow("Seats",DisplayFormat.number(stadiumSeatedCapacity)));ground.addView(profileInfoRow("Expansion limit",DisplayFormat.number(stadiumExpansionLimit)));ground.addView(profileInfoRow("Average attendance",stadiumAverageAttendance==0?"Season opening":DisplayFormat.number(stadiumAverageAttendance)));ground.addView(profileInfoRow("Covered stands",stadiumCovered?"Yes":"Partially"));ground.addView(profileInfoRow("Undersoil heating",stadiumUndersoilHeating?"Installed":"Not installed"));ground.addView(profileInfoRow("Matchday commercial income",moneyK(estimatedStadiumCommercialIncomeK())));page.addView(ground);
+            LinearLayout ground=makePanel();ground.addView(profileSectionTitle("YOUR GROUND"));ground.addView(profileInfoRow("Stadium",groundName));ground.addView(profileInfoRow("Capacity",DisplayFormat.number(stadiumCapacity)));ground.addView(profileInfoRow("Seats",DisplayFormat.number(stadiumSeatedCapacity)));ground.addView(profileInfoRow("Expansion limit",DisplayFormat.number(stadiumExpansionLimit)));ground.addView(profileInfoRow("Average attendance",stadiumAverageAttendance==0?"Season opening":DisplayFormat.number(stadiumAverageAttendance)));ground.addView(profileInfoRow("Covered stands",stadiumCovered?"Yes":"Partially"));ground.addView(profileInfoRow("Undersoil heating",stadiumUndersoilHeating?"Installed":"Not installed"));ground.addView(profileInfoRow("Matchday commercial income",moneyK(estimatedStadiumCommercialIncomeK())));page.addView(ground);
             page.addView(makeText("Club-complex artwork reflects your saved upgrades; it is an illustration of your club’s development.",11,muted));
         }else if(stadiumTab==1){
             for(int code=101;code<=104;code++){final int part=code;LinearLayout card=makePanel();card.addView(profileSectionTitle(standName(code).toUpperCase(Locale.UK)));card.addView(new StandDesignView(this,standDesigns.get(code),clubNames[selectedClub],secondaryColours[selectedClub]),new LinearLayout.LayoutParams(-1,-2));card.addView(profileInfoRow("Current stand",standLevelLabel(stadiumPartLevel(code))));card.addView(makeButton(stadiumPartLevel(code)>=5?"View elite stand":"Review upgrade",v->showStadiumPart(part)));page.addView(card);}
@@ -9505,6 +9633,7 @@ public class MainActivity extends Activity {
     }
     @Override protected void onResume() {
         super.onResume();
+        if (editorPage != EditorPage.NONE && editorBilling != null) editorBilling.refresh();
         if(tickerWasActive && livePitchView!=null && !liveTacticsSessionActive) {
             liveMatchActive=true;livePaused=pausedBeforeBackground;startLiveMatchTicker();
             if(audio!=null) audio.start();
@@ -9513,6 +9642,7 @@ public class MainActivity extends Activity {
     }
     @Override protected void onDestroy() {
         stopLiveMatchTicker();stopLiveMatchAudio();
+        if (editorBilling != null) editorBilling.close();
         if(portraits!=null) portraits.close();
         super.onDestroy();
     }

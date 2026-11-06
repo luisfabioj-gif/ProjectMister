@@ -10,8 +10,8 @@ android {
         applicationId "com.projectmister.game"
         minSdk 26
         targetSdk 36
-        versionCode 43
-        versionName "2.3.17"
+        versionCode 44
+        versionName "2.3.18"
     }
 
     signingConfigs {
@@ -38,4 +38,8 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    implementation 'com.android.billingclient:billing:9.1.0'
 }
