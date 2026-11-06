@@ -41,5 +41,7 @@ android {
 }
 
 dependencies {
+    // Billing brings newer Kotlin stdlib through AndroidX; align legacy JDK variants.
+    implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.22')
     implementation 'com.android.billingclient:billing:9.1.0'
 }
