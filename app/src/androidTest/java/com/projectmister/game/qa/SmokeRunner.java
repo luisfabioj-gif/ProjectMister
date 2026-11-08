@@ -195,6 +195,25 @@ public final class SmokeRunner extends Instrumentation {
             check(button(activity.getWindow().getDecorView(), "Privacy policy").performClick(), "privacy available from Career Hub");
             check(screenText().contains("Google Play purchases") && screenText().contains("Backups and deletion"), "in-app privacy covers billing and save handling");
             check((Boolean)call("loadSave", new Class[]{int.class}, 0), "unpaid user can still open their career");
+            int club = (Integer)get("selectedClub");
+            String nameKey = (String)call("editorKey", new Class[]{String.class, int.class}, "name", club);
+            String oldName = prefs.getString(nameKey, null);
+            try {
+                // A retained/imported edit is data, never an ownership token.
+                prefs.edit().putString(nameKey, "Real Madrid").commit();
+                call("loadEditorData", new Class[0]);
+                call("showDashboard", new Class[0]);
+                check(screenText().contains("Real Madrid") && !screenText().contains("Real Madrida"),
+                        "saved custom club name is rendered exactly on the career screen");
+                check(!(Boolean)call("resetEditorTeam", new Class[]{int.class}, club)
+                                && "Real Madrid".equals(prefs.getString(nameKey, "")),
+                        "an existing edited name cannot unlock reset access");
+            } finally {
+                if (oldName == null) prefs.edit().remove(nameKey).commit();
+                else prefs.edit().putString(nameKey, oldName).commit();
+                call("loadEditorData", new Class[0]);
+                call("showDashboard", new Class[0]);
+            }
         });
         check(true, "editor lock, mutation guard, privacy and free career verified");
     }

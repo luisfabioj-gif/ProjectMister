@@ -7846,11 +7846,14 @@ public class MainActivity extends Activity {
     }
 
     private void loadEditorData() {
+        ArrayList<String> customNames = new ArrayList<>();
         for (int i = 0; i < clubNames.length; i++) {
             clubNames[i] = prefs.getString(editorKey("name", i), defaultClubNames[i]);
             primaryColours[i] = prefs.getInt(editorKey("primary", i), defaultPrimary[i]);
             secondaryColours[i] = prefs.getInt(editorKey("secondary", i), defaultSecondary[i]);
+            if (prefs.contains(editorKey("name", i))) customNames.add(clubNames[i]);
         }
+        GameNames.setCustomClubs(customNames);
     }
 
     private boolean saveEditorTeam(int club, String name, int primary, int secondary) {
@@ -7863,11 +7866,16 @@ public class MainActivity extends Activity {
                 .putInt(editorKey("primary", club), primary)
                 .putInt(editorKey("secondary", club), secondary)
                 .apply();
+        loadEditorData();
         return true;
     }
 
     private boolean resetEditorTeam(int club) {
-        return saveEditorTeam(club, defaultClubNames[club], defaultPrimary[club], defaultSecondary[club]);
+        if (!requireEditor()) return false;
+        prefs.edit().remove(editorKey("name", club)).remove(editorKey("primary", club))
+                .remove(editorKey("secondary", club)).apply();
+        loadEditorData();
+        return true;
     }
 
     private void confirmResetAllTeams() {
@@ -7878,7 +7886,13 @@ public class MainActivity extends Activity {
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Reset All", (dialog, which) -> {
                     if (!requireEditor()) return;
-                    for (int i = 0; i < clubNames.length; i++) resetEditorTeam(i);
+                    SharedPreferences.Editor reset = prefs.edit();
+                    for (int i = 0; i < clubNames.length; i++) {
+                        reset.remove(editorKey("name", i)).remove(editorKey("primary", i))
+                                .remove(editorKey("secondary", i));
+                    }
+                    reset.apply();
+                    loadEditorData();
                     showTeamEditor();
                 })
                 .show();

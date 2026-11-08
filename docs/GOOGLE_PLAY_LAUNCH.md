@@ -1,5 +1,9 @@
 # BOSS XI — Google Play launch guide
 
+Updated 8 November 2026. This is an internal-test preparation kit. The final
+native regression run for the latest text/editor fixes and real Play payment
+testing are still pending. See `QA-STATUS.md` in the kit before uploading.
+
 This launch kit contains BOSS XI 2.3.18, build 44, for Android 8 and later.
 Google Play package: `com.projectmister.game`. The game is free to install and
 play. The Game Editor is an optional, permanent purchase for changing club names

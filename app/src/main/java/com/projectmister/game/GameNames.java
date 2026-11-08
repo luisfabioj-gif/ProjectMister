@@ -5,15 +5,36 @@ import java.util.regex.*;
 public final class GameNames {
  private static final Map<String,String> NAMES=new HashMap<>();
  private static final Pattern MATCH;
+ private static final Set<String> CUSTOM_CLUBS=new HashSet<>();
+ private static Pattern customClubMatch;
  private static final Set<String> KNOWN_PEOPLE=new HashSet<>();
  private static final Map<String,List<PersonName>> PEOPLE=new HashMap<>();
  private static final Pattern WORD=Pattern.compile("[\\p{L}\\p{M}’'-]+");
+ private static final Pattern REAL_ADJECTIVE=Pattern.compile("(?i)(?:[- ](?:world|time)|\\s+(?:football|money|people|clubs?|teams?|players?|names?|divisions?|purchases?|payments?))\\b");
  private static final class PersonName {final String name;final int offset;PersonName(String name,int offset){this.name=name;this.offset=offset;}}
  public static void protectPerson(String name){
   if(name==null||!name.contains(" ")||!KNOWN_PEOPLE.add(name))return;
   Matcher words=WORD.matcher(name);while(words.find()){String key=words.group().toLowerCase(Locale.ROOT);if(NAMES.containsKey(key))PEOPLE.computeIfAbsent(key,k->new ArrayList<>()).add(new PersonName(name,words.start()));}
  }
  private static boolean personReference(String value,Matcher match){List<PersonName> people=PEOPLE.get(match.group().toLowerCase(Locale.ROOT));if(people==null)return false;for(PersonName person:people){int start=match.start()-person.offset;if(start>=0&&value.regionMatches(true,start,person.name,0,person.name.length()))return true;}return false;}
+ // Real is also a Portuguese club. Keep ordinary English prose intact while
+ // retaining its alternate identity in club labels, fixtures and commentary.
+ private static boolean proseReference(String value,Matcher match){return match.group().equalsIgnoreCase("real")&&REAL_ADJECTIVE.matcher(value).region(match.end(),value.length()).lookingAt();}
+ /** Rebuilt from this career world's saved editor names on load, edit or reset. */
+ public static void setCustomClubs(Collection<String> names){
+  CUSTOM_CLUBS.clear();List<String> labels=new ArrayList<>();
+  for(String name:names)if(name!=null&&!name.isEmpty()&&CUSTOM_CLUBS.add(name.toLowerCase(Locale.ROOT)))labels.add(name);
+  if(labels.isEmpty()){customClubMatch=null;return;}
+  labels.sort((a,b)->Integer.compare(b.length(),a.length()));
+  StringJoiner regex=new StringJoiner("|","(?<![\\p{L}\\p{N}])(?:",")(?![\\p{L}\\p{N}])");
+  for(String name:labels)regex.add(Pattern.quote(name));
+  customClubMatch=Pattern.compile(regex.toString(),Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE);
+ }
+ private static boolean customClubReference(String value,Matcher match){
+  if(customClubMatch==null)return false;Matcher custom=customClubMatch.matcher(value);
+  while(custom.find()&&custom.start()<=match.start())if(custom.end()>=match.end())return true;
+  return false;
+ }
 
  static {
   String[] pairs={"1. FC Heidenheim 1846\t1. FC Heidenheym 1846\tHeidenheim 1846 Athletic",
@@ -1567,8 +1588,8 @@ public final class GameNames {
   MATCH=Pattern.compile(regex.toString(),Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE);
  }
  public static String display(String value){
-  if(value==null)return "";String direct=NAMES.get(value.toLowerCase(Locale.ROOT));if(direct!=null)return direct;
-  Matcher m=MATCH.matcher(value);StringBuffer out=new StringBuffer();while(m.find())m.appendReplacement(out,Matcher.quoteReplacement(personReference(value,m)?m.group():NAMES.get(m.group().toLowerCase(Locale.ROOT))));m.appendTail(out);return out.toString();
+  if(value==null)return "";if(CUSTOM_CLUBS.contains(value.toLowerCase(Locale.ROOT)))return value;String direct=NAMES.get(value.toLowerCase(Locale.ROOT));if(direct!=null)return direct;
+  Matcher m=MATCH.matcher(value);StringBuffer out=new StringBuffer();while(m.find())m.appendReplacement(out,Matcher.quoteReplacement(personReference(value,m)||proseReference(value,m)||customClubReference(value,m)?m.group():NAMES.get(m.group().toLowerCase(Locale.ROOT))));m.appendTail(out);return out.toString();
  }
  public static String division(String country,int tier){String name;
   switch(country){case "PT":name="Portugal";break;case "ES":name="Spain";break;case "ENG":name="England";break;case "DE":name="Germany";break;case "IT":name="Italy";break;case "FR":name="France";break;case "NL":name="Netherlands";break;case "BE":name="Belgium";break;case "SCO":name="Scotland";break;case "TR":name="Turkey";break;default:name=country;}

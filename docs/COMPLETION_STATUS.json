@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "product": "BOSS XI",
-  "branch": "work/boss-xi-v2.3",
-  "updated_utc": "2026-10-19T16:59:41.754040+00:00",
-  "complete": true,
+  "branch": "work/boss-xi-v2.3.18-play",
+  "updated_utc": "2026-11-08T11:25:37.967121+00:00",
+  "complete": false,
   "latest_checkpoint": {
     "conclusion": "success",
     "source": "efaed35a48ae0bdc2455bc1b588aa945f009170b",
@@ -266,7 +266,7 @@
       "id": "portuguese_domestic_cup",
       "weight": 3,
       "status": "verified",
-      "acceptance": "Recurring Ta\u00e7a de Portugal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA.",
+      "acceptance": "Recurring Taça de Portugal, expanded clubs, live/quick ties, dates, saves and archives pass Android QA.",
       "evidence": {
         "android_jobs": [
           118072959549,
@@ -875,5 +875,15 @@
     "kind": "Signed development sideload test APK; retains the existing development update key.",
     "provenance": "docs/BOSS_XI_2_3_12_RELEASE.md",
     "test_guide": "docs/ANDROID_TEST_GUIDE.md"
+  },
+  "feature_milestones_complete": true,
+  "release_candidate": {
+    "version": "2.3.18",
+    "version_code": 44,
+    "production_ready": false,
+    "local_core_checks": "passed",
+    "final_native_regression": "pending after 8 November display/editor fixes",
+    "live_play_purchase_tests": "pending publisher configuration",
+    "publication": "not published"
   }
 }

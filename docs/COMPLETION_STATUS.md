@@ -1,5 +1,27 @@
 # BOSS XI completion status
 
+## Current candidate — 8 November 2026
+
+BOSS XI **2.3.18 / code 44** includes the optional paid Game Editor, closer
+alternate identities and the retained live pitch, five-match form, division
+results, half-time tactics and goal-commentary improvements. The new fixes
+preserve English history headings and exact custom club names, including
+resetting and switching career worlds.
+
+The complete local engine suite passes, including 3,145 identity / stand / news /
+shot checks, 1,982 pitch / goal-flash checks and 51 signed-receipt checks.
+The final native Android regression run for the 8 November fixes has **not**
+completed. Earlier 2.3.18 device and country-competition checks are historical
+evidence, not a pass for the new source. Real Play purchase, restore, refund,
+account and physical-phone testing also remains required.
+
+Publication still needs the publisher's support and privacy details, Play
+licence key, private upload signing and activated editor product. No app has
+been published or live editor price set by this preparation. The
+[launch guide](GOOGLE_PLAY_LAUNCH.md) explains those steps.
+
+## Earlier feature milestone — 19 October 2026
+
 BOSS XI **2.3.13 / code 39** is ready for the real-world Android test, with the
 olive, charcoal and lime interface requested on 19 October. The signed
 `BOSS-XI-2.3.13.apk` is saved for the chat download. All 29 fixed milestones are

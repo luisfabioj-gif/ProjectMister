@@ -7,6 +7,10 @@ public class RefinementTests {
         check(GameNames.display("Real Madrid 2–1 FC Barcelona").equals("Real Madrida 2–1 FC Barceluna"),"old news is presented with alternate names");
         check(GameNames.display("Roma Wolves").equals("AS Romae"),"older club alias follows the closer display identity");
         check(GameNames.display("Interview with Luis").equals("Interview with Luis"),"Inter alias does not change interview text");
+        check(GameNames.display("Real-world winners • selected historical seasons").equals("Real-world winners • selected historical seasons"),"historical records keep the real-world heading");
+        check(GameNames.display("Real-time results and real money purchases").equals("Real-time results and real money purchases"),"ordinary English real is not a club reference");
+        check(GameNames.display("Real clubs with fictional players").equals("Real clubs with fictional players"),"club data disclosure keeps its meaning");
+        check(GameNames.display("Real").equals("Reel")&&GameNames.display("Real 2–1 SL Benfica").equals("Reel 2–1 SL Benfika"),"Portuguese Real club still uses its alternate identity");
         check(GameNames.display("SL Benfica B").equals("SL Benfika B"),"reserve identity stays distinguishable");
         check(GameNames.display("My Custom Club").equals("My Custom Club"),"custom name retained");
         GameNames.protectPerson("Milan Novak");GameNames.protectPerson("Marco Milan");check(GameNames.display("Milan Novak • GK").equals("Milan Novak • GK"),"player first name is not replaced with club identity");check(GameNames.display("Marco Milan plays the pass").equals("Marco Milan plays the pass"),"player surname is not replaced in commentary");check(GameNames.display("Milan come into the week").equals("AC Milano come into the week"),"club references still change beside protected personal names");
@@ -18,6 +22,15 @@ public class RefinementTests {
         for(String country:new String[]{"PT","ES","ENG","DE","IT","FR","NL","BE","SCO","TR"})for(int tier=1;tier<=2;tier++)check(GameNames.division(country,tier).endsWith(tier==1?" 1st Division":" 2nd Division"),"generic division "+country+tier);
         check(GameNames.display("Liga Portugal Betclic").equals("Portugal 1st Division"),"legacy top division label");
         check(GameNames.display("Liga Portugal Meu Super").equals("Portugal 2nd Division"),"legacy second division label");
+        GameNames.setCustomClubs(java.util.List.of("Real Madrid","Arsenal","Milan United","A+B (FC)"));
+        check(GameNames.display("Real Madrid").equals("Real Madrid"),"editor can retain a club name exactly as entered");
+        check(GameNames.display("Real Madrid 2–1 Arsenal").equals("Real Madrid 2–1 Arsenal"),"edited names survive fixtures and commentary");
+        check(GameNames.display("Milan United face FC Porto").equals("Milan United face FC Portu"),"custom compound name is preserved beside an unedited club");
+        check(GameNames.display("A+B (FC)").equals("A+B (FC)"),"custom punctuation is treated literally");
+        GameNames.setCustomClubs(java.util.List.of("Real"));
+        check(GameNames.display("Real Madrid").equals("Real Madrida"),"short edited name does not override a different club");
+        GameNames.setCustomClubs(java.util.Collections.emptyList());
+        check(GameNames.display("Real Madrid 2–1 Arsenal").equals("Real Madrida 2–1 Arsenel"),"reset or switching career removes the old world display overrides");
         StandDesigns designs=new StandDesigns();StandDesigns.Design north=designs.get(101);north.name="Eagles End";north.banner="FOR THE CLUB";north.colour=2;north.pattern=3;north.openDay="2026-10";
         StandDesigns saved=StandDesigns.restore(designs.snapshot());check(saved.get(101).name.equals("Eagles End")&&saved.get(101).banner.equals("FOR THE CLUB"),"stand text roundtrip");
         check(saved.get(101).colour==2&&saved.get(101).pattern==3&&saved.get(101).openDay.equals("2026-10"),"stand options and monthly cooldown roundtrip");

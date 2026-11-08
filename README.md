@@ -4,6 +4,12 @@ The current release candidate is **2.3.18 (44)**. See the
 [Google Play launch guide](docs/GOOGLE_PLAY_LAUNCH.md) for the one-time editor
 product, release signing, store listing and career migration.
 
+The 8 November fixes preserve ordinary real-world headings and player-entered
+club names, and reset editor overrides to the actual BOSS XI defaults. Engine
+and signed-receipt checks pass locally. The final native Android run for these
+fixes and real Play checkout tests are still pending; this is not yet a
+production-approved release. See [current changes](docs/V2_3_18_CHANGES.md).
+
 ## Earlier 2.3.11 test build
 
 Android football-management game, package `com.projectmister.game`.
