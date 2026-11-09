@@ -9,9 +9,11 @@ Google Play package: `com.projectmister.game`. The game is free to install and
 play. The Game Editor is an optional, permanent purchase for changing club names
 and colours across careers.
 
-The unsigned AAB in the kit is the release candidate. Complete the steps below
-to produce the signed AAB that Play Console accepts. The test APK is for local
-play and career checks. Purchases stay locked in that APK.
+The kit includes the unsigned Android App Bundle from the final Android
+verification run. Complete the steps below to configure and sign the bundle
+for Play Console. The test APK is for local play and career checks. The editor
+stays locked in that APK. See the
+[final Android run](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/42476994853).
 
 ## 1. Create or open your Play Console app
 
@@ -22,7 +24,9 @@ dashboard. Registration has a one-time US$25 fee.
 
 Choose **Create app**: BOSS XI, English (United Kingdom) if offered, **Game**,
 **Free**. If you already created a Play Console entry for this package, use it
-and check its upload certificate and highest version code before signing.
+and check its upload certificate and highest version code before signing. If
+code 44 or higher is already used, rebuild from source with a new, higher code
+before preparing the upload.
 Choose **Sports** as the game category. Select the countries where you want to
 launch. Check the app's package registration status under Android developer
 verification in Play Console. Set up or verify the
@@ -55,9 +59,11 @@ with no rent, pre-order, or discount options for the first release. The app
 reads the price and currency directly from Google Play, so price changes do
 not require an app update.
 
-If the licence key itself is unavailable before the first upload, use an
-internal draft only to register the package and retrieve the key. A configured
-build then needs a higher version code if build 44 has already been used.
+If Play Console requires an initial bundle before showing the licence key,
+register the package using a privately signed internal draft built from source
+with an unused version code below 44, if available. Keep the draft on the
+internal track. If 44 is already used, rebuild the configured bundle with a
+higher version code.
 
 [Google's product setup guide](https://support.google.com/googleplay/android-developer/answer/16430488)
 and [where to find the licence key](https://support.google.com/googleplay/android-developer/answer/186113).
@@ -141,16 +147,20 @@ Add a test Google account both to the internal track and to **Settings →
 License testing**. Install the app from the internal test link, with that
 account active in Google Play. Use the Play test card options to check:
 
-1. A new player can create a career and play a match; Game Editor shows the
-   local price, with no edit or reset controls before purchase.
-2. Cancelling, a declined test card, and a pending test payment keep the
-   editor locked. An approved test purchase opens it and allows a club edit.
-3. Restart the app. Reinstall using the same Google account and use
-   **Restore purchase**. The editor is available without another charge.
-   Try a different account and refund/revoke a test order, then check that
-   the editor is locked again on the next successful Play check.
-4. Open a game, play to half-time and full-time, and check audio, substitutions,
-   saves and the inbox on your phone. Review the Play pre-launch report.
+1. A new player can create a career and play a match. Game Editor shows the
+   local price and hides the edit and reset controls before purchase.
+2. Check cancellation, a declined test card and a slow test payment. The editor
+   stays locked until Google Play completes an approved payment. Open the
+   editor after approval, edit a club and check that the change is saved.
+3. Restart the app and reinstall from Play using the purchasing account. Open
+   Game Editor to check ownership. Use **Restore purchase** if a retry is needed.
+   Check a second licence tester by installing from their Play account on a
+   device or profile without the purchasing account. Refund and revoke the
+   first test order in Play Console and verify the editor locks after rechecking.
+4. On your phone, play to half-time and full-time. Check the pitch, goal flash,
+   sound and substitutions. Confirm the league table shows the last five games
+   and the results page shows your division. Save and reload the career, then
+   review the Play pre-launch report.
 
 If you already have a sideloaded career: **Career Hub → Back up & restore careers
 → Export backup**. Keep the file in Downloads or another location outside the

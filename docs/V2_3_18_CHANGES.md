@@ -37,17 +37,16 @@ identity/stand/news/shot checks, 1,982 projection/goal-flash checks and 51 paid
 editor checks using real RSA signatures over synthetic Play-shaped receipts.
 The QA API scanner resolves all 120 referenced Activity methods.
 
-Earlier device checks at source `597e1a54d877394a44abd31a6e320ff913d6041d`
-passed Android API 26 and 37 in run `42223262485`. Android 37 included natural
-full match, all five compact formations, release split installation, career
-migration and locked/configured editor checks. Source
-`d625270c68f2ba711fef7011b6a39c7c6dc78218` changes only QA files from that
-production code. Its Android 36 cups and all ten countries' European career
-suites passed in run `42311492850`; its deep suite exposed the now-fixed
-real-world heading bug and stopped there.
+The final source `b921b4be4fd7732145ef85bb6f2494450cd0410a` passed all seven
+emulator jobs on Android 8, 15, 16 and 17. The checks covered full matches,
+compact half-time layouts, league tables and division results, all forty
+standalone and linked career setups, recurring national cups and European
+careers in all ten countries. Release splits installed on all four Android
+versions. The editor stayed locked without a purchase, including when a save
+already contained custom club names. Backup and restore passed across a
+different signing key. See the
+[final Android run](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/42476994853).
 
-The final native suite has not run after the 8 November production fixes. The
-runner now also checks that retained custom names render exactly without
-unlocking unpaid reset access. An actual completed Play purchase has not been
-tested: the publisher must configure the app, activate the product and test it
-through Play before release. Physical-handset testing remains outstanding.
+The configured Android 17 fixture checked Google Play and kept the editor
+locked without ownership. Physical phone testing and an end-to-end purchase,
+restore and refund check through Google Play remain pending.

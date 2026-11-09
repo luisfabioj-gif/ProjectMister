@@ -5,10 +5,11 @@ The current release candidate is **2.3.18 (44)**. See the
 product, release signing, store listing and career migration.
 
 The 8 November fixes preserve ordinary real-world headings and player-entered
-club names, and reset editor overrides to the actual BOSS XI defaults. Engine
-and signed-receipt checks pass locally. The final native Android run for these
-fixes and real Play checkout tests are still pending; this is not yet a
-production-approved release. See [current changes](docs/V2_3_18_CHANGES.md).
+club names, and reset editor overrides to the BOSS XI defaults. Engine and
+signed-receipt checks passed, and all seven native Android jobs passed on the
+final source. Physical phone testing and Google Play checkout remain to be
+verified. See [current changes](docs/V2_3_18_CHANGES.md) and the
+[Android verification run](https://github.com/luisfabioj-gif/ProjectMister/actions/runs/42476994853).
 
 ## Earlier 2.3.11 test build
 

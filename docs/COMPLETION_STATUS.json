@@ -882,7 +882,12 @@
     "version_code": 44,
     "production_ready": false,
     "local_core_checks": "passed",
-    "final_native_regression": "pending after 8 November display/editor fixes",
+    "final_native_regression": "passed",
+    "final_native_source": "b921b4be4fd7732145ef85bb6f2494450cd0410a",
+    "final_native_workflow_run_id": 42476994853,
+    "final_native_android_api_levels": [26, 35, 36, 37],
+    "final_native_jobs_passed": 7,
+    "physical_phone_test": "pending",
     "live_play_purchase_tests": "pending publisher configuration",
     "publication": "not published"
   }
